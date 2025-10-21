@@ -1,80 +1,32 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import { onClickOutside } from "https://testingcf.jsdelivr.net/npm/@vueuse/core/+esm";
-
-var __webpack_modules__ = {
-  215: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
+  80: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
-      EN: () => logContext,
-      Vy: () => Logger
+      I: () => getRuntimeVar,
+      Q: () => setRuntimeVar
     });
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        if (moduleName) {
-          this.moduleName = moduleName;
-        } else {
-          this.moduleName = this._getModuleNameFromStack() || "unknown";
+    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(326);
+    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(729);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
+    function getRuntimeVar(path, defaultValue) {
+      const funcName = "getRuntimeVar";
+      try {
+        if (typeof getVariables !== "function") {
+          logger.warn(funcName, "getVariables 函数不可用。");
+          return defaultValue;
         }
-      }
-      _getModuleNameFromStack() {
-        try {
-          const stack = (new Error).stack || "";
-          const callerLine = stack.split("\n")[2];
-          if (!callerLine) return null;
-          const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
-          if (!match || !match[1]) return null;
-          let path = match[1];
-          path = path.split("?")[0];
-          path = path.replace(/\.(vue|ts|js)$/, "");
-          return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
-        } catch (e) {
-          return null;
-        }
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
-          return;
-        }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
+        const chatVars = getVariables({
+          type: "chat"
+        });
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
+        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+          value
+        });
+        return value;
+      } catch (error) {
+        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+        return defaultValue;
       }
     }
     const LOG_CONFIG = {
@@ -99,18 +51,17 @@ var __webpack_modules__ = {
       for (const [key, val] of props) {
         target[key] = val;
       }
-      return target;
-    };
+    }
   },
-  371: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  304: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       runAffectionPipeline: () => runAffectionPipeline
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(634);
-    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(661);
-    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(507);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(729);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(326);
+    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(80);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -330,100 +281,7 @@ var __webpack_modules__ = {
       }
     }
   },
-  507: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      I: () => getRuntimeVar,
-      Q: () => setRuntimeVar
-    });
-    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(661);
-    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(634);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
-    function getRuntimeVar(path, defaultValue) {
-      const funcName = "getRuntimeVar";
-      try {
-        if (typeof getVariables !== "function") {
-          logger.warn(funcName, "getVariables 函数不可用。");
-          return defaultValue;
-        }
-        const chatVars = getVariables({
-          type: "chat"
-        });
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
-        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-          value
-        });
-        return value;
-      } catch (error) {
-        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-        return defaultValue;
-      }
-    }
-    async function setRuntimeVar(path, value) {
-      const funcName = "setRuntimeVar";
-      try {
-        if (typeof updateVariablesWith !== "function") {
-          logger.error(funcName, "updateVariablesWith 函数不可用。");
-          return false;
-        }
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-          value
-        });
-        await updateVariablesWith(vars => {
-          const chatVars = vars || {};
-          _.set(chatVars, runtimePath, value);
-          return chatVars;
-        }, {
-          type: "chat"
-        });
-        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-        return true;
-      } catch (error) {
-        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-        return false;
-      }
-    }
-  },
-  634: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
-    });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "config.defaults.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
-    };
-  },
-  661: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  326: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       Jt: () => get,
       Qq: () => text,
@@ -514,6 +372,144 @@ var __webpack_modules__ = {
       }
       return toText(rawValue);
     }
+  },
+  391: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  414: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      EN: () => logContext,
+      Vy: () => Logger
+    });
+    const logContext = {
+      mk: ""
+    };
+    class Logger {
+      moduleName;
+      constructor(moduleName) {
+        if (moduleName) {
+          this.moduleName = moduleName;
+        } else {
+          this.moduleName = this._getModuleNameFromStack() || "unknown";
+        }
+      }
+      _getModuleNameFromStack() {
+        try {
+          const stack = (new Error).stack || "";
+          const callerLine = stack.split("\n")[2];
+          if (!callerLine) return null;
+          const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
+          if (!match || !match[1]) return null;
+          let path = match[1];
+          path = path.split("?")[0];
+          path = path.replace(/\.(vue|ts|js)$/, "");
+          return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
+        } catch (e) {
+          return null;
+        }
+      }
+      formatMessage(funcName, message) {
+        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+      }
+      debug(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
+        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
+          return;
+        }
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.debug(formattedMessage, obj);
+        } else {
+          console.debug(formattedMessage);
+        }
+      }
+      log(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+        } else {
+          console.log(`%c${formattedMessage}`, "color: #3498db;");
+        }
+      }
+      warn(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+        } else {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+        }
+      }
+      error(funcName, message, errorObj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (errorObj) {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+        } else {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+        }
+      }
+    }
+    const LOG_CONFIG = {
+      levels: {
+        debug: 0,
+        log: 1,
+        warn: 2,
+        error: 3
+      },
+      currentLevel: 0,
+      debugWhitelist: [ "index", "backend", "components" ]
+    };
+    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+  },
+  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "config.defaults.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
   }
 };
 
@@ -575,11 +571,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(634);
+var constants = __webpack_require__(729);
 
-var utils_logger = __webpack_require__(215);
+var utils_logger = __webpack_require__(414);
 
-var mvu = __webpack_require__(661);
+var mvu = __webpack_require__(326);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -640,7 +636,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(342);
+var exportHelper = __webpack_require__(391);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4ba65ade" ] ]);
 
@@ -1188,7 +1184,7 @@ const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_scr
 
 const ContentSettings = ContentSettings_exports_;
 
-var runtime = __webpack_require__(507);
+var runtime = __webpack_require__(80);
 
 const T0_PATH = "incident.异变冷却基准时间";
 
@@ -1952,460 +1948,382 @@ const RoleRibbon_exports_ = RoleRibbonvue_type_script_setup_true_lang_ts;
 
 const RoleRibbon = RoleRibbon_exports_;
 
-const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1 = [ "data-date", "data-fest" ];
+const TimeButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "TimeButtonClosed",
+  props: {
+    clockInfo: {}
+  },
+  emits: [ "open-calendar" ],
+  setup(__props) {
+    const props = __props;
+    const timeText = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!props.clockInfo) return "—:—";
+      return props.clockInfo.hm ? `${props.clockInfo.hm} · ${props.clockInfo.periodName || ""}` : props.clockInfo.iso || "—";
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      id: "banner-time-closed",
+      class: "banner-chip",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("open-calendar"))
+    }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⏰", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)(timeText.value), 1) ]));
+  }
+});
 
-const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2 = {
+const TimeButtonClosed_exports_ = (0, exportHelper.A)(TimeButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-22c83e5f" ] ]);
+
+const TimeButtonClosed = TimeButtonClosed_exports_;
+
+const TimeButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "TimeButtonOpen",
+  emits: [ "close-calendar" ],
+  setup(__props) {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      id: "banner-time-open",
+      class: "banner-chip-open",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close-calendar"))
+    }, [ ..._cache[1] || (_cache[1] = [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "📅", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", null, "日历", -1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "close-icon"
+    }, "收起", -1) ]) ]));
+  }
+});
+
+const TimeButtonOpen_exports_ = (0, exportHelper.A)(TimeButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-a8d897e6" ] ]);
+
+const TimeButtonOpen = TimeButtonOpen_exports_;
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "cal-day-container"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2 = [ "data-importance" ];
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3 = {
   class: "dnum"
 };
 
-const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  key: 0,
-  class: "fest"
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  key: 1,
+  class: "cal-day-placeholder"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  key: 2,
+  class: "fest-popover"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "fest-header"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  class: "fest-host"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_8 = {
+  class: "fest-customs"
 };
 
 const CalendarDayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "CalendarDay",
   props: {
-    day: {},
-    isCurrentMonth: {
-      type: Boolean
-    },
-    isToday: {
-      type: Boolean
-    },
-    festivals: {},
-    dateKey: {}
+    day: {}
   },
   setup(__props) {
     const props = __props;
-    const hasFestivals = (0, external_Vue_namespaceObject.computed)(() => props.festivals && props.festivals.length > 0);
-    const festivalsJSON = (0, external_Vue_namespaceObject.computed)(() => JSON.stringify(props.festivals));
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+    const hasFestivals = (0, external_Vue_namespaceObject.computed)(() => !!(props.day.festivals && props.day.festivals.length > 0));
+    const showPopover = (0, external_Vue_namespaceObject.ref)(false);
+    const highestImportance = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!hasFestivals.value || !props.day.festivals) return 0;
+      return Math.max(...props.day.festivals.map(f => f.importance));
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1, [ !__props.day.isPlaceholder ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      key: 0,
       type: "button",
       class: (0, external_Vue_namespaceObject.normalizeClass)([ "cal-day-btn", {
-        out: !__props.isCurrentMonth,
-        today: __props.isToday,
+        today: __props.day.isToday,
         "has-fest": hasFestivals.value
       } ]),
-      "data-date": __props.dateKey,
-      "data-fest": festivalsJSON.value
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
-    external_Vue_namespaceObject.toDisplayString)(__props.day), 1), hasFestivals.value ? ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3, [ ((0, 
+      "data-importance": highestImportance.value,
+      onMouseenter: _cache[0] || (_cache[0] = $event => showPopover.value = hasFestivals.value),
+      onMouseleave: _cache[1] || (_cache[1] = $event => showPopover.value = false)
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.day.date), 1) ], 42, CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2)) : ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_4)), showPopover.value && hasFestivals.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_5, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-    external_Vue_namespaceObject.renderList)(__props.festivals, fest => ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("span", {
-      key: fest
-    }, (0, external_Vue_namespaceObject.toDisplayString)(fest), 1))), 128)) ])) : (0, 
-    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ], 10, CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1));
+    external_Vue_namespaceObject.renderList)(__props.day.festivals, fest => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: fest.name,
+      class: "fest-item"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_6, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(fest.name), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_7, "@ " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(fest.主办地), 1) ]), (0, external_Vue_namespaceObject.createElementVNode)("ul", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(fest.customs, (custom, index) => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("li", {
+      key: index
+    }, (0, external_Vue_namespaceObject.toDisplayString)(custom), 1))), 128)) ]) ]))), 128)) ])) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]));
   }
 });
 
-const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0e03a3b6" ] ]);
+const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-b92c9fca" ] ]);
 
 const CalendarDay = CalendarDay_exports_;
 
-const CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "cal-content",
+  class: "cal-content",
+  role: "region"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "cal-head"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "cal-nav"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_4 = {
   class: "cal-body"
 };
 
-const CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_2 = {
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_5 = {
   id: "cal-grid",
   class: "cal-grid"
 };
 
-const CalendarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "CalendarPopup",
+const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "CalendarContent",
   props: {
-    calendarDays: {},
-    onDayClick: {
-      type: Function
-    }
+    clockInfo: {}
   },
-  emits: [ "close" ],
-  setup(__props, {emit: __emit}) {
+  setup(__props) {
     const props = __props;
-    const emit = __emit;
-    const calPop = (0, external_Vue_namespaceObject.ref)(null);
-    onClickOutside(calPop, event => {
-      const target = event.target;
-      if (!target.closest("#banner-time") && !target.closest(".day-popover")) {
-        emit("close");
-      }
-    });
-    (0, external_Vue_namespaceObject.watchEffect)(() => {
-      const timeBtn = document.getElementById("banner-time");
-      if (timeBtn && calPop.value) {
-        const isExpanded = timeBtn.getAttribute("aria-expanded") === "true";
-        calPop.value.classList.toggle("relative-layout", isExpanded);
-      }
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      id: "cal-pop",
-      ref_key: "calPop",
-      ref: calPop,
-      class: "cal-pop",
-      role: "dialog",
-      "aria-modal": "false"
-    }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createStaticVNode)('<div class="cal-head" data-v-46223f8c><div class="cal-title" data-v-46223f8c><span id="cal-month" class="month" data-v-46223f8c>—月</span><span id="cal-year" class="year" data-v-46223f8c>—年</span></div><div class="cal-nav" data-v-46223f8c><button id="cal-prev" class="cal-btn" title="上一月" data-v-46223f8c>◀</button><button id="cal-today" class="cal-btn" title="回到今天" data-v-46223f8c>●</button><button id="cal-next" class="cal-btn" title="下一月" data-v-46223f8c>▶</button></div></div>', 1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-46223f8c><div class="w" data-v-46223f8c>一</div><div class="w" data-v-46223f8c>二</div><div class="w" data-v-46223f8c>三</div><div class="w" data-v-46223f8c>四</div><div class="w" data-v-46223f8c>五</div><div class="w" data-v-46223f8c>六</div><div class="w" data-v-46223f8c>日</div></div>', 1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
-    external_Vue_namespaceObject.renderSlot)(_ctx.$slots, "grid") ]) ]) ], 512));
-  }
-});
-
-const CalendarPopup_exports_ = (0, exportHelper.A)(CalendarPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-46223f8c" ] ]);
-
-const CalendarPopup = CalendarPopup_exports_;
-
-const TimeDisplayIconvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  id: "banner-time",
-  class: "banner-chip",
-  "aria-expanded": "false",
-  "aria-controls": "cal-pop"
-};
-
-const TimeDisplayIconvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "TimeDisplayIcon",
-  props: {
-    clockInfo: {},
-    isCalendarVisible: {
-      type: Boolean
-    }
-  },
-  emits: [ "toggle-calendar" ],
-  setup(__props, {expose: __expose, emit: __emit}) {
-    const props = __props;
-    const {isCalendarVisible} = (0, external_Vue_namespaceObject.toRefs)(props);
-    const emit = __emit;
-    (0, external_Vue_namespaceObject.watch)(isCalendarVisible, newValue => {
-      const timeBtn = document.getElementById("banner-time");
-      if (timeBtn) {
-        timeBtn.setAttribute("aria-expanded", String(newValue));
-      }
-    });
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      const timeBtn = document.getElementById("banner-time");
-      if (timeBtn) {
-        timeBtn.addEventListener("click", () => {
-          emit("toggle-calendar");
+    const displayMonth = (0, external_Vue_namespaceObject.ref)(new Date);
+    const festivals = (0, external_Vue_namespaceObject.computed)(() => props.clockInfo?.festivals || []);
+    const updateMonth = direction => {
+      const newMonth = new Date(displayMonth.value);
+      newMonth.setMonth(newMonth.getMonth() + (direction === "prev" ? -1 : 1));
+      displayMonth.value = newMonth;
+    };
+    const resetMonth = () => {
+      displayMonth.value = props.clockInfo?.iso ? new Date(props.clockInfo.iso) : new Date;
+    };
+    const calendarDays = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!props.clockInfo) return [];
+      const year = displayMonth.value.getFullYear();
+      const month = displayMonth.value.getMonth();
+      const today = props.clockInfo.iso ? new Date(props.clockInfo.iso) : new Date;
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
+      const daysInMonth = lastDayOfMonth.getDate();
+      const startDayOfWeek = (firstDayOfMonth.getDay() + 6) % 7;
+      const days = [];
+      for (let i = 0; i < startDayOfWeek; i++) {
+        days.push({
+          isPlaceholder: true
         });
       }
-    });
-    function update(clockInfo) {
-      if (!clockInfo) return;
-      const timeText = clockInfo.hm ? `${clockInfo.hm} · ${clockInfo.periodName || ""}` : clockInfo.iso || "—";
-      (0, mvu.Qq)("banner-time-text", timeText);
-    }
-    __expose({
-      update
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", TimeDisplayIconvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "⏰", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "banner-time-text"
-    }, "—:—", -1) ]) ]));
-  }
-});
-
-const TimeDisplayIcon_exports_ = (0, exportHelper.A)(TimeDisplayIconvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1b24ba12" ] ]);
-
-const TimeDisplayIcon = TimeDisplayIcon_exports_;
-
-const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "day-popover__head"
-};
-
-const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_2 = {
-  class: "day-popover__date"
-};
-
-const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  class: "day-popover__body"
-};
-
-const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "DateDisplay",
-  setup(__props, {expose: __expose}) {
-    const logger = new utils_logger.Vy("components-DateDisplay");
-    const calendarYear = (0, external_Vue_namespaceObject.ref)(null);
-    const calendarMonth = (0, external_Vue_namespaceObject.ref)(null);
-    const todayKey = (0, external_Vue_namespaceObject.ref)(null);
-    const followWorld = (0, external_Vue_namespaceObject.ref)(true);
-    const festIdx = (0, external_Vue_namespaceObject.ref)(new Map);
-    const lastClockInfo = (0, external_Vue_namespaceObject.ref)(null);
-    const lastFestivals = (0, external_Vue_namespaceObject.ref)([]);
-    const isInitialized = (0, external_Vue_namespaceObject.ref)(false);
-    const calendarVisible = (0, external_Vue_namespaceObject.ref)(false);
-    const timeDisplayIcon = (0, external_Vue_namespaceObject.ref)();
-    const dayPopover = (0, external_Vue_namespaceObject.reactive)({
-      visible: false,
-      dateStr: "",
-      fests: [],
-      style: {}
-    });
-    function buildFestIdx(festivals) {
-      const idx = new Map;
-      const clamp = (val, min, max) => Math.min(Math.max(Number(val) || 0, min), max);
-      festivals.forEach((festival, i) => {
-        const month = clamp(festival?.month, 1, 12);
-        let startDay = Number(festival?.start_day ?? 0) | 0;
-        let endDay = Number(festival?.end_day ?? startDay) | 0;
-        if (!month) return;
-        const year = calendarYear.value ?? (new Date).getFullYear();
-        const daysInMonth = new Date(year, month, 0).getDate();
-        startDay = clamp(Math.min(startDay, endDay), 1, daysInMonth);
-        endDay = clamp(Math.max(startDay, endDay), 1, daysInMonth);
-        for (let day = startDay; day <= endDay; day++) {
-          const key = `${month}-${day}`;
-          const festivalsOnDay = idx.get(key) || [];
-          festivalsOnDay.push(String(festival?.name || `节日#${i + 1}`));
-          idx.set(key, festivalsOnDay);
-        }
-      });
-      return idx;
-    }
-    function setTitle(year, month) {
-      (0, mvu.Qq)("cal-month", `${month}月`);
-      (0, mvu.Qq)("cal-year", `${year}年`);
-    }
-    const calendarDays = (0, external_Vue_namespaceObject.computed)(() => {
-      if (calendarYear.value === null || calendarMonth.value === null) return [];
-      const year = calendarYear.value;
-      const month = calendarMonth.value;
-      const days = [];
-      const firstDayOfMonth = new Date(year, month - 1, 1);
-      const daysInMonth = new Date(year, month, 0).getDate();
-      const daysInPrevMonth = new Date(year, month - 1, 0).getDate();
-      const startWeekday = (firstDayOfMonth.getDay() + 6) % 7;
-      const totalCells = 42;
-      for (let i = 0; i < totalCells; i++) {
-        let day, isCurrentMonth = false, isToday = false, festivalsOnDay = [];
-        let currentYear = year;
-        let currentMonth = month;
-        if (i < startWeekday) {
-          day = daysInPrevMonth - (startWeekday - 1 - i);
-          currentMonth = month - 1;
-          if (currentMonth === 0) {
-            currentMonth = 12;
-            currentYear = year - 1;
-          }
-        } else {
-          const dayInMonth = i - startWeekday + 1;
-          if (dayInMonth <= daysInMonth) {
-            isCurrentMonth = true;
-            day = dayInMonth;
-            isToday = todayKey.value === `${year}-${String(month).padStart(2, "0")}-${String(dayInMonth).padStart(2, "0")}`;
-            const festKey = `${month}-${dayInMonth}`;
-            festivalsOnDay = festIdx.value.get(festKey) || [];
-          } else {
-            day = dayInMonth - daysInMonth;
-            currentMonth = month + 1;
-            if (currentMonth === 13) {
-              currentMonth = 1;
-              currentYear = year + 1;
-            }
-          }
-        }
-        const mm = String(currentMonth).padStart(2, "0");
-        const dd = String(day).padStart(2, "0");
-        const dateKey = `${currentYear}-${mm}-${dd}`;
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dayFestivals = festivals.value.filter(f => f.month === month + 1 && i >= f.start_day && i <= f.end_day);
+        const isToday = year === today.getFullYear() && month === today.getMonth() && i === today.getDate();
         days.push({
-          day,
-          isCurrentMonth,
+          date: i,
           isToday,
-          festivalsOnDay,
-          dateKey: isCurrentMonth ? dateKey : ""
+          isPlaceholder: false,
+          festivals: dayFestivals
         });
       }
       return days;
     });
-    function hideDayPopover() {
-      dayPopover.visible = false;
-    }
-    function showDayPopover(anchorEl, dateStr, fests) {
-      hideDayPopover();
-      const host = document.getElementById("cal-pop");
-      if (!host) return;
-      dayPopover.dateStr = dateStr;
-      dayPopover.fests = fests;
-      dayPopover.visible = true;
-      const hostRect = host.getBoundingClientRect();
-      const btnRect = anchorEl.getBoundingClientRect();
-      const top = btnRect.bottom - hostRect.top + 8;
-      const left = btnRect.left - hostRect.left;
-      (0, external_Vue_namespaceObject.nextTick)(() => {
-        const popEl = document.querySelector(".day-popover");
-        if (popEl) {
-          const maxLeft = Math.max(12, Math.min(left, hostRect.width - popEl.offsetWidth - 12));
-          dayPopover.style = {
-            left: `${Math.round(maxLeft)}px`,
-            top: `${Math.round(top)}px`
-          };
-        }
-      });
-    }
-    function onDayClick(day, event) {
-      const btn = event.target.closest(".cal-day-btn");
-      if (!btn) return;
-      if (!day.festivalsOnDay.length) {
-        hideDayPopover();
-        return;
-      }
-      showDayPopover(btn, day.dateKey, day.festivalsOnDay);
-    }
-    const bindUI = () => {
-      if (isInitialized.value) return;
-      isInitialized.value = true;
-      const prevBtn = document.getElementById("cal-prev");
-      const nextBtn = document.getElementById("cal-next");
-      const todayBtn = document.getElementById("cal-today");
-      if (prevBtn) {
-        prevBtn.addEventListener("click", () => {
-          followWorld.value = false;
-          if (calendarYear.value === null || calendarMonth.value === null) return;
-          calendarMonth.value--;
-          if (calendarMonth.value <= 0) {
-            calendarYear.value--;
-            calendarMonth.value = 12;
-          }
-          setTitle(calendarYear.value, calendarMonth.value);
-        });
-      }
-      if (nextBtn) {
-        nextBtn.addEventListener("click", () => {
-          followWorld.value = false;
-          if (calendarYear.value === null || calendarMonth.value === null) return;
-          calendarMonth.value++;
-          if (calendarMonth.value >= 13) {
-            calendarYear.value++;
-            calendarMonth.value = 1;
-          }
-          setTitle(calendarYear.value, calendarMonth.value);
-        });
-      }
-      if (todayBtn) {
-        todayBtn.addEventListener("click", () => {
-          followWorld.value = true;
-          if (lastClockInfo.value) {
-            update(lastClockInfo.value, lastFestivals.value);
-          }
-        });
-      }
-      document.addEventListener("keydown", e => {
-        if (e.key === "Escape") hideDayPopover();
-      });
-    };
-    const update = (clockInfo, festivals) => {
-      bindUI();
-      lastClockInfo.value = clockInfo;
-      lastFestivals.value = festivals;
-      const year = Number(clockInfo.year) || 0;
-      const month = Number(clockInfo.month) || 0;
-      const day = Number(clockInfo.day) || 0;
-      todayKey.value = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      if (timeDisplayIcon.value) {
-        timeDisplayIcon.value.update(clockInfo);
-      }
-      if (festivals && Array.isArray(festivals)) {
-        festIdx.value = buildFestIdx(festivals);
-      }
-      if (followWorld.value && (calendarYear.value !== year || calendarMonth.value !== month)) {
-        calendarYear.value = year;
-        calendarMonth.value = month;
-        setTitle(calendarYear.value, calendarMonth.value);
-      }
-    };
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      bindUI();
-    });
-    __expose({
-      update
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
-    external_Vue_namespaceObject.createVNode)(TimeDisplayIcon, {
-      ref_key: "timeDisplayIcon",
-      ref: timeDisplayIcon,
-      "clock-info": lastClockInfo.value,
-      "is-calendar-visible": calendarVisible.value,
-      onToggleCalendar: _cache[0] || (_cache[0] = $event => calendarVisible.value = !calendarVisible.value)
-    }, null, 8, [ "clock-info", "is-calendar-visible" ]), (0, external_Vue_namespaceObject.withDirectives)((0, 
-    external_Vue_namespaceObject.createVNode)(CalendarPopup, {
-      "calendar-days": calendarDays.value,
-      "on-day-click": onDayClick,
-      onClose: _cache[1] || (_cache[1] = $event => calendarVisible.value = false)
+    (0, external_Vue_namespaceObject.watch)(displayMonth, newDate => {
+      const monthStr = `${newDate.getMonth() + 1}月`;
+      const yearStr = `${newDate.getFullYear()}年`;
+      (0, mvu.Qq)("cal-month", monthStr);
+      (0, mvu.Qq)("cal-year", yearStr);
     }, {
-      grid: (0, external_Vue_namespaceObject.withCtx)(() => [ ((0, external_Vue_namespaceObject.openBlock)(true), 
-      (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-      external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
-      external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(CalendarDay, {
-        key: index,
-        day: day.day,
-        "is-current-month": day.isCurrentMonth,
-        "is-today": day.isToday,
-        festivals: day.festivalsOnDay,
-        "date-key": day.dateKey,
-        onClick: $event => onDayClick(day, $event)
-      }, null, 8, [ "day", "is-current-month", "is-today", "festivals", "date-key", "onClick" ]))), 128)) ]),
-      _: 1
-    }, 8, [ "calendar-days" ]), [ [ external_Vue_namespaceObject.vShow, calendarVisible.value ] ]), dayPopover.visible ? ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: 0,
-      class: "day-popover",
-      style: (0, external_Vue_namespaceObject.normalizeStyle)(dayPopover.style),
-      role: "dialog"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
-    external_Vue_namespaceObject.toDisplayString)(dayPopover.dateStr), 1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "day-popover__close",
-      type: "button",
-      "aria-label": "关闭",
-      onClick: hideDayPopover
-    }, "×") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_3, [ ((0, 
+      immediate: true
+    });
+    (0, external_Vue_namespaceObject.watch)(() => props.clockInfo, newClockInfo => {
+      if (newClockInfo?.iso) {
+        displayMonth.value = new Date(newClockInfo.iso);
+      }
+    }, {
+      immediate: true
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_2, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-title"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "cal-month",
+      class: "month"
+    }, "—月"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "cal-year",
+      class: "year"
+    }, "—年") ], -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-prev",
+      class: "cal-btn",
+      title: "上一月",
+      onClick: _cache[0] || (_cache[0] = $event => updateMonth("prev"))
+    }, "◀"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-today",
+      class: "cal-btn",
+      title: "回到今天",
+      onClick: resetMonth
+    }, "●"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-next",
+      class: "cal-btn",
+      title: "下一月",
+      onClick: _cache[1] || (_cache[1] = $event => updateMonth("next"))
+    }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_4, [ _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-b915288c><div class="w" data-v-b915288c>一</div><div class="w" data-v-b915288c>二</div><div class="w" data-v-b915288c>三</div><div class="w" data-v-b915288c>四</div><div class="w" data-v-b915288c>五</div><div class="w" data-v-b915288c>六</div><div class="w" data-v-b915288c>日</div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_5, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-    external_Vue_namespaceObject.renderList)(dayPopover.fests, fest => ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: fest,
-      class: "fest-item"
-    }, (0, external_Vue_namespaceObject.toDisplayString)(fest), 1))), 128)) ]) ], 4)) : (0, 
-    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ], 64));
+    external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(CalendarDay, {
+      key: index,
+      day
+    }, null, 8, [ "day" ]))), 128)) ]) ]) ]));
   }
 });
 
-const DateDisplay_exports_ = (0, exportHelper.A)(DateDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-a61ef2a6" ] ]);
+const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-b915288c" ] ]);
 
-const DateDisplay = DateDisplay_exports_;
+const CalendarContent = CalendarContent_exports_;
 
-const WeatherDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  id: "banner-weather",
-  class: "banner-chip",
-  "aria-expanded": "false"
+const TimeContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "time-container"
 };
 
-const WeatherDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "WeatherDisplay",
-  setup(__props, {expose: __expose}) {
-    const update = weather => {
-      (0, mvu.Qq)("banner-weather-text", weather || "—");
-    };
-    __expose({
-      update
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 可点击：天气（脚本预留，先占位） "), (0, external_Vue_namespaceObject.createElementVNode)("button", WeatherDisplayvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "☀️", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "banner-weather-text"
-    }, "—", -1) ]) ]) ], 2112));
+const TimeContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "TimeContainer",
+  props: {
+    clockInfo: {}
+  },
+  setup(__props) {
+    const calendarVisible = (0, external_Vue_namespaceObject.ref)(false);
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", TimeContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !calendarVisible.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(TimeButtonClosed, {
+      key: 0,
+      onOpenCalendar: _cache[0] || (_cache[0] = $event => calendarVisible.value = true),
+      "clock-info": __props.clockInfo
+    }, null, 8, [ "clock-info" ])) : ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createBlock)(TimeButtonOpen, {
+      key: 1,
+      onCloseCalendar: _cache[1] || (_cache[1] = $event => calendarVisible.value = false)
+    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(CalendarContent, {
+      "clock-info": __props.clockInfo
+    }, null, 8, [ "clock-info" ]), [ [ external_Vue_namespaceObject.vShow, calendarVisible.value ] ]) ]));
   }
 });
 
-const WeatherDisplay_exports_ = (0, exportHelper.A)(WeatherDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-01daad74" ] ]);
+const TimeContainer_exports_ = (0, exportHelper.A)(TimeContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4524500e" ] ]);
 
-const WeatherDisplay = WeatherDisplay_exports_;
+const TimeContainer = TimeContainer_exports_;
+
+const WeatherButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "WeatherButtonClosed",
+  props: {
+    weather: {}
+  },
+  emits: [ "open-weather" ],
+  setup(__props) {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      id: "banner-weather-closed",
+      class: "banner-chip",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("open-weather"))
+    }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "☀️", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.weather || "—"), 1) ]));
+  }
+});
+
+const WeatherButtonClosed_exports_ = (0, exportHelper.A)(WeatherButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-11b37370" ] ]);
+
+const WeatherButtonClosed = WeatherButtonClosed_exports_;
+
+const WeatherButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "WeatherButtonOpen",
+  emits: [ "close-weather" ],
+  setup(__props) {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      id: "banner-weather-open",
+      class: "banner-chip-open",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close-weather"))
+    }, [ ..._cache[1] || (_cache[1] = [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🌦️", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", null, "天气详情", -1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "close-icon"
+    }, "收起", -1) ]) ]));
+  }
+});
+
+const WeatherButtonOpen_exports_ = (0, exportHelper.A)(WeatherButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1a6d77c8" ] ]);
+
+const WeatherButtonOpen = WeatherButtonOpen_exports_;
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "weather-content"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "WeatherContent",
+  props: {
+    weather: {}
+  },
+  setup(__props) {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", null, "当前天气: " + (0, external_Vue_namespaceObject.toDisplayString)(__props.weather || "未知"), 1), _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", null, [ (0, external_Vue_namespaceObject.createElementVNode)("em", null, "(未来可扩充天气预报等详细信息)") ], -1)) ]));
+  }
+});
+
+const WeatherContent_exports_ = (0, exportHelper.A)(WeatherContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-16c06ed4" ] ]);
+
+const WeatherContent = WeatherContent_exports_;
+
+const WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "weather-container"
+};
+
+const WeatherContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "WeatherContainer",
+  props: {
+    weather: {}
+  },
+  setup(__props) {
+    const weatherVisible = (0, external_Vue_namespaceObject.ref)(false);
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !weatherVisible.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(WeatherButtonClosed, {
+      key: 0,
+      onOpenWeather: _cache[0] || (_cache[0] = $event => weatherVisible.value = true),
+      weather: __props.weather
+    }, null, 8, [ "weather" ])) : ((0, external_Vue_namespaceObject.openBlock)(), (0, 
+    external_Vue_namespaceObject.createBlock)(WeatherButtonOpen, {
+      key: 1,
+      onCloseWeather: _cache[1] || (_cache[1] = $event => weatherVisible.value = false)
+    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(WeatherContent, {
+      weather: __props.weather
+    }, null, 8, [ "weather" ]), [ [ external_Vue_namespaceObject.vShow, weatherVisible.value ] ]) ]));
+  }
+});
+
+const WeatherContainer_exports_ = (0, exportHelper.A)(WeatherContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-582f12c7" ] ]);
+
+const WeatherContainer = WeatherContainer_exports_;
 
 const StatusBannerContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
   id: "status-banner",
@@ -2416,8 +2334,8 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
   __name: "StatusBannerContent",
   setup(__props, {expose: __expose}) {
     const logger = new utils_logger.Vy("components-StatusBannerContent");
-    const dateDisplay = (0, external_Vue_namespaceObject.ref)(null);
-    const weatherDisplay = (0, external_Vue_namespaceObject.ref)(null);
+    const clockInfo = (0, external_Vue_namespaceObject.ref)(null);
+    const weather = (0, external_Vue_namespaceObject.ref)(null);
     const update = statWithoutMeta => {
       const funcName = "update";
       logger.log(funcName, "状态横幅内容区开始更新，接收到的statWithoutMeta：", statWithoutMeta);
@@ -2425,18 +2343,15 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
         logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
         return;
       }
-      if (weatherDisplay.value) {
-        const weather = external_default().get(statWithoutMeta, "世界.天气", "—");
-        weatherDisplay.value.update(weather);
-      }
-      if (dateDisplay.value) {
-        const clockNow = external_default().get(statWithoutMeta, "runtime.clock.now", null);
-        const festivals = external_default().get(statWithoutMeta, "festivals_list", []);
-        if (clockNow) {
-          dateDisplay.value.update(clockNow, festivals);
-        } else {
-          logger.warn(funcName, "未在 state 中找到 runtime.clock.now");
-        }
+      weather.value = external_default().get(statWithoutMeta, "世界.天气", "—");
+      const clockNow = external_default().get(statWithoutMeta, "runtime.clock.now", null);
+      const festivals = external_default().get(statWithoutMeta, "festivals_list", []);
+      if (clockNow && typeof clockNow === "object") {
+        clockInfo.value = Object.assign({}, clockNow, {
+          festivals
+        });
+      } else {
+        logger.warn(funcName, "未在 state 中找到 runtime.clock.now 或其格式不正确");
       }
     };
     __expose({
@@ -2450,21 +2365,20 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
     }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
     }, "📡"), (0, external_Vue_namespaceObject.createElementVNode)("span", null, "世界状态") ], -1)), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 日期和日历组件 "), (0, external_Vue_namespaceObject.createVNode)(DateDisplay, {
-      ref_key: "dateDisplay",
-      ref: dateDisplay
-    }, null, 512), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
+    external_Vue_namespaceObject.createCommentVNode)(" 日期和日历组件 "), (0, external_Vue_namespaceObject.createVNode)(TimeContainer, {
+      ref: "timeContainer",
+      "clock-info": clockInfo.value
+    }, null, 8, [ "clock-info" ]), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "banner-sep",
       "aria-hidden": "true"
     }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 天气组件 "), (0, 
-    external_Vue_namespaceObject.createVNode)(WeatherDisplay, {
-      ref_key: "weatherDisplay",
-      ref: weatherDisplay
-    }, null, 512) ]) ], 2112));
+    external_Vue_namespaceObject.createVNode)(WeatherContainer, {
+      weather: weather.value
+    }, null, 8, [ "weather" ]) ]) ], 2112));
   }
 });
 
-const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0830be5a" ] ]);
+const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-d0e1282c" ] ]);
 
 const StatusBannerContent = StatusBannerContent_exports_;
 
@@ -2930,7 +2844,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 371)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 304)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
@@ -2949,12 +2863,18 @@ h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .font-size-controls[data-v-1b8304a8]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-1b8304a8]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
 .status-tabs[data-v-7a7531ec]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-7a7531ec]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-7a7531ec]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-7a7531ec]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-7a7531ec]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-7a7531ec]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-7a7531ec]{padding:15px}}[data-v-7a7531ec] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-7a7531ec] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-7a7531ec] .incident-list{display:flex;flex-direction:column;gap:12px}
 @keyframes affPop{0%{transform:translateY(0) scale(0.85);opacity:0}20%{opacity:1}100%{transform:translateY(-18px) scale(1.15);opacity:0}}@keyframes cardPop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}:root[data-theme=dark] .role-ribbon-container .aff-particle.skull,:root[data-theme=dark] .role-ribbon-container .card-particle.skull{color:#714f4f;text-shadow:0 0 6px rgba(185,88,88,.6)}.role-ribbon-container{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon-container .role-ribbon{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.role-ribbon-container .ribbon-arrow{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.role-ribbon-container .ribbon-arrow.left{left:8px}.role-ribbon-container .ribbon-arrow.right{right:8px}.role-ribbon-container .role-card{flex:0 0 260px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);scroll-snap-align:start;position:relative;overflow:hidden}.role-ribbon-container .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.role-ribbon-container .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.role-ribbon-container .role-name{font-weight:700}.role-ribbon-container .role-meta{font-size:.85em;color:var(--muted)}.role-ribbon-container .role-line{margin:6px 0;font-size:.9em}.role-ribbon-container .mini-bar{height:8px;background:var(--bar-bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative}.role-ribbon-container .mini-bar .val{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.role-ribbon-container .mini-bar .val.rtl{left:auto;right:0}.role-ribbon-container .mini-bar .val.negative{background:#b00020}.role-ribbon-container .mini-bar .val.very-hate{background:#000}.role-ribbon-container .mini-bar .val.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc)}.role-ribbon-container .aff-particle,.role-ribbon-container .card-particle{position:absolute;line-height:1;pointer-events:none;-webkit-user-select:none;user-select:none;opacity:0;animation:affPop 1.1s ease-out forwards;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25))}.role-ribbon-container .card-particle{animation:cardPop 1.2s ease-out forwards;font-size:16px}.role-ribbon-container .card-particle.heart{color:#b65ff7;text-shadow:0 0 8px rgba(126,63,242,.5)}.role-ribbon-container .card-particle.skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5)}.role-ribbon-container .aff-particle.heart{text-shadow:0 0 6px rgba(126,63,242,.45)}.role-ribbon-container .aff-particle.skull{color:#000;text-shadow:0 0 6px rgba(0,0,0,.35)}.role-ribbon-container .aff-row{display:flex;align-items:center;gap:8px}.role-ribbon-container .aff-level{display:inline-flex;align-items:center;gap:4px;padding:0 8px;line-height:1.8;font-weight:700;font-size:.85em;border-radius:999px;background:var(--bar-bg);color:var(--ink);border:1px solid var(--line);white-space:nowrap}.role-ribbon-container .aff-level::before{content:attr(data-icon)}.role-ribbon-container .aff-level[data-icon=""]::before{content:none}.role-ribbon-container .aff-level.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc);color:#fff;border-color:color-mix(in srgb,#7e3ff2 55%,white 45%)}.role-ribbon-container .aff-level.love{background:color-mix(in srgb,#7e3ff2 18%,var(--paper) 82%);color:color-mix(in srgb,#7e3ff2 85%,white 15%);border-color:color-mix(in srgb,#7e3ff2 45%,var(--line) 55%)}.role-ribbon-container .aff-level.neutral{background:var(--bar-bg);color:var(--ink);border-color:var(--line)}.role-ribbon-container .aff-level.dislike{background:color-mix(in srgb,#b00020 12%,var(--paper) 88%);color:color-mix(in srgb,#b00020 80%,white 20%);border-color:color-mix(in srgb,#b00020 45%,var(--line) 55%)}.role-ribbon-container .aff-level.hate,.role-ribbon-container .aff-level.negative{background:#b00020;color:#fff;border-color:color-mix(in srgb,#b00020 65%,white 35%)}.role-ribbon-container .aff-level.very-hate{background:#000;color:#fff;border-color:#333}
-.cal-day-btn[data-v-0e03a3b6]{position:relative;display:flex;flex-direction:column;gap:4px;align-items:stretch;justify-content:flex-start;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);aspect-ratio:1/1;min-width:0;min-height:0;cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-0e03a3b6]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-0e03a3b6]:active{transform:translateY(1px)}.cal-day-btn.out[data-v-0e03a3b6]{opacity:.55}.cal-day-btn.today[data-v-0e03a3b6]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-0e03a3b6]{background:color-mix(in srgb,var(--tab-active) 14%,var(--paper) 86%);border-color:color-mix(in srgb,var(--tab-active) 50%,var(--line) 50%)}.dnum[data-v-0e03a3b6]{font-weight:800;color:var(--ink);text-align:right;line-height:1}@media (max-width:800px){.fest[data-v-0e03a3b6]{display:none}}@media (min-width:801px){.fest[data-v-0e03a3b6]{margin-top:4px;display:flex;flex-direction:column;gap:3px;overflow:auto;scrollbar-gutter:stable}.fest>span[data-v-0e03a3b6]{display:block;font-size:.82em;line-height:1.25;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:2px 6px;white-space:normal;overflow-wrap:anywhere;word-break:break-word}}
-.cal-pop[hidden][data-v-46223f8c]{display:none !important}.cal-pop[data-v-46223f8c]{position:absolute;left:12px;top:calc(100% + 8px);z-index:1000;width:min(92vw,720px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);overflow:hidden}.cal-head[data-v-46223f8c]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-46223f8c]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-46223f8c]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-46223f8c]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-46223f8c]{display:flex;gap:6px}.cal-btn[data-v-46223f8c]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-46223f8c]:active{transform:translateY(1px)}.cal-body[data-v-46223f8c]{padding:10px 12px 12px}.cal-week[data-v-46223f8c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-46223f8c]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-46223f8c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}@media (max-width:600px){.cal-pop[data-v-46223f8c]{width:min(96vw,720px);left:8px;right:8px}}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}.relative-layout[data-v-46223f8c]{position:static !important;left:auto !important;top:auto !important;z-index:auto !important;width:100% !important;max-width:none !important;margin-top:8px !important;overflow:visible !important;flex:1 1 100%}
-.emoji[data-v-1b24ba12]{margin-right:0;font-size:1.1em}.banner-chip[data-v-1b24ba12]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-1b24ba12]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-1b24ba12]:active{transform:translateY(1px) scale(0.99)}
-.day-popover[data-v-a61ef2a6]{position:absolute;z-index:1200;width:min(280px,100% - 24px);max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);padding:8px}.day-popover__head[data-v-a61ef2a6]{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 6px;border-bottom:1px dashed var(--line);margin-bottom:6px}.day-popover__date[data-v-a61ef2a6]{font-weight:800;color:var(--ink)}.day-popover__close[data-v-a61ef2a6]{border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}.fest-item[data-v-a61ef2a6]{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:4px 6px;font-size:.92em;line-height:1.35}.fest-item+.fest-item[data-v-a61ef2a6]{margin-top:6px}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}
-.banner-chip[data-v-01daad74]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-01daad74]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-01daad74]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-01daad74]{margin-right:0;font-size:1.1em}
-.emoji[data-v-0830be5a]{margin-right:8px;font-size:1.1em}.status-banner[data-v-0830be5a]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-0830be5a]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-0830be5a]{margin-right:0}.banner-sep[data-v-0830be5a]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
+.emoji[data-v-22c83e5f]{margin-right:0;font-size:1.1em}.banner-chip[data-v-22c83e5f]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-22c83e5f]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-22c83e5f]:active{transform:translateY(1px) scale(0.99)}
+.banner-chip-open[data-v-a8d897e6]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-a8d897e6]{font-size:1.2em;margin-right:8px}.close-icon[data-v-a8d897e6]{font-size:.9em;color:var(--ink)}
+.cal-day-container[data-v-b92c9fca]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-b92c9fca]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-b92c9fca]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-b92c9fca]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-b92c9fca]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-b92c9fca]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-b92c9fca]{--importance:5}.cal-day-btn[data-importance="4"][data-v-b92c9fca]{--importance:4}.cal-day-btn[data-importance="3"][data-v-b92c9fca]{--importance:3}.cal-day-btn[data-importance="2"][data-v-b92c9fca]{--importance:2}.cal-day-btn[data-importance="1"][data-v-b92c9fca]{--importance:1}.dnum[data-v-b92c9fca]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-b92c9fca]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-b92c9fca]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-b92c9fca]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-b92c9fca]:first-child{border-top:none;padding-top:0}.fest-header[data-v-b92c9fca]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-b92c9fca]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-b92c9fca]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-b92c9fca]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
+.cal-content[data-v-b915288c]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-b915288c]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-b915288c]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-b915288c]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-b915288c]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-b915288c]{display:flex;gap:6px}.cal-btn[data-v-b915288c]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-b915288c]:active{transform:translateY(1px)}.cal-body[data-v-b915288c]{padding:10px 12px 12px}.cal-week[data-v-b915288c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-b915288c]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-b915288c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
+.time-container[data-v-4524500e]{position:relative}
+
+.banner-chip[data-v-11b37370]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-11b37370]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-11b37370]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-11b37370]{margin-right:0;font-size:1.1em}
+.banner-chip-open[data-v-1a6d77c8]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-1a6d77c8]{font-size:1.2em;margin-right:8px}.close-icon[data-v-1a6d77c8]{font-size:.9em;color:var(--ink)}
+.weather-content[data-v-16c06ed4]{position:static;width:100%;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--ink)}p[data-v-16c06ed4]{margin:4px 0}em[data-v-16c06ed4]{color:var(--muted);font-size:.9em}
+.weather-container[data-v-582f12c7]{position:relative}
+
+.emoji[data-v-d0e1282c]{margin-right:8px;font-size:1.1em}.status-banner[data-v-d0e1282c]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-d0e1282c]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-d0e1282c]{margin-right:0}.banner-sep[data-v-d0e1282c]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
 .aya-news-button-closed[data-v-eb1390f0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-eb1390f0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-de137ea2]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-de137ea2]:hover{background-color:var(--paper)}
 .aya-news-popup[data-v-41789df9]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-41789df9]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-41789df9]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-41789df9]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}

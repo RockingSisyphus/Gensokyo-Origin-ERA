@@ -4,12 +4,12 @@
     <div class="banner-title"><span class="emoji">📡</span><span>世界状态</span></div>
 
     <!-- 日期和日历组件 -->
-    <DateDisplay ref="dateDisplay" />
+    <TimeContainer ref="timeContainer" :clock-info="clockInfo" />
 
     <span class="banner-sep" aria-hidden="true"></span>
 
     <!-- 天气组件 -->
-    <WeatherDisplay ref="weatherDisplay" />
+    <WeatherContainer :weather="weather" />
   </div>
 </template>
 
@@ -17,14 +17,19 @@
 import _ from 'lodash';
 import { ref } from 'vue';
 import { Logger } from '../../utils/logger';
-import DateDisplay from './Icons/DateDisplay.vue';
-import WeatherDisplay from './Icons/WeatherDisplay.vue';
+import TimeContainer from './Icons/TimeContainer/TimeContainer.vue';
+import WeatherContainer from './Icons/WeatherContainer/WeatherContainer.vue';
 
 const logger = new Logger('components-StatusBannerContent');
 
-// 子组件的引用
-const dateDisplay = ref<{ update: (clockInfo: any, festivals: any[]) => void } | null>(null);
-const weatherDisplay = ref<{ update: (weather: string) => void } | null>(null);
+interface ClockInfo {
+  [key: string]: any;
+  festivals: any[];
+}
+
+// 状态
+const clockInfo = ref<ClockInfo | null>(null);
+const weather = ref<string | null>(null);
 
 /**
  * @description 【暴露给外部的唯一入口】更新整个状态横幅。
@@ -40,20 +45,15 @@ const update = (statWithoutMeta: object) => {
   }
 
   // 更新天气显示
-  if (weatherDisplay.value) {
-    const weather = _.get(statWithoutMeta, '世界.天气', '—');
-    weatherDisplay.value.update(weather);
-  }
+  weather.value = _.get(statWithoutMeta, '世界.天气', '—');
 
   // 更新日期和日历显示
-  if (dateDisplay.value) {
-    const clockNow = _.get(statWithoutMeta, 'runtime.clock.now', null);
-    const festivals = _.get(statWithoutMeta, 'festivals_list', []) as any[];
-    if (clockNow) {
-      dateDisplay.value.update(clockNow, festivals);
-    } else {
-      logger.warn(funcName, '未在 state 中找到 runtime.clock.now');
-    }
+  const clockNow = _.get(statWithoutMeta, 'runtime.clock.now', null);
+  const festivals = _.get(statWithoutMeta, 'festivals_list', []) as any[];
+  if (clockNow && typeof clockNow === 'object') {
+    clockInfo.value = Object.assign({}, clockNow, { festivals });
+  } else {
+    logger.warn(funcName, '未在 state 中找到 runtime.clock.now 或其格式不正确');
   }
 };
 

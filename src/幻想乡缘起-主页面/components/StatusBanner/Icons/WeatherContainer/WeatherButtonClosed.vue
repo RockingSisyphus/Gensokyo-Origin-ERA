@@ -1,31 +1,19 @@
 <template>
-  <!-- 可点击：天气（脚本预留，先占位） -->
-  <button id="banner-weather" class="banner-chip" aria-expanded="false">
+  <button id="banner-weather-closed" class="banner-chip" @click="$emit('open-weather')">
     <span class="emoji">☀️</span>
-    <span id="banner-weather-text">—</span>
+    <span>{{ weather || '—' }}</span>
   </button>
 </template>
 
 <script setup lang="ts">
-import { defineExpose } from 'vue';
-import { text } from '../../../utils/mvu';
+defineProps<{
+  weather: string | null;
+}>();
 
-/**
- * @description 更新天气显示。
- * @param weather - 要显示的天气字符串。
- */
-const update = (weather: string) => {
-  text('banner-weather-text', weather || '—');
-};
-
-// 暴露 update 方法
-defineExpose({
-  update,
-});
+defineEmits(['open-weather']);
 </script>
 
 <style lang="scss" scoped>
-/* 可点击的状态“胶囊” */
 .banner-chip {
   display: inline-flex;
   align-items: center;
@@ -51,7 +39,7 @@ defineExpose({
 }
 
 .emoji {
-  margin-right: 0; /* 在父组件中已经有gap，这里不需要额外margin */
+  margin-right: 0;
   font-size: 1.1em;
 }
 </style>
