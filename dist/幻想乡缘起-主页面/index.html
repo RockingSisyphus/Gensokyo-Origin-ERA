@@ -1,71 +1,97 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import { onClickOutside } from "https://testingcf.jsdelivr.net/npm/@vueuse/core/+esm";
 
 var __webpack_modules__ = {
-  80: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  215: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
-      I: () => getRuntimeVar,
-      Q: () => setRuntimeVar
+      EN: () => logContext,
+      Vy: () => Logger
     });
-    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(326);
-    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
-    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(729);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
-    function getRuntimeVar(path, defaultValue) {
-      const funcName = "getRuntimeVar";
-      try {
-        if (typeof getVariables !== "function") {
-          logger.warn(funcName, "getVariables 函数不可用。");
-          return defaultValue;
+    const logContext = {
+      mk: ""
+    };
+    class Logger {
+      moduleName;
+      constructor(moduleName) {
+        this.moduleName = moduleName;
+      }
+      formatMessage(funcName, message) {
+        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+      }
+      debug(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
+        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.includes(this.moduleName)) {
+          return;
         }
-        const chatVars = getVariables({
-          type: "chat"
-        });
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
-        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-          value
-        });
-        return value;
-      } catch (error) {
-        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-        return defaultValue;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.debug(formattedMessage, obj);
+        } else {
+          console.debug(formattedMessage);
+        }
+      }
+      log(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+        } else {
+          console.log(`%c${formattedMessage}`, "color: #3498db;");
+        }
+      }
+      warn(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+        } else {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+        }
+      }
+      error(funcName, message, errorObj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (errorObj) {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+        } else {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+        }
       }
     }
-    async function setRuntimeVar(path, value) {
-      const funcName = "setRuntimeVar";
-      try {
-        if (typeof updateVariablesWith !== "function") {
-          logger.error(funcName, "updateVariablesWith 函数不可用。");
-          return false;
-        }
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-          value
-        });
-        await updateVariablesWith(vars => {
-          const chatVars = vars || {};
-          _.set(chatVars, runtimePath, value);
-          return chatVars;
-        }, {
-          type: "chat"
-        });
-        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-        return true;
-      } catch (error) {
-        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-        return false;
-      }
-    }
+    const LOG_CONFIG = {
+      levels: {
+        debug: 0,
+        log: 1,
+        warn: 2,
+        error: 3
+      },
+      currentLevel: 0,
+      debugWhitelist: [ "index", "backend-affection", "backend-mapLocation", "components-RoleRibbon", "components-StatusBanner", "components-StatusNews", "components-StatusSidebar", "components-StatusSidebarPopup-StatusSidebarButton", "components-StatusSidebarPopup-StatusSidebarContainer", "components-StatusSidebarPopup-StatusSidebarPopup", "components-ThemeToggle", "components-StatusTab-StatusTabContent", "components-StatusTab-tabs-ContentBio", "components-StatusTab-tabs-ContentOthers", "components-StatusTab-tabs-ContentSettings", "components-StatusTab-tabs-Incidents", "components-StatusTab-tabs-WorldMap", "components-StatusTab-tabs-FontSizeControls" ]
+    };
+    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
   },
-  304: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  342: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  371: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       runAffectionPipeline: () => runAffectionPipeline
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(729);
-    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
-    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(326);
-    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(80);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(634);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
+    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(661);
+    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(507);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -285,7 +311,100 @@ var __webpack_modules__ = {
       }
     }
   },
-  326: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  507: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      I: () => getRuntimeVar,
+      Q: () => setRuntimeVar
+    });
+    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(661);
+    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
+    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(634);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
+    function getRuntimeVar(path, defaultValue) {
+      const funcName = "getRuntimeVar";
+      try {
+        if (typeof getVariables !== "function") {
+          logger.warn(funcName, "getVariables 函数不可用。");
+          return defaultValue;
+        }
+        const chatVars = getVariables({
+          type: "chat"
+        });
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
+        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+          value
+        });
+        return value;
+      } catch (error) {
+        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+        return defaultValue;
+      }
+    }
+    async function setRuntimeVar(path, value) {
+      const funcName = "setRuntimeVar";
+      try {
+        if (typeof updateVariablesWith !== "function") {
+          logger.error(funcName, "updateVariablesWith 函数不可用。");
+          return false;
+        }
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+          value
+        });
+        await updateVariablesWith(vars => {
+          const chatVars = vars || {};
+          _.set(chatVars, runtimePath, value);
+          return chatVars;
+        }, {
+          type: "chat"
+        });
+        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+        return true;
+      } catch (error) {
+        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+        return false;
+      }
+    }
+  },
+  634: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "config.defaults.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
+  },
+  661: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       Jt: () => get,
       Qq: () => text,
@@ -376,125 +495,6 @@ var __webpack_modules__ = {
       }
       return toText(rawValue);
     }
-  },
-  391: (__unused_webpack_module, exports) => {
-    var __webpack_unused_export__;
-    __webpack_unused_export__ = {
-      value: true
-    };
-    exports.A = (sfc, props) => {
-      const target = sfc.__vccOpts || sfc;
-      for (const [key, val] of props) {
-        target[key] = val;
-      }
-      return target;
-    };
-  },
-  414: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      EN: () => logContext,
-      Vy: () => Logger
-    });
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        this.moduleName = moduleName;
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.includes(this.moduleName)) {
-          return;
-        }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
-      }
-    }
-    const LOG_CONFIG = {
-      levels: {
-        debug: 0,
-        log: 1,
-        warn: 2,
-        error: 3
-      },
-      currentLevel: 0,
-      debugWhitelist: [ "index", "backend-affection", "backend-mapLocation", "components-RoleRibbon", "components-StatusBanner", "components-StatusNews", "components-StatusSidebar", "components-StatusSidebarPopup-StatusSidebarButton", "components-StatusSidebarPopup-StatusSidebarContainer", "components-StatusSidebarPopup-StatusSidebarPopup", "components-ThemeToggle", "components-StatusTab-StatusTabContent", "components-StatusTab-tabs-ContentBio", "components-StatusTab-tabs-ContentOthers", "components-StatusTab-tabs-ContentSettings", "components-StatusTab-tabs-Incidents", "components-StatusTab-tabs-WorldMap", "components-StatusTab-tabs-FontSizeControls" ]
-    };
-    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
-  },
-  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
-    });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "config.defaults.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
-    };
   }
 };
 
@@ -556,11 +556,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(729);
+var constants = __webpack_require__(634);
 
-var utils_logger = __webpack_require__(414);
+var utils_logger = __webpack_require__(215);
 
-var mvu = __webpack_require__(326);
+var mvu = __webpack_require__(661);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -621,7 +621,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(391);
+var exportHelper = __webpack_require__(342);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4ba65ade" ] ]);
 
@@ -1169,7 +1169,7 @@ const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_scr
 
 const ContentSettings = ContentSettings_exports_;
 
-var runtime = __webpack_require__(80);
+var runtime = __webpack_require__(507);
 
 const T0_PATH = "incident.异变冷却基准时间";
 
@@ -2091,7 +2091,7 @@ const TimeDisplayIconvue_type_script_setup_true_lang_ts = (0, external_Vue_names
   }
 });
 
-const TimeDisplayIcon_exports_ = (0, exportHelper.A)(TimeDisplayIconvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-42508976" ] ]);
+const TimeDisplayIcon_exports_ = (0, exportHelper.A)(TimeDisplayIconvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1b24ba12" ] ]);
 
 const TimeDisplayIcon = TimeDisplayIcon_exports_;
 
@@ -2355,7 +2355,7 @@ const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
   }
 });
 
-const DateDisplay_exports_ = (0, exportHelper.A)(DateDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1f8e1b57" ] ]);
+const DateDisplay_exports_ = (0, exportHelper.A)(DateDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-a61ef2a6" ] ]);
 
 const DateDisplay = DateDisplay_exports_;
 
@@ -2465,11 +2465,11 @@ const StatusNewsButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         expanded: props.expanded
       } ]),
       onClick: _cache[0] || (_cache[0] = $event => emit("toggle-popup"))
-    }, " 新闻 ", 2));
+    }, "新闻", 2));
   }
 });
 
-const StatusNewsButton_exports_ = (0, exportHelper.A)(StatusNewsButtonvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-56cffcee" ] ]);
+const StatusNewsButton_exports_ = (0, exportHelper.A)(StatusNewsButtonvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3f1097b8" ] ]);
 
 const StatusNewsButton = StatusNewsButton_exports_;
 
@@ -2505,21 +2505,18 @@ const StatusNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       updateNews
     });
     (0, external_Vue_namespaceObject.onMounted)(() => {});
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[1] || (_cache[1] = (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
     external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
-    }, "📰"), (0, external_Vue_namespaceObject.createTextVNode)("文文新闻") ], -1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "popup-close",
-      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close"))
-    }, "×"), _cache[2] || (_cache[2] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+    }, "📰"), (0, external_Vue_namespaceObject.createTextVNode)("文文新闻") ], -1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
       id: "news-content-popup",
       class: "news-body preserve-format"
-    }, "—", -1)) ]));
+    }, "—", -1) ]) ]));
   }
 });
 
-const StatusNewsPopup_exports_ = (0, exportHelper.A)(StatusNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-ff6241e4" ] ]);
+const StatusNewsPopup_exports_ = (0, exportHelper.A)(StatusNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-114665d8" ] ]);
 
 const StatusNewsPopup = StatusNewsPopup_exports_;
 
@@ -2618,18 +2615,11 @@ const StatusSidebarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_na
       style: (0, external_Vue_namespaceObject.normalizeStyle)(style.value),
       role: "region",
       "aria-label": "用户状态"
-    }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "👤"), (0, external_Vue_namespaceObject.createTextVNode)("用户状态") ], -1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "popup-close",
-      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close"))
-    }, "×"), _cache[2] || (_cache[2] = (0, external_Vue_namespaceObject.createStaticVNode)('<div class="sidebar-content" data-v-0754c8a3><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>📝</span>姓名:</span> <span id="user-name-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>🪪</span>身份:</span> <span id="user-identity-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>⚧️</span>性别:</span> <span id="user-gender-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>🎂</span>年龄:</span> <span id="user-age-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>✨</span>特殊能力:</span> <span id="user-abilities-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>📍</span>所在地区:</span> <span id="user-location-popup" data-v-0754c8a3>—</span></p><p data-v-0754c8a3><span class="label" data-v-0754c8a3><span class="emoji" data-v-0754c8a3>🏠</span>居住地区:</span> <span id="user-home-popup" data-v-0754c8a3>—</span></p></div>', 1)) ], 4));
+    }, [ ..._cache[0] || (_cache[0] = [ (0, external_Vue_namespaceObject.createStaticVNode)('<h4 data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>👤</span>用户状态</h4><div class="sidebar-content" data-v-9f1a2fb6><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>📝</span>姓名:</span> <span id="user-name-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🪪</span>身份:</span> <span id="user-identity-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>⚧️</span>性别:</span> <span id="user-gender-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🎂</span>年龄:</span> <span id="user-age-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>✨</span>特殊能力:</span> <span id="user-abilities-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>📍</span>所在地区:</span> <span id="user-location-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🏠</span>居住地区:</span> <span id="user-home-popup" data-v-9f1a2fb6>—</span></p></div>', 2) ]) ], 4));
   }
 });
 
-const StatusSidebarPopup_exports_ = (0, exportHelper.A)(StatusSidebarPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0754c8a3" ] ]);
+const StatusSidebarPopup_exports_ = (0, exportHelper.A)(StatusSidebarPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-9f1a2fb6" ] ]);
 
 const StatusSidebarPopup = StatusSidebarPopup_exports_;
 
@@ -2905,7 +2895,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 304)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 371)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
@@ -2926,16 +2916,16 @@ h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--
 @keyframes affPop{0%{transform:translateY(0) scale(0.85);opacity:0}20%{opacity:1}100%{transform:translateY(-18px) scale(1.15);opacity:0}}@keyframes cardPop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}:root[data-theme=dark] .role-ribbon-container .aff-particle.skull,:root[data-theme=dark] .role-ribbon-container .card-particle.skull{color:#714f4f;text-shadow:0 0 6px rgba(185,88,88,.6)}.role-ribbon-container{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon-container .role-ribbon{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.role-ribbon-container .ribbon-arrow{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.role-ribbon-container .ribbon-arrow.left{left:8px}.role-ribbon-container .ribbon-arrow.right{right:8px}.role-ribbon-container .role-card{flex:0 0 260px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);scroll-snap-align:start;position:relative;overflow:hidden}.role-ribbon-container .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.role-ribbon-container .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.role-ribbon-container .role-name{font-weight:700}.role-ribbon-container .role-meta{font-size:.85em;color:var(--muted)}.role-ribbon-container .role-line{margin:6px 0;font-size:.9em}.role-ribbon-container .mini-bar{height:8px;background:var(--bar-bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative}.role-ribbon-container .mini-bar .val{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.role-ribbon-container .mini-bar .val.rtl{left:auto;right:0}.role-ribbon-container .mini-bar .val.negative{background:#b00020}.role-ribbon-container .mini-bar .val.very-hate{background:#000}.role-ribbon-container .mini-bar .val.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc)}.role-ribbon-container .aff-particle,.role-ribbon-container .card-particle{position:absolute;line-height:1;pointer-events:none;-webkit-user-select:none;user-select:none;opacity:0;animation:affPop 1.1s ease-out forwards;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25))}.role-ribbon-container .card-particle{animation:cardPop 1.2s ease-out forwards;font-size:16px}.role-ribbon-container .card-particle.heart{color:#b65ff7;text-shadow:0 0 8px rgba(126,63,242,.5)}.role-ribbon-container .card-particle.skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5)}.role-ribbon-container .aff-particle.heart{text-shadow:0 0 6px rgba(126,63,242,.45)}.role-ribbon-container .aff-particle.skull{color:#000;text-shadow:0 0 6px rgba(0,0,0,.35)}.role-ribbon-container .aff-row{display:flex;align-items:center;gap:8px}.role-ribbon-container .aff-level{display:inline-flex;align-items:center;gap:4px;padding:0 8px;line-height:1.8;font-weight:700;font-size:.85em;border-radius:999px;background:var(--bar-bg);color:var(--ink);border:1px solid var(--line);white-space:nowrap}.role-ribbon-container .aff-level::before{content:attr(data-icon)}.role-ribbon-container .aff-level[data-icon=""]::before{content:none}.role-ribbon-container .aff-level.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc);color:#fff;border-color:color-mix(in srgb,#7e3ff2 55%,white 45%)}.role-ribbon-container .aff-level.love{background:color-mix(in srgb,#7e3ff2 18%,var(--paper) 82%);color:color-mix(in srgb,#7e3ff2 85%,white 15%);border-color:color-mix(in srgb,#7e3ff2 45%,var(--line) 55%)}.role-ribbon-container .aff-level.neutral{background:var(--bar-bg);color:var(--ink);border-color:var(--line)}.role-ribbon-container .aff-level.dislike{background:color-mix(in srgb,#b00020 12%,var(--paper) 88%);color:color-mix(in srgb,#b00020 80%,white 20%);border-color:color-mix(in srgb,#b00020 45%,var(--line) 55%)}.role-ribbon-container .aff-level.hate,.role-ribbon-container .aff-level.negative{background:#b00020;color:#fff;border-color:color-mix(in srgb,#b00020 65%,white 35%)}.role-ribbon-container .aff-level.very-hate{background:#000;color:#fff;border-color:#333}
 .cal-day-btn[data-v-0e03a3b6]{position:relative;display:flex;flex-direction:column;gap:4px;align-items:stretch;justify-content:flex-start;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);aspect-ratio:1/1;min-width:0;min-height:0;cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-0e03a3b6]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-0e03a3b6]:active{transform:translateY(1px)}.cal-day-btn.out[data-v-0e03a3b6]{opacity:.55}.cal-day-btn.today[data-v-0e03a3b6]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-0e03a3b6]{background:color-mix(in srgb,var(--tab-active) 14%,var(--paper) 86%);border-color:color-mix(in srgb,var(--tab-active) 50%,var(--line) 50%)}.dnum[data-v-0e03a3b6]{font-weight:800;color:var(--ink);text-align:right;line-height:1}@media (max-width:800px){.fest[data-v-0e03a3b6]{display:none}}@media (min-width:801px){.fest[data-v-0e03a3b6]{margin-top:4px;display:flex;flex-direction:column;gap:3px;overflow:auto;scrollbar-gutter:stable}.fest>span[data-v-0e03a3b6]{display:block;font-size:.82em;line-height:1.25;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:2px 6px;white-space:normal;overflow-wrap:anywhere;word-break:break-word}}
 .cal-pop[hidden][data-v-46223f8c]{display:none !important}.cal-pop[data-v-46223f8c]{position:absolute;left:12px;top:calc(100% + 8px);z-index:1000;width:min(92vw,720px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);overflow:hidden}.cal-head[data-v-46223f8c]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-46223f8c]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-46223f8c]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-46223f8c]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-46223f8c]{display:flex;gap:6px}.cal-btn[data-v-46223f8c]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-46223f8c]:active{transform:translateY(1px)}.cal-body[data-v-46223f8c]{padding:10px 12px 12px}.cal-week[data-v-46223f8c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-46223f8c]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-46223f8c]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}@media (max-width:600px){.cal-pop[data-v-46223f8c]{width:min(96vw,720px);left:8px;right:8px}}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}.relative-layout[data-v-46223f8c]{position:static !important;left:auto !important;top:auto !important;z-index:auto !important;width:100% !important;max-width:none !important;margin-top:8px !important;overflow:visible !important;flex:1 1 100%}
-.emoji[data-v-42508976]{margin-right:0;font-size:1.1em}.banner-chip[data-v-42508976]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-42508976]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-42508976]:active{transform:translateY(1px) scale(0.99)}
-.day-popover[data-v-1f8e1b57]{position:absolute;z-index:1200;width:min(280px,100% - 24px);max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);padding:8px}.day-popover__head[data-v-1f8e1b57]{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 6px;border-bottom:1px dashed var(--line);margin-bottom:6px}.day-popover__date[data-v-1f8e1b57]{font-weight:800;color:var(--ink)}.day-popover__close[data-v-1f8e1b57]{border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}.fest-item[data-v-1f8e1b57]{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:4px 6px;font-size:.92em;line-height:1.35}.fest-item+.fest-item[data-v-1f8e1b57]{margin-top:6px}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}
+.emoji[data-v-1b24ba12]{margin-right:0;font-size:1.1em}.banner-chip[data-v-1b24ba12]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-1b24ba12]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-1b24ba12]:active{transform:translateY(1px) scale(0.99)}
+.day-popover[data-v-a61ef2a6]{position:absolute;z-index:1200;width:min(280px,100% - 24px);max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);padding:8px}.day-popover__head[data-v-a61ef2a6]{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 6px;border-bottom:1px dashed var(--line);margin-bottom:6px}.day-popover__date[data-v-a61ef2a6]{font-weight:800;color:var(--ink)}.day-popover__close[data-v-a61ef2a6]{border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}.fest-item[data-v-a61ef2a6]{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:4px 6px;font-size:.92em;line-height:1.35}.fest-item+.fest-item[data-v-a61ef2a6]{margin-top:6px}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}
 .banner-chip[data-v-01daad74]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-01daad74]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-01daad74]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-01daad74]{margin-right:0;font-size:1.1em}
 .emoji[data-v-0830be5a]{margin-right:8px;font-size:1.1em}.status-banner[data-v-0830be5a]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-0830be5a]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-0830be5a]{margin-right:0}.banner-sep[data-v-0830be5a]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
-.status-news-button[data-v-56cffcee]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer}.status-news-button[data-v-56cffcee]:hover{background-color:var(--paper)}.status-news-button.expanded[data-v-56cffcee]{padding:12px 14px;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}
-.status-news-popup[data-v-ff6241e4]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}.popup-close[data-v-ff6241e4]{position:absolute;top:10px;right:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}#status-news-popup h4[data-v-ff6241e4]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#status-news-popup h4 .emoji[data-v-ff6241e4]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-ff6241e4]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.status-news-button[data-v-3f1097b8]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer}.status-news-button[data-v-3f1097b8]:hover{background-color:var(--paper)}.status-news-button.expanded[data-v-3f1097b8]{padding:12px 14px;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}
+.status-news-popup[data-v-114665d8]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#status-news-popup h4[data-v-114665d8]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#status-news-popup h4 .emoji[data-v-114665d8]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-114665d8]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .status-news-container[data-v-4e2f39e0]{position:relative}
 
 .status-sidebar-button[data-v-41ae9fef]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer}.status-sidebar-button[data-v-41ae9fef]:hover{background-color:var(--paper)}.status-sidebar-button.expanded[data-v-41ae9fef]{padding:12px 14px;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}
-.status-sidebar-popup[data-v-0754c8a3]{position:static;width:100%;max-height:none;margin-top:-1px;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;display:flex;flex-direction:column}.popup-close[data-v-0754c8a3]{position:absolute;top:10px;right:10px;border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}.sidebar-content[data-v-0754c8a3]{overflow:visible}h4[data-v-0754c8a3]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-0754c8a3]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-0754c8a3]{margin:8px 0;font-size:.9em;line-height:1.5}p>span[data-v-0754c8a3]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.status-sidebar-popup[data-v-9f1a2fb6]{position:static;width:100%;max-height:none;margin-top:-1px;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;display:flex;flex-direction:column}.sidebar-content[data-v-9f1a2fb6]{overflow:visible}h4[data-v-9f1a2fb6]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-9f1a2fb6]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-9f1a2fb6]{margin:8px 0;font-size:.9em;line-height:1.5}p>span[data-v-9f1a2fb6]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .status-sidebar-container[data-v-6e4aefdc]{position:relative}
 
 .theme-toggle[data-v-309160ee]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-309160ee]:active{transform:translateY(1px)}.theme-toggle[data-v-309160ee]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}

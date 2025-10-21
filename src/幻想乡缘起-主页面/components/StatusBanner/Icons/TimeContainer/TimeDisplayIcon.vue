@@ -22,7 +22,7 @@ const { isCalendarVisible } = toRefs(props);
 
 const emit = defineEmits(['toggle-calendar']);
 
-watch(isCalendarVisible, (newValue) => {
+watch(isCalendarVisible, newValue => {
   const timeBtn = document.getElementById('banner-time');
   if (timeBtn) {
     timeBtn.setAttribute('aria-expanded', String(newValue));

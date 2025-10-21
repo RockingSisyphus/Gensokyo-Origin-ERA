@@ -1,7 +1,5 @@
 <template>
-  <button class="status-news-button" :class="{ expanded: props.expanded }" @click="emit('toggle-popup')">
-    新闻
-  </button>
+  <button class="status-news-button" :class="{ expanded: props.expanded }" @click="emit('toggle-popup')">新闻</button>
 </template>
 
 <script setup lang="ts">

@@ -1,6 +1,16 @@
 <template>
-  <TimeDisplayIcon ref="timeDisplayIcon" :clock-info="lastClockInfo" :is-calendar-visible="calendarVisible" @toggle-calendar="calendarVisible = !calendarVisible" />
-  <CalendarPopup v-show="calendarVisible" :calendar-days="calendarDays" :on-day-click="onDayClick" @close="calendarVisible = false">
+  <TimeDisplayIcon
+    ref="timeDisplayIcon"
+    :clock-info="lastClockInfo"
+    :is-calendar-visible="calendarVisible"
+    @toggle-calendar="calendarVisible = !calendarVisible"
+  />
+  <CalendarPopup
+    v-show="calendarVisible"
+    :calendar-days="calendarDays"
+    :on-day-click="onDayClick"
+    @close="calendarVisible = false"
+  >
     <template #grid>
       <CalendarDay
         v-for="(day, index) in calendarDays"
