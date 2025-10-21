@@ -28,8 +28,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
-import { text } from '../../../../utils/mvu';
+import { computed, ref, watch } from 'vue';
+import { text } from '../../../../utils/format';
 import CalendarDay from './CalendarDay.vue';
 
 const props = defineProps<{

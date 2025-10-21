@@ -1,15 +1,6 @@
-// 声明全局变量，以便 TypeScript 识别由外部脚本注入的 __MVU_DEBUG__ 对象
-declare global {
-  interface Window {
-    __MVU_DEBUG__?: {
-      cfg: {
-        verboseGet: boolean;
-      };
-      warn: (...args: any[]) => void;
-      error: (...args: any[]) => void;
-    };
-  }
-}
+import { Logger } from './logger';
+
+const logger = new Logger();
 
 /**
  * @description 从数组或单个值中获取第一个有效值。
@@ -36,30 +27,27 @@ export function get(obj: object, path: string | string[], fallback: any = ''): a
     let cur: any = obj;
     for (const k of ks) {
       if (!cur || typeof cur !== 'object' || !(k in cur)) {
-        if (window.__MVU_DEBUG__?.cfg.verboseGet) {
-          window.__MVU_DEBUG__.warn('【字段读取】未找到键，使用默认值。', {
-            路径: String(path),
-            缺失键: String(k),
-            默认值: fallback,
-          });
-        }
+        // 原 verboseGet 日志改为 debug 级别，由 LOG_CONFIG 统一控制
+        logger.debug('get', '未找到键，使用默认值。', {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback,
+        });
         return fallback;
       }
       cur = cur[k];
     }
     const v = firstVal(cur);
     if (v == null) {
-      if (window.__MVU_DEBUG__?.cfg.verboseGet) {
-        window.__MVU_DEBUG__.warn('【字段读取】路径存在但值为空(null/undefined)，使用默认值。', {
-          路径: String(path),
-          默认值: fallback,
-        });
-      }
+      logger.debug('get', '路径存在但值为空(null/undefined)，使用默认值。', {
+        路径: String(path),
+        默认值: fallback,
+      });
       return fallback;
     }
     return v;
   } catch (e) {
-    window.__MVU_DEBUG__?.error('【字段读取】异常，使用默认值。', {
+    logger.error('get', '异常，使用默认值。', {
       路径: String(path),
       异常: String(e),
       默认值: fallback,
@@ -76,7 +64,7 @@ export function get(obj: object, path: string | string[], fallback: any = ''): a
 export function text(id: string, raw: any): void {
   const el = document.getElementById(id);
   if (!el) {
-    window.__MVU_DEBUG__?.warn('【DOM 渲染】目标元素不存在，跳过写入。', { 元素ID: id });
+    logger.warn('text', '目标元素不存在，跳过写入。', { 元素ID: id });
     return;
   }
   el.textContent = toText(raw);
@@ -101,7 +89,7 @@ export function getRaw(obj: object, path: string | string[], fallback: any = nul
     }
     return cur == null ? fallback : cur;
   } catch (e) {
-    window.__MVU_DEBUG__?.error('【字段读取/Raw】异常，使用默认值。', {
+    logger.error('getRaw', '异常，使用默认值。', {
       路径: String(path),
       异常: String(e),
       默认值: fallback,

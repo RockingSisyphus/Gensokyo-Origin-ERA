@@ -55,8 +55,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
+import { getStr } from '../../utils/format';
 import { Logger } from '../../utils/logger';
-import { get, getStr } from '../../utils/mvu';
 import ContentBio from './tabs/ContentBio.vue';
 import ContentOthers from './tabs/ContentOthers.vue';
 import ContentSettings from './tabs/ContentSettings.vue';

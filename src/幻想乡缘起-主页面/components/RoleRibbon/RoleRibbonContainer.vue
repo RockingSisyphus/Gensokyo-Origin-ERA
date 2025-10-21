@@ -23,9 +23,9 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue';
+import { computed, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
-import { get } from '../../utils/mvu';
+import { get } from '../../utils/format';
 import RoleCard from './RoleCard.vue';
 import RoleDetailPopup from './RoleDetailPopup.vue';
 

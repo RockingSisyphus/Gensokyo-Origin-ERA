@@ -13,8 +13,8 @@
 <script setup lang="ts">
 import { ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
+import { get, getStr } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { get, getStr } from '../../../utils/mvu';
 
 // 初始化日志记录器，方便调试
 const logger = new Logger('components-StatusTab-tabs-ContentBio');

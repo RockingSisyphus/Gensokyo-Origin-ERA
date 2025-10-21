@@ -56,8 +56,8 @@
 import { defineExpose, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
+import { get, toText } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { get, toText } from '../../../utils/mvu';
 
 const logger = new Logger('components-StatusTab-tabs-ContentOthers');
 

@@ -9,8 +9,8 @@
 import { defineExpose, onMounted, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
+import { get } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { get } from '../../../utils/mvu';
 
 const logger = new Logger('components-StatusTab-tabs-FontSizeControls');
 

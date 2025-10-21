@@ -4,7 +4,7 @@ import App from './app.vue';
 import './style.scss';
 import { ERA_VARIABLE_PATH } from './utils/constants';
 import { Logger, logContext } from './utils/logger';
-import { get } from './utils/mvu';
+import { get } from './utils/format';
 
 // ===============================================================
 // 应用入口：挂载 Vue，并在 era:writeDone 事件中驱动整套 UI/后台流水线

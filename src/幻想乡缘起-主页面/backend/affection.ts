@@ -1,6 +1,6 @@
 import { ERA_VARIABLE_PATH } from '../utils/constants';
 import { Logger } from '../utils/logger';
-import { get, getRaw } from '../utils/mvu';
+import { get, getRaw } from '../utils/format';
 import { getRuntimeVar, setRuntimeVar } from '../utils/runtime';
 
 // —— 新增：一次性注入“仅作用于角色卡”的粒子与着色样式（保持内聚，避免全局污染）

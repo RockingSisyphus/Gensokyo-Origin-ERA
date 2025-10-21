@@ -29,8 +29,8 @@
 import { defineExpose, onMounted } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
+import { get, getRaw, toText } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { get, getRaw, toText } from '../../../utils/mvu';
 import { getRuntimeVar } from '../../../utils/runtime';
 
 const logger = new Logger('components-StatusTab-tabs-Incidents');

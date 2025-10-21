@@ -1,4 +1,4 @@
-import { get } from './mvu';
+import { get } from './format';
 import { Logger } from './logger';
 import { ERA_VARIABLE_PATH } from './constants';
 

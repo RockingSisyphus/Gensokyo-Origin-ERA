@@ -26,8 +26,8 @@
 <script setup lang="ts">
 import { defineExpose, onMounted, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
+import { get, getRaw } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { get, getRaw } from '../../../utils/mvu';
 
 // 日志记录器，用于输出调试信息
 const logger = new Logger('components-StatusTab-tabs-WorldMap');
