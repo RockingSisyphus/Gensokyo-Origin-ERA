@@ -19,7 +19,6 @@ body {
   background-size: 20px 20px;
 }
 
-
 /* 文本/格式工具 */
 .preserve-format {
   white-space: pre-wrap;
@@ -72,7 +71,6 @@ body,
   overflow-x: auto;
 }
 
-
 /*
   .status-sidebar 的相关样式已完全迁移到 src/幻想乡缘起-主页面/components/StatusSidebar.vue 文件中。
   此处不再包含其样式。
@@ -82,12 +80,6 @@ body,
   文文新闻 (.status-news) 的相关样式已完全迁移到 src/幻想乡缘起-主页面/components/StatusNews.vue 文件中。
   此处不再包含其样式。
 */
-
-
-
-
-
-
 
 .debug-console {
   font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
