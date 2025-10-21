@@ -272,7 +272,10 @@ function showDayPopover(anchorEl: HTMLElement, dateStr: string, fests: string[])
   host.appendChild(pop); // 插入到 cal-pop
   dayPopoverEl = pop; // 记录引用
   // 关闭按钮
-  pop.querySelector('.day-popover__close')?.addEventListener('click', hideDayPopover); // 绑定关闭
+  pop.querySelector('.day-popover__close')?.addEventListener('click', e => {
+    e.stopPropagation(); // ① 阻止冒泡，避免触发 document 的“点外面就关日历”
+    hideDayPopover(); // ② 再移除小弹窗
+  });
 
   // 定位计算：把弹窗放在按钮之上或之下，避免溢出                                   // 位置算法
   const hostRect = host.getBoundingClientRect(); // cal-pop 区域
@@ -719,16 +722,14 @@ defineExpose({
    让 .cal-pop 从绝对定位切到文档流里（static），
    从而把页面高度“撑”起来；关闭时回到 absolute 悬浮层。 */
 .status-banner:has(#banner-time[aria-expanded='true']) .cal-pop:not([hidden]) {
-  position: static; /* 进入文档流，开始参与页面排版 */
+  position: relative; /* 进入文档流，开始参与页面排版 */
   left: auto; /* 清除定位偏移 */
   top: auto; /* 清除定位偏移 */
   z-index: auto; /* 不需要层级覆盖了 */
   width: 100%; /* 占满横幅卡片宽度 */
   max-width: none; /* 不做额外限制，交由外层控制 */
   margin-top: 8px; /* 与横幅主体留出间距，保持原有观感 */
-  /* 可选：如果你希望日历内部也能溢出展示，可解除裁剪（按需打开）
-   overflow: visible;
-  */
+  overflow: visible; /* 展开时允许内部内容溢出显示，小弹窗不再被裁剪 */
 }
 
 /* === 日期按钮：替代原 .cal-day 容器 === */
@@ -736,7 +737,7 @@ defineExpose({
   position: relative;
 } /* 作为相对定位参照（弹窗定位计算更稳定） */
 
-.cal-day-btn {
+:deep(.cal-day-btn) {
   /* 结构：一个可点击的小卡片按钮，仅显示数字；大屏仍显示 .fest （下方有） */
   position: relative;
   display: flex;
@@ -758,28 +759,28 @@ defineExpose({
     box-shadow 0.2s ease,
     transform 0.06s ease;
 }
-.cal-day-btn:hover {
+:deep(.cal-day-btn:hover) {
   background: color-mix(in srgb, var(--paper) 92%, black 8%);
 }
-.cal-day-btn:active {
+:deep(.cal-day-btn:active) {
   transform: translateY(1px);
 }
-.cal-day-btn.out {
+:deep(.cal-day-btn.out) {
   opacity: 0.55;
 }
-.cal-day-btn.today {
+:deep(.cal-day-btn.today) {
   outline: 2px solid var(--tab-active);
   outline-offset: 0;
   box-shadow: 0 0 0 2px color-mix(in srgb, var(--tab-active) 35%, transparent) inset;
 }
 /* 有节日：着色区分（轻底+描边强化） */
-.cal-day-btn.has-fest {
+:deep(.cal-day-btn.has-fest) {
   background: color-mix(in srgb, var(--tab-active) 14%, var(--paper) 86%);
   border-color: color-mix(in srgb, var(--tab-active) 50%, var(--line) 50%);
 }
 
 /* 数字角标 */
-.cal-day-btn .dnum {
+:deep(.cal-day-btn .dnum) {
   font-weight: 800;
   color: var(--ink);
   text-align: right;
