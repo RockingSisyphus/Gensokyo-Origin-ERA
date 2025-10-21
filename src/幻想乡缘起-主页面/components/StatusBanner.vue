@@ -444,7 +444,7 @@ const updateStatusBanner = (statWithoutMeta: object) => {
 
   // 首次调用时，执行一次性的UI事件绑定
   if (!isInitialized) {
-    logger.log(funcName, '首次调用，正在执行初始化...');
+    logger.log(funcName, '首次调用，执行初始化');
     bindUI();
     isInitialized = true;
     logger.log(funcName, '初始化完成。');
