@@ -1,0 +1,2588 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
+  80: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      I: () => getRuntimeVar,
+      Q: () => setRuntimeVar
+    });
+    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(326);
+    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(729);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
+    function getRuntimeVar(path, defaultValue) {
+      const funcName = "getRuntimeVar";
+      try {
+        if (typeof getVariables !== "function") {
+          logger.warn(funcName, "getVariables 函数不可用。");
+          return defaultValue;
+        }
+        const chatVars = getVariables({
+          type: "chat"
+        });
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
+        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+          value
+        });
+        return value;
+      } catch (error) {
+        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+        return defaultValue;
+      }
+    }
+    async function setRuntimeVar(path, value) {
+      const funcName = "setRuntimeVar";
+      try {
+        if (typeof updateVariablesWith !== "function") {
+          logger.error(funcName, "updateVariablesWith 函数不可用。");
+          return false;
+        }
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+          value
+        });
+        await updateVariablesWith(vars => {
+          const chatVars = vars || {};
+          _.set(chatVars, runtimePath, value);
+          return chatVars;
+        }, {
+          type: "chat"
+        });
+        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+        return true;
+      } catch (error) {
+        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+        return false;
+      }
+    }
+  },
+  304: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.r(__webpack_exports__);
+    __webpack_require__.d(__webpack_exports__, {
+      runAffectionPipeline: () => runAffectionPipeline
+    });
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(729);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(326);
+    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(80);
+    const AFFECTION_STYLE_ID = "era-affection-style";
+    function ensureAffectionStyles() {
+      if (document.getElementById(AFFECTION_STYLE_ID)) return;
+      const css = `\n/* ===== ERA affection (injected by affection.ts) ===== */\n@keyframes affPop {\n  0% { transform: translateY(0) scale(.85); opacity: 0; }\n  20% { opacity: 1; }\n  100% { transform: translateY(-18px) scale(1.15); opacity: 0; }\n}\n@keyframes cardPop {\n  0% { transform: translate(0,0) scale(.8) rotate(0deg); opacity: 0; }\n  20% { opacity: 1; }\n  100% { transform: translate(var(--dx,0), var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg)); opacity: 0; }\n}\n\n/* 仅作用于角色卡区域，避免全局污染 */\n.role-card .aff-particle,\n.role-card .card-particle{\n  position:absolute; line-height:1; pointer-events:none; user-select:none; opacity:0;\n  filter:drop-shadow(0 0 6px rgba(0,0,0,.25));\n}\n.role-card .aff-particle{ animation: affPop 1.1s ease-out forwards; }\n.role-card .card-particle{ animation: cardPop 1.2s ease-out forwards; font-size:16px; }\n.role-card .card-particle.heart{ color:#b65ff7; text-shadow:0 0 8px rgba(126,63,242,.5); }\n.role-card .card-particle.skull{ color:#222; text-shadow:0 0 6px rgba(0,0,0,.5); }\n.role-card .aff-particle.heart{ text-shadow:0 0 6px rgba(126,63,242,.45); }\n.role-card .aff-particle.skull{ color:#000; text-shadow:0 0 6px rgba(0,0,0,.35); }\n\n/* 进度条修饰：与原生逻辑一致 */\n/* 让“朝向”绝对覆盖 scoped 的 left:0 */\n.role-card .mini-bar .val.rtl{ left:auto !important; right:0 !important; }\n\n/* 让配色绝对覆盖 scoped 的默认背景 */\n.role-card .mini-bar .val.negative{\n  background:#b00020 !important;\n}\n.role-card .mini-bar .val.very-hate{\n  background:#000 !important;\n}\n.role-card .mini-bar .val.very-love{\n  background:linear-gradient(90deg,#7e3ff2,#c084fc) !important;\n}\n\n\n/* （可选）深色主题下骷髅视觉微调，保持观感一致 */\n:root[data-theme='dark'] .role-card .card-particle.skull,\n:root[data-theme='dark'] .role-card .aff-particle.skull{\n  color:#714f4f; text-shadow:0 0 6px rgba(185,88,88,.6);\n}\n`;
+      const style = document.createElement("style");
+      style.id = AFFECTION_STYLE_ID;
+      style.textContent = css;
+      document.head.appendChild(style);
+    }
+    const logger = new _utils_logger__WEBPACK_IMPORTED_MODULE_1__.Vy("backend-affection");
+    const STAGES_FALLBACK = [ [ -9999, "死敌" ], [ -99, "憎恨" ], [ -20, "厌恶" ], [ 0, "不喜" ], [ 10, "冷淡" ], [ 20, "熟悉" ], [ 40, "亲近" ], [ 70, "亲密" ], [ 99, "思慕" ], [ 9999, "不渝" ] ];
+    function stageLabelFrom(statWithoutMeta, fav) {
+      try {
+        logger.debug("stageLabelFrom", "函数接收到的完整 statWithoutMeta 对象", {
+          statWithoutMeta: JSON.parse(JSON.stringify(statWithoutMeta))
+        });
+        const stages = (0, _utils_mvu__WEBPACK_IMPORTED_MODULE_2__.Tu)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_STAGES, STAGES_FALLBACK);
+        logger.debug("stageLabelFrom", "开始计算好感度等级", {
+          当前好感度: fav,
+          等级配置表: JSON.parse(JSON.stringify(stages))
+        });
+        for (let i = stages.length - 1; i >= 0; i--) {
+          if (fav >= Number(stages[i][0])) {
+            const label = String(stages[i][1] ?? "—");
+            logger.debug("stageLabelFrom", "计算成功", {
+              当前好感度: fav,
+              匹配到的等级阈值: stages[i][0],
+              最终等级名称: label
+            });
+            return label;
+          }
+        }
+        const fallbackLabel = String(stages[0]?.[1] ?? "—");
+        logger.debug("stageLabelFrom", "在配置表中未找到匹配，使用最低等级作为保底", {
+          当前好感度: fav,
+          保底等级名称: fallbackLabel
+        });
+        return fallbackLabel;
+      } catch (e) {
+        logger.warn("stageLabelFrom", "阶段计算失败，使用兜底。", e);
+        return "—";
+      }
+    }
+    function loveThresholdOf(statWithoutMeta) {
+      return Number((0, _utils_mvu__WEBPACK_IMPORTED_MODULE_2__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_LOVE_THRESHOLD, 100));
+    }
+    function hateThresholdOf(statWithoutMeta) {
+      return Number((0, _utils_mvu__WEBPACK_IMPORTED_MODULE_2__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_HATE_THRESHOLD, -100));
+    }
+    const CARD_STATE = new WeakMap;
+    function paintBar(valEl, fav, love, hate) {
+      if (!valEl) return;
+      valEl.classList.remove("negative", "very-hate", "very-love", "rtl");
+      if (fav < 0) valEl.classList.add("rtl");
+      if (fav <= hate) valEl.classList.add("very-hate"); else if (fav < 0) valEl.classList.add("negative"); else if (fav >= love) valEl.classList.add("very-love");
+      logger.debug("paintBar", "已着色进度条", {
+        fav,
+        className: valEl.className
+      });
+    }
+    function burstBarParticles(valEl, kind = "heart", count = 5) {
+      if (!valEl) return;
+      const host = valEl.parentElement || valEl;
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement("span");
+        s.className = "aff-particle " + (kind === "skull" ? "skull" : "heart");
+        s.textContent = kind === "skull" ? "☠" : "❤";
+        s.style.left = 10 + Math.random() * 80 + "%";
+        s.style.bottom = 2 + Math.random() * 4 + "px";
+        s.style.animationDelay = i * .06 + "s";
+        host.appendChild(s);
+        setTimeout(() => s.remove(), 1300);
+      }
+    }
+    function burstCardParticles(card, kind = "heart", count = 10) {
+      const nowTs = performance.now();
+      const rec = CARD_STATE.get(card) || {};
+      if (rec.lastBurstAt && nowTs - rec.lastBurstAt < 1e3) return;
+      for (let i = 0; i < count; i++) {
+        const s = document.createElement("span");
+        s.className = "card-particle " + (kind === "skull" ? "skull" : "heart");
+        s.textContent = kind === "skull" ? "☠" : "❤";
+        s.style.left = 5 + Math.random() * 90 + "%";
+        s.style.top = 10 + Math.random() * 80 + "%";
+        s.style.setProperty("--dx", (Math.random() - .5) * 60 + "px");
+        s.style.setProperty("--dy", -40 - Math.random() * 40 + "px");
+        s.style.setProperty("--rot", (Math.random() - .5) * 40 + "deg");
+        s.style.animationDelay = i * .05 + "s";
+        card.appendChild(s);
+        setTimeout(() => s.remove(), 1500);
+      }
+      rec.lastBurstAt = nowTs;
+      CARD_STATE.set(card, rec);
+    }
+    function ensureSkullTicker(card, enabled) {
+      const rec = CARD_STATE.get(card) || {};
+      if (enabled) {
+        if (!rec.skullTimer) {
+          rec.skullTimer = setInterval(() => {
+            try {
+              const valEl = card.querySelector(".mini-bar .val");
+              burstCardParticles(card, "skull", 6);
+              if (valEl) burstBarParticles(valEl, "skull", 4);
+            } catch (e) {
+              logger.debug("ensureSkullTicker", "粒子渲染异常，忽略", e);
+            }
+          }, 1400);
+          logger.debug("ensureSkullTicker", "骷髅续喷 开启");
+        }
+      } else if (rec.skullTimer) {
+        clearInterval(rec.skullTimer);
+        rec.skullTimer = null;
+        logger.debug("ensureSkullTicker", "骷髅续喷 关闭");
+      }
+      CARD_STATE.set(card, rec);
+    }
+    function ensureLoveTicker(card, enabled) {
+      const rec = CARD_STATE.get(card) || {};
+      if (enabled) {
+        if (!rec.loveTimer) {
+          rec.loveTimer = setInterval(() => {
+            try {
+              const valEl = card.querySelector(".mini-bar .val");
+              burstCardParticles(card, "heart", 6);
+              if (valEl) burstBarParticles(valEl, "heart", 4);
+            } catch (e) {
+              logger.debug("ensureLoveTicker", "粒子渲染异常，忽略", e);
+            }
+          }, 1600);
+          logger.debug("ensureLoveTicker", "爱心续喷 开启");
+        }
+      } else if (rec.loveTimer) {
+        clearInterval(rec.loveTimer);
+        rec.loveTimer = null;
+        logger.debug("ensureLoveTicker", "爱心续喷 关闭");
+      }
+      CARD_STATE.set(card, rec);
+    }
+    function processCard(statWithoutMeta, card) {
+      try {
+        const favRaw = card.querySelector(".aff-num")?.textContent || "0";
+        const fav = parseInt(favRaw || "0", 10) || 0;
+        const valEl = card.querySelector(".mini-bar .val");
+        const lblEl = card.querySelector(".aff-stage");
+        if (lblEl) lblEl.textContent = stageLabelFrom(statWithoutMeta, fav);
+        const LOVE = loveThresholdOf(statWithoutMeta);
+        const HATE = hateThresholdOf(statWithoutMeta);
+        paintBar(valEl, fav, LOVE, HATE);
+        let cur = "neutral";
+        if (fav <= HATE) cur = "hate"; else if (fav >= LOVE) cur = "love";
+        const rec = CARD_STATE.get(card) || {};
+        const prev = rec.state;
+        if (cur !== prev) {
+          if (cur === "love") {
+            burstCardParticles(card, "heart", 10);
+            if (valEl) burstBarParticles(valEl, "heart", 5);
+          } else if (cur === "hate") {
+            burstCardParticles(card, "skull", 8);
+            if (valEl) burstBarParticles(valEl, "skull", 5);
+          }
+        }
+        if (cur === "love") {
+          const nowTs = performance.now();
+          if (!rec.lastLoveAt || nowTs - rec.lastLoveAt > 1600) {
+            if (valEl) burstBarParticles(valEl, "heart", 3);
+            rec.lastLoveAt = nowTs;
+          }
+        }
+        ensureSkullTicker(card, cur === "hate");
+        ensureLoveTicker(card, cur === "love");
+        rec.state = cur;
+        rec.lastFav = fav;
+        CARD_STATE.set(card, rec);
+        logger.debug("processCard", "处理完成", {
+          名称: card.querySelector(".role-name")?.textContent || "—",
+          fav,
+          阶段: cur,
+          阶段文案: lblEl?.textContent || "—",
+          条类: valEl?.className || "—"
+        });
+      } catch (e) {
+        logger.warn("processCard", "处理异常", e);
+      }
+    }
+    function scanAll(statWithoutMeta) {
+      const cards = document.querySelectorAll(".role-card");
+      if (!cards.length) {
+        logger.debug("scanAll", "暂无角色卡片可处理");
+        return 0;
+      }
+      cards.forEach(card => processCard(statWithoutMeta, card));
+      logger.log("scanAll", "好感渲染完成", {
+        数量: cards.length,
+        love: loveThresholdOf(statWithoutMeta),
+        hate: hateThresholdOf(statWithoutMeta)
+      });
+      return cards.length;
+    }
+    async function runAffectionPipeline(statWithoutMeta) {
+      const funcName = "runAffectionPipeline";
+      try {
+        ensureAffectionStyles();
+        logger.log(funcName, "开始执行好感流水线", {
+          mk: statWithoutMeta && (statWithoutMeta.$mk || statWithoutMeta.mk) || ""
+        });
+        const nowTs = Date.now();
+        await (0, _utils_runtime__WEBPACK_IMPORTED_MODULE_3__.Q)("affection.lastRenderAt", nowTs);
+        const prevTs = (0, _utils_runtime__WEBPACK_IMPORTED_MODULE_3__.I)("affection.lastRenderAt", 0);
+        logger.debug(funcName, "runtime 打点", {
+          prevTs,
+          nowTs
+        });
+        scanAll(statWithoutMeta);
+        logger.log(funcName, "好感流水线完成");
+      } catch (e) {
+        logger.warn(funcName, "好感流水线异常（非致命）", e);
+      }
+    }
+  },
+  326: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      Jt: () => get,
+      Qq: () => text,
+      Tu: () => getRaw,
+      UY: () => getStr,
+      fE: () => toText
+    });
+    function firstVal(x) {
+      return Array.isArray(x) ? x.length ? x[0] : "" : x;
+    }
+    function get(obj, path, fallback = "") {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            if (window.__MVU_DEBUG__?.cfg.verboseGet) {
+              window.__MVU_DEBUG__.warn("【字段读取】未找到键，使用默认值。", {
+                路径: String(path),
+                缺失键: String(k),
+                默认值: fallback
+              });
+            }
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        const v = firstVal(cur);
+        if (v == null) {
+          if (window.__MVU_DEBUG__?.cfg.verboseGet) {
+            window.__MVU_DEBUG__.warn("【字段读取】路径存在但值为空(null/undefined)，使用默认值。", {
+              路径: String(path),
+              默认值: fallback
+            });
+          }
+          return fallback;
+        }
+        return v;
+      } catch (e) {
+        window.__MVU_DEBUG__?.error("【字段读取】异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function text(id, raw) {
+      const el = document.getElementById(id);
+      if (!el) {
+        window.__MVU_DEBUG__?.warn("【DOM 渲染】目标元素不存在，跳过写入。", {
+          元素ID: id
+        });
+        return;
+      }
+      el.textContent = toText(raw);
+    }
+    function getRaw(obj, path, fallback = null) {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        return cur == null ? fallback : cur;
+      } catch (e) {
+        window.__MVU_DEBUG__?.error("【字段读取/Raw】异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function toText(v) {
+      if (v == null || v === "") return "—";
+      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+      if (typeof v === "object") return JSON.stringify(v);
+      return String(v);
+    }
+    function getStr(obj, path, fallback = "") {
+      const rawValue = getRaw(obj, path, null);
+      if (rawValue === null) {
+        return toText(fallback);
+      }
+      return toText(rawValue);
+    }
+  },
+  391: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  414: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      EN: () => logContext,
+      Vy: () => Logger
+    });
+    const logContext = {
+      mk: ""
+    };
+    class Logger {
+      moduleName;
+      constructor(moduleName) {
+        this.moduleName = moduleName;
+      }
+      formatMessage(funcName, message) {
+        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+      }
+      debug(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
+        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.includes(this.moduleName)) {
+          return;
+        }
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.debug(formattedMessage, obj);
+        } else {
+          console.debug(formattedMessage);
+        }
+      }
+      log(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+        } else {
+          console.log(`%c${formattedMessage}`, "color: #3498db;");
+        }
+      }
+      warn(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+        } else {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+        }
+      }
+      error(funcName, message, errorObj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (errorObj) {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+        } else {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+        }
+      }
+    }
+    const LOG_CONFIG = {
+      levels: {
+        debug: 0,
+        log: 1,
+        warn: 2,
+        error: 3
+      },
+      currentLevel: 0,
+      debugWhitelist: [ "index", "backend-affection", "backend-mapLocation", "components-RoleRibbon", "components-StatusBanner", "components-StatusNews", "components-StatusSidebar", "components-ThemeToggle", "components-StatusTab-StatusTabContent", "components-StatusTab-tabs-ContentBio", "components-StatusTab-tabs-ContentOthers", "components-StatusTab-tabs-ContentSettings", "components-StatusTab-tabs-Incidents", "components-StatusTab-tabs-WorldMap", "components-StatusTab-tabs-FontSizeControls" ]
+    };
+    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+  },
+  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "config.defaults.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
+  }
+};
+
+var __webpack_module_cache__ = {};
+
+function __webpack_require__(moduleId) {
+  var cachedModule = __webpack_module_cache__[moduleId];
+  if (cachedModule !== undefined) {
+    return cachedModule.exports;
+  }
+  var module = __webpack_module_cache__[moduleId] = {
+    exports: {}
+  };
+  __webpack_modules__[moduleId](module, module.exports, __webpack_require__);
+  return module.exports;
+}
+
+(() => {
+  __webpack_require__.n = module => {
+    var getter = module && module.__esModule ? () => module["default"] : () => module;
+    __webpack_require__.d(getter, {
+      a: getter
+    });
+    return getter;
+  };
+})();
+
+(() => {
+  __webpack_require__.d = (exports, definition) => {
+    for (var key in definition) {
+      if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+        Object.defineProperty(exports, key, {
+          enumerable: true,
+          get: definition[key]
+        });
+      }
+    }
+  };
+})();
+
+(() => {
+  __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+})();
+
+(() => {
+  __webpack_require__.r = exports => {
+    if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+      Object.defineProperty(exports, Symbol.toStringTag, {
+        value: "Module"
+      });
+    }
+    Object.defineProperty(exports, "__esModule", {
+      value: true
+    });
+  };
+})();
+
+var __webpack_exports__ = {};
+
+const external_Vue_namespaceObject = Vue;
+
+var constants = __webpack_require__(729);
+
+var utils_logger = __webpack_require__(414);
+
+var mvu = __webpack_require__(326);
+
+const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "ContentBio",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-ContentBio");
+    const userEvents = (0, external_Vue_namespaceObject.ref)(null);
+    const userRelationships = (0, external_Vue_namespaceObject.ref)(null);
+    function update(statWithoutMeta) {
+      const funcName = "update";
+      logger.log(funcName, "接收到更新指令，开始更新履历与关系", {
+        statWithoutMeta
+      });
+      const userData = (0, mvu.Jt)(statWithoutMeta, constants.M.USER_DATA, {});
+      logger.debug(funcName, "提取的用户数据", {
+        userData
+      });
+      const eventsText = (0, mvu.UY)(userData, constants.M.USER_EVENTS, "—");
+      const relationshipsText = (0, mvu.UY)(userData, constants.M.USER_RELATIONSHIPS, "—");
+      logger.debug(funcName, "处理后的待显示文本", {
+        eventsText,
+        relationshipsText
+      });
+      if (userEvents.value) {
+        userEvents.value.textContent = eventsText || "—";
+        logger.log(funcName, "成功更新“重要经历”内容。");
+      } else {
+        logger.warn(funcName, "无法找到“重要经历”的 DOM 元素 (userEvents ref)，请检查模板。");
+      }
+      if (userRelationships.value) {
+        userRelationships.value.textContent = relationshipsText || "—";
+        logger.log(funcName, "成功更新“人际关系”内容。");
+      } else {
+        logger.warn(funcName, "无法找到“人际关系”的 DOM 元素 (userRelationships ref)，请检查模板。");
+      }
+    }
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🧭"), (0, external_Vue_namespaceObject.createTextVNode)("重要经历") ], -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      ref_key: "userEvents",
+      ref: userEvents,
+      class: "preserve-format"
+    }, "—", 512), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("hr", {
+      class: "dashed"
+    }, null, -1)), _cache[2] || (_cache[2] = (0, external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🤝"), (0, external_Vue_namespaceObject.createTextVNode)("人际关系") ], -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      ref_key: "userRelationships",
+      ref: userRelationships,
+      class: "preserve-format"
+    }, "—", 512) ]));
+  }
+});
+
+var exportHelper = __webpack_require__(391);
+
+const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4ba65ade" ] ]);
+
+const ContentBio = __exports__;
+
+const logger = new utils_logger.Vy("EraWriter");
+
+function updateEraVariable(path, value) {
+  const funcName = "updateEraVariable";
+  if (!path || typeof path !== "string") {
+    logger.warn(funcName, "调用失败：path 无效。", {
+      path
+    });
+    return;
+  }
+  const eventData = {
+    path,
+    value
+  };
+  try {
+    logger.log(funcName, `准备发送 era:updateByPath 事件`, eventData);
+    eventEmit("era:updateByPath", eventData);
+  } catch (e) {
+    logger.error(funcName, "发送 era:updateByPath 事件时出现异常", e);
+  }
+}
+
+const _hoisted_1 = {
+  id: "others-toolbar",
+  class: "debug-toolbar",
+  style: {
+    margin: "6px 0 10px"
+  }
+};
+
+const _hoisted_2 = {
+  class: "debug-switch",
+  title: "config.mvuLifeMeet.rules.incident.skipVisitHunters"
+};
+
+const _hoisted_3 = {
+  class: "debug-switch",
+  title: "config.mvuLifeMeet.rules.incident.skipSleepHunters"
+};
+
+const _hoisted_4 = [ "data-name" ];
+
+const _hoisted_5 = {
+  class: "role-card-header"
+};
+
+const _hoisted_6 = {
+  class: "role-avatar"
+};
+
+const _hoisted_7 = {
+  class: "role-name"
+};
+
+const _hoisted_8 = {
+  class: "role-meta"
+};
+
+const _hoisted_9 = {
+  class: "role-body"
+};
+
+const _hoisted_10 = {
+  class: "role-line"
+};
+
+const _hoisted_11 = {
+  class: "aff-num"
+};
+
+const _hoisted_12 = {
+  class: "mini-bar"
+};
+
+const _hoisted_13 = {
+  key: 1,
+  class: "role-card"
+};
+
+const ContentOthersvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "ContentOthers",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-ContentOthers");
+    const otherRoles = (0, external_Vue_namespaceObject.ref)([]);
+    const skipVisitHunters = (0, external_Vue_namespaceObject.ref)(false);
+    const skipSleepHunters = (0, external_Vue_namespaceObject.ref)(false);
+    const update = statWithoutMeta => {
+      const funcName = "update";
+      logger.log(funcName, `开始更新“其他角色”组件`, {
+        statWithoutMeta
+      });
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。");
+        return;
+      }
+      try {
+        skipVisitHunters.value = !!(0, mvu.Jt)(statWithoutMeta, constants.M.SKIP_VISIT_HUNTERS, false);
+        skipSleepHunters.value = !!(0, mvu.Jt)(statWithoutMeta, constants.M.SKIP_SLEEP_HUNTERS, false);
+        logger.log(funcName, `工具条状态已更新`, {
+          visit: skipVisitHunters.value,
+          sleep: skipSleepHunters.value
+        });
+      } catch (e) {
+        logger.error(funcName, `更新工具条状态时出错`, e);
+      }
+      try {
+        const uLoc = String((0, mvu.Jt)(statWithoutMeta, constants.M.USER_LOCATION, "")).trim();
+        let chars = (0, mvu.Jt)(statWithoutMeta, constants.M.CHARS, {});
+        if (typeof chars === "string") {
+          try {
+            chars = JSON.parse(chars);
+          } catch (e) {
+            logger.error(funcName, "解析 chars JSON 字符串失败", e);
+            chars = {};
+          }
+        }
+        if (!chars || typeof chars !== "object") {
+          logger.warn(funcName, "stat_data.chars 无效或不存在。");
+          otherRoles.value = [];
+          return;
+        }
+        const entries = Object.entries(chars).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v));
+        const others = entries.filter(([, obj]) => {
+          const cLoc = String((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "")).trim();
+          return !(uLoc && cLoc && cLoc === uLoc);
+        });
+        others.sort((a, b) => {
+          const la = String((0, mvu.Jt)(a[1], constants.M.CHAR_LOCATION, "")).localeCompare(String((0, 
+          mvu.Jt)(b[1], constants.M.CHAR_LOCATION, "")), "zh-Hans-CN");
+          if (la !== 0) return la;
+          return String(a[0]).localeCompare(String(b[0]), "zh-Hans-CN");
+        });
+        otherRoles.value = others.map(([name, obj]) => {
+          const fields = [ [ "年龄", "年龄" ], [ "性别", "性别" ], [ "身份", "身份" ], [ "性格", "性格" ], [ "外貌", "外貌" ], [ "衣着", "衣着" ], [ "人际关系", "人际关系" ], [ "性经验", "性经验" ], [ "性知识", "性知识" ], [ "特殊能力", "特殊能力" ], [ "身体状况", "身体状况" ], [ "目标", "当前目标" ], [ "所想", "当前所想" ], [ "居住地区", "居住地区" ] ];
+          const fav = (0, mvu.Jt)(obj, constants.M.CHAR_AFFECTION, 0);
+          return {
+            name,
+            location: (0, mvu.fE)((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "未知")),
+            fields: fields.map(([label, key]) => ({
+              label,
+              value: (0, mvu.fE)((0, mvu.Jt)(obj, key, "—"))
+            })),
+            affection: {
+              value: (0, mvu.fE)(fav),
+              barWidth: `${Math.min(Math.abs(Number(fav) || 0), 100)}%`
+            }
+          };
+        });
+        logger.log(funcName, `“其他角色”列表已更新，共 ${otherRoles.value.length} 人。`);
+      } catch (e) {
+        logger.error(funcName, `更新“其他角色”列表时出错`, e);
+        otherRoles.value = [];
+      }
+    };
+    const onSkipVisitChange = () => {
+      logger.log("onSkipVisitChange", `请求更新 skipVisitHunters: ${skipVisitHunters.value}`);
+      updateEraVariable(constants.M.SKIP_VISIT_HUNTERS, skipVisitHunters.value);
+    };
+    const onSkipSleepChange = () => {
+      logger.log("onSkipSleepChange", `请求更新 skipSleepHunters: ${skipSleepHunters.value}`);
+      updateEraVariable(constants.M.SKIP_SLEEP_HUNTERS, skipSleepHunters.value);
+    };
+    const handleToggle = e => {
+      const btn = e.target.closest(".card-toggle");
+      if (!btn) return;
+      const card = btn.closest(".role-card");
+      if (!card) return;
+      const expand = !card.classList.contains("expanded");
+      card.classList.toggle("expanded", expand);
+      card.classList.toggle("collapsed", !expand);
+      btn.setAttribute("aria-expanded", String(expand));
+      btn.textContent = expand ? "▲" : "▼";
+      const roleName = card.getAttribute("data-name") || "未知角色";
+      logger.log("handleToggle", `切换角色卡片展开状态`, {
+        角色: roleName,
+        展开: expand
+      });
+    };
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[8] || (_cache[8] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🧑‍🤝‍🧑"), (0, external_Vue_namespaceObject.createTextVNode)("其他角色") ], -1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" ===== 其他角色工具条 ===== "), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", _hoisted_2, [ (0, external_Vue_namespaceObject.withDirectives)((0, 
+    external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "life-skip-visit-hunters",
+      "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => skipVisitHunters.value = $event),
+      type: "checkbox",
+      onChange: onSkipVisitChange
+    }, null, 544), [ [ external_Vue_namespaceObject.vModelCheckbox, skipVisitHunters.value ] ]), _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 异变中退治者不拜访 ", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("span", _hoisted_3, [ (0, 
+    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "life-skip-sleep-hunters",
+      "onUpdate:modelValue": _cache[1] || (_cache[1] = $event => skipSleepHunters.value = $event),
+      type: "checkbox",
+      onChange: onSkipSleepChange
+    }, null, 544), [ [ external_Vue_namespaceObject.vModelCheckbox, skipSleepHunters.value ] ]), _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 异变中退治者不睡觉 ", -1)) ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "other-roles-list",
+      class: "incident-list",
+      onClick: handleToggle
+    }, [ otherRoles.value.length ? ((0, external_Vue_namespaceObject.openBlock)(true), 
+    (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, {
+      key: 0
+    }, (0, external_Vue_namespaceObject.renderList)(otherRoles.value, role => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: role.name,
+      class: "role-card collapsed",
+      "data-name": role.name
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_6, (0, external_Vue_namespaceObject.toDisplayString)(role.name.slice(0, 1)), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_7, (0, 
+    external_Vue_namespaceObject.toDisplayString)(role.name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_8, (0, 
+    external_Vue_namespaceObject.toDisplayString)(role.location), 1) ]), _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      class: "card-toggle",
+      "aria-expanded": "false",
+      "aria-label": "展开/收起"
+    }, "▼", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(role.fields, field => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: field.label,
+      class: "role-line"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(field.label) + "：", 1), (0, 
+    external_Vue_namespaceObject.createTextVNode)((0, external_Vue_namespaceObject.toDisplayString)(field.value), 1) ]))), 128)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_10, [ _cache[5] || (_cache[5] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "好感度：", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", _hoisted_11, (0, external_Vue_namespaceObject.toDisplayString)(role.affection.value), 1), _cache[6] || (_cache[6] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "aff-stage",
+      style: {
+        "margin-left": "6px",
+        color: "var(--muted)",
+        "font-size": "0.85em"
+      }
+    }, "—", -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_12, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "val",
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        width: role.affection.barWidth
+      })
+    }, null, 4) ]) ]) ]) ], 8, _hoisted_4))), 128)) : ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_13, [ ..._cache[7] || (_cache[7] = [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-card-header"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-avatar"
+    }, "✔"), (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-name"
+    }, "当前无“其他角色”"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-meta"
+    }, "与玩家不同区的角色为 0") ]) ], -1) ]) ])) ]) ]));
+  }
+});
+
+const ContentOthers_exports_ = (0, exportHelper.A)(ContentOthersvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-eb55b478" ] ]);
+
+const ContentOthers = ContentOthers_exports_;
+
+const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
+
+const ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "row",
+  style: {
+    display: "flex",
+    gap: "8px",
+    "align-items": "center",
+    margin: "8px 0 12px"
+  }
+};
+
+const ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  id: "cfg_status",
+  class: "tag"
+};
+
+const ContentSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "ContentSettings",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-ContentSettings");
+    const loadStatus = (0, external_Vue_namespaceObject.ref)("未载入");
+    const configRoot = (0, external_Vue_namespaceObject.ref)(null);
+    let initialConfig = null;
+    let leafCount = 0;
+    let groupCount = 0;
+    const isObj = o => o && typeof o === "object" && !Array.isArray(o);
+    const join = (base, k) => base ? `${base}.${k}` : k;
+    function createControl(path, value) {
+      const wrap = document.createElement("div");
+      const key = document.createElement("div");
+      const box = document.createElement("div");
+      wrap.style.margin = "10px 0";
+      key.style.fontWeight = "600";
+      key.style.color = "#5e5042";
+      key.textContent = path;
+      wrap.appendChild(key);
+      wrap.appendChild(box);
+      let getVal;
+      if (typeof value === "boolean") {
+        const el = document.createElement("input");
+        el.type = "checkbox";
+        el.checked = !!value;
+        box.appendChild(el);
+        getVal = () => !!el.checked;
+      } else if (typeof value === "number") {
+        const el = document.createElement("input");
+        el.type = "number";
+        el.value = String(value);
+        el.style.width = "100%";
+        box.appendChild(el);
+        getVal = () => Number(el.value);
+      } else if (Array.isArray(value)) {
+        const isPrimitiveArray = value.every(v => v === null || [ "string", "number", "boolean" ].includes(typeof v));
+        const el = document.createElement("textarea");
+        el.style.width = "100%";
+        el.style.minHeight = "100px";
+        box.appendChild(el);
+        if (isPrimitiveArray) {
+          el.value = value.map(v => String(v)).join("\n");
+          getVal = () => {
+            const lines = (el.value || "").split("\n").map(s => s.trim()).filter(Boolean);
+            const allNumbers = lines.every(s => /^-?\d+(?:\.\d+)?$/.test(s));
+            return allNumbers ? lines.map(Number) : lines;
+          };
+        } else {
+          el.value = JSON.stringify(value, null, 2);
+          getVal = () => {
+            try {
+              const text = el.value.trim();
+              return text ? JSON.parse(text) : [];
+            } catch (e) {
+              logger.error("createControl", `解析JSON失败，路径: ${path}`, e);
+              return value;
+            }
+          };
+        }
+      } else {
+        const el = document.createElement("input");
+        el.type = "text";
+        el.value = String(value);
+        el.style.width = "100%";
+        box.appendChild(el);
+        getVal = () => el.value;
+      }
+      leafCount++;
+      wrap.__getVal = getVal;
+      wrap.dataset.path = path;
+      try {
+        wrap.dataset.init = JSON.stringify(value);
+      } catch {
+        wrap.dataset.init = "";
+      }
+      return wrap;
+    }
+    function createGroup(obj, basePath, docText) {
+      const box = document.createElement("details");
+      box.open = false;
+      const sum = document.createElement("summary");
+      sum.textContent = basePath || "(root)";
+      box.appendChild(sum);
+      if (docText) {
+        const d = document.createElement("div");
+        d.style.color = "#857664";
+        d.style.fontSize = ".9em";
+        d.style.margin = "6px 0 10px";
+        d.textContent = docText;
+        box.appendChild(d);
+      }
+      groupCount++;
+      Object.keys(obj).forEach(k => {
+        if (k === "__doc" || k === "_doc" || k.endsWith("__doc") || k.startsWith("_")) return;
+        const v = obj[k];
+        const p = join(basePath, k);
+        if (isObj(v)) {
+          const child = createGroup(v, p, v._doc || obj[`${k}__doc`]);
+          box.appendChild(child);
+        } else {
+          const leafDoc = obj[`${k}__doc`];
+          const controlElement = createControl(p, v);
+          if (leafDoc) {
+            const d = document.createElement("div");
+            d.style.color = "#857664";
+            d.style.fontSize = ".9em";
+            d.style.margin = "6px 0 10px";
+            d.textContent = leafDoc;
+            controlElement.insertBefore(d, controlElement.children[1]);
+          }
+          box.appendChild(controlElement);
+        }
+      });
+      return box;
+    }
+    function render(cfg) {
+      if (!configRoot.value) {
+        logger.warn("render", "无法渲染，因为 #cfg_root 容器不存在。");
+        return;
+      }
+      const t0 = performance.now();
+      leafCount = 0;
+      groupCount = 0;
+      configRoot.value.innerHTML = "";
+      initialConfig = (0, external_namespaceObject.cloneDeep)(cfg);
+      const view = createGroup(cfg, "", cfg?._doc);
+      view.open = false;
+      configRoot.value.appendChild(view);
+      loadStatus.value = "已载入";
+      const ms = (performance.now() - t0).toFixed(1);
+      logger.log("render", `配置渲染完成`, {
+        groups: groupCount,
+        leaves: leafCount,
+        ms
+      });
+    }
+    function collectChanges() {
+      const t0 = performance.now();
+      const items = configRoot.value?.querySelectorAll("[data-path]") || [];
+      const changes = [];
+      let scanned = 0;
+      items.forEach(el => {
+        scanned++;
+        const path = el.dataset.path;
+        const getVal = el.__getVal;
+        if (!path || !getVal) return;
+        const currentValue = getVal();
+        let initialValue = null;
+        try {
+          initialValue = JSON.parse(el.dataset.init || "null");
+        } catch {}
+        if (!(0, external_namespaceObject.isEqual)(currentValue, initialValue)) {
+          changes.push({
+            path,
+            from: initialValue,
+            to: currentValue
+          });
+        }
+      });
+      logger.log("collectChanges", `差异收集完成`, {
+        scanned,
+        changed: changes.length,
+        ms: (performance.now() - t0).toFixed(1),
+        sample: changes.slice(0, 5)
+      });
+      return changes;
+    }
+    async function save() {
+      const funcName = "save";
+      try {
+        const changes = collectChanges();
+        if (!changes.length) {
+          logger.log(funcName, "无变化，无需保存。");
+          toastr.info("没有检测到任何更改。");
+          return;
+        }
+        logger.log(funcName, `准备写入 ${changes.length} 项更改...`);
+        toastr.info(`正在保存 ${changes.length} 项更改...`);
+        let ok = 0, fail = 0;
+        for (const change of changes) {
+          try {
+            updateEraVariable(`config.${change.path}`, change.to);
+            ok++;
+            logger.log(funcName, `已通过 era:updateByPath 请求更新`, {
+              path: `config.${change.path}`
+            });
+          } catch (e) {
+            fail++;
+            logger.error(funcName, `写入失败`, {
+              path: change.path,
+              error: e
+            });
+          }
+        }
+        logger.log(funcName, `保存完成`, {
+          ok,
+          fail
+        });
+        toastr.success(`保存成功 ${ok} 项，失败 ${fail} 项。`);
+      } catch (e) {
+        logger.error(funcName, `保存过程出现异常`, e);
+        toastr.error("保存过程中发生未知错误。");
+      }
+    }
+    function expandAll() {
+      const list = configRoot.value?.querySelectorAll("details");
+      list?.forEach(d => d.open = true);
+      logger.log("expandAll", `展开了 ${list?.length || 0} 个分组。`);
+    }
+    function collapseAll() {
+      const list = configRoot.value?.querySelectorAll("details");
+      list?.forEach(d => d.open = false);
+      logger.log("collapseAll", `折叠了 ${list?.length || 0} 个分组。`);
+    }
+    function update(statWithoutMeta) {
+      const funcName = "update";
+      logger.log(funcName, "接收到更新请求", {
+        keys: Object.keys(statWithoutMeta || {}).length
+      });
+      const config = (0, external_namespaceObject.get)(statWithoutMeta, "config");
+      if (config && typeof config === "object") {
+        render(config);
+      } else {
+        logger.warn(funcName, "在 statWithoutMeta 中未找到有效的 config 对象。");
+        loadStatus.value = "配置无效";
+      }
+    }
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⚙️"), (0, external_Vue_namespaceObject.createTextVNode)("设置") ], -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(loadStatus.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_expand_all",
+      onClick: expandAll
+    }, "展开全部"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_collapse_all",
+      onClick: collapseAll
+    }, "折叠全部"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_save_cfg",
+      onClick: save
+    }, "保存更改到世界书") ]), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "hint"
+    }, "布尔=勾选，数字=数字框，字符串=文本框，数组=每行一项。对象会折叠为分组。", -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "cfg_root",
+      ref_key: "configRoot",
+      ref: configRoot
+    }, null, 512) ]));
+  }
+});
+
+const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1969adb7" ] ]);
+
+const ContentSettings = ContentSettings_exports_;
+
+var runtime = __webpack_require__(80);
+
+const T0_PATH = "incident.异变冷却基准时间";
+
+const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "Incidents",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-Incidents");
+    function extractIncidents(data) {
+      let root = (0, mvu.Jt)(data, "incidents");
+      if (typeof root === "string") {
+        try {
+          root = JSON.parse(root);
+        } catch {
+          root = null;
+        }
+      }
+      if (!root || typeof root !== "object" || Array.isArray(root)) return [];
+      return Object.entries(root).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v)).map(([__name, __data]) => ({
+        __name,
+        __data
+      }));
+    }
+    function renderIncidents(state) {
+      const funcName = "renderIncidents";
+      const host = document.getElementById("incident-list");
+      if (!host) {
+        logger.warn(funcName, "未找到 #incident-list 容器。");
+        return;
+      }
+      host.innerHTML = "";
+      const items = extractIncidents(state);
+      logger.log(funcName, `开始渲染 ${items.length} 个异变卡片。`);
+      items.forEach(({__name, __data}) => {
+        const name = (0, mvu.fE)((0, mvu.Jt)(__data, "异变名称", __name));
+        const status = (0, mvu.fE)((0, mvu.Jt)(__data, "异变进程", "未知"));
+        const fields = [ [ "影响", "异变影响" ], [ "退治者", "异变退治者" ], [ "发起者", "异变发起者" ], [ "黑幕", "异变黑幕" ], [ "其他信息", "其他异变信息" ] ];
+        const card = document.createElement("div");
+        card.className = "role-card";
+        card.innerHTML = `\n<div class="role-card-header">\n    <div class="role-avatar">异</div>\n    <div><div class="role-name">${name}</div><div class="role-meta">进程：${status}</div></div>\n</div>\n${fields.map(([label, key]) => {
+          const val = key === "异变退治者" ? (0, mvu.Tu)(__data, key, []) : (0, mvu.Jt)(__data, key, "—");
+          return `<div class="role-line"><strong>${label}：</strong>${(0, mvu.fE)(val)}</div>`;
+        }).join("")}\n`;
+        host.appendChild(card);
+      });
+      logger.log(funcName, "异变卡片渲染完成。");
+    }
+    function readT0() {
+      const t0 = (0, runtime.I)(T0_PATH, null);
+      if (t0 != null) {
+        const n = Number((0, mvu.fE)(t0));
+        if (Number.isFinite(n)) {
+          logger.log("readT0", `读取到 t0: ${n}`);
+          return n;
+        }
+      }
+      logger.log("readT0", "未读取到合法 t0。");
+      return null;
+    }
+    function readCooldownMinutes(state) {
+      const cooldown = (0, mvu.Jt)(state, constants.M.INCIDENT_COOLDOWN, 0);
+      const n = Number((0, mvu.fE)(cooldown));
+      if (Number.isFinite(n) && n >= 0) {
+        return Math.floor(n);
+      }
+      return 0;
+    }
+    function readTimeProgress(state) {
+      const timeProgress = (0, mvu.Jt)(state, constants.M.TIME_PROGRESS, 0);
+      const n = Number((0, mvu.fE)(timeProgress));
+      return Number.isFinite(n) ? Math.floor(n) : 0;
+    }
+    function calcCountdownMinutes(state) {
+      const t0 = readT0();
+      if (t0 === null) {
+        logger.log("calcCountdownMinutes", "t0 不存在/非法，本轮倒计时按 0 处理。");
+        return 0;
+      }
+      const tp = readTimeProgress(state);
+      const cd = readCooldownMinutes(state);
+      const left = Math.max(0, Math.floor(cd - (tp - t0)));
+      logger.log("calcCountdownMinutes", `计算倒计时（分钟）: { t0: ${t0}, timeProgress: ${tp}, cooldown: ${cd}, 剩余: ${left} }`);
+      return left;
+    }
+    function updateIncidentToolbar(state) {
+      const funcName = "updateIncidentToolbar";
+      const cdEl = document.getElementById("incident-countdown");
+      const triggerNowEl = document.getElementById("incident-trigger-now");
+      const randomPoolEl = document.getElementById("incident-pool-random");
+      if (cdEl) {
+        const left = calcCountdownMinutes(state);
+        cdEl.textContent = left == null ? "—" : String(left);
+        logger.log(funcName, `异变倒计时已更新为: ${cdEl.textContent}`);
+      }
+      if (triggerNowEl) {
+        const shouldTrigger = (0, mvu.Jt)(state, constants.M.INCIDENT_IMMEDIATE_TRIGGER, false);
+        triggerNowEl.checked = !!shouldTrigger;
+        logger.log(funcName, `“立即引发异变”状态已更新为: ${triggerNowEl.checked}`);
+      }
+      if (randomPoolEl) {
+        const useRandom = (0, mvu.Jt)(state, constants.M.INCIDENT_RANDOM_POOL, false);
+        randomPoolEl.checked = !!useRandom;
+        logger.log(funcName, `“乱序异变”状态已更新为: ${randomPoolEl.checked}`);
+      }
+    }
+    const update = statWithoutMeta => {
+      renderIncidents(statWithoutMeta);
+      updateIncidentToolbar(statWithoutMeta);
+    };
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const funcName = "onMounted";
+      const triggerNowEl = document.getElementById("incident-trigger-now");
+      const randomPoolEl = document.getElementById("incident-pool-random");
+      if (triggerNowEl) {
+        triggerNowEl.onchange = () => {
+          const newValue = triggerNowEl.checked;
+          logger.log(funcName, `用户切换“立即引发异变”为: ${newValue}`);
+          updateEraVariable(constants.M.INCIDENT_IMMEDIATE_TRIGGER, newValue);
+        };
+      }
+      if (randomPoolEl) {
+        randomPoolEl.onchange = () => {
+          const newValue = randomPoolEl.checked;
+          logger.log(funcName, `用户切换“乱序异变”为: ${newValue}`);
+          updateEraVariable(constants.M.INCIDENT_RANDOM_POOL, newValue);
+        };
+      }
+      logger.log(funcName, "异变工具栏事件已绑定。");
+    });
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⚠️"), (0, external_Vue_namespaceObject.createTextVNode)("异变啊异变！") ], -1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" ===== 异变工具栏（倒计时 + 立即引发） ===== "), _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div id="incident-toolbar" class="debug-select" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;" data-v-964a2aa2><span class="label" style="min-width:auto;margin:0;" data-v-964a2aa2><span class="emoji" data-v-964a2aa2>⏳</span>异变倒计时（分钟）: </span><strong id="incident-countdown" data-v-964a2aa2>—</strong><span class="debug-switch" title="来自世界书 config 的初始值；修改即写回到聊天变量的 config.incidents.triggerImmediate" data-v-964a2aa2><input id="incident-trigger-now" type="checkbox" data-v-964a2aa2> 立即引发异变 </span><span class="debug-switch" title="来自 config.incident.random_pool" data-v-964a2aa2><input id="incident-pool-random" type="checkbox" data-v-964a2aa2> 乱序异变 </span></div><div id="incident-list" class="incident-list" data-v-964a2aa2></div>', 2)) ]));
+  }
+});
+
+const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-964a2aa2" ] ]);
+
+const Incidents = Incidents_exports_;
+
+const WorldMapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "WorldMap",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-WorldMap");
+    const mapText = (0, external_Vue_namespaceObject.ref)("");
+    const mapGraph = (0, external_Vue_namespaceObject.ref)(null);
+    function escHtml(s) {
+      const AMP = "&" + "amp;", LT = "&" + "lt;", GT = "&" + "gt;", QUOT = "&" + "quot;", SQT = "&" + "#39;";
+      let out = String(s);
+      out = out.replace(/&/g, AMP);
+      out = out.replace(/</g, LT).replace(/>/g, GT);
+      out = out.replace(/"/g, QUOT).replace(/'/g, SQT);
+      return out;
+    }
+    function findAll(text, token, cap = 200) {
+      const T = String(text || ""), K = String(token || "");
+      if (!K) return [];
+      const out = [];
+      let i = 0;
+      while (true) {
+        const p = T.indexOf(K, i);
+        if (p < 0) break;
+        out.push(p);
+        i = p + Math.max(1, K.length);
+        if (out.length >= cap) {
+          logger.warn("findAll", `查找“${K}”时达到上限 ${cap} 次，可能存在过多匹配项。`);
+          break;
+        }
+      }
+      return out;
+    }
+    function buildAdjacencyMap(graph) {
+      const adj = new Map;
+      if (!graph) return adj;
+      const edges = (0, mvu.Tu)(graph, "edges") || [];
+      if (!Array.isArray(edges)) {
+        logger.warn("buildAdjacencyMap", '图谱中的 "edges" 不是一个数组，无法构建邻接表。', edges);
+        return adj;
+      }
+      for (const e of edges) {
+        const a = String(e?.a || "").trim();
+        const b = String(e?.b || "").trim();
+        if (!a || !b || a === b) continue;
+        if (!adj.has(a)) adj.set(a, new Set);
+        if (!adj.has(b)) adj.set(b, new Set);
+        adj.get(a).add(b);
+        adj.get(b).add(a);
+      }
+      return adj;
+    }
+    async function computeHighlightedHtml(state, {animate = true} = {}) {
+      const funcName = "computeHighlightedHtml";
+      if (!mapText.value) {
+        logger.warn(funcName, "地图文本为空，无法计算高亮。");
+        return {
+          ok: true,
+          found: false,
+          html: '<span class="map-loading">（未找到地图文本）</span>'
+        };
+      }
+      const text = mapText.value;
+      const fallbackPlace = (0, mvu.Jt)(state, constants.M.FALLBACK_PLACE, "博丽神社");
+      const keyword = (0, mvu.Jt)(state, constants.M.USER_LOCATION, fallbackPlace).trim();
+      logger.log(funcName, `当前高亮关键字: ${keyword}`);
+      let nearNames = [];
+      try {
+        const adj = buildAdjacencyMap(mapGraph.value);
+        nearNames = Array.from(adj.get(keyword) || []);
+        logger.log(funcName, `找到 ${nearNames.length} 个邻近地区`, nearNames);
+      } catch (e) {
+        logger.error(funcName, "邻接计算失败", e);
+      }
+      const hits = [];
+      const push = (token, cls) => {
+        if (!token) return;
+        for (const at of findAll(text, token)) hits.push({
+          at,
+          len: token.length,
+          cls,
+          pri: cls === "hit" ? 2 : 1
+        });
+      };
+      push(keyword, "hit");
+      nearNames.forEach(n => push(n, "near"));
+      if (!hits.length) {
+        logger.log(funcName, "未在地图上找到任何可高亮的地区。");
+        return {
+          ok: true,
+          found: false,
+          html: escHtml(text)
+        };
+      }
+      hits.sort((a, b) => a.at - b.at || b.pri - a.pri || b.len - a.len);
+      let out = "", cur = 0;
+      for (const h of hits) {
+        if (h.at < cur) continue;
+        out += escHtml(text.slice(cur, h.at));
+        const mid = text.slice(h.at, h.at + h.len);
+        const cls = (h.cls === "hit" ? "map-hit" : "map-near") + (animate ? "" : " paused");
+        const title = (h.cls === "hit" ? "当前位置：" : "附近地区：") + mid;
+        out += `<span class="${cls}" ${h.cls === "hit" ? 'data-hit="1"' : 'data-near="1"'} title="${escHtml(title)}">${escHtml(mid)}</span>`;
+        cur = h.at + h.len;
+      }
+      out += escHtml(text.slice(cur));
+      logger.log(funcName, `高亮HTML构建完成，共处理 ${hits.length} 个高亮区域。`);
+      return {
+        ok: true,
+        found: true,
+        html: out
+      };
+    }
+    const update = async statWithoutMeta => {
+      const funcName = "update";
+      logger.log(funcName, "接收到更新请求，开始更新世界地图组件。");
+      mapText.value = (0, mvu.Jt)(statWithoutMeta, constants.M.MAP_ASCII, "");
+      mapGraph.value = (0, mvu.Jt)(statWithoutMeta, constants.M.MAP_GRAPH, null);
+      if (!mapText.value) {
+        logger.warn(funcName, "地图文本(world.map_ascii)为空，无法渲染地图。");
+      }
+      if (!mapGraph.value) {
+        logger.warn(funcName, "地图图谱(world.map_graph)为空，无法计算邻近地区。");
+      }
+      const host = document.getElementById("world-map");
+      if (!host) {
+        logger.error(funcName, "未找到 #world-map 容器，无法渲染地图。");
+        return false;
+      }
+      const res = await computeHighlightedHtml(statWithoutMeta);
+      host.innerHTML = res.html || '<span class="map-loading">（空）</span>';
+      logger.log(funcName, "地图高亮渲染完成。");
+      const nearbyPlacesEl = document.getElementById("nearby-places");
+      if (nearbyPlacesEl) {
+        const fallbackPlace = (0, mvu.Jt)(statWithoutMeta, constants.M.FALLBACK_PLACE, "博丽神社");
+        const base = (0, mvu.Jt)(statWithoutMeta, constants.M.USER_LOCATION, fallbackPlace);
+        try {
+          const adj = buildAdjacencyMap(mapGraph.value);
+          const neighbors = Array.from(adj.get(base) || []);
+          nearbyPlacesEl.textContent = neighbors.length > 0 ? neighbors.join("；") : "—";
+          logger.log(funcName, `“附近地区”已更新为: ${nearbyPlacesEl.textContent}`);
+        } catch (e) {
+          nearbyPlacesEl.textContent = "—";
+          logger.error(funcName, "更新“附近地区”时发生错误", e);
+        }
+      }
+      logger.log(funcName, "世界地图组件更新流程结束。");
+      return true;
+    };
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const funcName = "onMounted";
+      const btnReload = document.getElementById("map-reload");
+      if (btnReload) {
+        btnReload.onclick = () => {
+          logger.log(funcName, "用户点击“重新加载”按钮，派发 era:requestFullUpdate 事件。");
+          window.dispatchEvent(new CustomEvent("era:requestFullUpdate", {
+            detail: {
+              reason: "map-reload"
+            }
+          }));
+        };
+      }
+      const btnAnim = document.getElementById("map-toggle-anim");
+      if (btnAnim) {
+        btnAnim.onclick = () => {
+          const host = document.getElementById("world-map");
+          if (!host) return;
+          const nodes = host.querySelectorAll(".map-hit, .map-near");
+          if (!nodes.length) return;
+          const willPlay = nodes[0].classList.contains("paused");
+          nodes.forEach(n => n.classList.toggle("paused", !willPlay));
+          logger.log(funcName, `切换地图动画为: ${willPlay ? "播放" : "暂停"}`);
+        };
+      }
+      const btnCopy = document.getElementById("map-copy");
+      if (btnCopy) {
+        btnCopy.onclick = async () => {
+          if (mapText.value) {
+            await navigator.clipboard.writeText(mapText.value);
+            logger.log(funcName, "地图原始文本已复制到剪贴板。");
+          } else {
+            logger.warn(funcName, "复制失败，因为地图文本为空。");
+          }
+        };
+      }
+      const dimChk = document.getElementById("map-dim-others");
+      if (dimChk) {
+        dimChk.onchange = () => {
+          const host = document.getElementById("world-map");
+          if (host) {
+            host.classList.toggle("dim-others", dimChk.checked);
+            logger.log(funcName, `切换“弱化非高亮”为: ${dimChk.checked}`);
+          }
+        };
+      }
+      logger.log(funcName, "地图工具栏按钮事件已成功绑定。");
+    });
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" ===== 世界地图（ASCII）容器 ===== "), _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("hr", {
+      class: "dashed"
+    }, null, -1)), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🗺️"), (0, external_Vue_namespaceObject.createTextVNode)("世界地图（文字）") ], -1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 地图工具栏，包含刷新、动画切换、复制和弱化非高亮区域的选项 "), _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div id="world-map-toolbar" class="map-toolbar" aria-label="地图工具条" data-v-18160937><button id="map-reload" class="font-size-btn" title="请求ERA核心重新读取所有数据并重绘UI" data-v-18160937>⟳</button><button id="map-toggle-anim" class="font-size-btn" title="切换高亮动画" data-v-18160937>🎞️</button><button id="map-copy" class="font-size-btn" title="复制原始地图文本" data-v-18160937>📋</button><span class="debug-switch" data-v-18160937><input id="map-dim-others" type="checkbox" data-v-18160937> 弱化非高亮</span></div>', 1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 用于显示ASCII地图的 <pre> 元素 "), _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("pre", {
+      id: "world-map",
+      class: "ascii-map",
+      "aria-live": "polite"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "map-loading"
+    }, "（等待数据更新……）") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 地图图例，解释高亮颜色 "), _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "world-map-legend",
+      class: "map-legend"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "swatch swatch-hit"
+    }), (0, external_Vue_namespaceObject.createTextVNode)("当前位置 "), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "swatch swatch-near"
+    }), (0, external_Vue_namespaceObject.createTextVNode)("附近地区 ") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 显示附近地区的段落 "), _cache[5] || (_cache[5] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "label"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "🏛️"), (0, external_Vue_namespaceObject.createTextVNode)("附近地区:") ]), (0, external_Vue_namespaceObject.createTextVNode)(), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "nearby-places"
+    }, "—") ], -1)) ]));
+  }
+});
+
+const WorldMap_exports_ = (0, exportHelper.A)(WorldMapvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-18160937" ] ]);
+
+const WorldMap = WorldMap_exports_;
+
+const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "font-size-controls"
+};
+
+const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "FontSizeControls",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-tabs-FontSizeControls");
+    const currentPercent = (0, external_Vue_namespaceObject.ref)(100);
+    const stepPct = (0, external_Vue_namespaceObject.ref)(10);
+    const clamp = n => Math.max(60, Math.min(200, Math.floor(Number(n) || 100)));
+    const applyToDOM = pct => {
+      const content = document.getElementById("content_main");
+      if (content) {
+        content.style.fontSize = `${pct}%`;
+        logger.log("applyToDOM", `已应用字号: ${pct}%`);
+      } else {
+        logger.warn("applyToDOM", "未找到 #content_main 元素。");
+      }
+    };
+    const updateFontSize = statWithoutMeta => {
+      const funcName = "updateFontSize";
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+        return;
+      }
+      const newPercent = (0, mvu.Jt)(statWithoutMeta, constants.M.MAIN_FONT_PERCENT, 100);
+      const clampedPercent = clamp(Number(newPercent));
+      stepPct.value = (0, mvu.Jt)(statWithoutMeta, constants.M.FONT_SCALE_STEP_PCT, 10);
+      currentPercent.value = clampedPercent;
+      applyToDOM(clampedPercent);
+      logger.log(funcName, `从 statWithoutMeta 更新字号为: ${clampedPercent}%`);
+    };
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const inc = document.getElementById("increase-font");
+      const dec = document.getElementById("decrease-font");
+      if (inc) {
+        inc.onclick = () => {
+          const newValue = clamp(currentPercent.value + stepPct.value);
+          currentPercent.value = newValue;
+          applyToDOM(newValue);
+          updateEraVariable(constants.M.MAIN_FONT_PERCENT, newValue);
+        };
+      }
+      if (dec) {
+        dec.onclick = () => {
+          const newValue = clamp(currentPercent.value - stepPct.value);
+          currentPercent.value = newValue;
+          applyToDOM(newValue);
+          updateEraVariable(constants.M.MAIN_FONT_PERCENT, newValue);
+        };
+      }
+      logger.log("onMounted", "按钮事件已绑定。");
+    });
+    __expose({
+      updateFontSize
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "decrease-font",
+      class: "font-size-btn"
+    }, "−", -1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "increase-font",
+      class: "font-size-btn"
+    }, "+", -1) ]) ]));
+  }
+});
+
+const FontSizeControls_exports_ = (0, exportHelper.A)(FontSizeControlsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1b8304a8" ] ]);
+
+const FontSizeControls = FontSizeControls_exports_;
+
+const StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "status-tabs",
+  class: "status-tabs"
+};
+
+const StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_2 = [ "data-tab", "onClick" ];
+
+const StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  id: "status-tab-content-area",
+  class: "status-tab-content-area"
+};
+
+const StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  id: "main-content",
+  class: "preserve-format"
+};
+
+const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusTabContent",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusTab-StatusTabContent");
+    const fontSizeControls = (0, external_Vue_namespaceObject.ref)(null);
+    const worldMap = (0, external_Vue_namespaceObject.ref)(null);
+    const incidents = (0, external_Vue_namespaceObject.ref)(null);
+    const contentOthers = (0, external_Vue_namespaceObject.ref)(null);
+    const contentBio = (0, external_Vue_namespaceObject.ref)(null);
+    const contentSettings = (0, external_Vue_namespaceObject.ref)(null);
+    const tabs = [ {
+      id: "main",
+      name: "正文"
+    }, {
+      id: "status",
+      name: "世界"
+    }, {
+      id: "incidents",
+      name: "异变啊异变！"
+    }, {
+      id: "others",
+      name: "其他角色"
+    }, {
+      id: "bio",
+      name: "履历与关系"
+    }, {
+      id: "settings",
+      name: "设置"
+    } ];
+    const activeTab = (0, external_Vue_namespaceObject.ref)("main");
+    const switchTab = tabId => {
+      logger.log("switchTab", `切换选项卡到: ${tabId}`);
+      activeTab.value = tabId;
+    };
+    const update = statWithoutMeta => {
+      const funcName = "update";
+      logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, {
+        statWithoutMeta
+      });
+      if (!statWithoutMeta) {
+        logger.warn(funcName, "传入的 statWithoutMeta 为空，无法更新 UI。");
+        return;
+      }
+      if (fontSizeControls.value && typeof fontSizeControls.value.updateFontSize === "function") {
+        fontSizeControls.value.updateFontSize(statWithoutMeta);
+        logger.debug(funcName, "已调用 FontSizeControls.updateFontSize");
+      }
+      if (worldMap.value && typeof worldMap.value.update === "function") {
+        worldMap.value.update(statWithoutMeta);
+        logger.debug(funcName, "已调用 WorldMap.update");
+      }
+      if (incidents.value && typeof incidents.value.update === "function") {
+        incidents.value.update(statWithoutMeta);
+        logger.debug(funcName, "已调用 Incidents.update");
+      }
+      if (contentOthers.value && typeof contentOthers.value.update === "function") {
+        contentOthers.value.update(statWithoutMeta);
+        logger.debug(funcName, "已调用 ContentOthers.update");
+      }
+      if (contentBio.value && typeof contentBio.value.update === "function") {
+        contentBio.value.update(statWithoutMeta);
+        logger.debug(funcName, "已调用 ContentBio.update");
+      }
+      if (contentSettings.value && typeof contentSettings.value.update === "function") {
+        contentSettings.value.update(statWithoutMeta);
+        logger.debug(funcName, "已调用 ContentSettings.update");
+      }
+      const mainExtraEl = document.getElementById("main-extra");
+      if (mainExtraEl) {
+        const contentString = (0, mvu.UY)(statWithoutMeta, constants.M.EXTRA_MAIN, "");
+        mainExtraEl.textContent = contentString;
+        logger.debug(funcName, "已更新附加正文", {
+          content: contentString.slice(0, 50) + "..."
+        });
+      }
+      logger.log(funcName, "所有子组件更新完成。");
+    };
+    __expose({
+      update,
+      worldMap,
+      incidents,
+      contentOthers,
+      contentBio,
+      contentSettings
+    });
+    return (_ctx, _cache) => {
+      const _component_content = (0, external_Vue_namespaceObject.resolveComponent)("content");
+      return (0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ (0, 
+      external_Vue_namespaceObject.createCommentVNode)(" ▼ [移植] 这部分 HTML 结构严格复制自 app.vue "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_1, [ ((0, 
+      external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+      external_Vue_namespaceObject.renderList)(tabs, tab => (0, external_Vue_namespaceObject.createElementVNode)("button", {
+        key: tab.id,
+        "data-tab": tab.id,
+        class: (0, external_Vue_namespaceObject.normalizeClass)({
+          active: activeTab.value === tab.id
+        }),
+        onClick: $event => switchTab(tab.id)
+      }, (0, external_Vue_namespaceObject.toDisplayString)(tab.name), 11, StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_2)), 64)) ]), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+      external_Vue_namespaceObject.createCommentVNode)(" 正文 Tab "), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_main",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "main"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(FontSizeControls, {
+        ref_key: "fontSizeControls",
+        ref: fontSizeControls
+      }, null, 512), (0, external_Vue_namespaceObject.createElementVNode)("div", StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_4, [ (0, 
+      external_Vue_namespaceObject.createVNode)(_component_content, null, {
+        default: (0, external_Vue_namespaceObject.withCtx)(() => [ ..._cache[0] || (_cache[0] = [ (0, 
+        external_Vue_namespaceObject.createTextVNode)("$1", -1) ]) ]),
+        _: 1
+      }) ]), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "main-extra",
+        class: "preserve-format"
+      }, null, -1)) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 世界 Tab (WorldMap) "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_status",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "status"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(WorldMap, {
+        ref_key: "worldMap",
+        ref: worldMap
+      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 异变 Tab "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_incidents",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "incidents"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(Incidents, {
+        ref_key: "incidents",
+        ref: incidents
+      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 其他角色 Tab "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_others",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "others"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(ContentOthers, {
+        ref_key: "contentOthers",
+        ref: contentOthers
+      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 履历与关系 Tab "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_bio",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "bio"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(ContentBio, {
+        ref_key: "contentBio",
+        ref: contentBio
+      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 设置 Tab "), (0, 
+      external_Vue_namespaceObject.createElementVNode)("div", {
+        id: "content_settings",
+        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
+          active: activeTab.value === "settings"
+        } ])
+      }, [ (0, external_Vue_namespaceObject.createVNode)(ContentSettings, {
+        ref_key: "contentSettings",
+        ref: contentSettings
+      }, null, 512) ], 2) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" ▲ [移植] 结构结束 ") ]);
+    };
+  }
+});
+
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7a7531ec" ] ]);
+
+const StatusTabContent = StatusTabContent_exports_;
+
+const RoleRibbonvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "role-ribbon-container"
+};
+
+const RoleRibbonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "RoleRibbon",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-RoleRibbon");
+    const toText = v => {
+      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+      const t = (() => {
+        if (Array.isArray(v)) return v[0] ?? "";
+        return v;
+      })();
+      if (t == null || t === "") return "—";
+      return String(t);
+    };
+    const renderRolesRibbon = (state, hostId = "role-ribbon") => {
+      const host = document.getElementById(hostId);
+      if (!host) {
+        logger.warn("renderRolesRibbon", "【渲染/附近角色】未找到容器。", {
+          hostId
+        });
+        return 0;
+      }
+      host.innerHTML = "";
+      const uLoc = String((0, mvu.Jt)(state, constants.M.USER_LOCATION, "")).trim();
+      let chars = state?.[constants.M.CHARS];
+      try {
+        if (typeof chars === "string") chars = JSON.parse(chars);
+      } catch {
+        chars = null;
+      }
+      if (!chars || typeof chars !== "object") {
+        logger.warn("renderRolesRibbon", "【渲染/附近角色】chars 无效。");
+        return 0;
+      }
+      const entries = Object.entries(chars).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v));
+      const nearby = entries.filter(([, obj]) => {
+        const cLoc = String((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "")).trim();
+        return uLoc && cLoc && cLoc === uLoc;
+      });
+      if (!nearby.length) {
+        const placeholder = document.createElement("div");
+        placeholder.className = "role-card";
+        placeholder.innerHTML = `<div class="role-card-header"><div class="role-avatar">—</div><div><div class="role-name">附近暂无角色</div><div class="role-meta">${uLoc || "未知地区"}</div></div></div><div class="role-line">当前与玩家同区的角色将显示在此。</div>`;
+        host.appendChild(placeholder);
+        logger.log("renderRolesRibbon", "【渲染/附近角色】同区为 0，显示占位卡片。", {
+          用户所在: uLoc
+        });
+        return 0;
+      }
+      const t0 = performance.now?.() ?? Date.now();
+      nearby.forEach(([name, obj]) => {
+        const fields = [ [ "年龄", "年龄" ], [ "性别", "性别" ], [ "身份", "身份" ], [ "性格", "性格" ], [ "外貌", "外貌" ], [ "衣着", "衣着" ], [ "人际关系", "人际关系" ], [ "性经验", "性经验" ], [ "性知识", "性知识" ], [ "特殊能力", "特殊能力" ], [ "身体状况", "身体状况" ], [ "目标", "当前目标" ], [ "所想", "当前所想" ], [ "居住地区", "居住地区" ] ];
+        const meta = toText((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "未知"));
+        const fav = (0, mvu.Jt)(obj, constants.M.CHAR_AFFECTION, 0);
+        const lines = fields.map(([label, key]) => `<div class="role-line"><strong>${label}：</strong>${toText((0, 
+        mvu.Jt)(obj, key, "—"))}</div>`).join("");
+        const div = document.createElement("div");
+        div.innerHTML = `\n<div class="role-card">\n  <div class="role-card-header">\n    <div class="role-avatar">${String(name).slice(0, 1)}</div>\n    <div><div class="role-name">${name}</div><div class="role-meta">${meta}</div></div>\n  </div>\n  ${lines}\n  <div class="role-line">\n    <strong>好感度：</strong>\n    <span class="aff-num">${toText(fav)}</span>\n    <span class="aff-stage" style="margin-left:6px;color:var(--muted);font-size:.85em;">—</span>\n    <div class="mini-bar"><div class="val" data-aff="bar"></div></div>\n  </div>\n</div>`;
+        const card = div.firstElementChild;
+        if (card) host.appendChild(card);
+        const valEl = card?.querySelector(".mini-bar .val") || null;
+        if (valEl) valEl.style.width = Math.min(Math.abs(Number(fav) || 0), 100) + "%";
+      });
+      const dt = (performance.now?.() ?? Date.now()) - t0;
+      logger.log("renderRolesRibbon", "【渲染/附近角色】完成。", {
+        数量: nearby.length,
+        用时毫秒: dt.toFixed ? dt.toFixed(1) : dt
+      });
+      return nearby.length;
+    };
+    const updateRibbon = statWithoutMeta => {
+      const func = "updateRibbon";
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(func, "传入的 statWithoutMeta 无效。", statWithoutMeta);
+        return;
+      }
+      const ribbon = document.getElementById("role-ribbon");
+      const step = Number((0, mvu.Jt)(statWithoutMeta, constants.M.UI_RIBBON_STEP, 320)) || 320;
+      const L = document.getElementById("ribbon-left");
+      const R = document.getElementById("ribbon-right");
+      if (L) L.onclick = () => ribbon?.scrollBy({
+        left: -step,
+        behavior: "smooth"
+      });
+      if (R) R.onclick = () => ribbon?.scrollBy({
+        left: step,
+        behavior: "smooth"
+      });
+      logger.log(func, "箭头点击事件已绑定。", {
+        step
+      });
+      renderRolesRibbon(statWithoutMeta, "role-ribbon");
+    };
+    __expose({
+      updateRibbon
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 严格拷贝自 app.vue 的 DOM 结构：角色横幅容器与箭头按钮 "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleRibbonvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "ribbon-left",
+      class: "ribbon-arrow left",
+      "aria-label": "左移"
+    }, "‹", -1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "ribbon-right",
+      class: "ribbon-arrow right",
+      "aria-label": "右移"
+    }, "›", -1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "role-ribbon",
+      class: "role-ribbon"
+    }, null, -1) ]) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" 以上结构需保持不变，以兼容现有样式与选择器 ") ], 2112));
+  }
+});
+
+const RoleRibbon_exports_ = RoleRibbonvue_type_script_setup_true_lang_ts;
+
+const RoleRibbon = RoleRibbon_exports_;
+
+const StatusBannervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "status-banner",
+  class: "status-banner"
+};
+
+const StatusBannervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusBanner",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusBanner");
+    let calendarYear = null;
+    let calendarMonth = null;
+    let todayKey = null;
+    let followWorld = true;
+    let festIdx = new Map;
+    let lastState = null;
+    let isInitialized = false;
+    function buildFestIdx(festivals) {
+      const funcName = "buildFestIdx";
+      logger.log(funcName, "调用", festivals);
+      const idx = new Map;
+      const clamp = (val, min, max) => Math.min(Math.max(Number(val) || 0, min), max);
+      festivals.forEach((festival, i) => {
+        const month = clamp(festival?.month, 1, 12);
+        let startDay = Number(festival?.start_day ?? 0) | 0;
+        let endDay = Number(festival?.end_day ?? startDay) | 0;
+        if (!month) {
+          logger.warn(funcName, "跳过节日，月份无效:", festival);
+          return;
+        }
+        const year = calendarYear ?? (new Date).getFullYear();
+        const daysInMonth = new Date(year, month, 0).getDate();
+        startDay = clamp(Math.min(startDay, endDay), 1, daysInMonth);
+        endDay = clamp(Math.max(startDay, endDay), 1, daysInMonth);
+        for (let day = startDay; day <= endDay; day++) {
+          const key = `${month}-${day}`;
+          const festivalsOnDay = idx.get(key) || [];
+          festivalsOnDay.push(String(festival?.name || `节日#${i + 1}`));
+          idx.set(key, festivalsOnDay);
+        }
+      });
+      logger.log(funcName, "完成，生成索引:", idx);
+      return idx;
+    }
+    function setTitle(year, month) {
+      (0, mvu.Qq)("cal-month", `${month}月`);
+      (0, mvu.Qq)("cal-year", `${year}年`);
+    }
+    function renderGrid() {
+      const funcName = "renderGrid";
+      const grid = document.getElementById("cal-grid");
+      if (!grid || calendarYear === null || calendarMonth === null) {
+        logger.warn(funcName, "无法渲染日历：grid元素不存在或年月未设置。");
+        return;
+      }
+      logger.log(funcName, "开始渲染网格，当前节日索引:", festIdx);
+      const year = calendarYear;
+      const month = calendarMonth;
+      grid.innerHTML = "";
+      const firstDayOfMonth = new Date(year, month - 1, 1);
+      const daysInMonth = new Date(year, month, 0).getDate();
+      const daysInPrevMonth = new Date(year, month - 1, 0).getDate();
+      const startWeekday = (firstDayOfMonth.getDay() + 6) % 7;
+      const totalCells = 42;
+      for (let i = 0; i < totalCells; i++) {
+        const cell = document.createElement("div");
+        cell.className = "cal-day";
+        let day;
+        let isCurrentMonth = false;
+        let isToday = false;
+        let festivalsOnDay = [];
+        if (i < startWeekday) {
+          day = daysInPrevMonth - (startWeekday - 1 - i);
+        } else {
+          const dayInMonth = i - startWeekday + 1;
+          if (dayInMonth <= daysInMonth) {
+            isCurrentMonth = true;
+            day = dayInMonth;
+            isToday = todayKey === `${year}-${String(month).padStart(2, "0")}-${String(dayInMonth).padStart(2, "0")}`;
+            const festKey = `${month}-${dayInMonth}`;
+            logger.log(funcName, `正在为 ${year}-${month}-${day} 检查节日，使用键:`, festKey);
+            festivalsOnDay = festIdx.get(festKey) || [];
+            if (festivalsOnDay.length > 0) {
+              logger.log(funcName, `找到键 ${festKey} 的节日:`, festivalsOnDay);
+            }
+          } else {
+            day = dayInMonth - daysInMonth;
+          }
+        }
+        if (!isCurrentMonth) cell.classList.add("out");
+        if (isToday) cell.classList.add("today");
+        const numEl = document.createElement("div");
+        numEl.className = "dnum";
+        numEl.textContent = String(day);
+        cell.appendChild(numEl);
+        if (isCurrentMonth && festivalsOnDay.length) {
+          logger.log(funcName, `渲染第 ${day} 天的节日:`, festivalsOnDay);
+          const festBox = document.createElement("div");
+          festBox.className = "fest";
+          festivalsOnDay.forEach(name => {
+            const festSpan = document.createElement("span");
+            festSpan.textContent = name;
+            festBox.appendChild(festSpan);
+          });
+          cell.appendChild(festBox);
+        }
+        grid.appendChild(cell);
+      }
+    }
+    const bindUI = () => {
+      const timeBtn = document.getElementById("banner-time");
+      const calPop = document.getElementById("cal-pop");
+      const prevBtn = document.getElementById("cal-prev");
+      const nextBtn = document.getElementById("cal-next");
+      const todayBtn = document.getElementById("cal-today");
+      if (timeBtn) {
+        timeBtn.addEventListener("click", () => {
+          if (calPop) {
+            const isHidden = calPop.hasAttribute("hidden");
+            calPop.toggleAttribute("hidden", !isHidden);
+            timeBtn.setAttribute("aria-expanded", String(isHidden));
+          }
+        });
+      }
+      if (prevBtn) {
+        prevBtn.addEventListener("click", () => {
+          followWorld = false;
+          if (calendarYear === null || calendarMonth === null) return;
+          calendarMonth--;
+          if (calendarMonth <= 0) {
+            calendarYear--;
+            calendarMonth = 12;
+          }
+          setTitle(calendarYear, calendarMonth);
+          renderGrid();
+        });
+      }
+      if (nextBtn) {
+        nextBtn.addEventListener("click", () => {
+          followWorld = false;
+          if (calendarYear === null || calendarMonth === null) return;
+          calendarMonth++;
+          if (calendarMonth >= 13) {
+            calendarYear++;
+            calendarMonth = 1;
+          }
+          setTitle(calendarYear, calendarMonth);
+          renderGrid();
+        });
+      }
+      if (todayBtn) {
+        todayBtn.addEventListener("click", () => {
+          followWorld = true;
+          if (lastState) {
+            syncFromClock(lastState);
+          }
+        });
+      }
+      if (calPop) {
+        document.addEventListener("click", event => {
+          const target = event.target;
+          const isClickOnTimeBtn = target.closest?.("#banner-time");
+          const isClickInCalPop = target.closest?.("#cal-pop");
+          if (!isClickOnTimeBtn && !isClickInCalPop) {
+            if (!calPop.hasAttribute("hidden")) {
+              calPop.setAttribute("hidden", "");
+              document.getElementById("banner-time")?.setAttribute("aria-expanded", "false");
+            }
+          }
+        });
+      }
+    };
+    function syncFromClock(state) {
+      const clockNow = external_default().get(state, "runtime.clock.now", null);
+      if (!clockNow) {
+        logger.warn("syncFromClock", "未在 state 中找到 runtime.clock.now");
+        return;
+      }
+      const year = Number(clockNow.year) || 0;
+      const month = Number(clockNow.month) || 0;
+      const day = Number(clockNow.day) || 0;
+      todayKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      const timeText = clockNow.hm ? `${clockNow.hm} · ${clockNow.periodName || ""}` : clockNow.iso || "—";
+      (0, mvu.Qq)("banner-time-text", timeText);
+      if (followWorld && (calendarYear !== year || calendarMonth !== month)) {
+        calendarYear = year;
+        calendarMonth = month;
+        setTitle(calendarYear, calendarMonth);
+      }
+      if (calendarYear && calendarMonth) {
+        renderGrid();
+      }
+    }
+    const updateStatusBanner = statWithoutMeta => {
+      const funcName = "updateStatusBanner";
+      if (!isInitialized) {
+        logger.log(funcName, "首次调用，正在执行初始化...");
+        bindUI();
+        isInitialized = true;
+        logger.log(funcName, "初始化完成。");
+      }
+      logger.log(funcName, "状态横幅开始更新，接收到的statWithoutMeta：", statWithoutMeta);
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+        return;
+      }
+      lastState = statWithoutMeta;
+      const festivals = (0, mvu.Tu)(statWithoutMeta, "festivals_list");
+      if (festivals && Array.isArray(festivals)) {
+        logger.log(funcName, "收到新的节日数据，正在重建索引。", festivals);
+        festIdx = buildFestIdx(festivals);
+      }
+      const weather = (0, mvu.Jt)(statWithoutMeta, "世界.天气", "—");
+      (0, mvu.Qq)("banner-weather-text", weather);
+      syncFromClock(statWithoutMeta);
+    };
+    (0, external_Vue_namespaceObject.onMounted)(() => {});
+    __expose({
+      updateStatusBanner
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" ===== 状态横幅：时间（可点弹日历） | 天气（预留点击） ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", StatusBannervue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "banner-title"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "📡"), (0, external_Vue_namespaceObject.createElementVNode)("span", null, "世界状态") ], -1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 可点击：时间（脚本将填充文本，并控制下方弹层开合） "), _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "banner-time",
+      class: "banner-chip",
+      "aria-expanded": "false",
+      "aria-controls": "cal-pop"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⏰"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "banner-time-text"
+    }, "—:—") ], -1)), _cache[2] || (_cache[2] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "banner-sep",
+      "aria-hidden": "true"
+    }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 可点击：天气（脚本预留，先占位） "), _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "banner-weather",
+      class: "banner-chip",
+      "aria-expanded": "false"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "☀️"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "banner-weather-text"
+    }, "—") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 日历弹层（默认 hidden；脚本控制 hidden 与 aria-expanded） "), _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "cal-pop",
+      class: "cal-pop",
+      role: "dialog",
+      "aria-modal": "false",
+      hidden: ""
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-head"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-title"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "cal-month",
+      class: "month"
+    }, "—月"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "cal-year",
+      class: "year"
+    }, "—年") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-nav"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-prev",
+      class: "cal-btn",
+      title: "上一月"
+    }, "◀"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-today",
+      class: "cal-btn",
+      title: "回到今天"
+    }, "●"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "cal-next",
+      class: "cal-btn",
+      title: "下一月"
+    }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-body"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "cal-week"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "一"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "二"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "三"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "四"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "五"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "六"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "w"
+    }, "日") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "cal-grid",
+      class: "cal-grid"
+    }, [ (0, external_Vue_namespaceObject.createCommentVNode)(" JS 动态填充 .cal-day ") ]) ]) ], -1)) ]) ], 2112));
+  }
+});
+
+const StatusBanner_exports_ = (0, exportHelper.A)(StatusBannervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4aeaec8f" ] ]);
+
+const StatusBanner = StatusBanner_exports_;
+
+const StatusNewsvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "status-news",
+  class: "status-news"
+};
+
+const StatusNewsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusNews",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusNews");
+    const updateNews = state => {
+      const funcName = "updateNews";
+      if (!state || typeof state !== "object") {
+        logger.warn(funcName, "调用失败：传入的 state 无效。", state);
+        return;
+      }
+      try {
+        const newsContent = (0, mvu.Jt)(state, constants.M.NEWS_TEXT, "");
+        logger.log(funcName, "将更新新闻文本", {
+          preview: String(newsContent).slice(0, 50)
+        });
+        (0, mvu.Qq)("news-content", newsContent);
+        logger.debug(funcName, "新闻文本已写入 DOM 完成");
+      } catch (e) {
+        logger.error(funcName, "更新新闻内容时发生异常", e);
+      }
+    };
+    __expose({
+      updateNews
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusNewsvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "📰"), (0, external_Vue_namespaceObject.createTextVNode)("文文新闻") ], -1)), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 保留你原来的新闻容器 id，后续脚本无需改动数据写入目标 "), _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "news-content",
+      class: "news-body preserve-format"
+    }, "—", -1)) ]));
+  }
+});
+
+const StatusNews_exports_ = StatusNewsvue_type_script_setup_true_lang_ts;
+
+const StatusNews = StatusNews_exports_;
+
+const StatusSidebarvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "status-sidebar",
+  class: "status-sidebar"
+};
+
+const StatusSidebarvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusSidebar",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-StatusSidebar");
+    const updateUserStatus = userData => {
+      const funcName = "updateUserStatus";
+      logger.debug(funcName, "函数入口，接收到的 userData:", userData);
+      if (!userData || typeof userData !== "object") {
+        logger.warn(funcName, "调用失败：传入的 userData 无效。", userData);
+        return;
+      }
+      const map = [ [ "user-name", "姓名" ], [ "user-identity", "身份" ], [ "user-gender", "性别" ], [ "user-age", "年龄" ], [ "user-abilities", "特殊能力" ], [ "user-location", "所在地区" ], [ "user-home", "居住地区" ] ];
+      map.forEach(([id, key]) => {
+        const value = (0, mvu.Jt)(userData, key, "—");
+        logger.debug(funcName, `[数据获取] 从 key '${key}' 获取到 value:`, value);
+        logger.debug(funcName, `[写入DOM] 准备向 #${id} 写入内容:`, value);
+        (0, mvu.Qq)(id, value);
+      });
+      logger.debug(funcName, "所有字段更新完成。");
+    };
+    __expose({
+      updateUserStatus
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusSidebarvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="status-section user-status" data-v-f43ecf44><h4 data-v-f43ecf44><span class="emoji" data-v-f43ecf44>👤</span>用户状态</h4><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>📝</span>姓名:</span> <span id="user-name" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>🪪</span>身份:</span> <span id="user-identity" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>⚧️</span>性别:</span> <span id="user-gender" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>🎂</span>年龄:</span> <span id="user-age" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>✨</span>特殊能力:</span> <span id="user-abilities" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>📍</span>所在地区:</span> <span id="user-location" data-v-f43ecf44>—</span></p><p data-v-f43ecf44><span class="label" data-v-f43ecf44><span class="emoji" data-v-f43ecf44>🏠</span>居住地区:</span> <span id="user-home" data-v-f43ecf44>—</span></p></div>', 1) ]) ]));
+  }
+});
+
+const StatusSidebar_exports_ = (0, exportHelper.A)(StatusSidebarvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-f43ecf44" ] ]);
+
+const StatusSidebar = StatusSidebar_exports_;
+
+const ThemeTogglevue_type_script_setup_true_lang_ts_hoisted_1 = [ "aria-label", "title", "aria-pressed" ];
+
+const LIGHT = "light";
+
+const DARK = "dark";
+
+const ThemeTogglevue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "ThemeToggle",
+  setup(__props, {expose: __expose}) {
+    const logger = new utils_logger.Vy("components-ThemeToggle");
+    const currentTheme = (0, external_Vue_namespaceObject.ref)(LIGHT);
+    const icon = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === LIGHT ? "🌙" : "🌞");
+    const ariaLabel = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === LIGHT ? "切换为黑夜模式" : "切换为白日模式");
+    const title = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === LIGHT ? "切换为黑夜模式" : "切换为白日模式");
+    const isDark = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === DARK);
+    const applyThemeToDOM = theme => {
+      const root = document.documentElement;
+      if (root) {
+        root.setAttribute("data-theme", theme);
+        logger.log("applyThemeToDOM", `已将主题应用到 DOM: ${theme}`);
+      } else {
+        logger.warn("applyThemeToDOM", "未找到 document.documentElement 元素。");
+      }
+    };
+    const updateTheme = statWithoutMeta => {
+      const funcName = "updateTheme";
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+        return;
+      }
+      const newTheme = (0, mvu.Jt)(statWithoutMeta, constants.M.UI_THEME, LIGHT);
+      const validatedTheme = newTheme === DARK ? DARK : LIGHT;
+      currentTheme.value = validatedTheme;
+      applyThemeToDOM(validatedTheme);
+      logger.log(funcName, `从 statWithoutMeta 更新主题为: ${validatedTheme}`);
+    };
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const funcName = "onMounted";
+      const btn = document.getElementById("theme-toggle");
+      if (btn) {
+        btn.onclick = () => {
+          const nextTheme = currentTheme.value === DARK ? LIGHT : DARK;
+          logger.log(`${funcName}:onclick`, `按钮被点击，准备切换到主题: ${nextTheme}`);
+          currentTheme.value = nextTheme;
+          applyThemeToDOM(nextTheme);
+          updateEraVariable(constants.M.UI_THEME, nextTheme);
+          logger.log(`${funcName}:onclick`, `已通过 eraWriter 请求更新主题变量为: ${nextTheme}`);
+        };
+        logger.log(funcName, "主题切换按钮的点击事件已成功绑定。");
+      } else {
+        logger.warn(funcName, "未找到 #theme-toggle 按钮元素，事件绑定失败。");
+      }
+    });
+    __expose({
+      updateTheme
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 主题切换按钮 "), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "theme-toggle",
+      class: "theme-toggle",
+      "aria-label": ariaLabel.value,
+      title: title.value,
+      "aria-pressed": isDark.value
+    }, (0, external_Vue_namespaceObject.toDisplayString)(icon.value), 9, ThemeTogglevue_type_script_setup_true_lang_ts_hoisted_1) ], 2112));
+  }
+});
+
+const ThemeToggle_exports_ = (0, exportHelper.A)(ThemeTogglevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-33c63fbc" ] ]);
+
+const ThemeToggle = ThemeToggle_exports_;
+
+const appvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "status-container",
+  class: "status-ui-container"
+};
+
+const appvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  id: "status-duo",
+  class: "status-duo"
+};
+
+const appvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "status-main-content"
+};
+
+const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "app",
+  setup(__props, {expose: __expose}) {
+    const themeToggle = (0, external_Vue_namespaceObject.ref)(null);
+    const statusSidebar = (0, external_Vue_namespaceObject.ref)(null);
+    const statusNews = (0, external_Vue_namespaceObject.ref)(null);
+    const statusBanner = (0, external_Vue_namespaceObject.ref)(null);
+    const statusTabContent = (0, external_Vue_namespaceObject.ref)(null);
+    const roleRibbon = (0, external_Vue_namespaceObject.ref)(null);
+    __expose({
+      themeToggle,
+      statusSidebar,
+      statusNews,
+      statusBanner,
+      statusTabContent,
+      roleRibbon
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" ▼ 新增：右上角主题切换按钮 "), (0, external_Vue_namespaceObject.createVNode)(ThemeToggle, {
+      ref_key: "themeToggle",
+      ref: themeToggle
+    }, null, 512), (0, external_Vue_namespaceObject.createCommentVNode)(" ▲ 新增 "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", appvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.createVNode)(StatusSidebar, {
+      ref_key: "statusSidebar",
+      ref: statusSidebar
+    }, null, 512), (0, external_Vue_namespaceObject.createVNode)(StatusNews, {
+      ref_key: "statusNews",
+      ref: statusNews
+    }, null, 512) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", appvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.createVNode)(RoleRibbon, {
+      ref_key: "roleRibbon",
+      ref: roleRibbon
+    }, null, 512), (0, external_Vue_namespaceObject.createVNode)(StatusBanner, {
+      ref_key: "statusBanner",
+      ref: statusBanner
+    }, null, 512), (0, external_Vue_namespaceObject.createCommentVNode)(" ▼ [重构] 选项卡区域已被封装到 StatusTabContent 组件中 "), (0, 
+    external_Vue_namespaceObject.createVNode)(StatusTabContent, {
+      ref_key: "statusTabContent",
+      ref: statusTabContent
+    }, null, 512), (0, external_Vue_namespaceObject.createCommentVNode)(" ▲ [重构] ") ]) ]));
+  }
+});
+
+const app_exports_ = appvue_type_script_setup_true_lang_ts;
+
+const _app = app_exports_;
+
+$(() => {
+  const app = (0, external_Vue_namespaceObject.createApp)(_app);
+  const appInstance = app.mount("#app");
+  window.vueApp = appInstance;
+  const logger = new utils_logger.Vy("index");
+  eventOn("Test:writeDone", detail => {
+    const funcName = "onTestWriteDone";
+    try {
+      utils_logger.EN.mk = String(detail?.mk || "");
+    } catch {
+      utils_logger.EN.mk = "";
+    }
+    logger.log(funcName, "接收到 Test:writeDone 事件", {
+      mk: detail?.mk,
+      message_id: detail?.message_id,
+      actions: detail?.actions,
+      selectedMks: detail?.selectedMks,
+      editLogs: detail?.editLogs,
+      stat: detail?.stat,
+      statWithoutMeta: detail?.statWithoutMeta,
+      consecutiveProcessingCount: detail?.consecutiveProcessingCount
+    });
+    if (detail?.actions?.apiWrite === true) {
+      logger.log(funcName, "检测到 apiWrite 触发的事件，已跳过。");
+      return;
+    }
+    logger.debug(funcName, "Test:writeDone 事件的完整参数：", detail);
+    try {
+      const {statWithoutMeta} = detail || {};
+      if (!statWithoutMeta) {
+        logger.warn(funcName, "事件中未找到 statWithoutMeta，无法更新 UI。");
+        return;
+      }
+      logger.debug(funcName, "提取到的 statWithoutMeta:", statWithoutMeta);
+      const userData = (0, mvu.Jt)(statWithoutMeta, constants.M.USER_DATA, {});
+      logger.debug(funcName, "提取到的 userData:", userData);
+      const {themeToggle, statusSidebar, statusBanner, statusNews, statusTabContent, roleRibbon} = appInstance;
+      try {
+        if (themeToggle && typeof themeToggle.updateTheme === "function") {
+          logger.debug(funcName, "调用 ThemeToggle.updateTheme 入口");
+          themeToggle.updateTheme(statWithoutMeta);
+          logger.debug(funcName, "ThemeToggle.updateTheme 退出");
+        } else {
+          logger.warn(funcName, "ThemeToggle 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "ThemeToggle.updateTheme 执行失败（非致命）。", e);
+      }
+      try {
+        if (statusSidebar && typeof statusSidebar.updateUserStatus === "function") {
+          logger.debug(funcName, "调用 StatusSidebar.updateUserStatus 入口");
+          statusSidebar.updateUserStatus(userData);
+          logger.debug(funcName, "StatusSidebar.updateUserStatus 退出");
+        } else {
+          logger.warn(funcName, "StatusSidebar 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "StatusSidebar.updateUserStatus 执行失败（非致命）。", e);
+      }
+      try {
+        if (statusBanner && typeof statusBanner.updateStatusBanner === "function") {
+          logger.debug(funcName, "调用 StatusBanner.updateStatusBanner 入口");
+          statusBanner.updateStatusBanner(statWithoutMeta);
+          logger.debug(funcName, "StatusBanner.updateStatusBanner 退出");
+        } else {
+          logger.warn(funcName, "StatusBanner 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "StatusBanner.updateStatusBanner 执行失败（非致命）。", e);
+      }
+      try {
+        if (statusNews && typeof statusNews.updateNews === "function") {
+          logger.debug(funcName, "调用 StatusNews.updateNews 入口");
+          statusNews.updateNews(statWithoutMeta);
+          logger.debug(funcName, "StatusNews.updateNews 退出");
+        } else {
+          logger.warn(funcName, "StatusNews 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "StatusNews.updateNews 执行失败（非致命）。", e);
+      }
+      try {
+        if (statusTabContent && typeof statusTabContent.update === "function") {
+          logger.log(funcName, "正在调用 StatusTabContent.update...");
+          statusTabContent.update(statWithoutMeta);
+          logger.debug(funcName, "StatusTabContent.update 调用完成");
+        } else {
+          logger.warn(funcName, "StatusTabContent 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "StatusTabContent.update 执行失败（非致命）。", e);
+      }
+      try {
+        if (roleRibbon && typeof roleRibbon.updateRibbon === "function") {
+          logger.log(funcName, "正在调用 RoleRibbon.updateRibbon...");
+          roleRibbon.updateRibbon(statWithoutMeta);
+          logger.debug(funcName, "RoleRibbon.updateRibbon 调用完成");
+        } else {
+          logger.warn(funcName, "RoleRibbon 组件缺失或接口不可用。");
+        }
+      } catch (e) {
+        logger.warn(funcName, "RoleRibbon.updateRibbon 执行失败（非致命）。", e);
+      }
+      try {
+        logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 304)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+      } catch (e) {
+        logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
+      }
+    } catch (e) {
+      logger.error(funcName, "Test:writeDone 处理过程出现未捕获异常", e);
+    } finally {
+      utils_logger.EN.mk = "";
+    }
+  });
+});</script><style>@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
+h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-4ba65ade]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-4ba65ade]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-4ba65ade]{border:none;border-top:1px dashed var(--line);margin:20px 0}
+[data-v-eb55b478] .debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}[data-v-eb55b478] .debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}[data-v-eb55b478] .incident-list{display:flex;flex-direction:column;gap:12px}[data-v-eb55b478] #other-roles-list .role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}[data-v-eb55b478] #other-roles-list .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}[data-v-eb55b478] #other-roles-list .role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}[data-v-eb55b478] #other-roles-list .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}[data-v-eb55b478] #other-roles-list .role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}[data-v-eb55b478] #other-roles-list .role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}[data-v-eb55b478] #other-roles-list .card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}[data-v-eb55b478] #other-roles-list .role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}[data-v-eb55b478] #other-roles-list .role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}[data-v-eb55b478] #other-roles-list .mini-bar{height:8px;background:var(--bar-bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative;flex-grow:1;margin-left:8px;min-width:50px}[data-v-eb55b478] #other-roles-list .mini-bar .val{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}[data-v-eb55b478] #other-roles-list .role-card.collapsed{padding-bottom:8px}[data-v-eb55b478] #other-roles-list .role-card.collapsed .role-body{display:none}[data-v-eb55b478] #other-roles-list .role-card.collapsed .role-card-header{margin-bottom:0;padding-bottom:6px}[data-v-eb55b478] #other-roles-list .role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}:root[data-theme="dark"]{box-shadow:0 2px 12px rgba(0,0,0,.35)}
+[data-v-1969adb7] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-1969adb7] input[type="text"],[data-v-1969adb7] input[type="number"],[data-v-1969adb7] textarea,[data-v-1969adb7] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-1969adb7] input:focus,[data-v-1969adb7] textarea:focus,[data-v-1969adb7] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-1969adb7] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-1969adb7] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-1969adb7] button:hover{background:var(--btn-accent-hover)}[data-v-1969adb7] button:active{transform:translateY(1px)}[data-v-1969adb7] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-1969adb7] .muted-btn:hover{filter:brightness(0.97)}[data-v-1969adb7] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-1969adb7] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-1969adb7] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-1969adb7] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
+#content_incidents h4[data-v-964a2aa2]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-964a2aa2]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-964a2aa2]{margin-bottom:15px}.debug-select[data-v-964a2aa2],.debug-switch[data-v-964a2aa2]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-964a2aa2]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-964a2aa2] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-964a2aa2] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-964a2aa2] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-964a2aa2] .role-card .role-name{font-weight:700}.incident-list[data-v-964a2aa2] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-964a2aa2] .role-card .role-line{margin:6px 0;font-size:.9em}
+.ascii-map[data-v-18160937]{margin:10px 0;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);line-height:1.35;white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13.5px}.ascii-map .map-loading[data-v-18160937]{color:var(--muted)}.map-toolbar[data-v-18160937]{display:flex;align-items:center;gap:6px;margin:6px 0 10px}.map-legend[data-v-18160937]{display:flex;align-items:center;gap:12px;font-size:.85em;color:var(--muted)}.map-legend .swatch[data-v-18160937]{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-right:6px}.swatch-hit[data-v-18160937]{background:linear-gradient(90deg,#ffa94d,#ffd27f)}.swatch-near[data-v-18160937]{background:linear-gradient(90deg,#8ec5ff,#d6e9ff)}[data-v-18160937] .map-hit{background:linear-gradient(90deg,#ffa94d,#ffd27f);border-radius:4px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(120,60,0,.35);box-shadow:0 0 0 1px rgba(255,170,90,.45) inset,0 0 0 3px rgba(255,230,180,.9) inset,0 0 18px rgba(255,140,40,.75);animation:mapPulse-18160937 1.2s ease-in-out infinite}[data-v-18160937] .map-hit.paused{animation:none}@keyframes mapPulse-18160937{0%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}50%{box-shadow:0 0 0 1px rgba(255,170,90,.6) inset,0 0 0 4px #ffebbe inset,0 0 20px rgba(255,140,40,.9)}100%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}}[data-v-18160937] .map-near{background:linear-gradient(90deg,#8ec5ff,#d6e9ff);border-radius:3px;padding:0 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 .8px rgba(0,0,0,.25);outline:1px solid rgba(4,62,130,.25);box-shadow:0 0 0 1px rgba(110,160,220,.35) inset,0 0 8px rgba(120,170,230,.45)}.ascii-map.dim-others[data-v-18160937]{color:#7d6d5f}[data-v-18160937] .ascii-map.dim-others .map-hit{color:#2b1e12}:root[data-theme="dark"]{background:var(--paper);color:var(--ink)}@media (max-width:768px){.ascii-map[data-v-18160937]{font-size:12.5px}}
+.font-size-controls[data-v-1b8304a8]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-1b8304a8]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
+.status-tabs[data-v-7a7531ec]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-7a7531ec]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-7a7531ec]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-7a7531ec]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-7a7531ec]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-7a7531ec]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-7a7531ec]{padding:15px}}[data-v-7a7531ec] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-7a7531ec] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-7a7531ec] .incident-list{display:flex;flex-direction:column;gap:12px}
+@keyframes affPop{0%{transform:translateY(0) scale(0.85);opacity:0}20%{opacity:1}100%{transform:translateY(-18px) scale(1.15);opacity:0}}@keyframes cardPop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}:root[data-theme=dark] .role-ribbon-container .aff-particle.skull,:root[data-theme=dark] .role-ribbon-container .card-particle.skull{color:#714f4f;text-shadow:0 0 6px rgba(185,88,88,.6)}.role-ribbon-container{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon-container .role-ribbon{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.role-ribbon-container .ribbon-arrow{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.role-ribbon-container .ribbon-arrow.left{left:8px}.role-ribbon-container .ribbon-arrow.right{right:8px}.role-ribbon-container .role-card{flex:0 0 260px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);scroll-snap-align:start;position:relative;overflow:hidden}.role-ribbon-container .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.role-ribbon-container .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.role-ribbon-container .role-name{font-weight:700}.role-ribbon-container .role-meta{font-size:.85em;color:var(--muted)}.role-ribbon-container .role-line{margin:6px 0;font-size:.9em}.role-ribbon-container .mini-bar{height:8px;background:var(--bar-bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative}.role-ribbon-container .mini-bar .val{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.role-ribbon-container .mini-bar .val.rtl{left:auto;right:0}.role-ribbon-container .mini-bar .val.negative{background:#b00020}.role-ribbon-container .mini-bar .val.very-hate{background:#000}.role-ribbon-container .mini-bar .val.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc)}.role-ribbon-container .aff-particle,.role-ribbon-container .card-particle{position:absolute;line-height:1;pointer-events:none;-webkit-user-select:none;user-select:none;opacity:0;animation:affPop 1.1s ease-out forwards;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25))}.role-ribbon-container .card-particle{animation:cardPop 1.2s ease-out forwards;font-size:16px}.role-ribbon-container .card-particle.heart{color:#b65ff7;text-shadow:0 0 8px rgba(126,63,242,.5)}.role-ribbon-container .card-particle.skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5)}.role-ribbon-container .aff-particle.heart{text-shadow:0 0 6px rgba(126,63,242,.45)}.role-ribbon-container .aff-particle.skull{color:#000;text-shadow:0 0 6px rgba(0,0,0,.35)}.role-ribbon-container .aff-row{display:flex;align-items:center;gap:8px}.role-ribbon-container .aff-level{display:inline-flex;align-items:center;gap:4px;padding:0 8px;line-height:1.8;font-weight:700;font-size:.85em;border-radius:999px;background:var(--bar-bg);color:var(--ink);border:1px solid var(--line);white-space:nowrap}.role-ribbon-container .aff-level::before{content:attr(data-icon)}.role-ribbon-container .aff-level[data-icon=""]::before{content:none}.role-ribbon-container .aff-level.very-love{background:linear-gradient(90deg,#7e3ff2,#c084fc);color:#fff;border-color:color-mix(in srgb,#7e3ff2 55%,white 45%)}.role-ribbon-container .aff-level.love{background:color-mix(in srgb,#7e3ff2 18%,var(--paper) 82%);color:color-mix(in srgb,#7e3ff2 85%,white 15%);border-color:color-mix(in srgb,#7e3ff2 45%,var(--line) 55%)}.role-ribbon-container .aff-level.neutral{background:var(--bar-bg);color:var(--ink);border-color:var(--line)}.role-ribbon-container .aff-level.dislike{background:color-mix(in srgb,#b00020 12%,var(--paper) 88%);color:color-mix(in srgb,#b00020 80%,white 20%);border-color:color-mix(in srgb,#b00020 45%,var(--line) 55%)}.role-ribbon-container .aff-level.hate,.role-ribbon-container .aff-level.negative{background:#b00020;color:#fff;border-color:color-mix(in srgb,#b00020 65%,white 35%)}.role-ribbon-container .aff-level.very-hate{background:#000;color:#fff;border-color:#333}
+.emoji[data-v-4aeaec8f]{margin-right:8px;font-size:1.1em}.status-banner[data-v-4aeaec8f]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-4aeaec8f]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-4aeaec8f]{margin-right:0}.banner-chip[data-v-4aeaec8f]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-4aeaec8f]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-4aeaec8f]:active{transform:translateY(1px) scale(0.99)}.banner-sep[data-v-4aeaec8f]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}.cal-pop[hidden][data-v-4aeaec8f]{display:none !important}.cal-pop[data-v-4aeaec8f]{position:absolute;left:12px;top:calc(100% + 8px);z-index:1000;width:min(92vw,720px);background:var(--paper);border:1px solid var(--line);border-radius:12px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);overflow:hidden}.cal-head[data-v-4aeaec8f]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-4aeaec8f]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-4aeaec8f]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-4aeaec8f]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-4aeaec8f]{display:flex;gap:6px}.cal-btn[data-v-4aeaec8f]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-4aeaec8f]:active{transform:translateY(1px)}.cal-body[data-v-4aeaec8f]{padding:10px 12px 12px}.cal-week[data-v-4aeaec8f]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-4aeaec8f]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-4aeaec8f]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch}[data-v-4aeaec8f] .cal-day{position:relative;background:var(--paper);border:1px solid var(--line);border-radius:8px;padding:6px;display:flex;flex-direction:column;gap:4px;aspect-ratio:1/1;overflow:hidden;min-width:0;min-height:0}[data-v-4aeaec8f] .cal-day:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}[data-v-4aeaec8f] .cal-day.out{opacity:.55}[data-v-4aeaec8f] .cal-day.today{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}[data-v-4aeaec8f] .cal-day .dnum{font-weight:800;color:var(--ink);text-align:right;line-height:1}[data-v-4aeaec8f] .cal-day .fest{margin-top:4px;display:flex;flex-direction:column;gap:3px;overflow:auto;scrollbar-gutter:stable}[data-v-4aeaec8f] .cal-day .fest>span{display:block;font-size:.82em;line-height:1.25;border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:2px 6px;white-space:normal;overflow-wrap:anywhere;word-break:break-word}@media (max-width:600px){.cal-pop[data-v-4aeaec8f]{width:min(96vw,720px);left:8px;right:8px}}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.2)}.status-banner:has(#banner-time[aria-expanded=true]) .cal-pop[data-v-4aeaec8f]:not([hidden]){position:static;left:auto;top:auto;z-index:auto;width:100%;max-width:none;margin-top:8px}
+.status-duo>#status-news.status-news{flex:1 1 auto;min-width:320px;max-width:none;padding:16px 20px;background:var(--paper);display:flex;flex-direction:column;gap:10px}#status-news h4{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#status-news h4 .emoji{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}#status-news .news-body{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-height:40vh}@media (min-width:1100px){.status-duo>#status-news.status-news{flex:1 1 auto;min-width:0;max-width:100%}#status-news .news-body{flex:1 1 auto;max-height:none;overflow:auto}}
+.status-sidebar[data-v-f43ecf44]{flex:0 0 350px;max-width:none;padding:16px;background:var(--paper);border-right:1px solid var(--line)}h4[data-v-f43ecf44]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-f43ecf44]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-f43ecf44]{margin:8px 0;font-size:.9em;line-height:1.5}.user-status p>span[data-v-f43ecf44]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.theme-toggle[data-v-33c63fbc]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-33c63fbc]:active{transform:translateY(1px)}.theme-toggle[data-v-33c63fbc]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
+.status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column}.status-duo{display:flex;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-auto-rows:minmax(0,auto)}.status-duo{grid-column:1;grid-row:1/span 999;flex-direction:column;overflow-y:auto;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding-bottom:0;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.status-sidebar{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
+/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+</style></head><body><div id="app"></div></body></html>

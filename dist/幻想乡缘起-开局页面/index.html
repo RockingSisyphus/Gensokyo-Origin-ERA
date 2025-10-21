@@ -1,0 +1,1155 @@
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>开局设定 · 幻想乡缘起MVU</title><script type="module">const external_Vue_namespaceObject = Vue;
+
+const _hoisted_1 = {
+  class: "container"
+};
+
+const _hoisted_2 = {
+  class: "card"
+};
+
+const _hoisted_3 = {
+  class: "grid-2 grid",
+  id: "epoch_holder",
+  "data-offset": "+09:00"
+};
+
+const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "app",
+  setup(__props) {
+    (function() {
+      if (window.__MVU_UTIL__) return;
+      const dbg = window.__MVU_DEBUG__;
+      function get(o, p, fb) {
+        try {
+          const ks = String(p).split(".");
+          let c = o;
+          for (const k of ks) {
+            if (!c || typeof c !== "object" || !(k in c)) return fb;
+            c = c[k];
+          }
+          return c === undefined ? fb : c;
+        } catch (e) {
+          alert("【UTIL/get】异常：" + String(e));
+          return fb;
+        }
+      }
+      function set(o, p, v) {
+        try {
+          const ks = Array.isArray(p) ? p : String(p).split(".");
+          let c = o;
+          for (let i = 0; i < ks.length - 1; i++) {
+            const k = ks[i];
+            if (typeof c[k] !== "object" || c[k] === null) c[k] = {};
+            c = c[k];
+          }
+          c[ks[ks.length - 1]] = v;
+          return o;
+        } catch (e) {
+          alert("【UTIL/set】异常：" + String(e));
+          return o;
+        }
+      }
+      function parseJSON(t, fb) {
+        try {
+          const o = typeof t === "string" ? JSON.parse(t) : t;
+          return o && typeof o === "object" ? o : fb;
+        } catch (_) {
+          return fb;
+        }
+      }
+      window.__MVU_UTIL__ = {
+        get,
+        set,
+        parseJSON
+      };
+    })();
+    (function() {
+      function isObj(x) {
+        return x && typeof x === "object";
+      }
+      function getPath(o, p, fb) {
+        try {
+          const ks = Array.isArray(p) ? [ ...p ] : String(p).split(".");
+          let c = o;
+          for (const k of ks) {
+            if (!isObj(c) || !(k in c)) return fb;
+            c = c[k];
+          }
+          return c === undefined ? fb : c;
+        } catch (e) {
+          console.warn("【MVU_STATE/get】异常：" + String(e), {
+            p
+          });
+          return fb;
+        }
+      }
+      function setPath(o, p, v) {
+        try {
+          const ks = Array.isArray(p) ? p : String(p).split(".");
+          let c = o;
+          for (let i = 0; i < ks.length - 1; i++) {
+            const k = ks[i];
+            if (typeof c[k] !== "object" || c[k] === null) c[k] = {};
+            c = c[k];
+          }
+          c[ks[ks.length - 1]] = v;
+          return o;
+        } catch (e) {
+          console.warn("【MVU_STATE/set】异常：" + String(e), {
+            p
+          });
+          return o;
+        }
+      }
+      function parseJSON(t, fb) {
+        try {
+          const o = typeof t === "string" ? JSON.parse(t) : t;
+          return o && typeof o === "object" ? o : fb;
+        } catch (_) {
+          return fb;
+        }
+      }
+      function read() {
+        const t0 = Date.now();
+        try {
+          if (typeof getVariables === "function") {
+            const mid_str = typeof getCurrentMessageId === "function" ? getCurrentMessageId() : undefined;
+            const mid = mid_str ? parseInt(mid_str, 10) : undefined;
+            const v = getVariables({
+              type: "message",
+              message_id: mid
+            }) || {};
+            const s = v.stat_data || {};
+            console.log("【MVU_STATE/读取】已读取 stat_data。", {
+              消息ID: mid,
+              顶层键数: Object.keys(s || {}).length
+            });
+            console.log("【MVU_STATE/读取】用时毫秒：", Date.now() - t0);
+            return s;
+          } else {
+            console.warn("【MVU_STATE/读取】环境未暴露 getVariables，返回空对象。");
+          }
+        } catch (e) {
+          console.error("【MVU_STATE/读取】异常：", String(e));
+        }
+        return {};
+      }
+      function getCharsPair(root) {
+        const raw = getPath(root, "chars", undefined);
+        const isStr = typeof raw === "string";
+        const obj = isStr ? parseJSON(raw, {}) : isObj(raw) ? raw : {};
+        return {
+          obj,
+          isStr
+        };
+      }
+      async function applyPatches(patches, {mirrorDisplay = true} = {}) {
+        const where = {
+          type: "message",
+          message_id: "latest"
+        };
+        function writeAll(v) {
+          v = v || {};
+          v.stat_data = isObj(v.stat_data) ? v.stat_data : {};
+          v.display_data = isObj(v.display_data) ? v.display_data : mirrorDisplay ? {} : v.display_data;
+          const sPair = getCharsPair(v.stat_data);
+          const dPair = mirrorDisplay ? getCharsPair(v.display_data) : null;
+          let wroteS = 0, wroteD = 0;
+          for (const p of patches || []) {
+            const rel = Array.isArray(p.path) ? [ ...p.path ] : [];
+            if (!rel.length) continue;
+            if (rel[0] === "chars") {
+              setPath(sPair.obj, rel.slice(1), p.value);
+              wroteS++;
+              if (mirrorDisplay && dPair) {
+                setPath(dPair.obj, rel.slice(1), p.value);
+                wroteD++;
+              }
+              console.log("【MVU_STATE/写回】chars 路径写入。", {
+                路径: rel.join(".")
+              });
+            } else {
+              setPath(v, [ "stat_data", ...rel ], p.value);
+              wroteS++;
+              if (mirrorDisplay) {
+                setPath(v, [ "display_data", ...rel ], p.value);
+                wroteD++;
+              }
+              console.log("【MVU_STATE/写回】普通路径写入。", {
+                路径: rel.join(".")
+              });
+            }
+          }
+          if (wroteS) {
+            if (sPair.isStr) setPath(v, "stat_data.chars", JSON.stringify(sPair.obj, null, 2)); else setPath(v, "stat_data.chars", sPair.obj);
+            console.log("【MVU_STATE/写回】stat_data.chars 已回写（保持原类型：" + (sPair.isStr ? "字符串" : "对象") + "）。");
+          }
+          if (mirrorDisplay && wroteD && dPair) {
+            if (dPair.isStr) setPath(v, "display_data.chars", JSON.stringify(dPair.obj, null, 2)); else setPath(v, "display_data.chars", dPair.obj);
+            console.log("【MVU_STATE/写回】display_data.chars 已回写（保持原类型：" + (dPair.isStr ? "字符串" : "对象") + "）。");
+          }
+          return v;
+        }
+        try {
+          if (typeof updateVariablesWith === "function") {
+            console.log("【MVU_STATE/写回】updateVariablesWith 开始。", {
+              镜像到display: !!mirrorDisplay,
+              补丁数: (patches || []).length
+            });
+            const result = await updateVariablesWith(writeAll, where);
+            console.log("【MVU_STATE/写回】updateVariablesWith 完成。", {
+              返回键: Object.keys(result || {}).slice(0, 20)
+            });
+            return true;
+          }
+          if (typeof getVariables === "function" && typeof replaceVariables === "function") {
+            console.warn("【MVU_STATE/写回】回退路径：getVariables + replaceVariables。");
+            const cur = getVariables(where) || {};
+            const next = writeAll(cur);
+            await replaceVariables(next, where);
+            console.log("【MVU_STATE/写回】replaceVariables 完成。", {
+              补丁数: (patches || []).length,
+              镜像到display: !!mirrorDisplay
+            });
+            return true;
+          }
+          console.error("【MVU_STATE/写回】未发现可用写回 API（updateVariablesWith / replaceVariables 均缺失）。");
+          return false;
+        } catch (e) {
+          console.error("【MVU_STATE/写回】异常：" + String(e));
+          return false;
+        }
+      }
+      window.__MVU_STATE__ = {
+        read,
+        applyPatches,
+        getCharsPair
+      };
+      if (!window.mvuApplyPatches && window.__MVU_STATE__ && typeof window.__MVU_STATE__.applyPatches === "function") {
+        window.mvuApplyPatches = window.__MVU_STATE__.applyPatches;
+      }
+      console.log("【MVU_STATE】无外部依赖版模块就绪。");
+    })();
+    (function() {
+      const D = (() => {
+        const b = window.__MVU_DEBUG__;
+        return b ? {
+          log: (...a) => b.log(...a),
+          warn: (...a) => b.warn(...a),
+          error: (...a) => b.error(...a),
+          debug: (...a) => b.debug(...a),
+          trace: (...a) => b.trace(...a),
+          ts: () => b.ts ? b.ts() : (new Date).toLocaleTimeString()
+        } : {
+          log: (...a) => console.log("【世界书】", ...a),
+          warn: (...a) => console.warn("【世界书】", ...a),
+          error: (...a) => console.error("【世界书】", ...a),
+          debug: (...a) => console.debug("【世界书】", ...a),
+          trace: (...a) => console.debug("【世界书】", ...a),
+          ts: () => (new Date).toLocaleTimeString()
+        };
+      })();
+      const DEF = {
+        debug: {
+          level: "info",
+          timing: true,
+          validate: true,
+          verboseGet: false,
+          maxLines: 500
+        },
+        ui: {
+          firstRenderDelayMs: 1500,
+          ribbonStep: 320,
+          fontScaleStepPct: 10
+        },
+        map: {
+          lorebook: "幻想乡缘起MVU",
+          comment: "map_graph",
+          legalPolicy: "leaf_only"
+        },
+        mapAscii: {
+          comment: "map_ascii"
+        },
+        defaults: {
+          fallbackPlace: "博丽神社",
+          timeEpochISO: "2025-08-21T00:00:00+09:00",
+          weatherPool: [ "晴", "阴", "雨", "雪", "雾", "妖风", "灵雾" ]
+        },
+        featureFlags: {
+          mirrorDisplay: true,
+          autoWeather: true
+        },
+        selectors: {
+          nearbyTargetId: "nearby-places"
+        }
+      };
+      function deepMerge(a, b) {
+        if (Array.isArray(a) && Array.isArray(b)) return [ ...b ];
+        if (a && b && typeof a === "object" && typeof b === "object") {
+          const o = {
+            ...a
+          };
+          for (const k of Object.keys(b)) o[k] = deepMerge(a[k], b[k]);
+          return o;
+        }
+        return b === undefined ? a : b;
+      }
+      function parseJSON(text, ctx) {
+        try {
+          const obj = typeof text === "string" ? JSON.parse(text) : text || null;
+          if (!obj || typeof obj !== "object") {
+            D.warn("【世界书/JSON】条目不是 JSON 对象：", ctx);
+            return null;
+          }
+          return obj;
+        } catch (e) {
+          D.error("【世界书/JSON】解析失败：", {
+            错误: String(e),
+            上下文: ctx
+          });
+          return null;
+        }
+      }
+      function setPath(obj, path, v) {
+        const ks = String(path).split(".");
+        let cur = obj;
+        for (let i = 0; i < ks.length - 1; i++) {
+          const k = ks[i];
+          if (typeof cur[k] !== "object" || cur[k] === null) cur[k] = {};
+          cur = cur[k];
+        }
+        cur[ks[ks.length - 1]] = v;
+      }
+      async function getEntry(lorebook, {comment}) {
+        const lb = String(lorebook || "幻想乡缘起MVU");
+        const key = String(comment || "").trim();
+        if (!key) {
+          D.warn("【世界书/读取】缺少 comment 作为 name 关键字。");
+          return null;
+        }
+        if (typeof window.getWorldbook !== "function") {
+          D.error("【世界书/读取】环境未提供 getWorldbook API。");
+          return null;
+        }
+        try {
+          const list = await window.getWorldbook(lb);
+          const hit = (list || []).find(e => String(e?.name || "").trim() === key) || null;
+          if (hit) {
+            D.log("【世界书/读取】命中条目：", {
+              世界书: lb,
+              name: key,
+              内容长度: String(hit.content || "").length
+            });
+            return {
+              ...hit,
+              content: hit.content
+            };
+          } else {
+            const names = Array.from(new Set((list || []).map(e => String(e?.name || "").trim()))).filter(Boolean).slice(0, 40);
+            D.warn("【世界书/读取】未找到条目：", {
+              世界书: lb,
+              nameWanted: key,
+              可用name示例: names
+            });
+            return null;
+          }
+        } catch (e) {
+          D.error("【世界书/读取】异常：", {
+            错误: String(e),
+            世界书: lb,
+            name: key
+          });
+          return null;
+        }
+      }
+      async function getJSON(lorebook, {comment}) {
+        const hit = await getEntry(lorebook, {
+          comment
+        });
+        if (!hit) return null;
+        return parseJSON(hit.content, {
+          世界书: lorebook,
+          name: comment
+        });
+      }
+      async function loadConfig() {
+        const lore = "幻想乡缘起MVU";
+        const obj = await getJSON(lore, {
+          comment: "config"
+        });
+        const cfg = deepMerge(DEF, obj || {});
+        try {
+          window.__MVU_CONFIG__ = cfg;
+          if (window.__MVU_DEBUG__) {
+            const dbg = window.__MVU_DEBUG__;
+            dbg.cfg.level = cfg.debug.level;
+            dbg.cfg.timing = !!cfg.debug.timing;
+            dbg.cfg.validate = !!cfg.debug.validate;
+            dbg.cfg.verboseGet = !!cfg.debug.verboseGet;
+            dbg.cfg.maxLines = Number(cfg.debug.maxLines) || 500;
+          }
+          D.log("【配置】已装载并合并：", cfg);
+          document.dispatchEvent(new CustomEvent("mvu:config-ready", {
+            detail: {
+              config: cfg
+            }
+          }));
+        } catch (e) {
+          D.error("【配置】写入全局失败：", String(e));
+        }
+        return cfg;
+      }
+      async function writeConfigPath(path, value, lorebook) {
+        const lb = String(lorebook || "幻想乡缘起MVU");
+        if (typeof window.getWorldbook !== "function" || typeof window.updateWorldbookWith !== "function") {
+          D.error("【世界书/写入】环境未提供所需 API（getWorldbook / updateWorldbookWith）。");
+          return false;
+        }
+        D.log("【世界书/写入】准备更新 config 路径：", {
+          世界书: lb,
+          路径: path,
+          目标值: value
+        });
+        try {
+          const list = await window.getWorldbook(lb);
+          const idx = (list || []).findIndex(e => String(e?.name || "").trim() === "config");
+          if (idx < 0) {
+            D.warn("【世界书/写入】未找到 config 条目：", {
+              世界书: lb
+            });
+            return false;
+          }
+          const entry = list[idx];
+          const obj = parseJSON(entry.content, {
+            世界书: lb,
+            name: "config"
+          });
+          if (!obj) {
+            D.warn("【世界书/写入】config 不是合法 JSON，已放弃写入。");
+            return false;
+          }
+          setPath(obj, path, value);
+          const afterStr = JSON.stringify(obj, null, 2);
+          const changed = afterStr !== entry.content;
+          if (!changed) {
+            D.log("【世界书/写入】内容未变化（无需提交）。", {
+              世界书: lb,
+              name: "config",
+              路径: path
+            });
+            return false;
+          }
+          await window.updateWorldbookWith(lb, entries => {
+            const hit = entries.find(e => String(e?.name || "").trim() === "config");
+            if (hit) hit.content = afterStr;
+            return entries;
+          }, {
+            render: "immediate"
+          });
+          D.log("【世界书/写入】已提交并请求立刻渲染。", {
+            世界书: lb,
+            name: "config",
+            路径: path,
+            新值: value
+          });
+          return true;
+        } catch (e) {
+          D.error("【世界书/写入】提交失败：", String(e));
+          return false;
+        }
+      }
+      window.__MVU_LORE__ = {
+        getEntry,
+        getJSON,
+        loadConfig,
+        defaults: DEF,
+        writeConfigPath
+      };
+      document.addEventListener("DOMContentLoaded", () => {
+        loadConfig();
+      });
+      D.log("【世界书】读/写一体化模块就绪（简化版）。");
+    })();
+    async function loadPlaces() {
+      try {
+        const cfg = window.__MVU_CONFIG__ || await (window.__MVU_LORE__?.loadConfig?.());
+        const lore = cfg?.map?.lorebook || "幻想乡缘起MVU";
+        const comment = cfg?.map?.comment || "map_graph";
+        const obj = await (window.__MVU_LORE__?.getJSON?.(lore, {
+          comment
+        }));
+        const tree = obj?.tree && typeof obj.tree === "object" ? obj.tree : null;
+        if (!tree) {
+          console.warn("【地点/加载】未找到 tree");
+          return [];
+        }
+        const leaves = [];
+        const visit = node => {
+          if (Array.isArray(node)) {
+            for (const v of node) {
+              if (typeof v === "string") leaves.push(v); else if (v && typeof v === "object") Object.values(v).forEach(visit);
+            }
+          } else if (node && typeof node === "object") {
+            for (const k of Object.keys(node)) visit(node[k]);
+          } else if (typeof node === "string") {
+            leaves.push(node);
+          }
+        };
+        visit(tree);
+        const uniq = Array.from(new Set(leaves)).sort((a, b) => a.localeCompare(b, "zh-Hans"));
+        const homeSel = document.getElementById("u_home");
+        const currSel = document.getElementById("u_current");
+        const rebuild = sel => {
+          if (!sel) return;
+          sel.innerHTML = '<option value="" disabled selected>— 请选择 —</option>';
+          for (const s of uniq) {
+            const op = document.createElement("option");
+            op.value = s;
+            op.textContent = s;
+            sel.appendChild(op);
+          }
+        };
+        rebuild(homeSel);
+        rebuild(currSel);
+        window.__MVU_PLACES__ = uniq;
+        return uniq;
+      } catch (e) {
+        console.error("【地点/加载】异常：", e);
+        return [];
+      }
+    }
+    let CFG_INIT = null;
+    function isPlainObject(o) {
+      return o && typeof o === "object" && !Array.isArray(o);
+    }
+    function pathJoin(base, key) {
+      return base ? base + "." + key : key;
+    }
+    function createControl(path, value) {
+      const wrap = document.createElement("div");
+      wrap.className = "kv";
+      const label = document.createElement("div");
+      label.className = "key";
+      label.textContent = path;
+      const control = document.createElement("div");
+      control.className = "control";
+      wrap.appendChild(label);
+      wrap.appendChild(control);
+      if (typeof value === "boolean") {
+        const ck = document.createElement("input");
+        ck.type = "checkbox";
+        ck.checked = !!value;
+        control.appendChild(ck);
+        return {
+          el: wrap,
+          getVal: () => !!ck.checked
+        };
+      }
+      if (typeof value === "number") {
+        const num = document.createElement("input");
+        num.type = "number";
+        num.value = String(value);
+        control.appendChild(num);
+        return {
+          el: wrap,
+          getVal: () => Number(num.value)
+        };
+      }
+      if (Array.isArray(value)) {
+        const isPrim = v => v == null || [ "string", "number", "boolean" ].includes(typeof v);
+        const arrIsPrim = value.every(isPrim);
+        const ta = document.createElement("textarea");
+        ta.style.width = "100%";
+        ta.style.minHeight = "100px";
+        control.appendChild(ta);
+        if (arrIsPrim) {
+          ta.value = value.map(v => String(v)).join("\n");
+          return {
+            el: wrap,
+            getVal: () => {
+              const lines = (ta.value || "").split("\n").map(s => s.trim()).filter(Boolean);
+              const allNum = lines.every(s => /^-?\d+(?:\.\d+)?$/.test(s));
+              return allNum ? lines.map(Number) : lines;
+            }
+          };
+        } else {
+          ta.value = (() => {
+            try {
+              return JSON.stringify(value, null, 2);
+            } catch (e) {
+              return "[]";
+            }
+          })();
+          return {
+            el: wrap,
+            getVal: () => {
+              try {
+                const txt = ta.value && ta.value.trim();
+                return txt ? JSON.parse(txt) : [];
+              } catch (e) {
+                return value;
+              }
+            }
+          };
+        }
+      }
+      const txt = document.createElement("input");
+      txt.type = "text";
+      txt.value = String(value);
+      control.appendChild(txt);
+      return {
+        el: wrap,
+        getVal: () => txt.value
+      };
+    }
+    function renderObject(container, obj, basePath, docText) {
+      const group = document.createElement("details");
+      group.open = false;
+      const sum = document.createElement("summary");
+      sum.textContent = basePath || "(root)";
+      group.appendChild(sum);
+      if (docText) {
+        const kd = document.createElement("div");
+        kd.className = "kdoc";
+        kd.textContent = docText;
+        group.appendChild(kd);
+      }
+      const keys = Object.keys(obj);
+      keys.forEach(k => {
+        if (k === "__doc" || k === "_doc" || k.endsWith("__doc") || k.startsWith("_")) return;
+        const v = obj[k];
+        const p = pathJoin(basePath, k);
+        if (isPlainObject(v)) {
+          const groupDoc = v._doc || obj[k + "__doc"];
+          const child = renderObject(container, v, p, groupDoc);
+          group.appendChild(child);
+        } else {
+          const leafDoc = obj[k + "__doc"];
+          const {el, getVal} = createControl(p, v);
+          if (leafDoc) {
+            const kd = document.createElement("div");
+            kd.className = "kdoc";
+            kd.textContent = leafDoc;
+            el.insertBefore(kd, el.children[1]);
+          }
+          el.dataset.path = p;
+          try {
+            el.dataset.init = JSON.stringify(v);
+          } catch (_) {}
+          el.__getVal = getVal;
+          group.appendChild(el);
+        }
+      });
+      return group;
+    }
+    function renderConfig(cfg) {
+      const root = document.getElementById("cfg_root");
+      if (!root) return;
+      root.innerHTML = "";
+      CFG_INIT = cfg;
+      const view = renderObject(root, cfg, "", cfg && cfg._doc ? cfg._doc : "");
+      view.open = false;
+      root.appendChild(view);
+      const tag = document.getElementById("cfg_status");
+      if (tag) {
+        tag.textContent = "已载入";
+        tag.style.background = "#eef7ea";
+        tag.style.borderColor = "#b7d6b3";
+      }
+    }
+    function collectChanges() {
+      const root = document.getElementById("cfg_root");
+      if (!root) return [];
+      const items = root.querySelectorAll("[data-path]");
+      const changes = [];
+      items.forEach(el => {
+        const path = el.dataset.path;
+        const getVal = el.__getVal;
+        if (!getVal || !path) return;
+        const cur = getVal();
+        let initVal = null;
+        try {
+          initVal = JSON.parse(el.dataset.init || "null");
+        } catch (_) {}
+        const a = JSON.stringify(cur);
+        const b = JSON.stringify(initVal);
+        if (a !== b) {
+          changes.push({
+            path,
+            from: initVal,
+            to: cur
+          });
+        }
+      });
+      return changes;
+    }
+    async function saveChanges() {
+      const changes = collectChanges();
+      for (const c of changes) {
+        try {
+          await (window.__MVU_LORE__?.writeConfigPath?.(c.path, c.to));
+        } catch (e) {
+          alert("【开局/设定】写入失败：" + String(e));
+        }
+      }
+      await (window.__MVU_LORE__?.loadConfig?.());
+    }
+    function expandAll() {
+      document.querySelectorAll("#cfg_root details").forEach(d => d.open = true);
+    }
+    function collapseAll() {
+      document.querySelectorAll("#cfg_root details").forEach(d => d.open = false);
+    }
+    async function reloadCfg() {
+      const cfg = await (window.__MVU_LORE__?.loadConfig?.());
+      renderConfig(cfg);
+    }
+    function pickGender() {
+      const radios = document.querySelectorAll('input[name="u_gender"]');
+      let v = "未知";
+      radios.forEach(r => {
+        if (r.checked) v = r.value;
+      });
+      if (v === "其他") {
+        const alt = document.getElementById("u_gender_other").value.trim();
+        v = alt || "未知";
+      }
+      return v;
+    }
+    function bindGenderOtherToggle() {
+      const radios = document.querySelectorAll('input[name="u_gender"]');
+      const other = document.getElementById("u_gender_other");
+      const sync = () => {
+        const picked = Array.from(radios).find(r => r.checked);
+        other.style.display = picked?.value === "其他" ? "block" : "none";
+        if (picked?.value !== "其他") other.value = "";
+      };
+      radios.forEach(r => r.addEventListener("change", sync));
+      sync();
+    }
+    function fillDemo() {
+      const cfg = window.__MVU_CONFIG__ || {};
+      document.getElementById("u_name").value = "{{user}}";
+      document.getElementById("u_identity").value = "外来者";
+      document.querySelector('input[name="u_gender"][value="未知"]').checked = true;
+      document.getElementById("u_age").value = "18";
+      const selHome = document.getElementById("u_home");
+      const selCurr = document.getElementById("u_current");
+      const pick = (sel, preferred = []) => {
+        const opts = Array.from(sel?.options || []);
+        for (const v of preferred.filter(Boolean)) {
+          const hit = opts.find(o => o.value === v);
+          if (hit) {
+            sel.value = v;
+            return;
+          }
+        }
+        if (opts.length > 1) sel.selectedIndex = 1;
+      };
+      pick(selHome, [ cfg?.defaults?.fallbackPlace, "博丽神社" ]);
+      pick(selCurr, [ "博丽神社", cfg?.defaults?.fallbackPlace ]);
+      document.getElementById("u_relationships").value = "暂无";
+      document.getElementById("u_ability").value = "在地上行走程度的能力";
+      document.getElementById("u_notes").value = "因为未知的原因，来到了幻想乡";
+    }
+    async function writeUserToMVU() {
+      const profile = {
+        name: (document.getElementById("u_name").value || "").trim() || "{{user}}",
+        identity: (document.getElementById("u_identity").value || "").trim(),
+        gender: pickGender(),
+        age: Number(document.getElementById("u_age").value || "0") || 0
+      };
+      const ability = {
+        summary: (document.getElementById("u_ability").value || "").trim()
+      };
+      const location = {
+        home: (document.getElementById("u_home").value || "").trim(),
+        current: (document.getElementById("u_current").value || "").trim()
+      };
+      const relationships = (document.getElementById("u_relationships").value || "").trim();
+      const notes = (document.getElementById("u_notes").value || "").trim();
+      const userObj = {
+        姓名: profile.name,
+        性别: profile.gender || "未知",
+        年龄: profile.age ? String(profile.age) : "未知",
+        人际关系: relationships || "暂无",
+        特殊能力: (() => {
+          const sum = ability.summary || "在地上行走程度的能力";
+          return sum;
+        })(),
+        身份: profile.identity || "外来者",
+        所在地区: location.current || "博丽神社",
+        居住地区: location.home || "未知",
+        重要经历: notes || "因为未知的原因，来到了幻想乡"
+      };
+      const writer = v => {
+        v = v || {};
+        v.stat_data = v.stat_data && typeof v.stat_data === "object" ? v.stat_data : {};
+        v.stat_data.user = userObj;
+        const mirror = typeof window.__MVU_CONFIG__?.featureFlags?.mirrorDisplay === "boolean" ? window.__MVU_CONFIG__.featureFlags.mirrorDisplay : true;
+        if (mirror) {
+          v.display_data = v.display_data && typeof v.display_data === "object" ? v.display_data : {};
+          v.display_data.user = userObj;
+        }
+        return v;
+      };
+      let ok = false;
+      try {
+        if (typeof updateVariablesWith === "function") {
+          await updateVariablesWith(writer, {
+            type: "message",
+            message_id: "latest"
+          });
+          ok = true;
+        } else if (typeof getVariables === "function" && typeof replaceVariables === "function") {
+          const where = {
+            type: "message",
+            message_id: "latest"
+          };
+          const cur = getVariables(where) || {};
+          await replaceVariables(writer(cur), where);
+          ok = true;
+        } else if (typeof triggerSlash === "function") {
+          await triggerSlash("/setvar stat_data " + JSON.stringify({
+            user: userObj
+          }));
+          ok = true;
+        } else {
+          alert("【开局/写回】找不到任何写回 API。");
+        }
+      } catch (e) {
+        alert("【开局/写回】异常：" + String(e));
+      }
+      if (!ok) {
+        alert("写入失败：无法调用写回 API，请查看控制台。");
+      }
+    }
+    function readUser() {
+      try {
+        const s = window.__MVU_STATE__?.read?.() || {};
+        const u = s.user || {};
+        const pick = (k, fb = "未知") => typeof u[k] === "string" && u[k].trim() ? u[k].trim() : fb;
+        return {
+          姓名: pick("姓名", "{{user}}"),
+          性别: pick("性别", "未知"),
+          年龄: pick("年龄", "未知"),
+          人际关系: pick("人际关系", "暂无"),
+          特殊能力: pick("特殊能力", "在地上行走程度的能力"),
+          身份: pick("身份", "外来者"),
+          所在地区: pick("所在地区", "博丽神社"),
+          居住地区: pick("居住地区", "未知"),
+          重要经历: pick("重要经历", "因为未知的原因，来到了幻想乡")
+        };
+      } catch (e) {
+        console.error("读取 user 失败：", e);
+        return null;
+      }
+    }
+    function buildPayload(user) {
+      const guidelines = "请基于上面的“角色设定”，写一段开场剧情；" + "若“身份”为“外来者”或“重要经历”包含“初到幻想乡”，请写成“初入幻想乡”的场景；" + "否则写成其在当前所在地区的日常开场。建议在开场剧情中引入一个可能在{{user}}当前所在区域出现的角色。";
+      return {
+        type: "MVU_LAUNCH",
+        user,
+        guidelines
+      };
+    }
+    function sendToAI(payload) {
+      const msg = JSON.stringify(payload, null, 2);
+      const cmd = `/send ${msg}|/trigger`;
+      if (typeof window.triggerSlash === "function") {
+        window.triggerSlash(cmd);
+      } else {
+        console.warn("未检测到 triggerSlash，无法自动发送。将要发送的内容：\n", msg);
+        alert("未检测到 triggerSlash，无法自动发送。内容已打印到控制台。");
+      }
+    }
+    function onLaunch() {
+      const user = readUser();
+      if (!user) {
+        alert("未读取到 user，请先点击“写入角色到 MVU 变量”。");
+        return;
+      }
+      sendToAI(buildPayload(user));
+    }
+    function pickLorebook() {
+      try {
+        return window.__MVU_CONFIG__?.map?.lorebook || "幻想乡缘起MVU";
+      } catch (e) {
+        return "幻想乡缘起MVU";
+      }
+    }
+    async function loadExtraToTextarea() {
+      const box = document.getElementById("extra_world_lore");
+      if (!box) return;
+      const lb = pickLorebook();
+      try {
+        const hit = await (window.__MVU_LORE__?.getEntry?.(lb, {
+          comment: "额外世界设定"
+        }));
+        if (!hit) {
+          box.value = "";
+          alert("未找到世界书条目“额外世界设定”。如需新建，直接在文本框输入内容后点“保存到世界书”。");
+          return;
+        }
+        const txt = String(hit.content ?? "");
+        box.value = txt;
+      } catch (e) {
+        alert("载入失败：" + String(e));
+      }
+    }
+    async function saveTextareaToExtra() {
+      const box = document.getElementById("extra_world_lore");
+      if (!box) return;
+      const lb = pickLorebook();
+      const nextContent = String(box.value ?? "");
+      if (typeof window.getWorldbook !== "function" || typeof window.updateWorldbookWith !== "function") {
+        alert("保存失败：当前环境缺少世界书写入 API。");
+        return;
+      }
+      try {
+        await window.updateWorldbookWith(lb, entries => {
+          const nameWanted = "额外世界设定";
+          const idx = (entries || []).findIndex(e => String(e?.name || "").trim() === nameWanted);
+          if (idx >= 0) {
+            entries[idx].content = nextContent;
+          } else {
+            entries.push({
+              name: nameWanted,
+              content: nextContent
+            });
+          }
+          return entries;
+        }, {
+          render: "immediate"
+        });
+      } catch (e) {
+        alert("保存失败：" + String(e));
+      }
+    }
+    function zz(n) {
+      n = String(n || "");
+      return n.length === 1 ? "0" + n : n;
+    }
+    async function readEpochFromConfig() {
+      try {
+        const cfg = window.__MVU_CONFIG__ || await (window.__MVU_LORE__?.loadConfig?.());
+        const raw = cfg?.defaults?.timeEpochISO || "2025-08-21T08:00:00+09:00";
+        const src = raw && typeof raw === "string" && raw.trim() ? raw.trim() : "2025-08-21T08:00:00+09:00";
+        const m = src.match(/^(\d{4}-\d{2}-\d{2})[T\s](\d{2}):(\d{2})(?::(\d{2}))?(Z|[+-]\d{2}:\d{2})?$/);
+        const date = m ? m[1] : "2025-08-21";
+        const hh = m ? m[2] : "08";
+        const mi = m ? m[3] : "00";
+        const ss = m && m[4] ? m[4] : "00";
+        const off = m && m[5] ? m[5] : /(?:\+|-|Z)/.test(src) ? (src.match(/(Z|[+-]\d{2}:\d{2})$/) || [ "+09:00" ])[0] : "+09:00";
+        return {
+          date,
+          hh,
+          mi,
+          ss,
+          off
+        };
+      } catch (e) {
+        return {
+          date: "2025-08-21",
+          hh: "08",
+          mi: "00",
+          ss: "00",
+          off: "+09:00"
+        };
+      }
+    }
+    async function fillUI() {
+      const hit = await readEpochFromConfig();
+      const date = document.getElementById("epoch_date");
+      const time = document.getElementById("epoch_time");
+      const prev = document.getElementById("epoch_preview");
+      const hold = document.getElementById("epoch_holder");
+      if (!date || !time || !prev || !hold) return;
+      date.value = hit.date;
+      time.value = `${zz(hit.hh)}:${zz(hit.mi)}`;
+      hold.dataset.offset = hit.off || "+09:00";
+      prev.textContent = `${date.value}T${time.value}`;
+    }
+    async function saveEpoch() {
+      const dateValue = document.getElementById("epoch_date")?.value || "";
+      const timeValue = document.getElementById("epoch_time")?.value || "";
+      const off = document.getElementById("epoch_holder")?.dataset?.offset || "+09:00";
+      if (!/^\d{4}-\d{2}-\d{2}$/.test(dateValue)) {
+        alert("请先选择有效日期。");
+        return;
+      }
+      if (!/^\d{2}:\d{2}$/.test(timeValue)) {
+        alert("请先输入有效时间（HH:mm）。");
+        return;
+      }
+      const shown = `${dateValue}T${timeValue}`;
+      const iso = `${dateValue}T${timeValue}:00${off}`;
+      try {
+        const ok = await (window.__MVU_LORE__?.writeConfigPath?.("defaults.timeEpochISO", iso));
+        if (ok) {
+          document.getElementById("epoch_preview").textContent = shown;
+          await (window.__MVU_LORE__?.loadConfig?.());
+          alert("开局时间已保存到配置。");
+        } else {
+          alert("未发生变化或写入失败。请查看控制台日志。");
+        }
+      } catch (e) {
+        alert("保存失败：" + String(e));
+      }
+    }
+    function syncPreview() {
+      const d = document.getElementById("epoch_date")?.value || "--------";
+      const t = document.getElementById("epoch_time")?.value || "--:--";
+      document.getElementById("epoch_preview").textContent = `${d}T${t}`;
+    }
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      document.addEventListener("mvu:config-ready", () => {
+        loadPlaces();
+        renderConfig(window.__MVU_CONFIG__);
+        loadExtraToTextarea();
+        fillUI();
+      });
+      if (window.__MVU_CONFIG__) {
+        loadPlaces();
+        renderConfig(window.__MVU_CONFIG__);
+        loadExtraToTextarea();
+        fillUI();
+      }
+      bindGenderOtherToggle();
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ _cache[13] || (_cache[13] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h1", null, "开局设定 · 录入史记", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "launch-bar"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_launch_ai",
+      onClick: onLaunch
+    }, "设置完成，进入幻想乡") ]), (0, external_Vue_namespaceObject.createCommentVNode)(" ===== 开局 · 角色档案 ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "card"
+    }, [ _cache[0] || (_cache[0] = (0, external_Vue_namespaceObject.createStaticVNode)('<h2>角色档案</h2><div class="grid-2 grid"><div><label for="u_name">姓名</label><input id="u_name" type="text" placeholder="如：博丽某某"></div><div><label for="u_identity">身份</label><input id="u_identity" type="text" placeholder="如：外界来访者 / 里民 / 巫女见习"></div><div><label>性别</label><div class="row"><label class="inline"><input type="radio" name="u_gender" value="未知" checked> 未知</label><label class="inline"><input type="radio" name="u_gender" value="男"> 男</label><label class="inline"><input type="radio" name="u_gender" value="女"> 女</label><label class="inline"><input type="radio" name="u_gender" value="其他"> 其他</label><input id="u_gender_other" type="text" placeholder="选择“其他”时可填写" style="display:none;"></div></div><div><label for="u_age">年龄</label><input id="u_age" type="number" min="0" step="1" placeholder="数字（岁）"></div></div><div class="grid-2 grid"><div><label for="u_home">居住地区</label><select id="u_home"><option value="" disabled selected>— 请选择 —</option></select></div><div><label for="u_current">所在地区</label><select id="u_current"><option value="" disabled selected>— 请选择 —</option></select></div></div><div class="grid"><div><label for="u_relationships">人际关系</label><input id="u_relationships" type="text" placeholder="如：与灵梦相识 / 与魔理沙偶遇"></div><div><label for="u_ability">特殊能力</label><input id="u_ability" type="text" placeholder="如：在地上行走程度的能力"></div><div><label for="u_notes">重要经历</label><textarea id="u_notes" placeholder="因为未知的原因，来到了幻想乡"></textarea></div></div>', 4)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "btn-bar"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_save_user",
+      onClick: writeUserToMVU
+    }, "写入角色到 MVU 变量"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_fill_demo",
+      class: "muted-btn",
+      onClick: fillDemo
+    }, "填充示例") ]) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" ===== 开局时间设置（显示 YYYY-MM-DD + HH:mm；偏移隐藏保存） ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("h2", null, "设置开局时间", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_3, [ (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("label", {
+      for: "epoch_date"
+    }, "日期（YYYY-MM-DD）", -1)), (0, external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "epoch_date",
+      type: "date",
+      placeholder: "2025-08-21",
+      onInput: syncPreview
+    }, null, 32) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("label", {
+      for: "epoch_time"
+    }, "时分（HH:mm）", -1)), (0, external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "epoch_time",
+      type: "time",
+      step: "60",
+      placeholder: "08:00",
+      onInput: syncPreview
+    }, null, 32) ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "row",
+      style: {
+        "margin-top": "10px"
+      }
+    }, [ _cache[3] || (_cache[3] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "tag"
+    }, [ (0, external_Vue_namespaceObject.createTextVNode)("预览："), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "epoch_preview"
+    }, "—") ], -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "btn-bar",
+      style: {
+        margin: "0"
+      }
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_epoch_reload",
+      class: "muted-btn",
+      onClick: fillUI
+    }, "从配置读取"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_epoch_save",
+      onClick: saveEpoch
+    }, "保存到配置") ]) ]) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" ===== 额外世界设定（写入世界书条目：额外世界设定） ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "card"
+    }, [ _cache[5] || (_cache[5] = (0, external_Vue_namespaceObject.createElementVNode)("h2", null, "额外世界设定", -1)), _cache[6] || (_cache[6] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "hint"
+    }, [ (0, external_Vue_namespaceObject.createTextVNode)(" 本区内容将被保存为世界书条目 "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("small", {
+      class: "code"
+    }, "“额外世界设定”"), (0, external_Vue_namespaceObject.createTextVNode)(" 的 "), (0, external_Vue_namespaceObject.createElementVNode)("small", {
+      class: "code"
+    }, "content"), (0, external_Vue_namespaceObject.createTextVNode)("，用于补充世界背景/临时规则等。 ") ], -1)), _cache[7] || (_cache[7] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("textarea", {
+      id: "extra_world_lore",
+      placeholder: "在此编写你的自定义幻想乡额外设定。建议以‘【额外世界设定】’开头，比如：【额外世界设定】幻想乡的大家都变得像灵梦一样贫穷了！"
+    }, null, -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "btn-bar"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_load_extra",
+      class: "muted-btn",
+      onClick: loadExtraToTextarea
+    }, "从世界书载入"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_save_extra",
+      onClick: saveTextareaToExtra
+    }, "保存到世界书") ]) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" ===== 幻想乡设定（动态生成自世界书 config） ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "card"
+    }, [ _cache[9] || (_cache[9] = (0, external_Vue_namespaceObject.createElementVNode)("h2", null, "幻想乡设定（注意：请慎重修改设定，乱改可能会导致bug）", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "row",
+      style: {
+        "margin-bottom": "10px"
+      }
+    }, [ _cache[8] || (_cache[8] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "tag",
+      id: "cfg_status"
+    }, "未载入", -1)), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_reload_cfg",
+      class: "muted-btn",
+      onClick: reloadCfg
+    }, "重载配置"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_expand_all",
+      class: "muted-btn",
+      onClick: expandAll
+    }, "展开全部"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_collapse_all",
+      class: "muted-btn",
+      onClick: collapseAll
+    }, "折叠全部"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      id: "btn_save_cfg",
+      onClick: saveChanges
+    }, "保存更改到世界书") ]), _cache[10] || (_cache[10] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "hint"
+    }, "每个字段右侧为当前值输入区：布尔=勾选，数字=数字框，字符串=文本框，数组=多行一项一行。对象会折叠成分组。", -1)), _cache[11] || (_cache[11] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      id: "cfg_root",
+      class: "grid"
+    }, null, -1)), _cache[12] || (_cache[12] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "sep"
+    }, null, -1)) ]) ]));
+  }
+});
+
+const __exports__ = appvue_type_script_setup_true_lang_ts;
+
+const _app = __exports__;
+
+$(() => {
+  const app = (0, external_Vue_namespaceObject.createApp)(_app);
+  app.mount("#app");
+});</script><style>@import url(https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap);
+@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
+/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */:root{--bg:#f5f1e8;--paper:#fffdf7;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8}html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Noto Serif SC",serif;line-height:1.6}body{background-image:linear-gradient(rgba(224,213,196,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(224,213,196,0.1) 1px,transparent 1px);background-size:20px 20px;padding:20px}h1,h2{color:var(--muted);border-bottom:2px solid var(--line);padding-bottom:10px;margin:20px auto;max-width:940px}h1{font-size:2.2em}h2{font-size:1.6em}.container{max-width:940px;margin:0 auto}.card{background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:3px 3px 8px rgba(107,90,75,.2),inset 0 0 10px rgba(255,253,247,.5);padding:24px;margin:18px 0}.grid{display:grid;gap:16px}.grid-2{grid-template-columns:1fr 1fr}.grid-3{grid-template-columns:repeat(3,1fr)}label{font-weight:700;color:var(--muted);display:block;margin-bottom:6px}.hint{font-style:italic;color:#7b6d5f;font-size:.9em}input[type=text],input[type=number],textarea,select{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:#fcfaf5;color:var(--ink);transition:border-color .2s,box-shadow .2s;font-size:1em;box-sizing:border-box}input:focus,textarea:focus,select:focus{border-color:#a89883;outline:none;box-shadow:0 0 5px rgba(168,152,131,.3)}textarea{min-height:100px;resize:vertical}.row{display:flex;gap:12px;align-items:center;flex-wrap:wrap}.row>*{flex:1}.inline{display:inline-block;margin-right:12px}.checkbox-line{display:flex;align-items:center;gap:8px}.btn-bar{display:flex;gap:12px;margin-top:18px}button{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background .2s,border-color .2s}button:hover{background:#7a6a5a;border-color:#6b5a4b}.muted-btn{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}.muted-btn:hover{background:#dcd1c4}details{border:1px solid var(--line);border-radius:6px;padding:10px 12px;background:#fffdfa}details+details{margin-top:12px}summary{cursor:pointer;font-weight:700;color:#6b5a4b}.kdoc{color:#857664;font-size:.9em;margin:6px 0 10px}.kv{margin:10px 0}.kv .key{font-weight:600;color:#5e5042}.kv .control{margin-top:6px}.tag{display:inline-flex;align-items:center;padding:2px 8px;border:1px solid var(--line);border-radius:999px;font-size:.85em;color:#6b5a4b;background:#faf5ee;margin-right:6px}.sep{height:1px;background:var(--line);margin:16px 0}small.code{font-family:ui-monospace,Menlo,Consolas,monospace;color:#5e5042}.launch-bar{display:flex;justify-content:center;margin:10px auto 0;max-width:940px}#btn_launch_ai{padding:14px 22px;font-size:1.12em;border-radius:999px;letter-spacing:.02em;background:#b76e2b;color:#fffdf7;border:1px solid #a95f1e;box-shadow:0 6px 14px rgba(0,0,0,.08),inset 0 0 10px rgba(255,253,247,.4)}#btn_launch_ai:hover{background:#a95f1e;border-color:#8f4f18}
+</style></head><body><div id="app"></div></body></html>

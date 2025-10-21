@@ -1,0 +1,97 @@
+{
+  "config": {
+    "ui": {
+      "mainFontPercent": 100,
+      "mainFontPercent__doc": "正文区域基础字号的百分比（建议 60~200）",
+      "fontScaleStepPct": 10,
+      "fontScaleStepPct__doc": "正文字号每次增减的百分比（基于 100%）。",
+      "theme": "light",
+      "theme__doc": "白日模式light还是黑夜模式dark"
+    },
+    "incident": {
+      "cooldown": 10080,
+      "cooldown__doc": "两次“发动新异变”之间的最小时间间隔（分钟）。",
+      "immediate_trigger": false,
+      "immediate_trigger__doc": "异变无冷却",
+      "random_pool": false,
+      "random_pool__doc": "是否打乱异变触发的顺序"
+    },
+    "meetStuff": {
+      "skipVisitHunters": true,
+      "skipVisitHunters__doc": "当异变进行中时，异变退治者不进行日常的拜访",
+      "skipSleepHunters": true,
+      "skipSleepHunters__doc": "当异变进行中时，异变退治者不回家睡觉"
+    },
+    "affection": {
+      "affectionStages": [
+        [-99999, "死敌"],
+        [-100, "憎恨"],
+        [-20, "厌恶"],
+        [0, "陌生"],
+        [10, "普通"],
+        [20, "熟悉"],
+        [40, "亲近"],
+        [70, "亲密"],
+        [100, "思慕"],
+        [99999, "不渝"]
+      ],
+      "affectionStages__doc": "好感度等级表",
+      "loveThreshold": 100,
+      "loveThreshold__doc": "爱阈值",
+      "hateThreshold": -100,
+      "hateThreshold__doc": "恨阈值"
+    },
+    "defaults": {
+      "fallbackPlace": "博丽神社",
+      "fallbackPlace__doc": "当地区信息无效时的备用地点"
+    }
+  },
+  "world": {
+    "map_ascii": "",
+    "map_ascii__doc": "ASCII 世界地图的文本内容",
+    "map_graph": "",
+    "map_graph__doc": "世界地图的图谱数据（节点和边）"
+  },
+  "festivals_list": {},
+  "runtime": {},
+
+  "世界": {
+    "timeProgress": 0,
+    "天气": "晴"
+  },
+  "user": {
+    "姓名": "{{user}}",
+    "性别": "未知",
+    "年龄": null,
+    "特殊能力": "在地上行走程度的能力",
+    "身份": "外来者",
+    "所在地区": "博丽神社",
+    "居住地区": "博丽神社",
+    "重要经历": "因为未知的原因，来到了幻想乡"
+  },
+  "chars": {
+    "$template": {
+      "年龄": null,
+      "性别": "未知",
+      "外貌": "",
+      "性格": "",
+      "所在地区": "博丽神社",
+      "居住地区": "博丽神社",
+      "特殊能力": "",
+      "当前目标": "",
+      "背景资料": "",
+      "好感度": 0
+    }
+  },
+  "incidents": {
+    "$template": {
+      "异变名称": "未命名异变",
+      "异变进程": "未开始",
+      "异变影响": "暂无",
+      "异变退治者": [],
+      "异变发起者": "未知",
+      "其他异变信息": "暂无"
+    }
+  },
+  "文文新闻": "暂无"
+}

@@ -1,0 +1,197 @@
+@import url('https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap');
+
+:root {
+  --duo-head-h: 38px;
+} /* 顶部两栏标题的统一高度 */
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  font-family: 'Noto Serif SC', serif;
+  color: var(--ink);
+  font-size: 14px;
+  background:
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px),
+    var(--bg);
+  background-size: 20px 20px;
+}
+
+
+/* 文本/格式工具 */
+.preserve-format {
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+  word-break: break-word;
+}
+.label {
+  font-weight: 600;
+  color: var(--muted);
+  min-width: 90px;
+  margin-right: 5px;
+}
+
+/* 通用虚线分隔 */
+hr.dashed {
+  border: none;
+  border-top: 1px dashed var(--line);
+  margin: 20px 0;
+}
+
+/* 防横向撑破 */
+html,
+body,
+.status-ui-container,
+.status-main-content,
+.status-tab-content-area,
+.role-ribbon-container {
+  max-width: 100%;
+  overflow-x: hidden;
+}
+#content_main,
+#main-content {
+  max-width: 100%;
+  contain: inline-size;
+}
+#main-content,
+#main-content * {
+  max-width: 100% !important;
+}
+#main-content img,
+#main-content video {
+  height: auto;
+}
+#main-content table {
+  display: block;
+  overflow-x: auto;
+}
+#main-content pre {
+  white-space: pre-wrap;
+  overflow-x: auto;
+}
+
+
+/*
+  .status-sidebar 的相关样式已完全迁移到 src/幻想乡缘起-主页面/components/StatusSidebar.vue 文件中。
+  此处不再包含其样式。
+*/
+
+/*
+  文文新闻 (.status-news) 的相关样式已完全迁移到 src/幻想乡缘起-主页面/components/StatusNews.vue 文件中。
+  此处不再包含其样式。
+*/
+
+
+
+
+
+
+
+.debug-console {
+  font-family: ui-monospace, SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+  background: #0f0f0f;
+  color: #e7e7e7;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 10px;
+  height: 260px;
+  overflow: auto;
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.debug-line {
+  padding: 2px 0;
+  border-bottom: 1px dashed rgba(255, 255, 255, 0.08);
+}
+.debug-badge {
+  font-size: 0.75em;
+  padding: 2px 6px;
+  border-radius: 10px;
+  margin-right: 6px;
+  background: #333;
+  color: #eee;
+}
+.debug-line.warn .debug-badge {
+  background: #9b7b2f;
+}
+.debug-line.error .debug-badge {
+  background: #b2453d;
+}
+.debug-stats {
+  font-size: 0.85em;
+  color: #cfcfcf;
+  margin: 6px 0 0;
+  opacity: 0.9;
+}
+
+:root,
+:root[data-theme='light'] {
+  --bg: #fffdf7;
+  --paper: #fcfaf5;
+  --ink: #4a3f35;
+  --muted: #6b5a4b;
+  --line: #d3c8b8;
+  --tile: #e0d5c4;
+  --pad: 12px;
+
+  --control-bg: #fff7e8;
+  --control-border: #c9b59e;
+  --control-focus: #b6782b;
+  --btn-accent: #b76e2b;
+  --btn-accent-hover: #a95f1e;
+  --btn-muted: #efe8de;
+  --btn-muted-border: #d3c8b8;
+
+  --grid: rgba(224, 213, 196, 0.1);
+  --avatar-bg: #f5f1e8;
+  --bar-bg: #f0ece4;
+  --tab-active: #8c7b6a;
+
+  --cal-cell-bg: var(--bg);
+  --cal-cell-border: var(--line);
+  --cal-hover-bg: color-mix(in srgb, var(--paper) 88%, black 12%);
+  --cal-festival-bg: color-mix(in srgb, var(--btn-accent) 10%, white 90%);
+  --cal-festival-border: color-mix(in srgb, var(--btn-accent) 30%, white 70%);
+  --cal-festival-text: color-mix(in srgb, var(--btn-accent) 75%, black 25%);
+  --cal-today-ring: var(--control-focus);
+}
+
+:root[data-theme='dark'] {
+  --bg: #13110f;
+  --paper: #1b1916;
+  --ink: #efe8de;
+  --muted: #b7a899;
+  --line: #4b433a;
+  --tile: #2a241e;
+  --pad: 12px;
+
+  --control-bg: #1f1b16;
+  --control-border: #5b4e41;
+  --control-focus: #d89a4a;
+  --btn-accent: #c57a33;
+  --btn-accent-hover: #b56b24;
+  --btn-muted: #2a241e;
+  --btn-muted-border: #4b433a;
+
+  --grid: rgba(255, 255, 255, 0.04);
+  --avatar-bg: #1f1b17;
+  --bar-bg: #2a2520;
+  --tab-active: #c8b49d;
+
+  --cal-cell-bg: color-mix(in srgb, var(--paper) 92%, black 8%);
+  --cal-cell-border: color-mix(in srgb, var(--line) 85%, white 15%);
+  --cal-hover-bg: color-mix(in srgb, var(--paper) 80%, white 0%);
+  --cal-festival-bg: color-mix(in srgb, var(--btn-accent) 14%, var(--paper) 86%);
+  --cal-festival-border: color-mix(in srgb, var(--btn-accent) 45%, var(--line) 55%);
+  --cal-festival-text: color-mix(in srgb, var(--btn-accent) 80%, white 20%);
+  --cal-today-ring: var(--control-focus);
+}
+/* 深色下微调 */
+
+@media (max-width: 480px) {
+  .calendar-day .fest {
+    font-size: 0.75em;
+  }
+}
