@@ -45,15 +45,12 @@ export async function setRuntimeVar(path: string, value: any): Promise<boolean> 
     const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
     logger.log(funcName, `准备更新 chat.runtime: ${path}`, { value });
 
-    await updateVariablesWith(
-      (vars: any) => {
-        const chatVars = vars || {};
-        // 使用 lodash.set 来安全地设置深层嵌套的属性
-        _.set(chatVars, runtimePath, value);
-        return chatVars;
-      },
-      { type: 'chat' },
-    );
+    await updateVariablesWith((vars: any) => {
+      const chatVars = vars || {};
+      // 使用 lodash.set 来安全地设置深层嵌套的属性
+      _.set(chatVars, runtimePath, value);
+      return chatVars;
+    }, { type: 'chat' });
 
     logger.log(funcName, `成功更新 chat.runtime: ${path}`);
     return true;

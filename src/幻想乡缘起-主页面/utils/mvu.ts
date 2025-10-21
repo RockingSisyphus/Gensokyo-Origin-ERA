@@ -130,7 +130,7 @@ export function toText(v: any): string {
  * @param {any} [fallback=''] - 如果路径不存在或值为空，返回的默认值。
  * @returns {string} 获取到的值的字符串表示或默认值。
  */
-export function getStr(obj: object, path: string | string[], fallback: any = ''): string {
+export function getStr(obj: object, path:string | string[], fallback: any = ''): string {
   // 复用 getRaw 获取原始值，复用 toText 将其转换为最终的显示字符串
   const rawValue = getRaw(obj, path, null);
   if (rawValue === null) {

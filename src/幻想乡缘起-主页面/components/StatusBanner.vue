@@ -817,7 +817,7 @@ defineExpose({
 }
 
 /* === 日期详情弹窗（附着在 .cal-pop 内） === */
-.day-popover {
+:deep(.day-popover) {
   position: absolute;
   z-index: 1200;
   width: min(280px, calc(100% - 24px));
@@ -831,7 +831,7 @@ defineExpose({
     0 4px 16px rgba(0, 0, 0, 0.08);
   padding: 8px;
 }
-.day-popover__head {
+:deep(.day-popover__head) {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -840,11 +840,11 @@ defineExpose({
   border-bottom: 1px dashed var(--line);
   margin-bottom: 6px;
 }
-.day-popover__date {
+:deep(.day-popover__date) {
   font-weight: 800;
   color: var(--ink);
 }
-.day-popover__close {
+:deep(.day-popover__close) {
   border: 1px solid var(--line);
   border-radius: 6px;
   background: var(--bg);
@@ -853,7 +853,7 @@ defineExpose({
   padding: 2px 8px;
   cursor: pointer;
 }
-.fest-item {
+:deep(.fest-item) {
   border: 1px solid var(--line);
   background: color-mix(in srgb, var(--paper) 88%, var(--tab-active) 12%);
   color: var(--ink);
@@ -867,7 +867,7 @@ defineExpose({
 }
 
 /* 暗黑模式阴影加强些 */
-:global(:root[data-theme='dark']) .day-popover {
+:global(:root[data-theme='dark']) :deep(.day-popover) {
   box-shadow:
     0 12px 36px rgba(0, 0, 0, 0.3),
     0 4px 16px rgba(0, 0, 0, 0.22);

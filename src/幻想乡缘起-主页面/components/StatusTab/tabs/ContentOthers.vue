@@ -204,142 +204,142 @@ defineExpose({
 <style lang="scss" scoped>
 // From style.scss: .debug-toolbar and .incident-list
 :deep(.debug-toolbar) {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-bottom: 10px;
-  flex-wrap: wrap;
-}
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 10px;
+    flex-wrap: wrap;
+  }
 :deep(.debug-switch) {
-  display: flex;
-  align-items: center;
-  gap: 6px;
-  font-size: 0.9em;
-  padding: 4px 8px;
-  border: 1px dashed var(--line);
-  border-radius: 6px;
-  background: rgba(255, 255, 255, 0.08);
-}
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.9em;
+    padding: 4px 8px;
+    border: 1px dashed var(--line);
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.08);
+  }
 :deep(.incident-list) {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-}
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
 
 // From style_modeled.scss (section 3) for .role-card used in this component
 :deep(#other-roles-list) {
-  .role-card {
-    flex: 1 1 auto; // Use flex for responsiveness
-    min-width: 0;
-    background: var(--bg);
-    border: 1px solid var(--line);
-    border-radius: 6px;
-    padding: var(--pad);
-    position: relative;
-    overflow: hidden;
-    transition:
-      box-shadow 0.2s ease,
-      transform 0.02s ease;
-  }
-  .role-card-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 8px;
-    padding-bottom: 8px;
-    border-bottom: 1px dashed var(--line);
-    > div:nth-child(2) {
-      flex: 1 1 auto;
+    .role-card {
+      flex: 1 1 auto; // Use flex for responsiveness
       min-width: 0;
-    }
-  }
-  .role-avatar {
-    width: 40px;
-    height: 40px;
-    border-radius: 50%;
-    border: 1px solid var(--line);
-    background: var(--avatar-bg);
-    display: grid;
-    place-items: center;
-    font-weight: 700;
-    color: var(--muted);
-    flex-shrink: 0;
-  }
-  .role-name {
-    font-weight: 700;
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  .role-meta {
-    font-size: 0.85em;
-    color: var(--muted);
-    white-space: nowrap;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    max-width: 100%;
-  }
-  .card-toggle {
-    margin-left: auto;
-    border: 1px solid var(--line);
-    background: var(--paper);
-    border-radius: 6px;
-    padding: 4px 8px;
-    font-weight: 700;
-    cursor: pointer;
-    flex: 0 0 auto;
-  }
-  .role-body {
-    margin-top: 8px;
-    border-top: 1px dashed var(--line);
-    padding-top: 8px;
-  }
-  .role-line {
-    margin: 6px 0;
-    font-size: 0.9em;
-    display: flex;
-    flex-wrap: wrap;
-  }
-  .mini-bar {
-    height: 8px;
-    background: var(--bar-bg);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-    flex-grow: 1;
-    margin-left: 8px;
-    min-width: 50px;
-  }
-  .mini-bar .val {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #c0a58a, #8c7b6a);
-    transition: width 0.3s ease;
-  }
-  // Collapse/Expand styles
-  .role-card.collapsed {
-    padding-bottom: 8px;
-    .role-body {
-      display: none;
+      background: var(--bg);
+      border: 1px solid var(--line);
+      border-radius: 6px;
+      padding: var(--pad);
+      position: relative;
+      overflow: hidden;
+      transition:
+        box-shadow 0.2s ease,
+        transform 0.02s ease;
     }
     .role-card-header {
-      margin-bottom: 0;
-      padding-bottom: 6px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 8px;
+      padding-bottom: 8px;
+      border-bottom: 1px dashed var(--line);
+      > div:nth-child(2) {
+        flex: 1 1 auto;
+        min-width: 0;
+      }
+    }
+    .role-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      border: 1px solid var(--line);
+      background: var(--avatar-bg);
+      display: grid;
+      place-items: center;
+      font-weight: 700;
+      color: var(--muted);
+      flex-shrink: 0;
+    }
+    .role-name {
+      font-weight: 700;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .role-meta {
+      font-size: 0.85em;
+      color: var(--muted);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 100%;
+    }
+    .card-toggle {
+      margin-left: auto;
+      border: 1px solid var(--line);
+      background: var(--paper);
+      border-radius: 6px;
+      padding: 4px 8px;
+      font-weight: 700;
+      cursor: pointer;
+      flex: 0 0 auto;
+    }
+    .role-body {
+      margin-top: 8px;
+      border-top: 1px dashed var(--line);
+      padding-top: 8px;
+    }
+    .role-line {
+      margin: 6px 0;
+      font-size: 0.9em;
+      display: flex;
+      flex-wrap: wrap;
+    }
+    .mini-bar {
+      height: 8px;
+      background: var(--bar-bg);
+      border: 1px solid var(--line);
+      border-radius: 4px;
+      overflow: hidden;
+      position: relative;
+      flex-grow: 1;
+      margin-left: 8px;
+      min-width: 50px;
+    }
+    .mini-bar .val {
+      position: absolute;
+      left: 0;
+      top: 0;
+      bottom: 0;
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #c0a58a, #8c7b6a);
+      transition: width 0.3s ease;
+    }
+    // Collapse/Expand styles
+    .role-card.collapsed {
+      padding-bottom: 8px;
+      .role-body {
+        display: none;
+      }
+      .role-card-header {
+        margin-bottom: 0;
+        padding-bottom: 6px;
+      }
+    }
+    .role-card.expanded {
+      padding-bottom: calc(var(--pad) + 8px);
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
+      max-height: none;
+      overflow: visible;
     }
   }
-  .role-card.expanded {
-    padding-bottom: calc(var(--pad) + 8px);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
-    max-height: none;
-    overflow: visible;
-  }
-}
 
 // Dark theme overrides
 :global(:root[data-theme='dark']) .debug-switch {
