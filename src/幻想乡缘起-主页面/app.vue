@@ -26,7 +26,7 @@ import { ref } from 'vue';
 import StatusTabContent from './components/StatusTab/StatusTabContent.vue';
 // [重构] 其他子组件的导入已移至 StatusTabContent.vue，此处不再需要
 import RoleRibbon from './components/RoleRibbon.vue';
-import StatusBanner from './components/StatusBanner.vue';
+import StatusBanner from './components/StatusBanner/StatusBannerContent.vue';
 import StatusNews from './components/StatusNews.vue';
 import StatusSidebar from './components/StatusSidebar.vue';
 import ThemeToggle from './components/ThemeToggle.vue';

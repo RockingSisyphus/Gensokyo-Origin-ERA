@@ -92,15 +92,15 @@ $(() => {
 
       // 调用状态横幅组件的更新函数
       try {
-        if (statusBanner && typeof statusBanner.updateStatusBanner === 'function') {
-          logger.debug(funcName, '调用 StatusBanner.updateStatusBanner 入口');
-          statusBanner.updateStatusBanner(statWithoutMeta);
-          logger.debug(funcName, 'StatusBanner.updateStatusBanner 退出');
+        if (statusBanner && typeof statusBanner.update === 'function') {
+          logger.debug(funcName, '调用 StatusBanner.update 入口');
+          statusBanner.update(statWithoutMeta);
+          logger.debug(funcName, 'StatusBanner.update 退出');
         } else {
           logger.warn(funcName, 'StatusBanner 组件缺失或接口不可用。');
         }
       } catch (e) {
-        logger.warn(funcName, 'StatusBanner.updateStatusBanner 执行失败（非致命）。', e);
+        logger.warn(funcName, 'StatusBanner.update 执行失败（非致命）。', e);
       }
 
       // 调用新闻组件的更新函数 (如果存在)
