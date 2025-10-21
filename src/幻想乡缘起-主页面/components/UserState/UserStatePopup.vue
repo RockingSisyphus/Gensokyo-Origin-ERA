@@ -1,5 +1,5 @@
 <template>
-  <div id="status-sidebar-popup" class="status-sidebar-popup" :style="style" role="region" aria-label="用户状态">
+  <div id="user-state-popup" class="user-state-popup" role="region" aria-label="用户状态">
     <h4><span class="emoji">👤</span>用户状态</h4>
     <div class="sidebar-content">
       <p>
@@ -34,7 +34,7 @@ import { get, text } from '../../utils/mvu';
 
 defineEmits(['close']);
 
-const logger = new Logger('components-StatusSidebarPopup-StatusSidebarPopup');
+const logger = new Logger();
 
 const style = ref({});
 
@@ -81,7 +81,7 @@ defineExpose({
 </script>
 
 <style lang="scss" scoped>
-.status-sidebar-popup {
+.user-state-popup {
   position: static; /* 进入普通文档流 */
   width: 100%; /* 跟随父容器宽度 */
   max-height: none; /* 放开高度限制，优先撑高页面 */

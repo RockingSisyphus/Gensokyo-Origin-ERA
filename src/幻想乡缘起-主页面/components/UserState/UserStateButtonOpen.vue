@@ -1,5 +1,5 @@
 <template>
-  <button class="status-sidebar-button-open" @click="emit('close-sidebar')">用户信息</button>
+  <button class="user-state-button-open" @click="emit('close-sidebar')">用户信息</button>
 </template>
 
 <script setup lang="ts">
@@ -7,7 +7,7 @@ const emit = defineEmits(['close-sidebar']);
 </script>
 
 <style lang="scss" scoped>
-.status-sidebar-button-open {
+.user-state-button-open {
   padding: 12px 14px; /* 展开时按钮“变大” */
   border: 1px solid var(--line);
   border-bottom-left-radius: 0; /* 去底部圆角以与下方卡片无缝衔接 */

@@ -62,7 +62,7 @@ $(() => {
       logger.debug(funcName, '提取到的 userData:', userData);
 
       // 获取 Vue 组件实例的引用
-      const { themeToggle, statusSidebar, statusBanner, ayaNews, statusTabContent, roleRibbon } = appInstance as any;
+      const { themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon } = appInstance as any;
 
       // 调用主题切换组件的更新函数
       try {
@@ -79,15 +79,15 @@ $(() => {
 
       // 调用用户侧边栏组件的更新函数
       try {
-        if (statusSidebar && typeof statusSidebar.updateUserStatus === 'function') {
-          logger.debug(funcName, '调用 StatusSidebar.updateUserStatus 入口');
-          statusSidebar.updateUserStatus(userData);
-          logger.debug(funcName, 'StatusSidebar.updateUserStatus 退出');
+        if (userState && typeof userState.updateUserStatus === 'function') {
+          logger.debug(funcName, '调用 UserState.updateUserStatus 入口');
+          userState.updateUserStatus(userData);
+          logger.debug(funcName, 'UserState.updateUserStatus 退出');
         } else {
-          logger.warn(funcName, 'StatusSidebar 组件缺失或接口不可用。');
+          logger.warn(funcName, 'UserState 组件缺失或接口不可用。');
         }
       } catch (e) {
-        logger.warn(funcName, 'StatusSidebar.updateUserStatus 执行失败（非致命）。', e);
+        logger.warn(funcName, 'UserState.updateUserStatus 执行失败（非致命）。', e);
       }
 
       // 调用状态横幅组件的更新函数

@@ -2579,43 +2579,50 @@ const AyaNewsContainer_exports_ = (0, exportHelper.A)(AyaNewsContainervue_type_s
 
 const AyaNewsContainer = AyaNewsContainer_exports_;
 
-const StatusSidebarButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusSidebarButtonClosed",
+const UserStateButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "UserStateButtonClosed",
   emits: [ "open-sidebar" ],
   setup(__props, {emit: __emit}) {
     const emit = __emit;
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
-      class: "status-sidebar-button-closed",
+      class: "user-state-button-closed",
       onClick: _cache[0] || (_cache[0] = $event => emit("open-sidebar"))
     }, "用户信息"));
   }
 });
 
-const StatusSidebarButtonClosed_exports_ = (0, exportHelper.A)(StatusSidebarButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3abfbbc8" ] ]);
+const UserStateButtonClosed_exports_ = (0, exportHelper.A)(UserStateButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-89abe3c0" ] ]);
 
-const StatusSidebarButtonClosed = StatusSidebarButtonClosed_exports_;
+const UserStateButtonClosed = UserStateButtonClosed_exports_;
 
-const StatusSidebarButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusSidebarButtonOpen",
+const UserStateButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "UserStateButtonOpen",
   emits: [ "close-sidebar" ],
   setup(__props, {emit: __emit}) {
     const emit = __emit;
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
-      class: "status-sidebar-button-open",
+      class: "user-state-button-open",
       onClick: _cache[0] || (_cache[0] = $event => emit("close-sidebar"))
     }, "用户信息"));
   }
 });
 
-const StatusSidebarButtonOpen_exports_ = (0, exportHelper.A)(StatusSidebarButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-12f16855" ] ]);
+const UserStateButtonOpen_exports_ = (0, exportHelper.A)(UserStateButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-682280a6" ] ]);
 
-const StatusSidebarButtonOpen = StatusSidebarButtonOpen_exports_;
+const UserStateButtonOpen = UserStateButtonOpen_exports_;
 
-const StatusSidebarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusSidebarPopup",
+const UserStatePopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "user-state-popup",
+  class: "user-state-popup",
+  role: "region",
+  "aria-label": "用户状态"
+};
+
+const UserStatePopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "UserStatePopup",
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
-    const logger = new utils_logger.Vy("components-StatusSidebarPopup-StatusSidebarPopup");
+    const logger = new utils_logger.Vy;
     const style = (0, external_Vue_namespaceObject.ref)({});
     const positionPopup = _anchorEl => {
       style.value = {};
@@ -2643,52 +2650,47 @@ const StatusSidebarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_na
       updateUserStatus,
       positionPopup
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      id: "status-sidebar-popup",
-      class: "status-sidebar-popup",
-      style: (0, external_Vue_namespaceObject.normalizeStyle)(style.value),
-      role: "region",
-      "aria-label": "用户状态"
-    }, [ ..._cache[0] || (_cache[0] = [ (0, external_Vue_namespaceObject.createStaticVNode)('<h4 data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>👤</span>用户状态</h4><div class="sidebar-content" data-v-9f1a2fb6><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>📝</span>姓名:</span> <span id="user-name-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🪪</span>身份:</span> <span id="user-identity-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>⚧️</span>性别:</span> <span id="user-gender-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🎂</span>年龄:</span> <span id="user-age-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>✨</span>特殊能力:</span> <span id="user-abilities-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>📍</span>所在地区:</span> <span id="user-location-popup" data-v-9f1a2fb6>—</span></p><p data-v-9f1a2fb6><span class="label" data-v-9f1a2fb6><span class="emoji" data-v-9f1a2fb6>🏠</span>居住地区:</span> <span id="user-home-popup" data-v-9f1a2fb6>—</span></p></div>', 2) ]) ], 4));
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", UserStatePopupvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<h4 data-v-42815e3e><span class="emoji" data-v-42815e3e>👤</span>用户状态</h4><div class="sidebar-content" data-v-42815e3e><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>📝</span>姓名:</span> <span id="user-name-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>🪪</span>身份:</span> <span id="user-identity-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>⚧️</span>性别:</span> <span id="user-gender-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>🎂</span>年龄:</span> <span id="user-age-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>✨</span>特殊能力:</span> <span id="user-abilities-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>📍</span>所在地区:</span> <span id="user-location-popup" data-v-42815e3e>—</span></p><p data-v-42815e3e><span class="label" data-v-42815e3e><span class="emoji" data-v-42815e3e>🏠</span>居住地区:</span> <span id="user-home-popup" data-v-42815e3e>—</span></p></div>', 2) ]) ]));
   }
 });
 
-const StatusSidebarPopup_exports_ = (0, exportHelper.A)(StatusSidebarPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-9f1a2fb6" ] ]);
+const UserStatePopup_exports_ = (0, exportHelper.A)(UserStatePopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-42815e3e" ] ]);
 
-const StatusSidebarPopup = StatusSidebarPopup_exports_;
+const UserStatePopup = UserStatePopup_exports_;
 
-const StatusSidebarContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "status-sidebar-container"
+const UserStateContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "user-state-container"
 };
 
-const StatusSidebarContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusSidebarContainer",
+const UserStateContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "UserStateContainer",
   setup(__props, {expose: __expose}) {
     const sidebarVisible = (0, external_Vue_namespaceObject.ref)(false);
-    const statusSidebarPopup = (0, external_Vue_namespaceObject.ref)(null);
+    const userStatePopup = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
       updateUserStatus: userData => {
-        console.debug("StatusSidebarContainer.vue - updateUserStatus - userData:", userData);
-        statusSidebarPopup.value?.updateUserStatus(userData);
+        console.debug("UserStateContainer.vue - updateUserStatus - userData:", userData);
+        userStatePopup.value?.updateUserStatus(userData);
       }
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusSidebarContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !sidebarVisible.value ? ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(StatusSidebarButtonClosed, {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", UserStateContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !sidebarVisible.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(UserStateButtonClosed, {
       key: 0,
       onOpenSidebar: _cache[0] || (_cache[0] = $event => sidebarVisible.value = true)
-    })) : ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(StatusSidebarButtonOpen, {
+    })) : ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(UserStateButtonOpen, {
       key: 1,
       onCloseSidebar: _cache[1] || (_cache[1] = $event => sidebarVisible.value = false)
-    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(StatusSidebarPopup, {
-      ref_key: "statusSidebarPopup",
-      ref: statusSidebarPopup
+    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(UserStatePopup, {
+      ref_key: "userStatePopup",
+      ref: userStatePopup
     }, null, 512), [ [ external_Vue_namespaceObject.vShow, sidebarVisible.value ] ]) ]));
   }
 });
 
-const StatusSidebarContainer_exports_ = (0, exportHelper.A)(StatusSidebarContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-50d42a9d" ] ]);
+const UserStateContainer_exports_ = (0, exportHelper.A)(UserStateContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0fe82786" ] ]);
 
-const StatusSidebarContainer = StatusSidebarContainer_exports_;
+const UserStateContainer = UserStateContainer_exports_;
 
 const ThemeTogglevue_type_script_setup_true_lang_ts_hoisted_1 = [ "aria-label", "title", "aria-pressed" ];
 
@@ -2779,14 +2781,14 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
   __name: "app",
   setup(__props, {expose: __expose}) {
     const themeToggle = (0, external_Vue_namespaceObject.ref)(null);
-    const statusSidebar = (0, external_Vue_namespaceObject.ref)(null);
+    const userState = (0, external_Vue_namespaceObject.ref)(null);
     const ayaNews = (0, external_Vue_namespaceObject.ref)(null);
     const statusBanner = (0, external_Vue_namespaceObject.ref)(null);
     const statusTabContent = (0, external_Vue_namespaceObject.ref)(null);
     const roleRibbon = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
       themeToggle,
-      statusSidebar,
+      userState,
       ayaNews,
       statusBanner,
       statusTabContent,
@@ -2798,9 +2800,9 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       ref: themeToggle
     }, null, 512), (0, external_Vue_namespaceObject.createCommentVNode)(" ▲ 新增 "), (0, 
     external_Vue_namespaceObject.createElementVNode)("div", appvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
-    external_Vue_namespaceObject.createVNode)(StatusSidebarContainer, {
-      ref_key: "statusSidebar",
-      ref: statusSidebar
+    external_Vue_namespaceObject.createVNode)(UserStateContainer, {
+      ref_key: "userState",
+      ref: userState
     }, null, 512), (0, external_Vue_namespaceObject.createVNode)(AyaNewsContainer, {
       ref_key: "ayaNews",
       ref: ayaNews
@@ -2859,7 +2861,7 @@ $(() => {
       logger.debug(funcName, "提取到的 statWithoutMeta:", statWithoutMeta);
       const userData = (0, mvu.Jt)(statWithoutMeta, constants.M.USER_DATA, {});
       logger.debug(funcName, "提取到的 userData:", userData);
-      const {themeToggle, statusSidebar, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
+      const {themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
       try {
         if (themeToggle && typeof themeToggle.updateTheme === "function") {
           logger.debug(funcName, "调用 ThemeToggle.updateTheme 入口");
@@ -2872,15 +2874,15 @@ $(() => {
         logger.warn(funcName, "ThemeToggle.updateTheme 执行失败（非致命）。", e);
       }
       try {
-        if (statusSidebar && typeof statusSidebar.updateUserStatus === "function") {
-          logger.debug(funcName, "调用 StatusSidebar.updateUserStatus 入口");
-          statusSidebar.updateUserStatus(userData);
-          logger.debug(funcName, "StatusSidebar.updateUserStatus 退出");
+        if (userState && typeof userState.updateUserStatus === "function") {
+          logger.debug(funcName, "调用 UserState.updateUserStatus 入口");
+          userState.updateUserStatus(userData);
+          logger.debug(funcName, "UserState.updateUserStatus 退出");
         } else {
-          logger.warn(funcName, "StatusSidebar 组件缺失或接口不可用。");
+          logger.warn(funcName, "UserState 组件缺失或接口不可用。");
         }
       } catch (e) {
-        logger.warn(funcName, "StatusSidebar.updateUserStatus 执行失败（非致命）。", e);
+        logger.warn(funcName, "UserState.updateUserStatus 执行失败（非致命）。", e);
       }
       try {
         if (statusBanner && typeof statusBanner.update === "function") {
@@ -2958,12 +2960,12 @@ h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .aya-news-popup[data-v-41789df9]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-41789df9]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-41789df9]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-41789df9]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .aya-news-container[data-v-87d6f5a2]{position:relative}
 
-.status-sidebar-button-closed[data-v-3abfbbc8]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.status-sidebar-button-closed[data-v-3abfbbc8]:hover{background-color:var(--paper)}
-.status-sidebar-button-open[data-v-12f16855]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.status-sidebar-button-open[data-v-12f16855]:hover{background-color:var(--paper)}
-.status-sidebar-popup[data-v-9f1a2fb6]{position:static;width:100%;max-height:none;margin-top:-1px;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;display:flex;flex-direction:column}.sidebar-content[data-v-9f1a2fb6]{overflow:visible}h4[data-v-9f1a2fb6]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-9f1a2fb6]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-9f1a2fb6]{margin:8px 0;font-size:.9em;line-height:1.5}p>span[data-v-9f1a2fb6]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
-.status-sidebar-container[data-v-50d42a9d]{position:relative}
+.user-state-button-closed[data-v-89abe3c0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.user-state-button-closed[data-v-89abe3c0]:hover{background-color:var(--paper)}
+.user-state-button-open[data-v-682280a6]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.user-state-button-open[data-v-682280a6]:hover{background-color:var(--paper)}
+.user-state-popup[data-v-42815e3e]{position:static;width:100%;max-height:none;margin-top:-1px;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;display:flex;flex-direction:column}.sidebar-content[data-v-42815e3e]{overflow:visible}h4[data-v-42815e3e]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-42815e3e]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-42815e3e]{margin:8px 0;font-size:.9em;line-height:1.5}p>span[data-v-42815e3e]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.user-state-container[data-v-0fe82786]{position:relative}
 
 .theme-toggle[data-v-309160ee]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-309160ee]:active{transform:translateY(1px)}.theme-toggle[data-v-309160ee]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
-.status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.status-sidebar-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
+.status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
 /*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

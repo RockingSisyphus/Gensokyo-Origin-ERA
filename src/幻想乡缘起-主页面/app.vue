@@ -4,7 +4,7 @@
     <ThemeToggle ref="themeToggle" />
     <!-- ▲ 新增 -->
     <div id="status-duo" class="status-duo">
-      <StatusSidebarContainer ref="statusSidebar" />
+      <UserStateContainer ref="userState" />
       <AyaNewsContainer ref="ayaNews" />
     </div>
 
@@ -28,13 +28,13 @@ import StatusTabContent from './components/StatusTab/StatusTabContent.vue';
 import RoleRibbon from './components/RoleRibbon.vue';
 import StatusBanner from './components/StatusBanner/StatusBannerContent.vue';
 import AyaNewsContainer from './components/AyaNews/AyaNewsContainer.vue';
-import StatusSidebarContainer from './components/StatusSidebarPopup/StatusSidebarContainer.vue';
+import UserStateContainer from './components/UserState/UserStateContainer.vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 
 // 为 ThemeToggle 组件创建一个 ref
 const themeToggle = ref<InstanceType<typeof ThemeToggle> | null>(null);
-// 为 StatusSidebar 组件创建一个 ref，以便在 index.ts 中可以访问到它
-const statusSidebar = ref<InstanceType<typeof StatusSidebarContainer> | null>(null);
+// 为 UserState 组件创建一个 ref，以便在 index.ts 中可以访问到它
+const userState = ref<InstanceType<typeof UserStateContainer> | null>(null);
 // 为 AyaNews 组件创建一个 ref
 const ayaNews = ref<InstanceType<typeof AyaNewsContainer> | null>(null);
 // 为 StatusBanner 组件创建一个 ref
@@ -46,7 +46,7 @@ const roleRibbon = ref<InstanceType<typeof RoleRibbon> | null>(null);
 // [重构] 只暴露 index.ts 仍然需要直接访问的组件 ref
 defineExpose({
   themeToggle,
-  statusSidebar,
+  userState,
   ayaNews,
   statusBanner,
   statusTabContent, // 暴露新组件的 ref
@@ -118,7 +118,7 @@ defineExpose({
   }
 
   /* 左侧两块在竖排时的分隔线与弹性 */
-  .status-duo > .status-sidebar-container {
+  .status-duo > .user-state-container {
     flex: 0 0 auto;
     border-right: none;
     border-bottom: 1px solid var(--line);
