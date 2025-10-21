@@ -65,7 +65,7 @@ const toText = (v: any) => {
   border: 1px solid var(--line);
   border-radius: 12px;
   padding: 24px;
-  box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
 }
 
 .close-btn {
@@ -127,7 +127,7 @@ const toText = (v: any) => {
   padding: 8px;
   border-radius: 4px;
   font-size: 0.95em;
-  
+
   strong {
     color: var(--muted);
     margin-right: 8px;
@@ -137,5 +137,4 @@ const toText = (v: any) => {
 .detail-item.full-width {
   grid-column: 1 / -1;
 }
-
 </style>

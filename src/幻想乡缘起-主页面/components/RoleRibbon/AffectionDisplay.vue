@@ -61,7 +61,7 @@ const updateAffectionVisuals = () => {
       burstBarParticles(valEl.value, 'skull', 5);
     }
   }
-  
+
   ensureLoveTicker(root.value, currentState === 'love');
   ensureSkullTicker(root.value, currentState === 'hate');
 
@@ -73,7 +73,7 @@ watch(
   () => {
     updateAffectionVisuals();
   },
-  { deep: true, immediate: true }
+  { deep: true, immediate: true },
 );
 
 onMounted(() => {

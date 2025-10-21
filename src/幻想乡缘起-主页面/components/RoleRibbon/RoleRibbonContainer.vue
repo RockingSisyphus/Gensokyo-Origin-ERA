@@ -3,20 +3,18 @@
     <button id="ribbon-left" class="ribbon-arrow left" @click="scroll(-1)">‹</button>
     <button id="ribbon-right" class="ribbon-arrow right" @click="scroll(1)">›</button>
     <div id="role-ribbon" ref="ribbon" class="role-ribbon">
-      <RoleCard 
-        v-for="char in nearbyCharacters" 
-        :key="char.name" 
+      <RoleCard
+        v-for="char in nearbyCharacters"
+        :key="char.name"
         :character="char"
         :stat-without-meta="statWithoutMeta"
         @show-details="selectedCharacter = $event"
       />
-      <div v-if="!nearbyCharacters.length" class="role-card-placeholder">
-        附近暂无角色
-      </div>
+      <div v-if="!nearbyCharacters.length" class="role-card-placeholder">附近暂无角色</div>
     </div>
 
-    <RoleDetailPopup 
-      v-if="selectedCharacter" 
+    <RoleDetailPopup
+      v-if="selectedCharacter"
       :character="selectedCharacter"
       :stat-without-meta="statWithoutMeta"
       @close="selectedCharacter = null"
@@ -43,7 +41,10 @@ const nearbyCharacters = computed(() => {
     return [];
   }
   return Object.entries(allCharacters.value)
-    .filter(([, v]: any) => v && typeof v === 'object' && String(get(v, ERA_VARIABLE_PATH.CHAR_LOCATION, '')).trim() === userLocation.value)
+    .filter(
+      ([, v]: any) =>
+        v && typeof v === 'object' && String(get(v, ERA_VARIABLE_PATH.CHAR_LOCATION, '')).trim() === userLocation.value,
+    )
     .map(([name, data]) => Object.assign({ name }, data));
 });
 
@@ -54,9 +55,9 @@ const scroll = (direction: number) => {
 const updateRibbon = (newStat: any) => {
   if (!newStat || typeof newStat !== 'object') return;
   statWithoutMeta.value = newStat;
-  
+
   userLocation.value = String(get(newStat, ERA_VARIABLE_PATH.USER_LOCATION, '')).trim();
-  
+
   let chars: any = newStat?.[ERA_VARIABLE_PATH.CHARS as any];
   try {
     if (typeof chars === 'string') chars = JSON.parse(chars);
@@ -106,8 +107,12 @@ defineExpose({
   cursor: pointer;
   z-index: 10;
 }
-.ribbon-arrow.left { left: 8px; }
-.ribbon-arrow.right { right: 8px; }
+.ribbon-arrow.left {
+  left: 8px;
+}
+.ribbon-arrow.right {
+  right: 8px;
+}
 
 .role-card-placeholder {
   flex: 0 0 260px;
