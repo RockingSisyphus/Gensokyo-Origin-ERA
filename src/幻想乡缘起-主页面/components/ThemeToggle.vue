@@ -1,12 +1,6 @@
 <template>
   <!-- 主题切换按钮 -->
-  <button
-    id="theme-toggle"
-    class="theme-toggle"
-    :aria-label="ariaLabel"
-    :title="title"
-    :aria-pressed="isDark"
-  >
+  <button id="theme-toggle" class="theme-toggle" :aria-label="ariaLabel" :title="title" :aria-pressed="isDark">
     {{ icon }}
   </button>
 </template>
@@ -34,9 +28,7 @@ const currentTheme = ref(LIGHT);
 const icon = computed(() => (currentTheme.value === LIGHT ? '🌙' : '🌞'));
 
 // 按钮的 aria-label 属性，用于辅助技术
-const ariaLabel = computed(() =>
-  currentTheme.value === LIGHT ? '切换为黑夜模式' : '切换为白日模式'
-);
+const ariaLabel = computed(() => (currentTheme.value === LIGHT ? '切换为黑夜模式' : '切换为白日模式'));
 
 // 按钮的 title 属性，鼠标悬停时显示
 const title = computed(() => (currentTheme.value === LIGHT ? '切换为黑夜模式' : '切换为白日模式'));

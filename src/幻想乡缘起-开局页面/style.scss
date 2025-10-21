@@ -18,7 +18,8 @@ body {
   line-height: 1.6;
 }
 body {
-  background-image: linear-gradient(rgba(224, 213, 196, 0.1) 1px, transparent 1px),
+  background-image:
+    linear-gradient(rgba(224, 213, 196, 0.1) 1px, transparent 1px),
     linear-gradient(90deg, rgba(224, 213, 196, 0.1) 1px, transparent 1px);
   background-size: 20px 20px;
   padding: 20px;
@@ -45,7 +46,9 @@ h2 {
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 6px;
-  box-shadow: 3px 3px 8px rgba(107, 90, 75, 0.2), inset 0 0 10px rgba(255, 253, 247, 0.5);
+  box-shadow:
+    3px 3px 8px rgba(107, 90, 75, 0.2),
+    inset 0 0 10px rgba(255, 253, 247, 0.5);
   padding: 24px;
   margin: 18px 0;
 }
@@ -80,7 +83,9 @@ select {
   border-radius: 4px;
   background: #fcfaf5;
   color: var(--ink);
-  transition: border-color 0.2s, box-shadow 0.2s;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s;
   font-size: 1em;
   box-sizing: border-box;
 }
@@ -126,7 +131,9 @@ button {
   border-radius: 4px;
   font-weight: 700;
   cursor: pointer;
-  transition: background 0.2s, border-color 0.2s;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
 }
 button:hover {
   background: #7a6a5a;
@@ -205,7 +212,9 @@ small.code {
   background: #b76e2b;
   color: #fffdf7;
   border: 1px solid #a95f1e;
-  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.08), inset 0 0 10px rgba(255, 253, 247, 0.4);
+  box-shadow:
+    0 6px 14px rgba(0, 0, 0, 0.08),
+    inset 0 0 10px rgba(255, 253, 247, 0.4);
 }
 #btn_launch_ai:hover {
   background: #a95f1e;

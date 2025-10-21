@@ -94,9 +94,13 @@
     <div class="card">
       <h2>额外世界设定</h2>
       <div class="hint">
-        本区内容将被保存为世界书条目 <small class="code">“额外世界设定”</small> 的 <small class="code">content</small>，用于补充世界背景/临时规则等。
+        本区内容将被保存为世界书条目 <small class="code">“额外世界设定”</small> 的
+        <small class="code">content</small>，用于补充世界背景/临时规则等。
       </div>
-      <textarea id="extra_world_lore" placeholder="在此编写你的自定义幻想乡额外设定。建议以‘【额外世界设定】’开头，比如：【额外世界设定】幻想乡的大家都变得像灵梦一样贫穷了！"></textarea>
+      <textarea
+        id="extra_world_lore"
+        placeholder="在此编写你的自定义幻想乡额外设定。建议以‘【额外世界设定】’开头，比如：【额外世界设定】幻想乡的大家都变得像灵梦一样贫穷了！"
+      ></textarea>
       <div class="btn-bar">
         <button id="btn_load_extra" class="muted-btn" @click="loadExtraToTextarea">从世界书载入</button>
         <button id="btn_save_extra" @click="saveTextareaToExtra">保存到世界书</button>
@@ -113,7 +117,9 @@
         <button id="btn_collapse_all" class="muted-btn" @click="collapseAll">折叠全部</button>
         <button id="btn_save_cfg" @click="saveChanges">保存更改到世界书</button>
       </div>
-      <div class="hint">每个字段右侧为当前值输入区：布尔=勾选，数字=数字框，字符串=文本框，数组=多行一项一行。对象会折叠成分组。</div>
+      <div class="hint">
+        每个字段右侧为当前值输入区：布尔=勾选，数字=数字框，字符串=文本框，数组=多行一项一行。对象会折叠成分组。
+      </div>
       <div id="cfg_root" class="grid"></div>
       <div class="sep"></div>
     </div>
@@ -280,19 +286,26 @@ import { onMounted } from 'vue';
       if (wroteS) {
         if (sPair.isStr) setPath(v, 'stat_data.chars', JSON.stringify(sPair.obj, null, 2));
         else setPath(v, 'stat_data.chars', sPair.obj);
-        console.log('【MVU_STATE/写回】stat_data.chars 已回写（保持原类型：' + (sPair.isStr ? '字符串' : '对象') + '）。');
+        console.log(
+          '【MVU_STATE/写回】stat_data.chars 已回写（保持原类型：' + (sPair.isStr ? '字符串' : '对象') + '）。',
+        );
       }
       if (mirrorDisplay && wroteD && dPair) {
         if (dPair.isStr) setPath(v, 'display_data.chars', JSON.stringify(dPair.obj, null, 2));
         else setPath(v, 'display_data.chars', dPair.obj);
-        console.log('【MVU_STATE/写回】display_data.chars 已回写（保持原类型：' + (dPair.isStr ? '字符串' : '对象') + '）。');
+        console.log(
+          '【MVU_STATE/写回】display_data.chars 已回写（保持原类型：' + (dPair.isStr ? '字符串' : '对象') + '）。',
+        );
       }
       return v;
     }
 
     try {
       if (typeof updateVariablesWith === 'function') {
-        console.log('【MVU_STATE/写回】updateVariablesWith 开始。', { 镜像到display: !!mirrorDisplay, 补丁数: (patches || []).length });
+        console.log('【MVU_STATE/写回】updateVariablesWith 开始。', {
+          镜像到display: !!mirrorDisplay,
+          补丁数: (patches || []).length,
+        });
         const result = await updateVariablesWith(writeAll, where);
         console.log('【MVU_STATE/写回】updateVariablesWith 完成。', { 返回键: Object.keys(result || {}).slice(0, 20) });
         return true;
@@ -303,7 +316,10 @@ import { onMounted } from 'vue';
         const cur = getVariables(where) || {};
         const next = writeAll(cur);
         await replaceVariables(next, where);
-        console.log('【MVU_STATE/写回】replaceVariables 完成。', { 补丁数: (patches || []).length, 镜像到display: !!mirrorDisplay });
+        console.log('【MVU_STATE/写回】replaceVariables 完成。', {
+          补丁数: (patches || []).length,
+          镜像到display: !!mirrorDisplay,
+        });
         return true;
       }
 
@@ -316,7 +332,11 @@ import { onMounted } from 'vue';
   }
 
   (window as any).__MVU_STATE__ = { read, applyPatches, getCharsPair };
-  if (!(window as any).mvuApplyPatches && (window as any).__MVU_STATE__ && typeof (window as any).__MVU_STATE__.applyPatches === 'function') {
+  if (
+    !(window as any).mvuApplyPatches &&
+    (window as any).__MVU_STATE__ &&
+    typeof (window as any).__MVU_STATE__.applyPatches === 'function'
+  ) {
     (window as any).mvuApplyPatches = (window as any).__MVU_STATE__.applyPatches;
   }
   console.log('【MVU_STATE】无外部依赖版模块就绪。');
@@ -350,7 +370,11 @@ import { onMounted } from 'vue';
     ui: { firstRenderDelayMs: 1500, ribbonStep: 320, fontScaleStepPct: 10 },
     map: { lorebook: '幻想乡缘起MVU', comment: 'map_graph', legalPolicy: 'leaf_only' },
     mapAscii: { comment: 'map_ascii' },
-    defaults: { fallbackPlace: '博丽神社', timeEpochISO: '2025-08-21T00:00:00+09:00', weatherPool: ['晴', '阴', '雨', '雪', '雾', '妖风', '灵雾'] },
+    defaults: {
+      fallbackPlace: '博丽神社',
+      timeEpochISO: '2025-08-21T00:00:00+09:00',
+      weatherPool: ['晴', '阴', '雨', '雪', '雾', '妖风', '灵雾'],
+    },
     featureFlags: { mirrorDisplay: true, autoWeather: true },
     selectors: { nearbyTargetId: 'nearby-places' },
   };
@@ -443,7 +467,10 @@ import { onMounted } from 'vue';
   }
   async function writeConfigPath(path: string, value: any, lorebook: string) {
     const lb = String(lorebook || '幻想乡缘起MVU');
-    if (typeof (window as any).getWorldbook !== 'function' || typeof (window as any).updateWorldbookWith !== 'function') {
+    if (
+      typeof (window as any).getWorldbook !== 'function' ||
+      typeof (window as any).updateWorldbookWith !== 'function'
+    ) {
       D.error('【世界书/写入】环境未提供所需 API（getWorldbook / updateWorldbookWith）。');
       return false;
     }
@@ -471,11 +498,11 @@ import { onMounted } from 'vue';
       await (window as any).updateWorldbookWith(
         lb,
         (entries: any[]) => {
-          const hit = entries.find((e) => String(e?.name || '').trim() === 'config');
+          const hit = entries.find(e => String(e?.name || '').trim() === 'config');
           if (hit) hit.content = afterStr;
           return entries;
         },
-        { render: 'immediate' }
+        { render: 'immediate' },
       );
       D.log('【世界书/写入】已提交并请求立刻渲染。', { 世界书: lb, name: 'config', 路径: path, 新值: value });
       return true;
@@ -589,12 +616,15 @@ function createControl(path: string, value: any) {
     control.appendChild(ta);
 
     if (arrIsPrim) {
-      ta.value = value.map((v) => String(v)).join('\n');
+      ta.value = value.map(v => String(v)).join('\n');
       return {
         el: wrap,
         getVal: () => {
-          const lines = (ta.value || '').split('\n').map((s) => s.trim()).filter(Boolean);
-          const allNum = lines.every((s) => /^-?\d+(?:\.\d+)?$/.test(s));
+          const lines = (ta.value || '')
+            .split('\n')
+            .map(s => s.trim())
+            .filter(Boolean);
+          const allNum = lines.every(s => /^-?\d+(?:\.\d+)?$/.test(s));
           return allNum ? lines.map(Number) : lines;
         },
       };
@@ -641,7 +671,7 @@ function renderObject(container: HTMLElement, obj: any, basePath: string, docTex
   }
 
   const keys = Object.keys(obj);
-  keys.forEach((k) => {
+  keys.forEach(k => {
     if (k === '__doc' || k === '_doc' || k.endsWith('__doc') || k.startsWith('_')) return;
     const v = obj[k];
     const p = pathJoin(basePath, k);
@@ -692,7 +722,7 @@ function collectChanges() {
   if (!root) return [];
   const items = root.querySelectorAll('[data-path]');
   const changes: any[] = [];
-  items.forEach((el) => {
+  items.forEach(el => {
     const path = (el as HTMLElement).dataset.path;
     const getVal = (el as any).__getVal;
     if (!getVal || !path) return;
@@ -725,10 +755,10 @@ async function saveChanges() {
 }
 
 function expandAll() {
-  document.querySelectorAll('#cfg_root details').forEach((d) => ((d as HTMLDetailsElement).open = true));
+  document.querySelectorAll('#cfg_root details').forEach(d => ((d as HTMLDetailsElement).open = true));
 }
 function collapseAll() {
-  document.querySelectorAll('#cfg_root details').forEach((d) => ((d as HTMLDetailsElement).open = false));
+  document.querySelectorAll('#cfg_root details').forEach(d => ((d as HTMLDetailsElement).open = false));
 }
 async function reloadCfg() {
   const cfg = await (window as any).__MVU_LORE__?.loadConfig?.();
@@ -739,7 +769,7 @@ async function reloadCfg() {
 function pickGender() {
   const radios = document.querySelectorAll('input[name="u_gender"]');
   let v = '未知';
-  radios.forEach((r) => {
+  radios.forEach(r => {
     if ((r as HTMLInputElement).checked) v = (r as HTMLInputElement).value;
   });
   if (v === '其他') {
@@ -753,11 +783,11 @@ function bindGenderOtherToggle() {
   const radios = document.querySelectorAll('input[name="u_gender"]');
   const other = document.getElementById('u_gender_other') as HTMLInputElement;
   const sync = () => {
-    const picked = Array.from(radios).find((r) => (r as HTMLInputElement).checked) as HTMLInputElement | undefined;
+    const picked = Array.from(radios).find(r => (r as HTMLInputElement).checked) as HTMLInputElement | undefined;
     other.style.display = picked?.value === '其他' ? 'block' : 'none';
     if (picked?.value !== '其他') other.value = '';
   };
-  radios.forEach((r) => r.addEventListener('change', sync));
+  radios.forEach(r => r.addEventListener('change', sync));
   sync();
 }
 
@@ -772,7 +802,7 @@ function fillDemo() {
   const pick = (sel: HTMLSelectElement, preferred: string[] = []) => {
     const opts = Array.from(sel?.options || []);
     for (const v of preferred.filter(Boolean)) {
-      const hit = opts.find((o) => o.value === v);
+      const hit = opts.find(o => o.value === v);
       if (hit) {
         sel.value = v;
         return;
@@ -826,7 +856,10 @@ async function writeUserToMVU() {
     v.stat_data = v.stat_data && typeof v.stat_data === 'object' ? v.stat_data : {};
     v.stat_data.user = userObj;
 
-    const mirror = typeof (window as any).__MVU_CONFIG__?.featureFlags?.mirrorDisplay === 'boolean' ? (window as any).__MVU_CONFIG__.featureFlags.mirrorDisplay : true;
+    const mirror =
+      typeof (window as any).__MVU_CONFIG__?.featureFlags?.mirrorDisplay === 'boolean'
+        ? (window as any).__MVU_CONFIG__.featureFlags.mirrorDisplay
+        : true;
     if (mirror) {
       v.display_data = v.display_data && typeof v.display_data === 'object' ? v.display_data : {};
       v.display_data.user = userObj;
@@ -883,7 +916,10 @@ function readUser() {
 }
 
 function buildPayload(user: any) {
-  const guidelines = '请基于上面的“角色设定”，写一段开场剧情；' + '若“身份”为“外来者”或“重要经历”包含“初到幻想乡”，请写成“初入幻想乡”的场景；' + '否则写成其在当前所在地区的日常开场。建议在开场剧情中引入一个可能在{{user}}当前所在区域出现的角色。';
+  const guidelines =
+    '请基于上面的“角色设定”，写一段开场剧情；' +
+    '若“身份”为“外来者”或“重要经历”包含“初到幻想乡”，请写成“初入幻想乡”的场景；' +
+    '否则写成其在当前所在地区的日常开场。建议在开场剧情中引入一个可能在{{user}}当前所在区域出现的角色。';
   return { type: 'MVU_LAUNCH', user, guidelines };
 }
 
@@ -951,7 +987,7 @@ async function saveTextareaToExtra() {
       lb,
       (entries: any[]) => {
         const nameWanted = '额外世界设定';
-        const idx = (entries || []).findIndex((e) => String(e?.name || '').trim() === nameWanted);
+        const idx = (entries || []).findIndex(e => String(e?.name || '').trim() === nameWanted);
         if (idx >= 0) {
           entries[idx].content = nextContent;
         } else {
@@ -959,7 +995,7 @@ async function saveTextareaToExtra() {
         }
         return entries;
       },
-      { render: 'immediate' }
+      { render: 'immediate' },
     );
   } catch (e) {
     alert('保存失败：' + String(e));
@@ -982,7 +1018,8 @@ async function readEpochFromConfig() {
     const hh = m ? m[2] : '08';
     const mi = m ? m[3] : '00';
     const ss = m && m[4] ? m[4] : '00';
-    const off = m && m[5] ? m[5] : /(?:\+|-|Z)/.test(src) ? (src.match(/(Z|[+-]\d{2}:\d{2})$/) || ['+09:00'])[0] : '+09:00';
+    const off =
+      m && m[5] ? m[5] : /(?:\+|-|Z)/.test(src) ? (src.match(/(Z|[+-]\d{2}:\d{2})$/) || ['+09:00'])[0] : '+09:00';
     return { date, hh, mi, ss, off };
   } catch (e) {
     return { date: '2025-08-21', hh: '08', mi: '00', ss: '00', off: '+09:00' };
