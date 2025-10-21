@@ -25,10 +25,44 @@ export class Logger {
 
   /**
    * 创建一个新的 Logger 实例。
-   * @param {string} moduleName - 该 Logger 实例绑定的模块名称。
+   * @param {string} [moduleName] - 可选。该 Logger 实例绑定的模块名称。如果未提供，将自动从调用栈中解析。
    */
-  constructor(moduleName: string) {
-    this.moduleName = moduleName;
+  constructor(moduleName?: string) {
+    if (moduleName) {
+      this.moduleName = moduleName;
+    } else {
+      this.moduleName = this._getModuleNameFromStack() || 'unknown';
+    }
+  }
+
+  /**
+   * @private
+   * 从 Error stack 中解析调用方的文件名作为模块名。
+   * @returns {string | null} 解析出的模块名，或在失败时返回 null。
+   */
+  private _getModuleNameFromStack(): string | null {
+    try {
+      const stack = new Error().stack || '';
+      // 栈的第二行通常是构造函数的直接调用者
+      // 例: at new Logger (webpack-internal:///./src/幻想乡缘起-主页面/utils/logger.ts:45:22)
+      // 例: at setup (webpack-internal:///./src/幻想乡缘起-主页面/components/AyaNews/AyaNewsPopup.vue:21:16)
+      const callerLine = stack.split('\n')[2];
+      if (!callerLine) return null;
+
+      // 正则表达式匹配括号内的路径
+      const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
+      if (!match || !match[1]) return null;
+
+      let path = match[1];
+      // 移除路径中的查询参数 (如 ?vue&type=script&setup=true&lang=ts)
+      path = path.split('?')[0];
+      // 移除文件名后缀
+      path = path.replace(/\.(vue|ts|js)$/, '');
+      // 将 'src/幻想乡缘起-主页面/' 替换为空，并用 '-' 替换 '/'
+      return path.replace(/^src\/幻想乡缘起-主页面\//, '').replace(/\//g, '-');
+    } catch (e) {
+      return null; // 解析失败则返回 null
+    }
   }
 
   /**
@@ -52,7 +86,10 @@ export class Logger {
     // 1. 全局级别检查
     if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
     // 2. 白名单检查 (仅对 debug 生效)
-    if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.includes(this.moduleName)) {
+    if (
+      LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug &&
+      !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))
+    ) {
       return;
     }
 
@@ -145,7 +182,7 @@ export const LOG_CONFIG = {
     'backend-mapLocation',
     'components-RoleRibbon',
     'components-StatusBanner',
-    'components-StatusNews',
+    'components-AyaNewsPopup',
     'components-StatusSidebar',
     'components-StatusSidebarPopup-StatusSidebarButton',
     'components-StatusSidebarPopup-StatusSidebarContainer',

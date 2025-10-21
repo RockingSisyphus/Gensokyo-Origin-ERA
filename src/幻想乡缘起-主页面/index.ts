@@ -62,7 +62,7 @@ $(() => {
       logger.debug(funcName, '提取到的 userData:', userData);
 
       // 获取 Vue 组件实例的引用
-      const { themeToggle, statusSidebar, statusBanner, statusNews, statusTabContent, roleRibbon } = appInstance as any;
+      const { themeToggle, statusSidebar, statusBanner, ayaNews, statusTabContent, roleRibbon } = appInstance as any;
 
       // 调用主题切换组件的更新函数
       try {
@@ -105,16 +105,16 @@ $(() => {
 
       // 调用新闻组件的更新函数 (如果存在)
       try {
-        if (statusNews && typeof statusNews.updateNews === 'function') {
-          logger.debug(funcName, '调用 StatusNews.updateNews 入口');
+        if (ayaNews && typeof ayaNews.updateNews === 'function') {
+          logger.debug(funcName, '调用 AyaNews.updateNews 入口');
           // 传入完整状态对象，组件内部自行从 '文文新闻' 路径读取
-          statusNews.updateNews(statWithoutMeta);
-          logger.debug(funcName, 'StatusNews.updateNews 退出');
+          ayaNews.updateNews(statWithoutMeta);
+          logger.debug(funcName, 'AyaNews.updateNews 退出');
         } else {
-          logger.warn(funcName, 'StatusNews 组件缺失或接口不可用。');
+          logger.warn(funcName, 'AyaNews 组件缺失或接口不可用。');
         }
       } catch (e) {
-        logger.warn(funcName, 'StatusNews.updateNews 执行失败（非致命）。', e);
+        logger.warn(funcName, 'AyaNews.updateNews 执行失败（非致命）。', e);
       }
 
       // [重构] 调用新的 StatusTabContent 组件的更新函数，由它负责更新其所有子组件

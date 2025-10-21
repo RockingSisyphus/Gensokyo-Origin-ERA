@@ -5,7 +5,7 @@
     <!-- ▲ 新增 -->
     <div id="status-duo" class="status-duo">
       <StatusSidebarContainer ref="statusSidebar" />
-      <StatusNewsContainer ref="statusNews" />
+      <AyaNewsContainer ref="ayaNews" />
     </div>
 
     <div class="status-main-content">
@@ -27,7 +27,7 @@ import StatusTabContent from './components/StatusTab/StatusTabContent.vue';
 // [重构] 其他子组件的导入已移至 StatusTabContent.vue，此处不再需要
 import RoleRibbon from './components/RoleRibbon.vue';
 import StatusBanner from './components/StatusBanner/StatusBannerContent.vue';
-import StatusNewsContainer from './components/StatusNewsPopup/StatusNewsContainer.vue';
+import AyaNewsContainer from './components/AyaNews/AyaNewsContainer.vue';
 import StatusSidebarContainer from './components/StatusSidebarPopup/StatusSidebarContainer.vue';
 import ThemeToggle from './components/ThemeToggle.vue';
 
@@ -35,8 +35,8 @@ import ThemeToggle from './components/ThemeToggle.vue';
 const themeToggle = ref<InstanceType<typeof ThemeToggle> | null>(null);
 // 为 StatusSidebar 组件创建一个 ref，以便在 index.ts 中可以访问到它
 const statusSidebar = ref<InstanceType<typeof StatusSidebarContainer> | null>(null);
-// 为 StatusNews 组件创建一个 ref
-const statusNews = ref<InstanceType<typeof StatusNewsContainer> | null>(null);
+// 为 AyaNews 组件创建一个 ref
+const ayaNews = ref<InstanceType<typeof AyaNewsContainer> | null>(null);
 // 为 StatusBanner 组件创建一个 ref
 const statusBanner = ref<InstanceType<typeof StatusBanner> | null>(null);
 // [重构] 为新的 StatusTabContent 组件创建一个 ref
@@ -47,7 +47,7 @@ const roleRibbon = ref<InstanceType<typeof RoleRibbon> | null>(null);
 defineExpose({
   themeToggle,
   statusSidebar,
-  statusNews,
+  ayaNews,
   statusBanner,
   statusTabContent, // 暴露新组件的 ref
   roleRibbon,

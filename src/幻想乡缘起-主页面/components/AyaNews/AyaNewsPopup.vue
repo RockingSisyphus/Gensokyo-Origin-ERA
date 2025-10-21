@@ -1,7 +1,7 @@
 <template>
-  <div id="status-news-popup" class="status-news-popup" role="dialog">
+  <div id="aya-news-popup" class="aya-news-popup" role="dialog">
     <h4><span class="emoji">📰</span>文文新闻</h4>
-    <div id="news-content-popup" class="news-body preserve-format">—</div>
+    <div id="aya-news-content-popup" class="news-body preserve-format">—</div>
   </div>
 </template>
 
@@ -13,7 +13,7 @@ import { get, text } from '../../utils/mvu';
 
 defineEmits(['close']);
 
-const logger = new Logger('components-StatusNewsPopup');
+const logger = new Logger();
 
 const updateNews = (state: object) => {
   const funcName = 'updateNews';
@@ -25,7 +25,7 @@ const updateNews = (state: object) => {
   try {
     const newsContent = get(state, ERA_VARIABLE_PATH.NEWS_TEXT, '');
     logger.log(funcName, '将更新新闻文本', { preview: String(newsContent).slice(0, 50) });
-    text('news-content-popup', newsContent);
+    text('aya-news-content-popup', newsContent);
     logger.debug(funcName, '新闻文本已写入 DOM 完成');
   } catch (e) {
     logger.error(funcName, '更新新闻内容时发生异常', e);
@@ -43,7 +43,7 @@ onMounted(() => {
 </script>
 
 <style lang="scss" scoped>
-.status-news-popup {
+.aya-news-popup {
   /* 移除 position: absolute 和相关定位样式 */
   width: 100%; /* 宽度占满容器 */
   max-height: 60vh;
@@ -60,7 +60,7 @@ onMounted(() => {
   gap: 10px;
 }
 
-#status-news-popup h4 {
+#aya-news-popup h4 {
   display: flex;
   align-items: center;
   height: var(--duo-head-h);
@@ -72,7 +72,7 @@ onMounted(() => {
   border-bottom: 1px solid var(--line);
 }
 
-#status-news-popup h4 .emoji {
+#aya-news-popup h4 .emoji {
   font-size: 1em;
   line-height: 1;
   display: inline-grid;

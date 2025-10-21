@@ -1,97 +1,71 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import { onClickOutside } from "https://testingcf.jsdelivr.net/npm/@vueuse/core/+esm";
 
 var __webpack_modules__ = {
-  215: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  80: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
-      EN: () => logContext,
-      Vy: () => Logger
+      I: () => getRuntimeVar,
+      Q: () => setRuntimeVar
     });
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        this.moduleName = moduleName;
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.includes(this.moduleName)) {
-          return;
+    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(326);
+    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(729);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
+    function getRuntimeVar(path, defaultValue) {
+      const funcName = "getRuntimeVar";
+      try {
+        if (typeof getVariables !== "function") {
+          logger.warn(funcName, "getVariables 函数不可用。");
+          return defaultValue;
         }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
+        const chatVars = getVariables({
+          type: "chat"
+        });
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
+        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+          value
+        });
+        return value;
+      } catch (error) {
+        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+        return defaultValue;
       }
     }
-    const LOG_CONFIG = {
-      levels: {
-        debug: 0,
-        log: 1,
-        warn: 2,
-        error: 3
-      },
-      currentLevel: 0,
-      debugWhitelist: [ "index", "backend-affection", "backend-mapLocation", "components-RoleRibbon", "components-StatusBanner", "components-StatusNews", "components-StatusSidebar", "components-StatusSidebarPopup-StatusSidebarButton", "components-StatusSidebarPopup-StatusSidebarContainer", "components-StatusSidebarPopup-StatusSidebarPopup", "components-ThemeToggle", "components-StatusTab-StatusTabContent", "components-StatusTab-tabs-ContentBio", "components-StatusTab-tabs-ContentOthers", "components-StatusTab-tabs-ContentSettings", "components-StatusTab-tabs-Incidents", "components-StatusTab-tabs-WorldMap", "components-StatusTab-tabs-FontSizeControls" ]
-    };
-    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
-  },
-  342: (__unused_webpack_module, exports) => {
-    var __webpack_unused_export__;
-    __webpack_unused_export__ = {
-      value: true
-    };
-    exports.A = (sfc, props) => {
-      const target = sfc.__vccOpts || sfc;
-      for (const [key, val] of props) {
-        target[key] = val;
+    async function setRuntimeVar(path, value) {
+      const funcName = "setRuntimeVar";
+      try {
+        if (typeof updateVariablesWith !== "function") {
+          logger.error(funcName, "updateVariablesWith 函数不可用。");
+          return false;
+        }
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+          value
+        });
+        await updateVariablesWith(vars => {
+          const chatVars = vars || {};
+          _.set(chatVars, runtimePath, value);
+          return chatVars;
+        }, {
+          type: "chat"
+        });
+        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+        return true;
+      } catch (error) {
+        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+        return false;
       }
-      return target;
-    };
+    }
   },
-  371: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  304: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       runAffectionPipeline: () => runAffectionPipeline
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(634);
-    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(661);
-    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(507);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(729);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(414);
+    var _utils_mvu__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(326);
+    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(80);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -311,100 +285,7 @@ var __webpack_modules__ = {
       }
     }
   },
-  507: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      I: () => getRuntimeVar,
-      Q: () => setRuntimeVar
-    });
-    var _mvu__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(661);
-    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
-    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(634);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
-    function getRuntimeVar(path, defaultValue) {
-      const funcName = "getRuntimeVar";
-      try {
-        if (typeof getVariables !== "function") {
-          logger.warn(funcName, "getVariables 函数不可用。");
-          return defaultValue;
-        }
-        const chatVars = getVariables({
-          type: "chat"
-        });
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        const value = (0, _mvu__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
-        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-          value
-        });
-        return value;
-      } catch (error) {
-        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-        return defaultValue;
-      }
-    }
-    async function setRuntimeVar(path, value) {
-      const funcName = "setRuntimeVar";
-      try {
-        if (typeof updateVariablesWith !== "function") {
-          logger.error(funcName, "updateVariablesWith 函数不可用。");
-          return false;
-        }
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-          value
-        });
-        await updateVariablesWith(vars => {
-          const chatVars = vars || {};
-          _.set(chatVars, runtimePath, value);
-          return chatVars;
-        }, {
-          type: "chat"
-        });
-        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-        return true;
-      } catch (error) {
-        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-        return false;
-      }
-    }
-  },
-  634: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
-    });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "config.defaults.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
-    };
-  },
-  661: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  326: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       Jt: () => get,
       Qq: () => text,
@@ -495,6 +376,144 @@ var __webpack_modules__ = {
       }
       return toText(rawValue);
     }
+  },
+  391: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  414: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      EN: () => logContext,
+      Vy: () => Logger
+    });
+    const logContext = {
+      mk: ""
+    };
+    class Logger {
+      moduleName;
+      constructor(moduleName) {
+        if (moduleName) {
+          this.moduleName = moduleName;
+        } else {
+          this.moduleName = this._getModuleNameFromStack() || "unknown";
+        }
+      }
+      _getModuleNameFromStack() {
+        try {
+          const stack = (new Error).stack || "";
+          const callerLine = stack.split("\n")[2];
+          if (!callerLine) return null;
+          const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
+          if (!match || !match[1]) return null;
+          let path = match[1];
+          path = path.split("?")[0];
+          path = path.replace(/\.(vue|ts|js)$/, "");
+          return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
+        } catch (e) {
+          return null;
+        }
+      }
+      formatMessage(funcName, message) {
+        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+      }
+      debug(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
+        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
+          return;
+        }
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.debug(formattedMessage, obj);
+        } else {
+          console.debug(formattedMessage);
+        }
+      }
+      log(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+        } else {
+          console.log(`%c${formattedMessage}`, "color: #3498db;");
+        }
+      }
+      warn(funcName, message, obj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (obj) {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+        } else {
+          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+        }
+      }
+      error(funcName, message, errorObj) {
+        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
+        const formattedMessage = this.formatMessage(funcName, message);
+        if (errorObj) {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+        } else {
+          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+        }
+      }
+    }
+    const LOG_CONFIG = {
+      levels: {
+        debug: 0,
+        log: 1,
+        warn: 2,
+        error: 3
+      },
+      currentLevel: 0,
+      debugWhitelist: [ "index", "backend-affection", "backend-mapLocation", "components-RoleRibbon", "components-StatusBanner", "components-AyaNewsPopup", "components-StatusSidebar", "components-StatusSidebarPopup-StatusSidebarButton", "components-StatusSidebarPopup-StatusSidebarContainer", "components-StatusSidebarPopup-StatusSidebarPopup", "components-ThemeToggle", "components-StatusTab-StatusTabContent", "components-StatusTab-tabs-ContentBio", "components-StatusTab-tabs-ContentOthers", "components-StatusTab-tabs-ContentSettings", "components-StatusTab-tabs-Incidents", "components-StatusTab-tabs-WorldMap", "components-StatusTab-tabs-FontSizeControls" ]
+    };
+    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+  },
+  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "config.defaults.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
   }
 };
 
@@ -556,11 +575,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(634);
+var constants = __webpack_require__(729);
 
-var utils_logger = __webpack_require__(215);
+var utils_logger = __webpack_require__(414);
 
-var mvu = __webpack_require__(661);
+var mvu = __webpack_require__(326);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -621,7 +640,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(342);
+var exportHelper = __webpack_require__(391);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4ba65ade" ] ]);
 
@@ -1169,7 +1188,7 @@ const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_scr
 
 const ContentSettings = ContentSettings_exports_;
 
-var runtime = __webpack_require__(507);
+var runtime = __webpack_require__(80);
 
 const T0_PATH = "incident.异变冷却基准时间";
 
@@ -2449,41 +2468,49 @@ const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_
 
 const StatusBannerContent = StatusBannerContent_exports_;
 
-const StatusNewsButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusNewsButton",
-  props: {
-    expanded: {
-      type: Boolean
-    }
-  },
-  emits: [ "toggle-popup" ],
+const AyaNewsButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AyaNewsButtonClosed",
+  emits: [ "open-news" ],
   setup(__props, {emit: __emit}) {
     const emit = __emit;
-    const props = __props;
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-news-button", {
-        expanded: props.expanded
-      } ]),
-      onClick: _cache[0] || (_cache[0] = $event => emit("toggle-popup"))
-    }, "新闻", 2));
+      class: "aya-news-button-closed",
+      onClick: _cache[0] || (_cache[0] = $event => emit("open-news"))
+    }, " 新闻 "));
   }
 });
 
-const StatusNewsButton_exports_ = (0, exportHelper.A)(StatusNewsButtonvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3f1097b8" ] ]);
+const AyaNewsButtonClosed_exports_ = (0, exportHelper.A)(AyaNewsButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-66dcbefe" ] ]);
 
-const StatusNewsButton = StatusNewsButton_exports_;
+const AyaNewsButtonClosed = AyaNewsButtonClosed_exports_;
 
-const StatusNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  id: "status-news-popup",
-  class: "status-news-popup",
+const AyaNewsButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AyaNewsButtonOpen",
+  emits: [ "close-news" ],
+  setup(__props, {emit: __emit}) {
+    const emit = __emit;
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      class: "aya-news-button-open",
+      onClick: _cache[0] || (_cache[0] = $event => emit("close-news"))
+    }, " 新闻 "));
+  }
+});
+
+const AyaNewsButtonOpen_exports_ = (0, exportHelper.A)(AyaNewsButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0543b279" ] ]);
+
+const AyaNewsButtonOpen = AyaNewsButtonOpen_exports_;
+
+const AyaNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "aya-news-popup",
+  class: "aya-news-popup",
   role: "dialog"
 };
 
-const StatusNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusNewsPopup",
+const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AyaNewsPopup",
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
-    const logger = new utils_logger.Vy("components-StatusNewsPopup");
+    const logger = new utils_logger.Vy;
     const updateNews = state => {
       const funcName = "updateNews";
       if (!state || typeof state !== "object") {
@@ -2495,7 +2522,7 @@ const StatusNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_names
         logger.log(funcName, "将更新新闻文本", {
           preview: String(newsContent).slice(0, 50)
         });
-        (0, mvu.Qq)("news-content-popup", newsContent);
+        (0, mvu.Qq)("aya-news-content-popup", newsContent);
         logger.debug(funcName, "新闻文本已写入 DOM 完成");
       } catch (e) {
         logger.error(funcName, "更新新闻内容时发生异常", e);
@@ -2505,53 +2532,52 @@ const StatusNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       updateNews
     });
     (0, external_Vue_namespaceObject.onMounted)(() => {});
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", AyaNewsPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
     external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
     }, "📰"), (0, external_Vue_namespaceObject.createTextVNode)("文文新闻") ], -1), (0, 
     external_Vue_namespaceObject.createElementVNode)("div", {
-      id: "news-content-popup",
+      id: "aya-news-content-popup",
       class: "news-body preserve-format"
     }, "—", -1) ]) ]));
   }
 });
 
-const StatusNewsPopup_exports_ = (0, exportHelper.A)(StatusNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-114665d8" ] ]);
+const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-41789df9" ] ]);
 
-const StatusNewsPopup = StatusNewsPopup_exports_;
+const AyaNewsPopup = AyaNewsPopup_exports_;
 
-const StatusNewsContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusNewsContainer",
+const AyaNewsContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "aya-news-container"
+};
+
+const AyaNewsContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AyaNewsContainer",
   setup(__props, {expose: __expose}) {
-    const popupVisible = (0, external_Vue_namespaceObject.ref)(false);
-    const statusNewsPopup = (0, external_Vue_namespaceObject.ref)(null);
-    const togglePopup = () => {
-      popupVisible.value = !popupVisible.value;
-    };
+    const newsVisible = (0, external_Vue_namespaceObject.ref)(false);
+    const ayaNewsPopup = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
       updateNews: state => {
-        statusNewsPopup.value?.updateNews(state);
+        ayaNewsPopup.value?.updateNews(state);
       }
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-news-container", {
-        expanded: popupVisible.value
-      } ])
-    }, [ (0, external_Vue_namespaceObject.createVNode)(StatusNewsButton, {
-      expanded: popupVisible.value,
-      onTogglePopup: togglePopup
-    }, null, 8, [ "expanded" ]), (0, external_Vue_namespaceObject.withDirectives)((0, 
-    external_Vue_namespaceObject.createVNode)(StatusNewsPopup, {
-      ref_key: "statusNewsPopup",
-      ref: statusNewsPopup,
-      onClose: _cache[0] || (_cache[0] = $event => popupVisible.value = false)
-    }, null, 512), [ [ external_Vue_namespaceObject.vShow, popupVisible.value ] ]) ], 2));
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", AyaNewsContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !newsVisible.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(AyaNewsButtonClosed, {
+      key: 0,
+      onOpenNews: _cache[0] || (_cache[0] = $event => newsVisible.value = true)
+    })) : ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(AyaNewsButtonOpen, {
+      key: 1,
+      onCloseNews: _cache[1] || (_cache[1] = $event => newsVisible.value = false)
+    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(AyaNewsPopup, {
+      ref_key: "ayaNewsPopup",
+      ref: ayaNewsPopup
+    }, null, 512), [ [ external_Vue_namespaceObject.vShow, newsVisible.value ] ]) ]));
   }
 });
 
-const StatusNewsContainer_exports_ = (0, exportHelper.A)(StatusNewsContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4e2f39e0" ] ]);
+const AyaNewsContainer_exports_ = (0, exportHelper.A)(AyaNewsContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-87d6f5a2" ] ]);
 
-const StatusNewsContainer = StatusNewsContainer_exports_;
+const AyaNewsContainer = AyaNewsContainer_exports_;
 
 const StatusSidebarButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StatusSidebarButtonClosed",
@@ -2754,14 +2780,14 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
   setup(__props, {expose: __expose}) {
     const themeToggle = (0, external_Vue_namespaceObject.ref)(null);
     const statusSidebar = (0, external_Vue_namespaceObject.ref)(null);
-    const statusNews = (0, external_Vue_namespaceObject.ref)(null);
+    const ayaNews = (0, external_Vue_namespaceObject.ref)(null);
     const statusBanner = (0, external_Vue_namespaceObject.ref)(null);
     const statusTabContent = (0, external_Vue_namespaceObject.ref)(null);
     const roleRibbon = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
       themeToggle,
       statusSidebar,
-      statusNews,
+      ayaNews,
       statusBanner,
       statusTabContent,
       roleRibbon
@@ -2775,9 +2801,9 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     external_Vue_namespaceObject.createVNode)(StatusSidebarContainer, {
       ref_key: "statusSidebar",
       ref: statusSidebar
-    }, null, 512), (0, external_Vue_namespaceObject.createVNode)(StatusNewsContainer, {
-      ref_key: "statusNews",
-      ref: statusNews
+    }, null, 512), (0, external_Vue_namespaceObject.createVNode)(AyaNewsContainer, {
+      ref_key: "ayaNews",
+      ref: ayaNews
     }, null, 512) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", appvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
     external_Vue_namespaceObject.createVNode)(RoleRibbon, {
       ref_key: "roleRibbon",
@@ -2833,7 +2859,7 @@ $(() => {
       logger.debug(funcName, "提取到的 statWithoutMeta:", statWithoutMeta);
       const userData = (0, mvu.Jt)(statWithoutMeta, constants.M.USER_DATA, {});
       logger.debug(funcName, "提取到的 userData:", userData);
-      const {themeToggle, statusSidebar, statusBanner, statusNews, statusTabContent, roleRibbon} = appInstance;
+      const {themeToggle, statusSidebar, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
       try {
         if (themeToggle && typeof themeToggle.updateTheme === "function") {
           logger.debug(funcName, "调用 ThemeToggle.updateTheme 入口");
@@ -2868,15 +2894,15 @@ $(() => {
         logger.warn(funcName, "StatusBanner.update 执行失败（非致命）。", e);
       }
       try {
-        if (statusNews && typeof statusNews.updateNews === "function") {
-          logger.debug(funcName, "调用 StatusNews.updateNews 入口");
-          statusNews.updateNews(statWithoutMeta);
-          logger.debug(funcName, "StatusNews.updateNews 退出");
+        if (ayaNews && typeof ayaNews.updateNews === "function") {
+          logger.debug(funcName, "调用 AyaNews.updateNews 入口");
+          ayaNews.updateNews(statWithoutMeta);
+          logger.debug(funcName, "AyaNews.updateNews 退出");
         } else {
-          logger.warn(funcName, "StatusNews 组件缺失或接口不可用。");
+          logger.warn(funcName, "AyaNews 组件缺失或接口不可用。");
         }
       } catch (e) {
-        logger.warn(funcName, "StatusNews.updateNews 执行失败（非致命）。", e);
+        logger.warn(funcName, "AyaNews.updateNews 执行失败（非致命）。", e);
       }
       try {
         if (statusTabContent && typeof statusTabContent.update === "function") {
@@ -2902,7 +2928,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 371)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 304)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
@@ -2927,9 +2953,10 @@ h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .day-popover[data-v-a61ef2a6]{position:absolute;z-index:1200;width:min(280px,100% - 24px);max-height:60vh;overflow:auto;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 12px 36px rgba(0,0,0,.14),0 4px 16px rgba(0,0,0,.08);padding:8px}.day-popover__head[data-v-a61ef2a6]{display:flex;align-items:center;justify-content:space-between;gap:8px;padding:2px 2px 6px;border-bottom:1px dashed var(--line);margin-bottom:6px}.day-popover__date[data-v-a61ef2a6]{font-weight:800;color:var(--ink)}.day-popover__close[data-v-a61ef2a6]{border:1px solid var(--line);border-radius:6px;background:var(--bg);font-weight:800;line-height:1;padding:2px 8px;cursor:pointer}.fest-item[data-v-a61ef2a6]{border:1px solid var(--line);background:color-mix(in srgb,var(--paper) 88%,var(--tab-active) 12%);color:var(--ink);border-radius:6px;padding:4px 6px;font-size:.92em;line-height:1.35}.fest-item+.fest-item[data-v-a61ef2a6]{margin-top:6px}:root[data-theme="dark"]{box-shadow:0 12px 36px rgba(0,0,0,.3),0 4px 16px rgba(0,0,0,.22)}
 .banner-chip[data-v-01daad74]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-01daad74]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-01daad74]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-01daad74]{margin-right:0;font-size:1.1em}
 .emoji[data-v-0830be5a]{margin-right:8px;font-size:1.1em}.status-banner[data-v-0830be5a]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-0830be5a]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-0830be5a]{margin-right:0}.banner-sep[data-v-0830be5a]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
-.status-news-button[data-v-3f1097b8]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer}.status-news-button[data-v-3f1097b8]:hover{background-color:var(--paper)}.status-news-button.expanded[data-v-3f1097b8]{padding:12px 14px;border-bottom-left-radius:0;border-bottom-right-radius:0;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}
-.status-news-popup[data-v-114665d8]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#status-news-popup h4[data-v-114665d8]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#status-news-popup h4 .emoji[data-v-114665d8]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-114665d8]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
-.status-news-container[data-v-4e2f39e0]{position:relative}
+.aya-news-button-closed[data-v-66dcbefe]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-66dcbefe]:hover{background-color:var(--paper)}
+.aya-news-button-open[data-v-0543b279]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-0543b279]:hover{background-color:var(--paper)}
+.aya-news-popup[data-v-41789df9]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-41789df9]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-41789df9]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-41789df9]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.aya-news-container[data-v-87d6f5a2]{position:relative}
 
 .status-sidebar-button-closed[data-v-3abfbbc8]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.status-sidebar-button-closed[data-v-3abfbbc8]:hover{background-color:var(--paper)}
 .status-sidebar-button-open[data-v-12f16855]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.status-sidebar-button-open[data-v-12f16855]:hover{background-color:var(--paper)}
