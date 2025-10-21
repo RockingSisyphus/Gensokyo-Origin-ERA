@@ -14,11 +14,11 @@
 </template>
 
 <script setup lang="ts">
+import _ from 'lodash';
 import { ref } from 'vue';
 import { Logger } from '../../utils/logger';
 import DateDisplay from './Icons/DateDisplay.vue';
 import WeatherDisplay from './Icons/WeatherDisplay.vue';
-import _ from 'lodash';
 
 const logger = new Logger('components-StatusBannerContent');
 

@@ -1931,20 +1931,201 @@ const RoleRibbon_exports_ = RoleRibbonvue_type_script_setup_true_lang_ts;
 
 const RoleRibbon = RoleRibbon_exports_;
 
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1 = [ "data-date", "data-fest" ];
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "dnum"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  key: 0,
+  class: "fest"
+};
+
+const CalendarDayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "CalendarDay",
+  props: {
+    day: {},
+    isCurrentMonth: {
+      type: Boolean
+    },
+    isToday: {
+      type: Boolean
+    },
+    festivals: {},
+    dateKey: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const hasFestivals = (0, external_Vue_namespaceObject.computed)(() => props.festivals && props.festivals.length > 0);
+    const festivalsJSON = (0, external_Vue_namespaceObject.computed)(() => JSON.stringify(props.festivals));
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      type: "button",
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "cal-day-btn", {
+        out: !__props.isCurrentMonth,
+        today: __props.isToday,
+        "has-fest": hasFestivals.value
+      } ]),
+      "data-date": __props.dateKey,
+      "data-fest": festivalsJSON.value
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.day), 1), hasFestivals.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_3, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(__props.festivals, fest => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("span", {
+      key: fest
+    }, (0, external_Vue_namespaceObject.toDisplayString)(fest), 1))), 128)) ])) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ], 10, CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1));
+  }
+});
+
+const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0e03a3b6" ] ]);
+
+const CalendarDay = CalendarDay_exports_;
+
+const CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "cal-body"
+};
+
+const CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  id: "cal-grid",
+  class: "cal-grid"
+};
+
+const CalendarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "CalendarPopup",
+  props: {
+    calendarDays: {},
+    onDayClick: {
+      type: Function
+    }
+  },
+  emits: [ "close" ],
+  setup(__props, {emit: __emit}) {
+    const props = __props;
+    const emit = __emit;
+    const calPop = (0, external_Vue_namespaceObject.ref)(null);
+    onClickOutside(calPop, event => {
+      const target = event.target;
+      if (!target.closest("#banner-time") && !target.closest(".day-popover")) {
+        emit("close");
+      }
+    });
+    (0, external_Vue_namespaceObject.watchEffect)(() => {
+      const timeBtn = document.getElementById("banner-time");
+      if (timeBtn && calPop.value) {
+        const isExpanded = timeBtn.getAttribute("aria-expanded") === "true";
+        calPop.value.classList.toggle("relative-layout", isExpanded);
+      }
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      id: "cal-pop",
+      ref_key: "calPop",
+      ref: calPop,
+      class: "cal-pop",
+      role: "dialog",
+      "aria-modal": "false"
+    }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createStaticVNode)('<div class="cal-head" data-v-46223f8c><div class="cal-title" data-v-46223f8c><span id="cal-month" class="month" data-v-46223f8c>—月</span><span id="cal-year" class="year" data-v-46223f8c>—年</span></div><div class="cal-nav" data-v-46223f8c><button id="cal-prev" class="cal-btn" title="上一月" data-v-46223f8c>◀</button><button id="cal-today" class="cal-btn" title="回到今天" data-v-46223f8c>●</button><button id="cal-next" class="cal-btn" title="下一月" data-v-46223f8c>▶</button></div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-46223f8c><div class="w" data-v-46223f8c>一</div><div class="w" data-v-46223f8c>二</div><div class="w" data-v-46223f8c>三</div><div class="w" data-v-46223f8c>四</div><div class="w" data-v-46223f8c>五</div><div class="w" data-v-46223f8c>六</div><div class="w" data-v-46223f8c>日</div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarPopupvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.renderSlot)(_ctx.$slots, "grid") ]) ]) ], 512));
+  }
+});
+
+const CalendarPopup_exports_ = (0, exportHelper.A)(CalendarPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-46223f8c" ] ]);
+
+const CalendarPopup = CalendarPopup_exports_;
+
+const TimeDisplayIconvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "banner-time",
+  class: "banner-chip",
+  "aria-expanded": "false",
+  "aria-controls": "cal-pop"
+};
+
+const TimeDisplayIconvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "TimeDisplayIcon",
+  props: {
+    clockInfo: {},
+    isCalendarVisible: {
+      type: Boolean
+    }
+  },
+  emits: [ "toggle-calendar" ],
+  setup(__props, {expose: __expose, emit: __emit}) {
+    const props = __props;
+    const {isCalendarVisible} = (0, external_Vue_namespaceObject.toRefs)(props);
+    const emit = __emit;
+    (0, external_Vue_namespaceObject.watch)(isCalendarVisible, newValue => {
+      const timeBtn = document.getElementById("banner-time");
+      if (timeBtn) {
+        timeBtn.setAttribute("aria-expanded", String(newValue));
+      }
+    });
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const timeBtn = document.getElementById("banner-time");
+      if (timeBtn) {
+        timeBtn.addEventListener("click", () => {
+          emit("toggle-calendar");
+        });
+      }
+    });
+    function update(clockInfo) {
+      if (!clockInfo) return;
+      const timeText = clockInfo.hm ? `${clockInfo.hm} · ${clockInfo.periodName || ""}` : clockInfo.iso || "—";
+      (0, mvu.Qq)("banner-time-text", timeText);
+    }
+    __expose({
+      update
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", TimeDisplayIconvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⏰", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      id: "banner-time-text"
+    }, "—:—", -1) ]) ]));
+  }
+});
+
+const TimeDisplayIcon_exports_ = (0, exportHelper.A)(TimeDisplayIconvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-42508976" ] ]);
+
+const TimeDisplayIcon = TimeDisplayIcon_exports_;
+
+const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "day-popover__head"
+};
+
+const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "day-popover__date"
+};
+
+const DateDisplayvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "day-popover__body"
+};
+
 const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "DateDisplay",
   setup(__props, {expose: __expose}) {
     const logger = new utils_logger.Vy("components-DateDisplay");
-    let calendarYear = null;
-    let calendarMonth = null;
-    let todayKey = null;
-    let followWorld = true;
-    let festIdx = new Map;
-    let lastClockInfo = null;
-    let lastFestivals = [];
-    let isInitialized = false;
+    const calendarYear = (0, external_Vue_namespaceObject.ref)(null);
+    const calendarMonth = (0, external_Vue_namespaceObject.ref)(null);
+    const todayKey = (0, external_Vue_namespaceObject.ref)(null);
+    const followWorld = (0, external_Vue_namespaceObject.ref)(true);
+    const festIdx = (0, external_Vue_namespaceObject.ref)(new Map);
+    const lastClockInfo = (0, external_Vue_namespaceObject.ref)(null);
+    const lastFestivals = (0, external_Vue_namespaceObject.ref)([]);
+    const isInitialized = (0, external_Vue_namespaceObject.ref)(false);
+    const calendarVisible = (0, external_Vue_namespaceObject.ref)(false);
+    const timeDisplayIcon = (0, external_Vue_namespaceObject.ref)();
+    const dayPopover = (0, external_Vue_namespaceObject.reactive)({
+      visible: false,
+      dateStr: "",
+      fests: [],
+      style: {}
+    });
     function buildFestIdx(festivals) {
-      const funcName = "buildFestIdx";
       const idx = new Map;
       const clamp = (val, min, max) => Math.min(Math.max(Number(val) || 0, min), max);
       festivals.forEach((festival, i) => {
@@ -1952,7 +2133,7 @@ const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
         let startDay = Number(festival?.start_day ?? 0) | 0;
         let endDay = Number(festival?.end_day ?? startDay) | 0;
         if (!month) return;
-        const year = calendarYear ?? (new Date).getFullYear();
+        const year = calendarYear.value ?? (new Date).getFullYear();
         const daysInMonth = new Date(year, month, 0).getDate();
         startDay = clamp(Math.min(startDay, endDay), 1, daysInMonth);
         endDay = clamp(Math.max(startDay, endDay), 1, daysInMonth);
@@ -1969,172 +2150,127 @@ const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
       (0, mvu.Qq)("cal-month", `${month}月`);
       (0, mvu.Qq)("cal-year", `${year}年`);
     }
-    function renderGrid() {
-      const grid = document.getElementById("cal-grid");
-      if (!grid || calendarYear === null || calendarMonth === null) return;
-      const year = calendarYear;
-      const month = calendarMonth;
-      grid.innerHTML = "";
+    const calendarDays = (0, external_Vue_namespaceObject.computed)(() => {
+      if (calendarYear.value === null || calendarMonth.value === null) return [];
+      const year = calendarYear.value;
+      const month = calendarMonth.value;
+      const days = [];
       const firstDayOfMonth = new Date(year, month - 1, 1);
       const daysInMonth = new Date(year, month, 0).getDate();
       const daysInPrevMonth = new Date(year, month - 1, 0).getDate();
       const startWeekday = (firstDayOfMonth.getDay() + 6) % 7;
       const totalCells = 42;
       for (let i = 0; i < totalCells; i++) {
-        const cell = document.createElement("button");
-        cell.type = "button";
-        cell.className = "cal-day-btn";
         let day, isCurrentMonth = false, isToday = false, festivalsOnDay = [];
+        let currentYear = year;
+        let currentMonth = month;
         if (i < startWeekday) {
           day = daysInPrevMonth - (startWeekday - 1 - i);
+          currentMonth = month - 1;
+          if (currentMonth === 0) {
+            currentMonth = 12;
+            currentYear = year - 1;
+          }
         } else {
           const dayInMonth = i - startWeekday + 1;
           if (dayInMonth <= daysInMonth) {
             isCurrentMonth = true;
             day = dayInMonth;
-            isToday = todayKey === `${year}-${String(month).padStart(2, "0")}-${String(dayInMonth).padStart(2, "0")}`;
+            isToday = todayKey.value === `${year}-${String(month).padStart(2, "0")}-${String(dayInMonth).padStart(2, "0")}`;
             const festKey = `${month}-${dayInMonth}`;
-            festivalsOnDay = festIdx.get(festKey) || [];
+            festivalsOnDay = festIdx.value.get(festKey) || [];
           } else {
             day = dayInMonth - daysInMonth;
+            currentMonth = month + 1;
+            if (currentMonth === 13) {
+              currentMonth = 1;
+              currentYear = year + 1;
+            }
           }
         }
-        const numEl = document.createElement("span");
-        numEl.className = "dnum";
-        numEl.textContent = String(day);
-        cell.appendChild(numEl);
-        const mm = String(month).padStart(2, "0");
+        const mm = String(currentMonth).padStart(2, "0");
         const dd = String(day).padStart(2, "0");
-        const dateKey = `${year}-${mm}-${dd}`;
-        cell.dataset.date = isCurrentMonth ? dateKey : "";
-        cell.dataset.fest = isCurrentMonth && festivalsOnDay.length ? JSON.stringify(festivalsOnDay) : "[]";
-        if (!isCurrentMonth) cell.classList.add("out");
-        if (isToday) cell.classList.add("today");
-        if (isCurrentMonth && festivalsOnDay.length) cell.classList.add("has-fest");
-        if (isCurrentMonth && festivalsOnDay.length) {
-          const festBox = document.createElement("div");
-          festBox.className = "fest";
-          festivalsOnDay.forEach(name => {
-            const s = document.createElement("span");
-            s.textContent = name;
-            festBox.appendChild(s);
-          });
-          cell.appendChild(festBox);
-        }
-        grid.appendChild(cell);
+        const dateKey = `${currentYear}-${mm}-${dd}`;
+        days.push({
+          day,
+          isCurrentMonth,
+          isToday,
+          festivalsOnDay,
+          dateKey: isCurrentMonth ? dateKey : ""
+        });
       }
-    }
-    let dayPopoverEl = null;
+      return days;
+    });
     function hideDayPopover() {
-      if (dayPopoverEl) {
-        dayPopoverEl.remove();
-        dayPopoverEl = null;
-      }
+      dayPopover.visible = false;
     }
     function showDayPopover(anchorEl, dateStr, fests) {
       hideDayPopover();
       const host = document.getElementById("cal-pop");
-      const pop = document.createElement("div");
-      pop.className = "day-popover";
-      pop.setAttribute("role", "dialog");
-      pop.innerHTML = `\n    <div class="day-popover__head">\n      <span class="day-popover__date">${dateStr || "—"}</span>\n      <button class="day-popover__close" type="button" aria-label="关闭">×</button>\n    </div>\n    <div class="day-popover__body">\n      ${fests.map(n => `<div class="fest-item">${external_default().escape(n)}</div>`).join("")}\n    </div>\n  `;
-      host.appendChild(pop);
-      dayPopoverEl = pop;
-      pop.querySelector(".day-popover__close")?.addEventListener("click", e => {
-        e.stopPropagation();
-        hideDayPopover();
-      });
+      if (!host) return;
+      dayPopover.dateStr = dateStr;
+      dayPopover.fests = fests;
+      dayPopover.visible = true;
       const hostRect = host.getBoundingClientRect();
       const btnRect = anchorEl.getBoundingClientRect();
       const top = btnRect.bottom - hostRect.top + 8;
       const left = btnRect.left - hostRect.left;
-      const maxLeft = Math.max(12, Math.min(left, hostRect.width - pop.offsetWidth - 12));
-      pop.style.left = `${Math.round(maxLeft)}px`;
-      pop.style.top = `${Math.round(top)}px`;
+      (0, external_Vue_namespaceObject.nextTick)(() => {
+        const popEl = document.querySelector(".day-popover");
+        if (popEl) {
+          const maxLeft = Math.max(12, Math.min(left, hostRect.width - popEl.offsetWidth - 12));
+          dayPopover.style = {
+            left: `${Math.round(maxLeft)}px`,
+            top: `${Math.round(top)}px`
+          };
+        }
+      });
+    }
+    function onDayClick(day, event) {
+      const btn = event.target.closest(".cal-day-btn");
+      if (!btn) return;
+      if (!day.festivalsOnDay.length) {
+        hideDayPopover();
+        return;
+      }
+      showDayPopover(btn, day.dateKey, day.festivalsOnDay);
     }
     const bindUI = () => {
-      if (isInitialized) return;
-      isInitialized = true;
-      const timeBtn = document.getElementById("banner-time");
-      const calPop = document.getElementById("cal-pop");
+      if (isInitialized.value) return;
+      isInitialized.value = true;
       const prevBtn = document.getElementById("cal-prev");
       const nextBtn = document.getElementById("cal-next");
       const todayBtn = document.getElementById("cal-today");
-      if (timeBtn) {
-        timeBtn.addEventListener("click", () => {
-          if (calPop) {
-            const isHidden = calPop.hasAttribute("hidden");
-            calPop.toggleAttribute("hidden", !isHidden);
-            timeBtn.setAttribute("aria-expanded", String(isHidden));
-          }
-        });
-      }
       if (prevBtn) {
         prevBtn.addEventListener("click", () => {
-          followWorld = false;
-          if (calendarYear === null || calendarMonth === null) return;
-          calendarMonth--;
-          if (calendarMonth <= 0) {
-            calendarYear--;
-            calendarMonth = 12;
+          followWorld.value = false;
+          if (calendarYear.value === null || calendarMonth.value === null) return;
+          calendarMonth.value--;
+          if (calendarMonth.value <= 0) {
+            calendarYear.value--;
+            calendarMonth.value = 12;
           }
-          setTitle(calendarYear, calendarMonth);
-          renderGrid();
+          setTitle(calendarYear.value, calendarMonth.value);
         });
       }
       if (nextBtn) {
         nextBtn.addEventListener("click", () => {
-          followWorld = false;
-          if (calendarYear === null || calendarMonth === null) return;
-          calendarMonth++;
-          if (calendarMonth >= 13) {
-            calendarYear++;
-            calendarMonth = 1;
+          followWorld.value = false;
+          if (calendarYear.value === null || calendarMonth.value === null) return;
+          calendarMonth.value++;
+          if (calendarMonth.value >= 13) {
+            calendarYear.value++;
+            calendarMonth.value = 1;
           }
-          setTitle(calendarYear, calendarMonth);
-          renderGrid();
+          setTitle(calendarYear.value, calendarMonth.value);
         });
       }
       if (todayBtn) {
         todayBtn.addEventListener("click", () => {
-          followWorld = true;
-          if (lastClockInfo) {
-            update(lastClockInfo, lastFestivals);
+          followWorld.value = true;
+          if (lastClockInfo.value) {
+            update(lastClockInfo.value, lastFestivals.value);
           }
-        });
-      }
-      if (calPop) {
-        document.addEventListener("click", event => {
-          const target = event.target;
-          const isClickOnTimeBtn = target.closest?.("#banner-time");
-          const isClickInCalPop = target.closest?.("#cal-pop");
-          if (!isClickOnTimeBtn && !isClickInCalPop) {
-            if (!calPop.hasAttribute("hidden")) {
-              calPop.setAttribute("hidden", "");
-              document.getElementById("banner-time")?.setAttribute("aria-expanded", "false");
-            }
-          }
-        });
-      }
-      const grid = document.getElementById("cal-grid");
-      if (grid && !grid.__dayBound) {
-        grid.__dayBound = true;
-        grid.addEventListener("click", ev => {
-          const btn = ev.target.closest?.(".cal-day-btn");
-          if (!btn) return;
-          const festRaw = btn.dataset.fest || "[]";
-          let fests = [];
-          try {
-            fests = JSON.parse(festRaw);
-          } catch (e) {
-            logger.warn("解析节日数据失败", festRaw, e);
-          }
-          if (!fests.length) {
-            hideDayPopover();
-            return;
-          }
-          const dateStr = btn.dataset.date || "";
-          showDayPopover(btn, dateStr, fests);
         });
       }
       document.addEventListener("keydown", e => {
@@ -2143,21 +2279,22 @@ const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
     };
     const update = (clockInfo, festivals) => {
       bindUI();
-      lastClockInfo = clockInfo;
-      lastFestivals = festivals;
+      lastClockInfo.value = clockInfo;
+      lastFestivals.value = festivals;
       const year = Number(clockInfo.year) || 0;
       const month = Number(clockInfo.month) || 0;
       const day = Number(clockInfo.day) || 0;
-      todayKey = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-      const timeText = clockInfo.hm ? `${clockInfo.hm} · ${clockInfo.periodName || ""}` : clockInfo.iso || "—";
-      (0, mvu.Qq)("banner-time-text", timeText);
-      if (festivals && Array.isArray(festivals)) {
-        festIdx = buildFestIdx(festivals);
+      todayKey.value = `${year}-${String(month).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      if (timeDisplayIcon.value) {
+        timeDisplayIcon.value.update(clockInfo);
       }
-      if (followWorld && (calendarYear !== year || calendarMonth !== month)) {
-        calendarYear = year;
-        calendarMonth = month;
-        setTitle(calendarYear, calendarMonth);
+      if (festivals && Array.isArray(festivals)) {
+        festIdx.value = buildFestIdx(festivals);
+      }
+      if (followWorld.value && (calendarYear.value !== year || calendarMonth.value !== month)) {
+        calendarYear.value = year;
+        calendarMonth.value = month;
+        setTitle(calendarYear.value, calendarMonth.value);
       }
       if (calendarYear && calendarMonth) {
         renderGrid();
@@ -2170,73 +2307,56 @@ const DateDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
       update
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 可点击：时间（脚本将填充文本，并控制下方弹层开合） "), _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("button", {
-      id: "banner-time",
-      class: "banner-chip",
-      "aria-expanded": "false",
-      "aria-controls": "cal-pop"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "⏰"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "banner-time-text"
-    }, "—:—") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 日历弹层（默认 hidden；脚本控制 hidden 与 aria-expanded） "), _cache[1] || (_cache[1] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      id: "cal-pop",
-      class: "cal-pop",
-      role: "dialog",
-      "aria-modal": "false",
-      hidden: ""
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-head"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-title"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "cal-month",
-      class: "month"
-    }, "—月"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "cal-year",
-      class: "year"
-    }, "—年") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-nav"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      id: "cal-prev",
-      class: "cal-btn",
-      title: "上一月"
-    }, "◀"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      id: "cal-today",
-      class: "cal-btn",
-      title: "回到今天"
-    }, "●"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      id: "cal-next",
-      class: "cal-btn",
-      title: "下一月"
-    }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-body"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-week"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "一"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "二"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "三"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "四"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "五"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "六"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "w"
-    }, "日") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      id: "cal-grid",
-      class: "cal-grid"
-    }, [ (0, external_Vue_namespaceObject.createCommentVNode)(" JS 动态填充 .cal-day ") ]) ]) ], -1)) ], 64));
+    external_Vue_namespaceObject.createVNode)(TimeDisplayIcon, {
+      ref_key: "timeDisplayIcon",
+      ref: timeDisplayIcon,
+      "clock-info": lastClockInfo.value,
+      "is-calendar-visible": calendarVisible.value,
+      onToggleCalendar: _cache[0] || (_cache[0] = $event => calendarVisible.value = !calendarVisible.value)
+    }, null, 8, [ "clock-info", "is-calendar-visible" ]), (0, external_Vue_namespaceObject.withDirectives)((0, 
+    external_Vue_namespaceObject.createVNode)(CalendarPopup, {
+      "calendar-days": calendarDays.value,
+      "on-day-click": onDayClick,
+      onClose: _cache[1] || (_cache[1] = $event => calendarVisible.value = false)
+    }, {
+      grid: (0, external_Vue_namespaceObject.withCtx)(() => [ ((0, external_Vue_namespaceObject.openBlock)(true), 
+      (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+      external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
+      external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(CalendarDay, {
+        key: index,
+        day: day.day,
+        "is-current-month": day.isCurrentMonth,
+        "is-today": day.isToday,
+        festivals: day.festivalsOnDay,
+        "date-key": day.dateKey,
+        onClick: $event => onDayClick(day, $event)
+      }, null, 8, [ "day", "is-current-month", "is-today", "festivals", "date-key", "onClick" ]))), 128)) ]),
+      _: 1
+    }, 8, [ "calendar-days" ]), [ [ external_Vue_namespaceObject.vShow, calendarVisible.value ] ]), dayPopover.visible ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: 0,
+      class: "day-popover",
+      style: (0, external_Vue_namespaceObject.normalizeStyle)(dayPopover.style),
+      role: "dialog"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(dayPopover.dateStr), 1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      class: "day-popover__close",
+      type: "button",
+      "aria-label": "关闭",
+      onClick: hideDayPopover
+    }, "×") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", DateDisplayvue_type_script_setup_true_lang_ts_hoisted_3, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(dayPopover.fests, fest => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: fest,
+      class: "fest-item"
+    }, (0, external_Vue_namespaceObject.toDisplayString)(fest), 1))), 128)) ]) ], 4)) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ], 64));
   }
 });
 
-const DateDisplay_exports_ = (0, exportHelper.A)(DateDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0cad45dd" ] ]);
+const DateDisplay_exports_ = (0, exportHelper.A)(DateDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1f8e1b57" ] ]);
 
 const DateDisplay = DateDisplay_exports_;
 
@@ -2675,6 +2795,6 @@ h4[data-v-4ba65ade]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .status-duo>#status-news.status-news{flex:1 1 auto;min-width:320px;max-width:none;padding:16px 20px;background:var(--paper);display:flex;flex-direction:column;gap:10px}#status-news h4{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#status-news h4 .emoji{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}#status-news .news-body{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word;max-height:40vh}@media (min-width:1100px){.status-duo>#status-news.status-news{flex:1 1 auto;min-width:0;max-width:100%}#status-news .news-body{flex:1 1 auto;max-height:none;overflow:auto}}
 .status-sidebar[data-v-f43ecf44]{flex:0 0 350px;max-width:none;padding:16px;background:var(--paper);border-right:1px solid var(--line)}h4[data-v-f43ecf44]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-f43ecf44]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-f43ecf44]{margin:8px 0;font-size:.9em;line-height:1.5}.user-status p>span[data-v-f43ecf44]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .theme-toggle[data-v-309160ee]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-309160ee]:active{transform:translateY(1px)}.theme-toggle[data-v-309160ee]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
-.status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column}.status-duo{display:flex;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-auto-rows:minmax(0,auto)}.status-duo{grid-column:1;grid-row:1/span 999;flex-direction:column;overflow-y:auto;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding-bottom:0;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.status-sidebar{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
+.status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column}.status-duo{display:flex;flex-wrap:nowrap;align-items:stretch;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding-bottom:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-auto-rows:minmax(0,auto)}.status-duo{grid-column:1;grid-row:1/span 999;flex-direction:column;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding-bottom:0;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.status-sidebar{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
 /*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

@@ -100,7 +100,7 @@ defineExpose({
     grid-column: 1;
     grid-row: 1 / span 999; /* 粗暴覆盖足够多的行，等价于整列 */
     flex-direction: column; /* 竖排：上 users，下 news */
-    overflow-y: auto;
+    overflow-y: visible;
     overflow-x: hidden;
     border-right: 1px dashed var(--line);
     border-bottom: none; /* 顶部边线换成右侧分隔线 */
