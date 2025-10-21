@@ -75,27 +75,29 @@
         }
       }
     }
-    const LOG_CONFIG = {
-      levels: {
-        debug: 0,
-        log: 1,
-        warn: 2,
-        error: 3
-      },
-      currentLevel: 0,
-      debugWhitelist: [ "index", "backend", "components" ]
-    };
-    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
-  },
-  342: (__unused_webpack_module, exports) => {
-    var __webpack_unused_export__;
-    __webpack_unused_export__ = {
-      value: true
-    };
-    exports.A = (sfc, props) => {
-      const target = sfc.__vccOpts || sfc;
-      for (const [key, val] of props) {
-        target[key] = val;
+    async function setRuntimeVar(path, value) {
+      const funcName = "setRuntimeVar";
+      try {
+        if (typeof updateVariablesWith !== "function") {
+          logger.error(funcName, "updateVariablesWith 函数不可用。");
+          return false;
+        }
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+          value
+        });
+        await updateVariablesWith(vars => {
+          const chatVars = vars || {};
+          _.set(chatVars, runtimePath, value);
+          return chatVars;
+        }, {
+          type: "chat"
+        });
+        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+        return true;
+      } catch (error) {
+        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+        return false;
       }
       return target;
     };
@@ -103,7 +105,15 @@
   371: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
-      runAffectionPipeline: () => runAffectionPipeline
+      burstBarParticles: () => burstBarParticles,
+      burstCardParticles: () => burstCardParticles,
+      ensureLoveTicker: () => ensureLoveTicker,
+      ensureSkullTicker: () => ensureSkullTicker,
+      hateThresholdOf: () => hateThresholdOf,
+      loveThresholdOf: () => loveThresholdOf,
+      paintBar: () => paintBar,
+      runAffectionPipeline: () => runAffectionPipeline,
+      stageLabelFrom: () => stageLabelFrom
     });
     var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(634);
     var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(215);
@@ -1829,126 +1839,346 @@ const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_s
 
 const StatusTabContent = StatusTabContent_exports_;
 
-const RoleRibbonvue_type_script_setup_true_lang_ts_hoisted_1 = {
+var affection = __webpack_require__(304);
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "aff-num"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "aff-stage"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AffectionDisplay",
+  props: {
+    character: {},
+    statWithoutMeta: {},
+    size: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const root = (0, external_Vue_namespaceObject.ref)(null);
+    const valEl = (0, external_Vue_namespaceObject.ref)(null);
+    const affectionValue = (0, external_Vue_namespaceObject.computed)(() => props.character?.["好感度"] || 0);
+    const loveThreshold = (0, external_Vue_namespaceObject.computed)(() => (0, affection.loveThresholdOf)(props.statWithoutMeta));
+    const hateThreshold = (0, external_Vue_namespaceObject.computed)(() => (0, affection.hateThresholdOf)(props.statWithoutMeta));
+    const affectionStage = (0, external_Vue_namespaceObject.computed)(() => (0, affection.stageLabelFrom)(props.statWithoutMeta, affectionValue.value));
+    const barWidth = (0, external_Vue_namespaceObject.computed)(() => `${Math.min(Math.abs(affectionValue.value), 100)}%`);
+    let previousState = "neutral";
+    const updateAffectionVisuals = () => {
+      if (!root.value || !valEl.value) return;
+      (0, affection.paintBar)(valEl.value, affectionValue.value, loveThreshold.value, hateThreshold.value);
+      let currentState = "neutral";
+      if (affectionValue.value >= loveThreshold.value) {
+        currentState = "love";
+      } else if (affectionValue.value <= hateThreshold.value) {
+        currentState = "hate";
+      }
+      if (currentState !== previousState) {
+        if (currentState === "love") {
+          (0, affection.burstCardParticles)(root.value, "heart", 10);
+          (0, affection.burstBarParticles)(valEl.value, "heart", 5);
+        } else if (currentState === "hate") {
+          (0, affection.burstCardParticles)(root.value, "skull", 8);
+          (0, affection.burstBarParticles)(valEl.value, "skull", 5);
+        }
+      }
+      (0, affection.ensureLoveTicker)(root.value, currentState === "love");
+      (0, affection.ensureSkullTicker)(root.value, currentState === "hate");
+      previousState = currentState;
+    };
+    (0, external_Vue_namespaceObject.watch)(() => [ props.character, props.statWithoutMeta ], () => {
+      updateAffectionVisuals();
+    }, {
+      deep: true,
+      immediate: true
+    });
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      updateAffectionVisuals();
+    });
+    (0, external_Vue_namespaceObject.onUnmounted)(() => {
+      if (root.value) {
+        (0, affection.ensureLoveTicker)(root.value, false);
+        (0, affection.ensureSkullTicker)(root.value, false);
+      }
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      ref_key: "root",
+      ref: root,
+      class: "affection-display role-card"
+    }, [ _cache[0] || (_cache[0] = (0, external_Vue_namespaceObject.createElementVNode)("strong", null, "好感度：", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1, (0, 
+    external_Vue_namespaceObject.toDisplayString)(affectionValue.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(affectionStage.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "mini-bar", {
+        "small-bar": __props.size === "small"
+      } ])
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      ref_key: "valEl",
+      ref: valEl,
+      class: "val",
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        width: barWidth.value
+      })
+    }, null, 4) ], 2) ], 512));
+  }
+});
+
+const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-60290a7a" ] ]);
+
+const AffectionDisplay = AffectionDisplay_exports_;
+
+const RoleCardvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "role-card-header"
+};
+
+const RoleCardvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "role-avatar"
+};
+
+const RoleCardvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "role-name"
+};
+
+const RoleCardvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  class: "role-meta"
+};
+
+const RoleCardvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "RoleCard",
+  props: {
+    character: {},
+    statWithoutMeta: {}
+  },
+  emits: [ "show-details" ],
+  setup(__props) {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      class: "role-card-wrapper",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("show-details", __props.character))
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", RoleCardvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleCardvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character.name.slice(0, 1)), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, external_Vue_namespaceObject.createElementVNode)("div", RoleCardvue_type_script_setup_true_lang_ts_hoisted_3, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character.name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", RoleCardvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character["所在地区"] || "未知"), 1) ]) ]), (0, 
+    external_Vue_namespaceObject.createVNode)(AffectionDisplay, {
+      character: __props.character,
+      "stat-without-meta": __props.statWithoutMeta,
+      size: "small"
+    }, null, 8, [ "character", "stat-without-meta" ]) ]));
+  }
+});
+
+const RoleCard_exports_ = (0, exportHelper.A)(RoleCardvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-2853d2bc" ] ]);
+
+const RoleCard = RoleCard_exports_;
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "role-detail-popup"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "role-card-header"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "role-avatar"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  class: "role-name"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  class: "role-meta"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "details-grid"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  class: "detail-item"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_8 = {
+  class: "detail-item"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_9 = {
+  class: "detail-item"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_10 = {
+  class: "detail-item"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_11 = {
+  class: "detail-item full-width"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_12 = {
+  class: "detail-item full-width"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_13 = {
+  class: "detail-item full-width"
+};
+
+const _hoisted_14 = {
+  class: "detail-item full-width"
+};
+
+const RoleDetailPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "RoleDetailPopup",
+  props: {
+    character: {},
+    statWithoutMeta: {}
+  },
+  emits: [ "close" ],
+  setup(__props) {
+    const props = __props;
+    const toText = v => {
+      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+      if (v == null || v === "") return "—";
+      return String(v);
+    };
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      class: "popup-overlay",
+      onClick: _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.withModifiers)($event => _ctx.$emit("close"), [ "self" ]))
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      class: "close-btn",
+      onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close"))
+    }, "×"), (0, external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_3, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character.name.slice(0, 1)), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character.name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_5, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.character["所在地区"] || "未知"), 1) ]) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_6, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_7, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "年龄:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["年龄"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_8, [ _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "性别:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["性别"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_9, [ _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "身份:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["身份"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_10, [ _cache[5] || (_cache[5] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "居住地:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["居住地区"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_11, [ _cache[6] || (_cache[6] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "性格:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["性格"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_12, [ _cache[7] || (_cache[7] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "外貌:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["外貌"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_13, [ _cache[8] || (_cache[8] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "人际关系:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["人际关系"])), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_14, [ _cache[9] || (_cache[9] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "当前目标:", -1)), (0, 
+    external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(__props.character["当前目标"])), 1) ]) ]), (0, 
+    external_Vue_namespaceObject.createVNode)(AffectionDisplay, {
+      character: __props.character,
+      "stat-without-meta": __props.statWithoutMeta,
+      size: "large"
+    }, null, 8, [ "character", "stat-without-meta" ]) ]) ]));
+  }
+});
+
+const RoleDetailPopup_exports_ = (0, exportHelper.A)(RoleDetailPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7ec23302" ] ]);
+
+const RoleDetailPopup = RoleDetailPopup_exports_;
+
+const RoleRibbonContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "role-ribbon-container"
 };
 
-const RoleRibbonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "RoleRibbon",
+const RoleRibbonContainervue_type_script_setup_true_lang_ts_hoisted_2 = {
+  key: 0,
+  class: "role-card-placeholder"
+};
+
+const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "RoleRibbonContainer",
   setup(__props, {expose: __expose}) {
-    const logger = new utils_logger.Vy("components-RoleRibbon");
-    const toText = v => {
-      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-      const t = (() => {
-        if (Array.isArray(v)) return v[0] ?? "";
-        return v;
-      })();
-      if (t == null || t === "") return "—";
-      return String(t);
-    };
-    const renderRolesRibbon = (state, hostId = "role-ribbon") => {
-      const host = document.getElementById(hostId);
-      if (!host) {
-        logger.warn("renderRolesRibbon", "【渲染/附近角色】未找到容器。", {
-          hostId
-        });
-        return 0;
+    const ribbon = (0, external_Vue_namespaceObject.ref)(null);
+    const allCharacters = (0, external_Vue_namespaceObject.ref)({});
+    const userLocation = (0, external_Vue_namespaceObject.ref)("");
+    const ribbonScrollStep = (0, external_Vue_namespaceObject.ref)(320);
+    const selectedCharacter = (0, external_Vue_namespaceObject.ref)(null);
+    const statWithoutMeta = (0, external_Vue_namespaceObject.ref)({});
+    const nearbyCharacters = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!userLocation.value || !Object.keys(allCharacters.value).length) {
+        return [];
       }
-      host.innerHTML = "";
-      const uLoc = String((0, mvu.Jt)(state, constants.M.USER_LOCATION, "")).trim();
-      let chars = state?.[constants.M.CHARS];
+      return Object.entries(allCharacters.value).filter(([, v]) => v && typeof v === "object" && String((0, 
+      mvu.Jt)(v, constants.M.CHAR_LOCATION, "")).trim() === userLocation.value).map(([name, data]) => Object.assign({
+        name
+      }, data));
+    });
+    const scroll = direction => {
+      ribbon.value?.scrollBy({
+        left: direction * ribbonScrollStep.value,
+        behavior: "smooth"
+      });
+    };
+    const updateRibbon = newStat => {
+      if (!newStat || typeof newStat !== "object") return;
+      statWithoutMeta.value = newStat;
+      userLocation.value = String((0, mvu.Jt)(newStat, constants.M.USER_LOCATION, "")).trim();
+      let chars = newStat?.[constants.M.CHARS];
       try {
         if (typeof chars === "string") chars = JSON.parse(chars);
       } catch {
-        chars = null;
+        chars = {};
       }
-      if (!chars || typeof chars !== "object") {
-        logger.warn("renderRolesRibbon", "【渲染/附近角色】chars 无效。");
-        return 0;
-      }
-      const entries = Object.entries(chars).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v));
-      const nearby = entries.filter(([, obj]) => {
-        const cLoc = String((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "")).trim();
-        return uLoc && cLoc && cLoc === uLoc;
-      });
-      if (!nearby.length) {
-        const placeholder = document.createElement("div");
-        placeholder.className = "role-card";
-        placeholder.innerHTML = `<div class="role-card-header"><div class="role-avatar">—</div><div><div class="role-name">附近暂无角色</div><div class="role-meta">${uLoc || "未知地区"}</div></div></div><div class="role-line">当前与玩家同区的角色将显示在此。</div>`;
-        host.appendChild(placeholder);
-        logger.log("renderRolesRibbon", "【渲染/附近角色】同区为 0，显示占位卡片。", {
-          用户所在: uLoc
-        });
-        return 0;
-      }
-      const t0 = performance.now?.() ?? Date.now();
-      nearby.forEach(([name, obj]) => {
-        const fields = [ [ "年龄", "年龄" ], [ "性别", "性别" ], [ "身份", "身份" ], [ "性格", "性格" ], [ "外貌", "外貌" ], [ "衣着", "衣着" ], [ "人际关系", "人际关系" ], [ "性经验", "性经验" ], [ "性知识", "性知识" ], [ "特殊能力", "特殊能力" ], [ "身体状况", "身体状况" ], [ "目标", "当前目标" ], [ "所想", "当前所想" ], [ "居住地区", "居住地区" ] ];
-        const meta = toText((0, mvu.Jt)(obj, constants.M.CHAR_LOCATION, "未知"));
-        const fav = (0, mvu.Jt)(obj, constants.M.CHAR_AFFECTION, 0);
-        const lines = fields.map(([label, key]) => `<div class="role-line"><strong>${label}：</strong>${toText((0, 
-        mvu.Jt)(obj, key, "—"))}</div>`).join("");
-        const div = document.createElement("div");
-        div.innerHTML = `\n<div class="role-card">\n  <div class="role-card-header">\n    <div class="role-avatar">${String(name).slice(0, 1)}</div>\n    <div><div class="role-name">${name}</div><div class="role-meta">${meta}</div></div>\n  </div>\n  ${lines}\n  <div class="role-line">\n    <strong>好感度：</strong>\n    <span class="aff-num">${toText(fav)}</span>\n    <span class="aff-stage" style="margin-left:6px;color:var(--muted);font-size:.85em;">—</span>\n    <div class="mini-bar"><div class="val" data-aff="bar"></div></div>\n  </div>\n</div>`;
-        const card = div.firstElementChild;
-        if (card) host.appendChild(card);
-        const valEl = card?.querySelector(".mini-bar .val") || null;
-        if (valEl) valEl.style.width = Math.min(Math.abs(Number(fav) || 0), 100) + "%";
-      });
-      const dt = (performance.now?.() ?? Date.now()) - t0;
-      logger.log("renderRolesRibbon", "【渲染/附近角色】完成。", {
-        数量: nearby.length,
-        用时毫秒: dt.toFixed ? dt.toFixed(1) : dt
-      });
-      return nearby.length;
-    };
-    const updateRibbon = statWithoutMeta => {
-      const func = "updateRibbon";
-      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(func, "传入的 statWithoutMeta 无效。", statWithoutMeta);
-        return;
-      }
-      const ribbon = document.getElementById("role-ribbon");
-      const step = Number((0, mvu.Jt)(statWithoutMeta, constants.M.UI_RIBBON_STEP, 320)) || 320;
-      const L = document.getElementById("ribbon-left");
-      const R = document.getElementById("ribbon-right");
-      if (L) L.onclick = () => ribbon?.scrollBy({
-        left: -step,
-        behavior: "smooth"
-      });
-      if (R) R.onclick = () => ribbon?.scrollBy({
-        left: step,
-        behavior: "smooth"
-      });
-      logger.log(func, "箭头点击事件已绑定。", {
-        step
-      });
-      renderRolesRibbon(statWithoutMeta, "role-ribbon");
+      allCharacters.value = chars || {};
+      ribbonScrollStep.value = Number((0, mvu.Jt)(newStat, constants.M.UI_RIBBON_STEP, 320)) || 320;
     };
     __expose({
       updateRibbon
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, [ (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 严格拷贝自 app.vue 的 DOM 结构：角色横幅容器与箭头按钮 "), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", RoleRibbonvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", RoleRibbonContainervue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("button", {
       id: "ribbon-left",
       class: "ribbon-arrow left",
-      "aria-label": "左移"
-    }, "‹", -1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      onClick: _cache[0] || (_cache[0] = $event => scroll(-1))
+    }, "‹"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
       id: "ribbon-right",
       class: "ribbon-arrow right",
-      "aria-label": "右移"
-    }, "›", -1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      onClick: _cache[1] || (_cache[1] = $event => scroll(1))
+    }, "›"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
       id: "role-ribbon",
+      ref_key: "ribbon",
+      ref: ribbon,
       class: "role-ribbon"
-    }, null, -1) ]) ]), (0, external_Vue_namespaceObject.createCommentVNode)(" 以上结构需保持不变，以兼容现有样式与选择器 ") ], 2112));
+    }, [ ((0, external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(nearbyCharacters.value, char => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createBlock)(RoleCard, {
+      key: char.name,
+      character: char,
+      "stat-without-meta": statWithoutMeta.value,
+      onShowDetails: _cache[2] || (_cache[2] = $event => selectedCharacter.value = $event)
+    }, null, 8, [ "character", "stat-without-meta" ]))), 128)), !nearbyCharacters.value.length ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", RoleRibbonContainervue_type_script_setup_true_lang_ts_hoisted_2, " 附近暂无角色 ")) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ], 512), selectedCharacter.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(RoleDetailPopup, {
+      key: 0,
+      character: selectedCharacter.value,
+      "stat-without-meta": statWithoutMeta.value,
+      onClose: _cache[3] || (_cache[3] = $event => selectedCharacter.value = null)
+    }, null, 8, [ "character", "stat-without-meta" ])) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]));
   }
 });
 
-const RoleRibbon_exports_ = RoleRibbonvue_type_script_setup_true_lang_ts;
+const RoleRibbonContainer_exports_ = (0, exportHelper.A)(RoleRibbonContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-05253144" ] ]);
 
-const RoleRibbon = RoleRibbon_exports_;
+const RoleRibbonContainer = RoleRibbonContainer_exports_;
 
 const TimeButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "TimeButtonClosed",
@@ -2723,7 +2953,7 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       ref_key: "ayaNews",
       ref: ayaNews
     }, null, 512) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", appvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
-    external_Vue_namespaceObject.createVNode)(RoleRibbon, {
+    external_Vue_namespaceObject.createVNode)(RoleRibbonContainer, {
       ref_key: "roleRibbon",
       ref: roleRibbon
     }, null, 512), (0, external_Vue_namespaceObject.createVNode)(StatusBannerContent, {

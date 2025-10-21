@@ -97,7 +97,7 @@ const STAGES_FALLBACK: Array<[number, string]> = [
  * 根据好感值计算阶段文案
  * 注意：配置优先取自 statWithoutMeta.config.affection.affectionStages
  */
-function stageLabelFrom(statWithoutMeta: any, fav: number): string {
+export function stageLabelFrom(statWithoutMeta: any, fav: number): string {
   try {
     // 按照用户要求，在函数开头输出完整的 statWithoutMeta 对象以供调试
     logger.debug('stageLabelFrom', '函数接收到的完整 statWithoutMeta 对象', {
@@ -144,10 +144,10 @@ function stageLabelFrom(statWithoutMeta: any, fav: number): string {
 /**
  * 读取阈值（爱/恨），改为从 statWithoutMeta.config.affection 读取
  */
-function loveThresholdOf(statWithoutMeta: any): number {
+export function loveThresholdOf(statWithoutMeta: any): number {
   return Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100));
 }
-function hateThresholdOf(statWithoutMeta: any): number {
+export function hateThresholdOf(statWithoutMeta: any): number {
   return Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100));
 }
 
@@ -155,7 +155,7 @@ function hateThresholdOf(statWithoutMeta: any): number {
 const CARD_STATE: WeakMap<Element, any> = new WeakMap();
 
 // —— 给条着色 + 朝向
-function paintBar(valEl: Element | null, fav: number, love: number, hate: number) {
+export function paintBar(valEl: Element | null, fav: number, love: number, hate: number) {
   if (!valEl) return;
   (valEl as HTMLElement).classList.remove('negative', 'very-hate', 'very-love', 'rtl');
   if (fav < 0) (valEl as HTMLElement).classList.add('rtl');
@@ -166,7 +166,7 @@ function paintBar(valEl: Element | null, fav: number, love: number, hate: number
 }
 
 // —— 迷你条里冒粒子（❤/☠）
-function burstBarParticles(valEl: Element | null, kind: 'heart' | 'skull' = 'heart', count = 5) {
+export function burstBarParticles(valEl: Element | null, kind: 'heart' | 'skull' = 'heart', count = 5) {
   if (!valEl) return;
   const host = (valEl as HTMLElement).parentElement || (valEl as HTMLElement);
   for (let i = 0; i < count; i++) {
@@ -182,7 +182,7 @@ function burstBarParticles(valEl: Element | null, kind: 'heart' | 'skull' = 'hea
 }
 
 // —— 卡片范围撒粒子（❤/☠）
-function burstCardParticles(card: Element, kind: 'heart' | 'skull' = 'heart', count = 10) {
+export function burstCardParticles(card: Element, kind: 'heart' | 'skull' = 'heart', count = 10) {
   const nowTs = performance.now();
   const rec = CARD_STATE.get(card) || {};
   if (rec.lastBurstAt && nowTs - rec.lastBurstAt < 1000) return;
@@ -204,7 +204,7 @@ function burstCardParticles(card: Element, kind: 'heart' | 'skull' = 'heart', co
 }
 
 // —— 阶段 ticker（hate/love）
-function ensureSkullTicker(card: Element, enabled: boolean) {
+export function ensureSkullTicker(card: Element, enabled: boolean) {
   const rec = CARD_STATE.get(card) || {};
   if (enabled) {
     if (!rec.skullTimer) {
@@ -227,7 +227,7 @@ function ensureSkullTicker(card: Element, enabled: boolean) {
   CARD_STATE.set(card, rec);
 }
 
-function ensureLoveTicker(card: Element, enabled: boolean) {
+export function ensureLoveTicker(card: Element, enabled: boolean) {
   const rec = CARD_STATE.get(card) || {};
   if (enabled) {
     if (!rec.loveTimer) {

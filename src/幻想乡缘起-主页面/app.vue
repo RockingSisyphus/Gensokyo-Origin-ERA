@@ -9,7 +9,7 @@
     </div>
 
     <div class="status-main-content">
-      <RoleRibbon ref="roleRibbon" />
+      <RoleRibbonContainer ref="roleRibbon" />
 
       <StatusBanner ref="statusBanner" />
 
@@ -25,7 +25,7 @@ import { ref } from 'vue';
 // [重构] 导入新的 StatusTabContent 组件
 import StatusTabContent from './components/StatusTab/StatusTabContent.vue';
 // [重构] 其他子组件的导入已移至 StatusTabContent.vue，此处不再需要
-import RoleRibbon from './components/RoleRibbon.vue';
+import RoleRibbonContainer from './components/RoleRibbon/RoleRibbonContainer.vue';
 import StatusBanner from './components/StatusBanner/StatusBannerContent.vue';
 import AyaNewsContainer from './components/AyaNews/AyaNewsContainer.vue';
 import UserStateContainer from './components/UserState/UserStateContainer.vue';
@@ -41,7 +41,7 @@ const ayaNews = ref<InstanceType<typeof AyaNewsContainer> | null>(null);
 const statusBanner = ref<InstanceType<typeof StatusBanner> | null>(null);
 // [重构] 为新的 StatusTabContent 组件创建一个 ref
 const statusTabContent = ref<InstanceType<typeof StatusTabContent> | null>(null);
-const roleRibbon = ref<InstanceType<typeof RoleRibbon> | null>(null);
+const roleRibbon = ref<InstanceType<typeof RoleRibbonContainer> | null>(null);
 
 // [重构] 只暴露 index.ts 仍然需要直接访问的组件 ref
 defineExpose({
