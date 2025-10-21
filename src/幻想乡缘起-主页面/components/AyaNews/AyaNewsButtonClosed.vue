@@ -1,7 +1,5 @@
 <template>
-  <button class="aya-news-button-closed" @click="emit('open-news')">
-    新闻
-  </button>
+  <button class="aya-news-button-closed" @click="emit('open-news')">新闻</button>
 </template>
 
 <script setup lang="ts">
