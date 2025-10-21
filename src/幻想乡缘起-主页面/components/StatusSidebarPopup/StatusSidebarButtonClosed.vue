@@ -1,7 +1,5 @@
 <template>
-  <button class="status-sidebar-button-closed" @click="emit('open-sidebar')">
-    用户信息
-  </button>
+  <button class="status-sidebar-button-closed" @click="emit('open-sidebar')">用户信息</button>
 </template>
 
 <script setup lang="ts">
