@@ -174,12 +174,14 @@ function renderGrid() {
 
   // 遍历42个格子并填充内容
   for (let i = 0; i < totalCells; i++) {
-    const cell = document.createElement('div');
-    cell.className = 'cal-day';
-    let day: number;
-    let isCurrentMonth = false;
-    let isToday = false;
-    let festivalsOnDay: string[] = [];
+    // 新：创建 button.cal-day-btn（可聚焦/可点击）                                  // ← 改为按钮元素
+    const cell = document.createElement('button'); // 创建按钮元素
+    cell.type = 'button'; // 明确按钮类型
+    cell.className = 'cal-day-btn'; // 使用新的按钮类
+    let day,
+      isCurrentMonth = false,
+      isToday = false,
+      festivalsOnDay: string[] = []; // 日期与状态标记
 
     if (i < startWeekday) {
       // 填充上个月的尾巴
@@ -205,31 +207,83 @@ function renderGrid() {
       }
     }
 
-    // 根据日期类型添加 CSS 类
-    if (!isCurrentMonth) cell.classList.add('out'); // 非本月日期
-    if (isToday) cell.classList.add('today'); // 今天
+    // 语义化/可达性：只显示日期数字，节日信息放 data-* 与大屏展示用的 .fest 块         // 小屏只露日期
+    const numEl = document.createElement('span'); // 数字容器
+    numEl.className = 'dnum'; // 数字样式
+    numEl.textContent = String(day); // 设置日期数字
+    cell.appendChild(numEl); // 加入按钮
 
-    // 创建并添加日期数字
-    const numEl = document.createElement('div');
-    numEl.className = 'dnum';
-    numEl.textContent = String(day);
-    cell.appendChild(numEl);
+    // 数据标注：写入 data-*，供弹窗查询                                               // 为弹窗准备数据
+    const mm = String(month).padStart(2, '0'); // 补零
+    const dd = String(isCurrentMonth ? day : day).padStart(2, '0'); // 补零
+    const dateKey = `${year}-${mm}-${dd}`; // 形如 2025-10-21
+    cell.dataset.date = isCurrentMonth ? dateKey : ''; // 仅当月日期才写
+    cell.dataset.fest = isCurrentMonth && festivalsOnDay.length ? JSON.stringify(festivalsOnDay) : '[]'; // 节日数组JSON
+    if (!isCurrentMonth) cell.classList.add('out'); // 非本月弱化
+    if (isToday) cell.classList.add('today'); // 今日高亮
+    if (isCurrentMonth && festivalsOnDay.length) cell.classList.add('has-fest'); // 有节日的着色
 
-    // 如果是本月日期且有节日，则创建并添加节日标签
+    // （可选）大屏仍在格内显示节日，供宽屏直观浏览                                  // 保持原有体验
     if (isCurrentMonth && festivalsOnDay.length) {
-      logger.log(funcName, `渲染第 ${day} 天的节日:`, festivalsOnDay);
       const festBox = document.createElement('div');
-      festBox.className = 'fest';
+      festBox.className = 'fest'; // 创建节日容器
       festivalsOnDay.forEach(name => {
-        const festSpan = document.createElement('span');
-        festSpan.textContent = name;
-        festBox.appendChild(festSpan);
-      });
-      cell.appendChild(festBox);
+        const s = document.createElement('span');
+        s.textContent = name;
+        festBox.appendChild(s);
+      }); // 枚举节日
+      cell.appendChild(festBox); // 放入按钮
     }
-    grid.appendChild(cell);
+
+    grid.appendChild(cell); // 插入网格
   }
 }
+
+/** 弹窗单例节点（放在 .cal-pop 内部） */ // 弹窗DOM缓存
+let dayPopoverEl: HTMLDivElement | null = null; // 弹窗元素引用
+
+/** 关闭日期弹窗 */ // 关闭函数
+function hideDayPopover() {
+  // 定义关闭
+  if (dayPopoverEl) {
+    dayPopoverEl.remove();
+    dayPopoverEl = null;
+  } // 移除并清空引用
+} // 函数结束
+
+/** 显示日期弹窗（相对按钮定位） */ // 打开函数
+function showDayPopover(anchorEl: HTMLElement, dateStr: string, fests: string[]) {
+  // 定义显示
+  hideDayPopover(); // 先清一次
+  const host = document.getElementById('cal-pop')!; // 弹出层容器
+  const pop = document.createElement('div'); // 建立弹窗
+  pop.className = 'day-popover'; // 弹窗样式类
+  pop.setAttribute('role', 'dialog'); // 可达性语义
+  pop.innerHTML = `
+    <div class="day-popover__head">
+      <span class="day-popover__date">${dateStr || '—'}</span>
+      <button class="day-popover__close" type="button" aria-label="关闭">×</button>
+    </div>
+    <div class="day-popover__body">
+      ${fests.map(n => `<div class="fest-item">${_.escape(n)}</div>`).join('')}
+    </div>
+  `; // 填写内容
+
+  host.appendChild(pop); // 插入到 cal-pop
+  dayPopoverEl = pop; // 记录引用
+  // 关闭按钮
+  pop.querySelector('.day-popover__close')?.addEventListener('click', hideDayPopover); // 绑定关闭
+
+  // 定位计算：把弹窗放在按钮之上或之下，避免溢出                                   // 位置算法
+  const hostRect = host.getBoundingClientRect(); // cal-pop 区域
+  const btnRect = anchorEl.getBoundingClientRect(); // 按钮矩形
+  const top = btnRect.bottom - hostRect.top + 8; // 默认在按钮下方 8px
+  const left = btnRect.left - hostRect.left; // 左对齐按钮
+  // 设置位置（留出 12px 边距）
+  const maxLeft = Math.max(12, Math.min(left, hostRect.width - pop.offsetWidth - 12)); // 水平不越界
+  pop.style.left = `${Math.round(maxLeft)}px`; // 应用 left
+  pop.style.top = `${Math.round(top)}px`; // 应用 top
+} // 函数结束
 
 // =================================================================
 // UI 交互处理
@@ -311,6 +365,34 @@ const bindUI = () => {
       }
     });
   }
+
+  // === 新增：在网格上做事件代理，点击任意日期按钮时弹出小窗 ===================== //
+  const grid = document.getElementById('cal-grid'); // 取得网格容器
+  if (grid && !(grid as any).__dayBound) {
+    // 避免重复绑定
+    (grid as any).__dayBound = true; // 记一次绑定标记
+    grid.addEventListener('click', ev => {
+      // 监听点击
+      const btn = (ev.target as HTMLElement).closest?.('.cal-day-btn') as HTMLElement | null; // 找到按钮
+      if (!btn) return; // 非按钮则忽略
+      const festRaw = btn.dataset.fest || '[]'; // 读取节日JSON
+      let fests: string[] = []; // 节日数组
+      try {
+        fests = JSON.parse(festRaw) as string[];
+      } catch {} // 安全解析
+      if (!fests.length) {
+        hideDayPopover();
+        return;
+      } // 无节日则关闭弹窗（或不弹）
+      const dateStr = btn.dataset.date || ''; // 读取日期
+      showDayPopover(btn, dateStr, fests); // 显示弹窗
+    });
+  }
+
+  // 允许按 ESC 关闭小窗（体验友好）                                                 // 关闭快捷键
+  document.addEventListener('keydown', (e: KeyboardEvent) => {
+    if (e.key === 'Escape') hideDayPopover();
+  }); // ESC 关闭
 };
 
 // =================================================================
@@ -647,5 +729,147 @@ defineExpose({
   /* 可选：如果你希望日历内部也能溢出展示，可解除裁剪（按需打开）
    overflow: visible;
   */
+}
+
+/* === 日期按钮：替代原 .cal-day 容器 === */
+.cal-grid {
+  position: relative;
+} /* 作为相对定位参照（弹窗定位计算更稳定） */
+
+.cal-day-btn {
+  /* 结构：一个可点击的小卡片按钮，仅显示数字；大屏仍显示 .fest （下方有） */
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  align-items: stretch;
+  justify-content: flex-start;
+  padding: 6px;
+  border: 1px solid var(--line);
+  border-radius: 8px;
+  background: var(--paper);
+  aspect-ratio: 1/1;
+  min-width: 0;
+  min-height: 0;
+  cursor: pointer;
+  user-select: none;
+  transition:
+    background 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.06s ease;
+}
+.cal-day-btn:hover {
+  background: color-mix(in srgb, var(--paper) 92%, black 8%);
+}
+.cal-day-btn:active {
+  transform: translateY(1px);
+}
+.cal-day-btn.out {
+  opacity: 0.55;
+}
+.cal-day-btn.today {
+  outline: 2px solid var(--tab-active);
+  outline-offset: 0;
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--tab-active) 35%, transparent) inset;
+}
+/* 有节日：着色区分（轻底+描边强化） */
+.cal-day-btn.has-fest {
+  background: color-mix(in srgb, var(--tab-active) 14%, var(--paper) 86%);
+  border-color: color-mix(in srgb, var(--tab-active) 50%, var(--line) 50%);
+}
+
+/* 数字角标 */
+.cal-day-btn .dnum {
+  font-weight: 800;
+  color: var(--ink);
+  text-align: right;
+  line-height: 1;
+}
+
+/* 宽屏时仍在格内显示节日；小屏隐藏，改为点击弹窗查看 */
+@media (max-width: 800px) {
+  :deep(.cal-day-btn .fest) {
+    display: none;
+  }
+}
+@media (min-width: 801px) {
+  :deep(.cal-day-btn .fest) {
+    margin-top: 4px;
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    overflow: auto;
+    scrollbar-gutter: stable;
+  }
+  :deep(.cal-day-btn .fest > span) {
+    display: block;
+    font-size: 0.82em;
+    line-height: 1.25;
+    border: 1px solid var(--line);
+    background: color-mix(in srgb, var(--paper) 88%, var(--tab-active) 12%);
+    color: var(--ink);
+    border-radius: 6px;
+    padding: 2px 6px;
+    white-space: normal;
+    overflow-wrap: anywhere;
+    word-break: break-word;
+  }
+}
+
+/* === 日期详情弹窗（附着在 .cal-pop 内） === */
+.day-popover {
+  position: absolute;
+  z-index: 1200;
+  width: min(280px, calc(100% - 24px));
+  max-height: 60vh;
+  overflow: auto;
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.14),
+    0 4px 16px rgba(0, 0, 0, 0.08);
+  padding: 8px;
+}
+.day-popover__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  padding: 2px 2px 6px;
+  border-bottom: 1px dashed var(--line);
+  margin-bottom: 6px;
+}
+.day-popover__date {
+  font-weight: 800;
+  color: var(--ink);
+}
+.day-popover__close {
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  background: var(--bg);
+  font-weight: 800;
+  line-height: 1;
+  padding: 2px 8px;
+  cursor: pointer;
+}
+.fest-item {
+  border: 1px solid var(--line);
+  background: color-mix(in srgb, var(--paper) 88%, var(--tab-active) 12%);
+  color: var(--ink);
+  border-radius: 6px;
+  padding: 4px 6px;
+  font-size: 0.92em;
+  line-height: 1.35;
+  & + .fest-item {
+    margin-top: 6px;
+  }
+}
+
+/* 暗黑模式阴影加强些 */
+:global(:root[data-theme='dark']) .day-popover {
+  box-shadow:
+    0 12px 36px rgba(0, 0, 0, 0.3),
+    0 4px 16px rgba(0, 0, 0, 0.22);
 }
 </style>
