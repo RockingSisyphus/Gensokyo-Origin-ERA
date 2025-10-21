@@ -86,19 +86,26 @@ const calendarDays = computed(() => {
   return days;
 });
 
-watch(displayMonth, (newDate) => {
+watch(
+  displayMonth,
+  newDate => {
     const monthStr = `${newDate.getMonth() + 1}月`;
     const yearStr = `${newDate.getFullYear()}年`;
     text('cal-month', monthStr);
     text('cal-year', yearStr);
-}, { immediate: true });
+  },
+  { immediate: true },
+);
 
-watch(() => props.clockInfo, (newClockInfo) => {
-  if (newClockInfo?.iso) {
-    displayMonth.value = new Date(newClockInfo.iso);
-  }
-}, { immediate: true });
-
+watch(
+  () => props.clockInfo,
+  newClockInfo => {
+    if (newClockInfo?.iso) {
+      displayMonth.value = new Date(newClockInfo.iso);
+    }
+  },
+  { immediate: true },
+);
 </script>
 
 <style lang="scss" scoped>

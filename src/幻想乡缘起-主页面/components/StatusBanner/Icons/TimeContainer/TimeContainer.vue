@@ -2,10 +2,7 @@
   <div class="time-container">
     <TimeButtonClosed v-if="!calendarVisible" @open-calendar="calendarVisible = true" :clock-info="clockInfo" />
     <TimeButtonOpen v-else @close-calendar="calendarVisible = false" />
-    <CalendarContent 
-      v-show="calendarVisible" 
-      :clock-info="clockInfo"
-    />
+    <CalendarContent v-show="calendarVisible" :clock-info="clockInfo" />
   </div>
 </template>
 

@@ -98,11 +98,21 @@ const highestImportance = computed(() => {
   background: color-mix(in srgb, var(--fest-color) 50%, var(--paper) 50%);
   border-color: var(--fest-color);
 }
-.cal-day-btn[data-importance='5'] { --importance: 5; }
-.cal-day-btn[data-importance='4'] { --importance: 4; }
-.cal-day-btn[data-importance='3'] { --importance: 3; }
-.cal-day-btn[data-importance='2'] { --importance: 2; }
-.cal-day-btn[data-importance='1'] { --importance: 1; }
+.cal-day-btn[data-importance='5'] {
+  --importance: 5;
+}
+.cal-day-btn[data-importance='4'] {
+  --importance: 4;
+}
+.cal-day-btn[data-importance='3'] {
+  --importance: 3;
+}
+.cal-day-btn[data-importance='2'] {
+  --importance: 2;
+}
+.cal-day-btn[data-importance='1'] {
+  --importance: 1;
+}
 
 .dnum {
   font-weight: 800;
@@ -128,7 +138,7 @@ const highestImportance = computed(() => {
   background: var(--bg);
   border: 1px solid var(--line);
   border-radius: 8px;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   z-index: 10;
   pointer-events: none;
   display: flex;

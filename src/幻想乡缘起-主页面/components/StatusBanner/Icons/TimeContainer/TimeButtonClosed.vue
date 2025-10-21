@@ -20,7 +20,9 @@ defineEmits(['open-calendar']);
 
 const timeText = computed(() => {
   if (!props.clockInfo) return '—:—';
-  return props.clockInfo.hm ? `${props.clockInfo.hm} · ${props.clockInfo.periodName || ''}` : props.clockInfo.iso || '—';
+  return props.clockInfo.hm
+    ? `${props.clockInfo.hm} · ${props.clockInfo.periodName || ''}`
+    : props.clockInfo.iso || '—';
 });
 </script>
 

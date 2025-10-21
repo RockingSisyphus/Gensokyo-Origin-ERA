@@ -2,10 +2,7 @@
   <div class="weather-container">
     <WeatherButtonClosed v-if="!weatherVisible" @open-weather="weatherVisible = true" :weather="weather" />
     <WeatherButtonOpen v-else @close-weather="weatherVisible = false" />
-    <WeatherContent 
-      v-show="weatherVisible" 
-      :weather="weather"
-    />
+    <WeatherContent v-show="weatherVisible" :weather="weather" />
   </div>
 </template>
 
