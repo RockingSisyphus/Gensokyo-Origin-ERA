@@ -2553,29 +2553,37 @@ const StatusNewsContainer_exports_ = (0, exportHelper.A)(StatusNewsContainervue_
 
 const StatusNewsContainer = StatusNewsContainer_exports_;
 
-const StatusSidebarButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StatusSidebarButton",
-  props: {
-    expanded: {
-      type: Boolean
-    }
-  },
-  emits: [ "toggle-sidebar" ],
+const StatusSidebarButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusSidebarButtonClosed",
+  emits: [ "open-sidebar" ],
   setup(__props, {emit: __emit}) {
     const emit = __emit;
-    const props = __props;
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-sidebar-button", {
-        expanded: props.expanded
-      } ]),
-      onClick: _cache[0] || (_cache[0] = $event => emit("toggle-sidebar"))
-    }, " 用户信息 ", 2));
+      class: "status-sidebar-button-closed",
+      onClick: _cache[0] || (_cache[0] = $event => emit("open-sidebar"))
+    }, " 用户信息 "));
   }
 });
 
-const StatusSidebarButton_exports_ = (0, exportHelper.A)(StatusSidebarButtonvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-41ae9fef" ] ]);
+const StatusSidebarButtonClosed_exports_ = (0, exportHelper.A)(StatusSidebarButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-77d8d1ee" ] ]);
 
-const StatusSidebarButton = StatusSidebarButton_exports_;
+const StatusSidebarButtonClosed = StatusSidebarButtonClosed_exports_;
+
+const StatusSidebarButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StatusSidebarButtonOpen",
+  emits: [ "close-sidebar" ],
+  setup(__props, {emit: __emit}) {
+    const emit = __emit;
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      class: "status-sidebar-button-open",
+      onClick: _cache[0] || (_cache[0] = $event => emit("close-sidebar"))
+    }, " 用户信息 "));
+  }
+});
+
+const StatusSidebarButtonOpen_exports_ = (0, exportHelper.A)(StatusSidebarButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-547c696f" ] ]);
+
+const StatusSidebarButtonOpen = StatusSidebarButtonOpen_exports_;
 
 const StatusSidebarPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StatusSidebarPopup",
@@ -2623,37 +2631,36 @@ const StatusSidebarPopup_exports_ = (0, exportHelper.A)(StatusSidebarPopupvue_ty
 
 const StatusSidebarPopup = StatusSidebarPopup_exports_;
 
+const StatusSidebarContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "status-sidebar-container"
+};
+
 const StatusSidebarContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StatusSidebarContainer",
   setup(__props, {expose: __expose}) {
     const sidebarVisible = (0, external_Vue_namespaceObject.ref)(false);
     const statusSidebarPopup = (0, external_Vue_namespaceObject.ref)(null);
-    const toggleSidebar = event => {
-      sidebarVisible.value = !sidebarVisible.value;
-    };
     __expose({
       updateUserStatus: userData => {
         console.debug("StatusSidebarContainer.vue - updateUserStatus - userData:", userData);
         statusSidebarPopup.value?.updateUserStatus(userData);
       }
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-sidebar-container", {
-        expanded: sidebarVisible.value
-      } ])
-    }, [ (0, external_Vue_namespaceObject.createVNode)(StatusSidebarButton, {
-      expanded: sidebarVisible.value,
-      onToggleSidebar: toggleSidebar
-    }, null, 8, [ "expanded" ]), (0, external_Vue_namespaceObject.withDirectives)((0, 
-    external_Vue_namespaceObject.createVNode)(StatusSidebarPopup, {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StatusSidebarContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !sidebarVisible.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(StatusSidebarButtonClosed, {
+      key: 0,
+      onOpenSidebar: _cache[0] || (_cache[0] = $event => sidebarVisible.value = true)
+    })) : ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(StatusSidebarButtonOpen, {
+      key: 1,
+      onCloseSidebar: _cache[1] || (_cache[1] = $event => sidebarVisible.value = false)
+    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(StatusSidebarPopup, {
       ref_key: "statusSidebarPopup",
-      ref: statusSidebarPopup,
-      onClose: _cache[0] || (_cache[0] = $event => sidebarVisible.value = false)
-    }, null, 512), [ [ external_Vue_namespaceObject.vShow, sidebarVisible.value ] ]) ], 2));
+      ref: statusSidebarPopup
+    }, null, 512), [ [ external_Vue_namespaceObject.vShow, sidebarVisible.value ] ]) ]));
   }
 });
 
-const StatusSidebarContainer_exports_ = (0, exportHelper.A)(StatusSidebarContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6e4aefdc" ] ]);
+const StatusSidebarContainer_exports_ = (0, exportHelper.A)(StatusSidebarContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-50d42a9d" ] ]);
 
 const StatusSidebarContainer = StatusSidebarContainer_exports_;
 
