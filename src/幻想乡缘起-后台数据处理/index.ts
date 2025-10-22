@@ -1,4 +1,4 @@
-import { standardData, missingData, boundaryData } from './test-data';
+import { boundaryData, missingData, standardData } from './test-data';
 
 $(() => {
   // 创建悬浮面板
@@ -48,7 +48,7 @@ $(() => {
         borderRadius: '4px',
       })
       .on('click', () => {
-        console.log(`[Test Harness] 发送事件 Test:writeDone，场景: ${btnInfo.text}`);
+        console.log(`发送事件 Test:writeDone，场景: ${btnInfo.text}`);
         // 使用酒馆助手 API 触发自定义事件
         eventEmit('Test:writeDone', {
           statWithoutMeta: btnInfo.data,
