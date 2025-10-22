@@ -19,6 +19,7 @@ export default [
   ...vue.configs['flat/recommended'],
   pinia.configs['recommended-flat'],
   {
+<<<<<<< HEAD
     settings: {
       'import-x/extensions': ['.js', '.jsx', '.ts', '.tsx', '.vue'],
       'import-x/resolver': {
@@ -28,6 +29,8 @@ export default [
     },
   },
   {
+=======
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     files: ['src/**/*.{html,vue,js,ts}'],
     plugins: {
       'better-tailwindcss': eslintPluginBetterTailwindcss,
@@ -46,6 +49,7 @@ export default [
     },
   },
   {
+<<<<<<< HEAD
     files: ['**/*.vue'],
     rules: {
       'import-x/default': 'off',
@@ -53,6 +57,8 @@ export default [
     },
   },
   {
+=======
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     languageOptions: {
       parser: vueParser,
       parserOptions: {
@@ -87,7 +93,11 @@ export default [
       'vue/multi-word-component-names': 'off',
       yoda: 'error',
       '@typescript-eslint/no-explicit-any': 'off',
+<<<<<<< HEAD
       '@typescript-eslint/no-unused-vars': 'warn',
+=======
+      '@typescript-eslint/no-unused-vars': 'off',
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     },
   },
   eslintConfigPrettier,

@@ -52,6 +52,10 @@ declare global {
   const isReadonly: typeof import('vue')['isReadonly']
   const isRef: typeof import('vue')['isRef']
   const isShallow: typeof import('vue')['isShallow']
+<<<<<<< HEAD
+=======
+  const klona: typeof import('klona')['klona']
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
   const makeDestructurable: typeof import('@vueuse/core')['makeDestructurable']
   const mapActions: typeof import('pinia')['mapActions']
   const mapGetters: typeof import('pinia')['mapGetters']
@@ -207,6 +211,10 @@ declare global {
   const useMediaQuery: typeof import('@vueuse/core')['useMediaQuery']
   const useMemoize: typeof import('@vueuse/core')['useMemoize']
   const useMemory: typeof import('@vueuse/core')['useMemory']
+<<<<<<< HEAD
+=======
+  const useModal: typeof import('vue-final-modal')['useModal']
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
   const useModel: typeof import('vue')['useModel']
   const useMounted: typeof import('@vueuse/core')['useMounted']
   const useMouse: typeof import('@vueuse/core')['useMouse']

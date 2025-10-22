@@ -5,6 +5,10 @@ import fs from 'node:fs';
 import { createRequire } from 'node:module';
 import path from 'node:path';
 import url from 'node:url';
+<<<<<<< HEAD
+=======
+import RemarkHTML from 'remark-html';
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
 import { Server } from 'socket.io';
 import TerserPlugin from 'terser-webpack-plugin';
 import TsconfigPathsPlugin from 'tsconfig-paths-webpack-plugin';
@@ -74,7 +78,11 @@ function glob_script_files() {
 }
 
 const config: Config = {
+<<<<<<< HEAD
   port: 6622,
+=======
+  port: 6621,
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
   entries: glob_script_files().map(parse_entry),
 };
 
@@ -228,10 +236,33 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
               exclude: /node_modules/,
             },
             {
+<<<<<<< HEAD
               test: /\.html?$/,
               use: 'html-loader',
               exclude: /node_modules/,
             },
+=======
+              test: /\.html$/,
+              use: 'html-loader',
+              exclude: /node_modules/,
+            },
+            {
+              test: /\.md$/,
+              use: [
+                {
+                  loader: 'html-loader',
+                },
+                {
+                  loader: 'remark-loader',
+                  options: {
+                    remarkOptions: {
+                      plugins: [RemarkHTML],
+                    },
+                  },
+                },
+              ],
+            },
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
           ].concat(
             entry.html === undefined
               ? <any[]>[
@@ -334,16 +365,33 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
             'pinia',
             '@vueuse/core',
             { from: 'dedent', imports: [['default', 'dedent']] },
+<<<<<<< HEAD
+=======
+            { from: 'klona', imports: ['klona'] },
+            { from: 'vue-final-modal', imports: ['useModal'] },
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
             { from: 'zod', imports: ['z'] },
           ],
         }),
         unpluginVueComponents({
           dts: true,
           syncMode: 'overwrite',
+<<<<<<< HEAD
           resolvers: [VueUseComponentsResolver(), VueUseDirectiveResolver()],
           // globs: ['src/panel/component/*.vue'],
         }),
         new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+=======
+          // globs: ['src/panel/component/*.vue'],
+          resolvers: [VueUseComponentsResolver(), VueUseDirectiveResolver()],
+        }),
+        new webpack.optimize.LimitChunkCountPlugin({ maxChunks: 1 }),
+        new webpack.DefinePlugin({
+          __VUE_OPTIONS_API__: false,
+          __VUE_PROD_DEVTOOLS__: process.env.CI !== 'true',
+          __VUE_PROD_HYDRATION_MISMATCH_DETAILS__: false,
+        }),
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
       )
       .concat(
         should_obfuscate
@@ -361,7 +409,15 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     optimization: {
       minimize: true,
       minimizer: [
+<<<<<<< HEAD
         new TerserPlugin({
+=======
+        argv.mode === 'production'
+          ? new TerserPlugin({
+              terserOptions: { format: { quote_style: 1 }, mangle: { reserved: ['_', 'toastr', 'YAML', '$', 'z'] } },
+            })
+          : new TerserPlugin({
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
           extractComments: false,
           terserOptions: {
             format: { beautify: true, indent_level: 2 },
@@ -413,6 +469,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
       if (builtin.includes(request)) {
         return callback();
       }
+<<<<<<< HEAD
+=======
+      if (argv.mode !== 'production' && ['vue', 'pixi'].some(key => request.includes(key))) {
+        return callback();
+      }
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
       const global = {
         jquery: '$',
         lodash: '_',

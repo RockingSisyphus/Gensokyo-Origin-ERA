@@ -40,9 +40,19 @@
     "mini-css-extract-plugin": "^2.9.4",
     "postcss": "^8.5.6",
     "postcss-cli": "^11.0.1",
+<<<<<<< HEAD
     "postcss-loader": "^8.2.0",
     "postcss-minify": "^1.2.0",
     "prettier": "^3.6.2",
+=======
+    "postcss-load-config": "^6.0.1",
+    "postcss-loader": "^8.2.0",
+    "postcss-minify": "^1.2.0",
+    "prettier": "^3.6.2",
+    "remark": "^15.0.1",
+    "remark-html": "^16.0.1",
+    "remark-loader": "^6.0.0",
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     "sass": "^1.93.2",
     "sass-loader": "^16.0.5",
     "socket.io": "^4.8.1",
@@ -73,11 +83,19 @@
     "gsap": "^3.13.0",
     "jquery": "^3.7.1",
     "jqueryui": "^1.11.1",
+<<<<<<< HEAD
+=======
+    "klona": "^2.0.6",
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     "lodash": "^4.17.21",
     "pinia": "^3.0.3",
     "pixi.js": "^8.14.0",
     "toastr": "^2.1.4",
     "vue": "^3.5.22",
+<<<<<<< HEAD
+=======
+    "vue-final-modal": "^4.5.5",
+>>>>>>> 631831b86d3042972fd21da5d461a307dff74616
     "vue-router": "^4.6.3",
     "vue3-pixi": "1.0.0-beta.3",
     "yaml": "^2.8.1",
