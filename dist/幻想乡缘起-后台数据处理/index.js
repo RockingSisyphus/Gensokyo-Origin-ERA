@@ -1,3 +1,5 @@
+var __webpack_exports__ = {};
+
 const standardData = {
   config: {
     ui: {
@@ -551,7 +553,7 @@ $(() => {
       background: "#f0f0f0",
       borderRadius: "4px"
     }).on("click", () => {
-      console.log(`[Test Harness] 发送事件 Test:writeDone，场景: ${btnInfo.text}`);
+      console.log(`发送事件 Test:writeDone，场景: ${btnInfo.text}`);
       eventEmit("Test:writeDone", {
         statWithoutMeta: btnInfo.data
       });

@@ -1,5 +1,95 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  157: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  143: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      Jt: () => get,
+      Qq: () => text,
+      Tu: () => getRaw,
+      UY: () => getStr,
+      fE: () => toText
+    });
+    var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(280);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_0__.Vy;
+    function firstVal(x) {
+      return Array.isArray(x) ? x.length ? x[0] : "" : x;
+    }
+    function get(obj, path, fallback = "") {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            logger.debug("get", "未找到键，使用默认值。", {
+              路径: String(path),
+              缺失键: String(k),
+              默认值: fallback
+            });
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        const v = firstVal(cur);
+        if (v == null) {
+          logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+            路径: String(path),
+            默认值: fallback
+          });
+          return fallback;
+        }
+        return v;
+      } catch (e) {
+        logger.error("get", "异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function text(id, raw) {
+      const el = document.getElementById(id);
+      if (!el) {
+        logger.warn("text", "目标元素不存在，跳过写入。", {
+          元素ID: id
+        });
+        return;
+      }
+      el.textContent = toText(raw);
+    }
+    function getRaw(obj, path, fallback = null) {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        return cur == null ? fallback : cur;
+      } catch (e) {
+        logger.error("getRaw", "异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function toText(v) {
+      if (v == null || v === "") return "—";
+      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+      if (typeof v === "object") return JSON.stringify(v);
+      return String(v);
+    }
+    function getStr(obj, path, fallback = "") {
+      const rawValue = getRaw(obj, path, null);
+      if (rawValue === null) {
+        return toText(fallback);
+      }
+      return toText(rawValue);
+    }
+  },
+  280: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       EN: () => logContext,
       Vy: () => Logger
@@ -87,63 +177,7 @@
     };
     LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
   },
-  205: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      I: () => getRuntimeVar,
-      Q: () => setRuntimeVar
-    });
-    var _format__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(466);
-    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(157);
-    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(628);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
-    function getRuntimeVar(path, defaultValue) {
-      const funcName = "getRuntimeVar";
-      try {
-        if (typeof getVariables !== "function") {
-          logger.warn(funcName, "getVariables 函数不可用。");
-          return defaultValue;
-        }
-        const chatVars = getVariables({
-          type: "chat"
-        });
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        const value = (0, _format__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
-        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-          value
-        });
-        return value;
-      } catch (error) {
-        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-        return defaultValue;
-      }
-    }
-    async function setRuntimeVar(path, value) {
-      const funcName = "setRuntimeVar";
-      try {
-        if (typeof updateVariablesWith !== "function") {
-          logger.error(funcName, "updateVariablesWith 函数不可用。");
-          return false;
-        }
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-          value
-        });
-        await updateVariablesWith(vars => {
-          const chatVars = vars || {};
-          _.set(chatVars, runtimePath, value);
-          return chatVars;
-        }, {
-          type: "chat"
-        });
-        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-        return true;
-      } catch (error) {
-        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-        return false;
-      }
-    }
-  },
-  342: (__unused_webpack_module, exports) => {
+  441: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -156,97 +190,7 @@
       return target;
     };
   },
-  466: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      Jt: () => get,
-      Qq: () => text,
-      Tu: () => getRaw,
-      UY: () => getStr,
-      fE: () => toText
-    });
-    var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(157);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_0__.Vy;
-    function firstVal(x) {
-      return Array.isArray(x) ? x.length ? x[0] : "" : x;
-    }
-    function get(obj, path, fallback = "") {
-      try {
-        const ks = Array.isArray(path) ? path : String(path).split(".");
-        let cur = obj;
-        for (const k of ks) {
-          if (!cur || typeof cur !== "object" || !(k in cur)) {
-            logger.debug("get", "未找到键，使用默认值。", {
-              路径: String(path),
-              缺失键: String(k),
-              默认值: fallback
-            });
-            return fallback;
-          }
-          cur = cur[k];
-        }
-        const v = firstVal(cur);
-        if (v == null) {
-          logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
-            路径: String(path),
-            默认值: fallback
-          });
-          return fallback;
-        }
-        return v;
-      } catch (e) {
-        logger.error("get", "异常，使用默认值。", {
-          路径: String(path),
-          异常: String(e),
-          默认值: fallback
-        });
-        return fallback;
-      }
-    }
-    function text(id, raw) {
-      const el = document.getElementById(id);
-      if (!el) {
-        logger.warn("text", "目标元素不存在，跳过写入。", {
-          元素ID: id
-        });
-        return;
-      }
-      el.textContent = toText(raw);
-    }
-    function getRaw(obj, path, fallback = null) {
-      try {
-        const ks = Array.isArray(path) ? path : String(path).split(".");
-        let cur = obj;
-        for (const k of ks) {
-          if (!cur || typeof cur !== "object" || !(k in cur)) {
-            return fallback;
-          }
-          cur = cur[k];
-        }
-        return cur == null ? fallback : cur;
-      } catch (e) {
-        logger.error("getRaw", "异常，使用默认值。", {
-          路径: String(path),
-          异常: String(e),
-          默认值: fallback
-        });
-        return fallback;
-      }
-    }
-    function toText(v) {
-      if (v == null || v === "") return "—";
-      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-      if (typeof v === "object") return JSON.stringify(v);
-      return String(v);
-    }
-    function getStr(obj, path, fallback = "") {
-      const rawValue = getRaw(obj, path, null);
-      if (rawValue === null) {
-        return toText(fallback);
-      }
-      return toText(rawValue);
-    }
-  },
-  586: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  502: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       burstBarParticles: () => burstBarParticles,
@@ -259,10 +203,10 @@
       runAffectionPipeline: () => runAffectionPipeline,
       stageLabelFrom: () => stageLabelFrom
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(628);
-    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(157);
-    var _utils_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(466);
-    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(205);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(815);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(280);
+    var _utils_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(143);
+    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(990);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -482,7 +426,7 @@
       }
     }
   },
-  628: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  815: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       M: () => ERA_VARIABLE_PATH
     });
@@ -518,6 +462,62 @@
       AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
       CONFIG_ROOT: "config"
     };
+  },
+  990: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      I: () => getRuntimeVar,
+      Q: () => setRuntimeVar
+    });
+    var _format__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(143);
+    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(280);
+    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(815);
+    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
+    function getRuntimeVar(path, defaultValue) {
+      const funcName = "getRuntimeVar";
+      try {
+        if (typeof getVariables !== "function") {
+          logger.warn(funcName, "getVariables 函数不可用。");
+          return defaultValue;
+        }
+        const chatVars = getVariables({
+          type: "chat"
+        });
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        const value = (0, _format__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
+        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+          value
+        });
+        return value;
+      } catch (error) {
+        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+        return defaultValue;
+      }
+    }
+    async function setRuntimeVar(path, value) {
+      const funcName = "setRuntimeVar";
+      try {
+        if (typeof updateVariablesWith !== "function") {
+          logger.error(funcName, "updateVariablesWith 函数不可用。");
+          return false;
+        }
+        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
+        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+          value
+        });
+        await updateVariablesWith(vars => {
+          const chatVars = vars || {};
+          _.set(chatVars, runtimePath, value);
+          return chatVars;
+        }, {
+          type: "chat"
+        });
+        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+        return true;
+      } catch (error) {
+        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+        return false;
+      }
+    }
   }
 };
 
@@ -579,11 +579,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(628);
+var constants = __webpack_require__(815);
 
-var format = __webpack_require__(466);
+var format = __webpack_require__(143);
 
-var utils_logger = __webpack_require__(157);
+var utils_logger = __webpack_require__(280);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -644,7 +644,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(342);
+var exportHelper = __webpack_require__(441);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6b80904d" ] ]);
 
@@ -1192,7 +1192,7 @@ const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_scr
 
 const ContentSettings = ContentSettings_exports_;
 
-var runtime = __webpack_require__(205);
+var runtime = __webpack_require__(990);
 
 const T0_PATH = "incident.异变冷却基准时间";
 
@@ -1835,7 +1835,7 @@ const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_s
 
 const StatusTabContent = StatusTabContent_exports_;
 
-var affection = __webpack_require__(586);
+var affection = __webpack_require__(502);
 
 const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "aff-num"
@@ -3073,7 +3073,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 586)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 502)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
@@ -3119,5 +3119,5 @@ h4[data-v-6b80904d]{display:flex;align-items:center;font-size:1.1em;color:var(--
 
 .theme-toggle[data-v-7910dc3c]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-7910dc3c]:active{transform:translateY(1px)}.theme-toggle[data-v-7910dc3c]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
-/*! tailwindcss v4.1.13 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+/*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>
