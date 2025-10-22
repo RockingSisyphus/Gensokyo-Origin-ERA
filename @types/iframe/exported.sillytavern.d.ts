@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-unsafe-function-type */
 declare namespace SillyTavern {
   type ChatMessage = {
-    message_id: number;
     name: string;
     /**
      * 实际的 role 为:
@@ -16,7 +16,7 @@ declare namespace SillyTavern {
     mes: string;
     swipe_id?: number;
     swipes?: string[];
-    variables?: Record<string, any>[];
+    variables?: Record<string, any>[] | { [swipe_id: number]: Record<string, any> };
     extra?: Record<string, any>;
   };
 
@@ -477,9 +477,21 @@ declare const SillyTavern: {
     LIST: string;
     DICTIONARY: string;
   };
-  readonly executeSlashCommandsWithOptions: (text: string, options?: any) => Promise<void>;
+  readonly executeSlashCommandsWithOptions: (
+    text: string,
+    options?: any,
+  ) => Promise<{
+    interrupt: boolean;
+    pipe: string;
+    isBreak: boolean;
+    isAborted: boolean;
+    isQuietlyAborted: boolean;
+    abortReason: string;
+    isError: boolean;
+    errorMessage: string;
+  }>;
   readonly timestampToMoment: (timestamp: string | number) => any;
-  readonly registerMacro: (key: string, value: string | ((text: string) => string), description?: string) => void;
+  readonly registerMacro: (key: string, value: string | ((uid: string) => string), description?: string) => void;
   readonly unregisterMacro: (key: string) => void;
   readonly registerFunctionTool: (tool: {
     /** 工具名称 */
