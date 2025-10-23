@@ -11,7 +11,16 @@ export const PERIOD_NAMES = ['清晨', '上午', '中午', '下午', '黄昏', '
 /**
  * @description 时段 new* 标志键名
  */
-export const PERIOD_KEYS = ['newDawn', 'newMorning', 'newNoon', 'newAfternoon', 'newDusk', 'newNight', 'newFirstHalfNight', 'newSecondHalfNight'];
+export const PERIOD_KEYS = [
+  'newDawn',
+  'newMorning',
+  'newNoon',
+  'newAfternoon',
+  'newDusk',
+  'newNight',
+  'newFirstHalfNight',
+  'newSecondHalfNight',
+];
 
 /**
  * @description 季节中文名称

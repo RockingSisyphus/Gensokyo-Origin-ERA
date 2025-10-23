@@ -38,10 +38,7 @@ const GRAPH_CACHE = new WeakMap<object, LoadedGraph>();
 /**
  * @description 从 context.statWithoutMeta 读取并构建地图图谱结构
  */
-export function loadMapGraphFromState(context: {
-  statWithoutMeta: any;
-  runtime: any;
-}): LoadedGraph | null {
+export function loadMapGraphFromState(context: { statWithoutMeta: any; runtime: any }): LoadedGraph | null {
   const funcName = 'loadMapGraphFromState';
   const { statWithoutMeta } = context || {};
 
@@ -139,10 +136,7 @@ export function loadMapGraphFromState(context: {
 - 路径写入采用“点路径”方式（如 'user.所在地区'、'chars.灵梦.居住地区'）。
 */
 
-export async function enforceLocationsFromState(context: {
-  statWithoutMeta: any;
-  runtime: any;
-}): Promise<boolean> {
+export async function enforceLocationsFromState(context: { statWithoutMeta: any; runtime: any }): Promise<boolean> {
   const funcName = 'enforceLocationsFromState';
   const { statWithoutMeta } = context || {};
 
@@ -231,10 +225,7 @@ export async function enforceLocationsFromState(context: {
 /**
  * @description 总入口：供 index.ts 在 GSKO:showUI 中调用。
  */
-export async function runMapAndLocationPipeline(context: {
-  statWithoutMeta: any;
-  runtime: any;
-}): Promise<void> {
+export async function runMapAndLocationPipeline(context: { statWithoutMeta: any; runtime: any }): Promise<void> {
   const funcName = 'runMapAndLocationPipeline';
   const { statWithoutMeta } = context || {};
 

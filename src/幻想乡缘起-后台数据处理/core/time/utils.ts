@@ -30,9 +30,9 @@ export const ymID = (d: Date) => d.getUTCFullYear() * 100 + (d.getUTCMonth() + 1
  * @returns 周起始的 Date 对象
  */
 export const weekStart = (d: Date, weekStartsOn: number) => {
-  const w = (Number(weekStartsOn) >= 0 && Number(weekStartsOn) <= 6) ? Number(weekStartsOn) : 1;
+  const w = Number(weekStartsOn) >= 0 && Number(weekStartsOn) <= 6 ? Number(weekStartsOn) : 1;
   const dow = d.getUTCDay();
-  const diff = ((dow - w) + 7) % 7;
+  const diff = (dow - w + 7) % 7;
   const x = new Date(d.getTime() - diff * 86400000);
   x.setUTCHours(0, 0, 0, 0);
   return x;

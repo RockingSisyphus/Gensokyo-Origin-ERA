@@ -327,10 +327,7 @@ function scanAll(statWithoutMeta: any) {
  * - 输入：context: { statWithoutMeta, runtime }
  * - 副作用：粒子效果渲染、DOM 操作
  */
-export async function runAffectionPipeline(context: {
-  statWithoutMeta: any;
-  runtime: any;
-}): Promise<void> {
+export async function runAffectionPipeline(context: { statWithoutMeta: any; runtime: any }): Promise<void> {
   const funcName = 'runAffectionPipeline';
   const { statWithoutMeta, runtime } = context || {};
 

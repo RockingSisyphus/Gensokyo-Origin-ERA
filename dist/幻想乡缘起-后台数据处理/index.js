@@ -1,4 +1,322 @@
+var __webpack_require__ = {};
+
+(() => {
+  __webpack_require__.n = module => {
+    var getter = module && module.__esModule ? () => module["default"] : () => module;
+    __webpack_require__.d(getter, {
+      a: getter
+    });
+    return getter;
+  };
+})();
+
+(() => {
+  __webpack_require__.d = (exports, definition) => {
+    for (var key in definition) {
+      if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+        Object.defineProperty(exports, key, {
+          enumerable: true,
+          get: definition[key]
+        });
+      }
+    }
+  };
+})();
+
+(() => {
+  __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+})();
+
 var __webpack_exports__ = {};
+
+const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
+
+const logContext = {
+  mk: ""
+};
+
+class Logger {
+  moduleName;
+  constructor(moduleName) {
+    if (moduleName) {
+      this.moduleName = moduleName;
+    } else {
+      this.moduleName = this._getModuleNameFromStack() || "unknown";
+    }
+  }
+  _getModuleNameFromStack() {
+    try {
+      const stack = (new Error).stack || "";
+      const callerLine = stack.split("\n")[2];
+      if (!callerLine) return null;
+      const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
+      if (!match || !match[1]) return null;
+      let path = match[1];
+      path = path.split("?")[0];
+      path = path.replace(/\.(vue|ts|js)$/, "");
+      return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
+    } catch (e) {
+      return null;
+    }
+  }
+  formatMessage(funcName, message) {
+    const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+    return `《幻想乡缘起-后台》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+  }
+  debug(funcName, message, obj) {
+    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
+    if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
+      return;
+    }
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj) {
+      console.debug(formattedMessage, obj);
+    } else {
+      console.debug(formattedMessage);
+    }
+  }
+  log(funcName, message, obj) {
+    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj) {
+      console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+    } else {
+      console.log(`%c${formattedMessage}`, "color: #3498db;");
+    }
+  }
+  warn(funcName, message, obj) {
+    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj) {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+    } else {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+    }
+  }
+  error(funcName, message, errorObj) {
+    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (errorObj) {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+    } else {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+    }
+  }
+}
+
+const LOG_CONFIG = {
+  levels: {
+    debug: 0,
+    log: 1,
+    warn: 2,
+    error: 3
+  },
+  currentLevel: 0,
+  debugWhitelist: [ "index", "backend", "components" ]
+};
+
+LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+
+const PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
+
+const PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
+
+const SEASON_NAMES = [ "春", "夏", "秋", "冬" ];
+
+const SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
+
+const WEEK_NAMES = [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ];
+
+const EPOCH_ISO = "2025-10-24T06:00:00+09:00";
+
+const PAD2 = n => n < 10 ? "0" + n : "" + n;
+
+const ymdID = d => d.getUTCFullYear() * 1e4 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+
+const ymID = d => d.getUTCFullYear() * 100 + (d.getUTCMonth() + 1);
+
+const weekStart = (d, weekStartsOn) => {
+  const w = Number(weekStartsOn) >= 0 && Number(weekStartsOn) <= 6 ? Number(weekStartsOn) : 1;
+  const dow = d.getUTCDay();
+  const diff = (dow - w + 7) % 7;
+  const x = new Date(d.getTime() - diff * 864e5);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
+};
+
+function periodIndexOf(mins) {
+  if (mins < 300) return 7;
+  if (mins < 420) return 0;
+  if (mins < 690) return 1;
+  if (mins < 780) return 2;
+  if (mins < 1020) return 3;
+  if (mins < 1140) return 4;
+  if (mins < 1320) return 5;
+  return 6;
+}
+
+function seasonIndexOf(m) {
+  if (m >= 3 && m <= 5) return 0;
+  if (m >= 6 && m <= 8) return 1;
+  if (m >= 9 && m <= 11) return 2;
+  return 3;
+}
+
+const logger = new Logger("core-time-processor");
+
+function processTime(stat, runtime) {
+  const funcName = "processTime";
+  try {
+    const prev = external_default().get(runtime, "clock.clockAck", null);
+    logger.log(funcName, `从 runtime 读取上一楼 ACK:`, prev);
+    const timeConfig = external_default().get(stat, "config.time", {});
+    const epochISO = external_default().get(timeConfig, "epochISO", EPOCH_ISO);
+    const periodNames = external_default().get(timeConfig, "periodNames", PERIOD_NAMES);
+    const periodKeys = external_default().get(timeConfig, "periodKeys", PERIOD_KEYS);
+    const seasonNames = external_default().get(timeConfig, "seasonNames", SEASON_NAMES);
+    const seasonKeys = external_default().get(timeConfig, "seasonKeys", SEASON_KEYS);
+    const weekNames = external_default().get(timeConfig, "weekNames", WEEK_NAMES);
+    const tpMin = external_default().get(stat, "世界.timeProgress", 0);
+    logger.log(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
+    const weekStartsOn = 1;
+    const epochMS = Date.parse(epochISO);
+    if (Number.isNaN(epochMS)) {
+      logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
+    }
+    const baseMS = Number.isNaN(epochMS) ? 0 : epochMS;
+    let tzMin = 0;
+    const tzMatch = String(epochISO).match(/(?:([+-])(\d{2}):?(\d{2})|Z)$/);
+    if (tzMatch && tzMatch[0] !== "Z") {
+      tzMin = (tzMatch[1] === "-" ? -1 : 1) * (parseInt(tzMatch[2], 10) * 60 + parseInt(tzMatch[3], 10));
+    }
+    const nowUTCms = baseMS + tpMin * 6e4;
+    const local = new Date(nowUTCms + tzMin * 6e4);
+    const year = local.getUTCFullYear();
+    const month = local.getUTCMonth() + 1;
+    const day = local.getUTCDate();
+    const seasonIdx = seasonIndexOf(month);
+    const seasonName = seasonNames[seasonIdx];
+    const seasonID = year * 10 + seasonIdx;
+    const ws = weekStart(local, weekStartsOn);
+    const dayID = ymdID(local);
+    const weekID = ymdID(ws);
+    const monthID = ymID(local);
+    const yearID = year;
+    const weekdayIdx = (local.getUTCDay() - 1 + 7) % 7;
+    const weekdayName = weekNames[weekdayIdx] || `周?(${weekdayIdx})`;
+    const sign = tzMin >= 0 ? "+" : "-";
+    const offH = ("0" + Math.floor(Math.abs(tzMin) / 60)).slice(-2);
+    const offM = ("0" + Math.abs(tzMin) % 60).slice(-2);
+    const iso = `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}T` + `${("0" + local.getUTCHours()).slice(-2)}:${("0" + local.getUTCMinutes()).slice(-2)}:${("0" + local.getUTCSeconds()).slice(-2)}` + `${sign}${offH}:${offM}`;
+    const minutesSinceMidnight = local.getUTCHours() * 60 + local.getUTCMinutes();
+    const periodIdx = periodIndexOf(minutesSinceMidnight);
+    const periodName = periodNames[periodIdx];
+    const periodKey = periodKeys[periodIdx];
+    const periodID = dayID * 10 + periodIdx;
+    logger.log(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
+    logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
+    logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
+    let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
+    if (prev && typeof prev === "object") {
+      const d = prev.dayID !== dayID;
+      const w = prev.weekID !== weekID;
+      const m = prev.monthID !== monthID;
+      const y = prev.yearID !== yearID;
+      const s = prev.seasonID !== seasonID;
+      const p = prev.periodID !== periodID;
+      newYear = y;
+      newSeason = newYear || s;
+      newMonth = newSeason || m;
+      newWeek = newMonth || w;
+      newDay = newWeek || d;
+      newPeriod = newDay || p;
+      logger.log(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
+    } else {
+      logger.log(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
+    }
+    const clockAck = {
+      dayID,
+      weekID,
+      monthID,
+      yearID,
+      periodID,
+      periodIdx,
+      seasonID,
+      seasonIdx
+    };
+    const now = {
+      iso,
+      year,
+      month,
+      day,
+      weekdayIndex: weekdayIdx,
+      weekdayName,
+      periodName,
+      periodIdx,
+      minutesSinceMidnight,
+      seasonName,
+      seasonIdx,
+      hour: Math.floor(minutesSinceMidnight / 60),
+      minute: minutesSinceMidnight % 60,
+      hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ":" + PAD2(minutesSinceMidnight % 60)
+    };
+    const periodFlags = {
+      newDawn: false,
+      newMorning: false,
+      newNoon: false,
+      newAfternoon: false,
+      newDusk: false,
+      newNight: false,
+      newFirstHalfNight: false,
+      newSecondHalfNight: false
+    };
+    if (newPeriod) periodFlags[periodKey] = true;
+    const seasonFlags = {
+      newSpring: false,
+      newSummer: false,
+      newAutumn: false,
+      newWinter: false
+    };
+    if (newSeason) seasonFlags[seasonKeys[seasonIdx]] = true;
+    const flags = {
+      newPeriod,
+      byPeriod: periodFlags,
+      newDay,
+      newWeek,
+      newMonth,
+      newSeason,
+      bySeason: seasonFlags,
+      newYear
+    };
+    const result = {
+      clock: {
+        clockAck,
+        now,
+        flags
+      }
+    };
+    logger.log(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
+    return result;
+  } catch (err) {
+    logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
+const standardRuntime = {
+  clock: {
+    now: {
+      year: 1,
+      month: 4,
+      day: 15,
+      hm: "14:30",
+      periodName: "下午",
+      iso: "0001-04-15T14:30:00"
+    }
+  }
+};
 
 const standardData = {
   config: {
@@ -647,20 +965,36 @@ function createTestPanel() {
     },
     eventType: "GSKO:showUI"
   } ];
-  buttons.forEach(btnInfo => {
-    $("<button>").text(btnInfo.text).css({
-      cursor: "pointer",
-      padding: "8px 12px",
-      border: "1px solid #ddd",
-      background: "#f0f0f0",
-      borderRadius: "4px"
-    }).on("click", () => {
-      console.log(`发送事件 Test:writeDone，场景: ${btnInfo.text}`);
-      eventEmit("Test:writeDone", {
-        statWithoutMeta: btnInfo.data
-      });
-      toastr.success(`已发送测试事件：${btnInfo.text}`);
-    }).appendTo(panel);
+  addTestButtons(panel, "UI 测试", uiTestConfigs, {
+    cursor: "pointer",
+    padding: "8px 12px",
+    border: "1px solid #ddd",
+    background: "#f0f0f0",
+    borderRadius: "4px"
+  });
+  const coreTestConfigs = [ {
+    text: "通用Core",
+    payload: coreTestPayload
+  } ];
+  addTestButtons(panel, "Core 逻辑测试", coreTestConfigs, {
+    cursor: "pointer",
+    padding: "8px 12px",
+    border: "1px solid #aed581",
+    background: "#dcedc8",
+    borderRadius: "4px",
+    fontWeight: "bold"
+  });
+  const timeTestConfigs = Object.entries(timeTestPayloads).map(([key, payload]) => ({
+    text: key,
+    payload
+  }));
+  addTestButtons(panel, "时间模块测试", timeTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #bcaaa4",
+    background: "#efebe9",
+    borderRadius: "3px",
+    fontSize: "12px"
   });
   toastr.info("ERA 测试工具已加载。");
 }

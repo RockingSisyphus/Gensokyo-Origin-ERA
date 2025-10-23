@@ -204,9 +204,8 @@
       stageLabelFrom: () => stageLabelFrom
     });
     var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(815);
-    var _utils_logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(280);
-    var _utils_format__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(143);
-    var _utils_runtime__WEBPACK_IMPORTED_MODULE_3__ = __webpack_require__(990);
+    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(143);
+    var _utils_logger__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(280);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -460,62 +459,6 @@
       AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
       CONFIG_ROOT: "config"
     };
-  },
-  990: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      I: () => getRuntimeVar,
-      Q: () => setRuntimeVar
-    });
-    var _format__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(143);
-    var _logger__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(280);
-    var _constants__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(815);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_1__.Vy("runtime");
-    function getRuntimeVar(path, defaultValue) {
-      const funcName = "getRuntimeVar";
-      try {
-        if (typeof getVariables !== "function") {
-          logger.warn(funcName, "getVariables 函数不可用。");
-          return defaultValue;
-        }
-        const chatVars = getVariables({
-          type: "chat"
-        });
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        const value = (0, _format__WEBPACK_IMPORTED_MODULE_0__.Jt)(chatVars, runtimePath, defaultValue);
-        logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-          value
-        });
-        return value;
-      } catch (error) {
-        logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-        return defaultValue;
-      }
-    }
-    async function setRuntimeVar(path, value) {
-      const funcName = "setRuntimeVar";
-      try {
-        if (typeof updateVariablesWith !== "function") {
-          logger.error(funcName, "updateVariablesWith 函数不可用。");
-          return false;
-        }
-        const runtimePath = `${_constants__WEBPACK_IMPORTED_MODULE_2__.M.RUNTIME_PREFIX}${path}`;
-        logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-          value
-        });
-        await updateVariablesWith(vars => {
-          const chatVars = vars || {};
-          _.set(chatVars, runtimePath, value);
-          return chatVars;
-        }, {
-          type: "chat"
-        });
-        logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-        return true;
-      } catch (error) {
-        logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-        return false;
-      }
-    }
   }
 };
 
@@ -1189,8 +1132,6 @@ const ContentSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_names
 const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1969adb7" ] ]);
 
 const ContentSettings = ContentSettings_exports_;
-
-var runtime = __webpack_require__(990);
 
 const T0_PATH = "incident.异变冷却基准时间";
 
@@ -3085,7 +3026,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 502)).then(mod => mod?.runAffectionPipeline?.(statWithoutMeta)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 502)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
