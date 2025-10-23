@@ -36,10 +36,20 @@ export type LoadedGraph = {
 const GRAPH_CACHE = new WeakMap<object, LoadedGraph>();
 
 /**
- * @description 从 statWithoutMeta 读取并构建地图图谱结构
+ * @description 从 context.statWithoutMeta 读取并构建地图图谱结构
  */
-export function loadMapGraphFromState(statWithoutMeta: any): LoadedGraph | null {
+export function loadMapGraphFromState(context: {
+  statWithoutMeta: any;
+  runtime: any;
+}): LoadedGraph | null {
   const funcName = 'loadMapGraphFromState';
+  const { statWithoutMeta } = context || {};
+
+  if (!statWithoutMeta) {
+    logger.warn(funcName, '上下文信息不完整，缺少 statWithoutMeta，已中止。');
+    return null;
+  }
+
   try {
     const graph = get(statWithoutMeta, ERA_VARIABLE_PATH.MAP_GRAPH, null) as MapGraph | null;
     if (!graph || typeof graph !== 'object') {
@@ -129,11 +139,21 @@ export function loadMapGraphFromState(statWithoutMeta: any): LoadedGraph | null 
 - 路径写入采用“点路径”方式（如 'user.所在地区'、'chars.灵梦.居住地区'）。
 */
 
-export async function enforceLocationsFromState(statWithoutMeta: any): Promise<boolean> {
+export async function enforceLocationsFromState(context: {
+  statWithoutMeta: any;
+  runtime: any;
+}): Promise<boolean> {
   const funcName = 'enforceLocationsFromState';
+  const { statWithoutMeta } = context || {};
+
+  if (!statWithoutMeta) {
+    logger.warn(funcName, '上下文信息不完整，缺少 statWithoutMeta，已中止。');
+    return false;
+  }
+
   logger.log(funcName, '开始位置合法化校验。');
   try {
-    const mg = loadMapGraphFromState(statWithoutMeta);
+    const mg = loadMapGraphFromState(context);
     if (!mg || !mg.legal) {
       logger.warn(funcName, '地图未载入或非法，跳过合法化。');
       return false;
@@ -209,15 +229,25 @@ export async function enforceLocationsFromState(statWithoutMeta: any): Promise<b
 }
 
 /**
- * @description 总入口：供 index.ts 在 era:writeDone 中调用。
+ * @description 总入口：供 index.ts 在 GSKO:showUI 中调用。
  */
-export async function runMapAndLocationPipeline(statWithoutMeta: any): Promise<void> {
+export async function runMapAndLocationPipeline(context: {
+  statWithoutMeta: any;
+  runtime: any;
+}): Promise<void> {
   const funcName = 'runMapAndLocationPipeline';
+  const { statWithoutMeta } = context || {};
+
+  if (!statWithoutMeta) {
+    logger.warn(funcName, '上下文信息不完整，缺少 statWithoutMeta，已中止。');
+    return;
+  }
+
   logger.log(funcName, '开始执行地图加载与位置合法化流水线。');
-  const mg = loadMapGraphFromState(statWithoutMeta);
+  const mg = loadMapGraphFromState(context);
   if (!mg) {
     logger.warn(funcName, '地图图谱未能装载，后续位置合法化可能跳过。');
   }
-  await enforceLocationsFromState(statWithoutMeta);
+  await enforceLocationsFromState(context);
   logger.log(funcName, '流水线执行完毕。');
 }

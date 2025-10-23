@@ -31,7 +31,6 @@ import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
 import { get, getRaw, toText } from '../../../utils/format';
 import { Logger } from '../../../utils/logger';
-import { getRuntimeVar } from '../../../utils/runtime';
 
 const logger = new Logger('components-StatusTab-tabs-Incidents');
 
@@ -104,16 +103,21 @@ ${fields
 
 // ===== 倒计时逻辑 =====
 
-function readT0(): number | null {
-  const t0 = getRuntimeVar(T0_PATH, null);
+function readT0(runtime: any): number | null {
+  if (!runtime) {
+    logger.warn('readT0', 'runtime 对象不存在，无法读取 T0。');
+    return null;
+  }
+  // 直接从传入的 runtime 对象读取
+  const t0 = get(runtime, T0_PATH, null);
   if (t0 != null) {
     const n = Number(toText(t0));
     if (Number.isFinite(n)) {
-      logger.log('readT0', `读取到 t0: ${n}`);
+      logger.log('readT0', `从 runtime 读取到 t0: ${n}`);
       return n;
     }
   }
-  logger.log('readT0', '未读取到合法 t0。');
+  logger.log('readT0', '未在 runtime 中读取到合法 t0。');
   return null;
 }
 
@@ -132,14 +136,15 @@ function readTimeProgress(state: any): number {
   return Number.isFinite(n) ? Math.floor(n) : 0;
 }
 
-function calcCountdownMinutes(state: any): number {
-  const t0 = readT0();
+function calcCountdownMinutes(context: { statWithoutMeta: any; runtime: any }): number {
+  const { statWithoutMeta, runtime } = context;
+  const t0 = readT0(runtime);
   if (t0 === null) {
     logger.log('calcCountdownMinutes', 't0 不存在/非法，本轮倒计时按 0 处理。');
     return 0;
   }
-  const tp = readTimeProgress(state);
-  const cd = readCooldownMinutes(state);
+  const tp = readTimeProgress(statWithoutMeta);
+  const cd = readCooldownMinutes(statWithoutMeta);
   const left = Math.max(0, Math.floor(cd - (tp - t0)));
   logger.log(
     'calcCountdownMinutes',
@@ -150,28 +155,30 @@ function calcCountdownMinutes(state: any): number {
 
 /**
  * @description 更新异变工具栏的状态。
- * @param {any} state - stat_data 对象。
+ * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-function updateIncidentToolbar(state: any) {
+function updateIncidentToolbar(context: { statWithoutMeta: any; runtime: any }) {
   const funcName = 'updateIncidentToolbar';
+  const { statWithoutMeta } = context;
+
   const cdEl = document.getElementById('incident-countdown');
   const triggerNowEl = document.getElementById('incident-trigger-now') as HTMLInputElement;
   const randomPoolEl = document.getElementById('incident-pool-random') as HTMLInputElement;
 
   if (cdEl) {
-    const left = calcCountdownMinutes(state);
+    const left = calcCountdownMinutes(context);
     cdEl.textContent = left == null ? '—' : String(left);
     logger.log(funcName, `异变倒计时已更新为: ${cdEl.textContent}`);
   }
 
   if (triggerNowEl) {
-    const shouldTrigger = get(state, ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, false);
+    const shouldTrigger = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, false);
     triggerNowEl.checked = !!shouldTrigger;
     logger.log(funcName, `“立即引发异变”状态已更新为: ${triggerNowEl.checked}`);
   }
 
   if (randomPoolEl) {
-    const useRandom = get(state, ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, false);
+    const useRandom = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, false);
     randomPoolEl.checked = !!useRandom;
     logger.log(funcName, `“乱序异变”状态已更新为: ${randomPoolEl.checked}`);
   }
@@ -179,11 +186,16 @@ function updateIncidentToolbar(state: any) {
 
 /**
  * @description 组件的主更新函数。
- * @param {any} statWithoutMeta - 包含所有状态的根对象。
+ * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-const update = (statWithoutMeta: any) => {
+const update = (context: { statWithoutMeta: any; runtime: any }) => {
+  const { statWithoutMeta } = context || {};
+  if (!statWithoutMeta) {
+    logger.warn('update', '上下文信息不完整，缺少 statWithoutMeta，已中止。');
+    return;
+  }
   renderIncidents(statWithoutMeta);
-  updateIncidentToolbar(statWithoutMeta);
+  updateIncidentToolbar(context);
 };
 
 onMounted(() => {

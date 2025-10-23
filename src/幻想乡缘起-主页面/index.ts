@@ -20,9 +20,9 @@ $(() => {
 
   const logger = new Logger('index');
 
-  // 监听 ERA 框架的写入完成事件，这是驱动 UI 更新的新入口
-  eventOn('Test:writeDone', (detail: any) => {
-    const funcName = 'onTestWriteDone';
+  // 监听 GSKO:showUI 事件，这是驱动 UI 更新的新入口
+  eventOn('GSKO:showUI', (detail: any) => {
+    const funcName = 'onShowUI';
     // 设定日志上下文（如消息键），便于跨模块串联同一轮处理
     try {
       logContext.mk = String(detail?.mk || '');
@@ -30,16 +30,7 @@ $(() => {
       logContext.mk = '';
     }
 
-    logger.log(funcName, '接收到 Test:writeDone 事件', {
-      mk: detail?.mk,
-      message_id: detail?.message_id,
-      actions: detail?.actions,
-      selectedMks: detail?.selectedMks,
-      editLogs: detail?.editLogs,
-      stat: detail?.stat,
-      statWithoutMeta: detail?.statWithoutMeta,
-      consecutiveProcessingCount: detail?.consecutiveProcessingCount,
-    });
+    logger.log(funcName, '接收到 GSKO:showUI 事件', detail);
 
     // 如果是由 apiWrite 触发的，则跳过，避免循环
     if (detail?.actions?.apiWrite === true) {
@@ -47,16 +38,22 @@ $(() => {
       return;
     }
 
-    logger.debug(funcName, 'Test:writeDone 事件的完整参数：', detail);
+    logger.debug(funcName, 'GSKO:showUI 事件的完整参数：', detail);
 
     try {
-      const { statWithoutMeta } = detail || {};
+      const { statWithoutMeta, runtime } = detail || {};
 
       if (!statWithoutMeta) {
         logger.warn(funcName, '事件中未找到 statWithoutMeta，无法更新 UI。');
         return;
       }
-      logger.debug(funcName, '提取到的 statWithoutMeta:', statWithoutMeta);
+      if (!runtime) {
+        logger.warn(funcName, '事件中未找到 runtime 对象，流程可能出错。');
+        // 注意：这里暂不中断，因为某些组件可能不依赖 runtime
+      }
+
+      const context = { statWithoutMeta, runtime };
+      logger.debug(funcName, '创建的上下文对象:', context);
       // 从事件数据中安全地提取所需信息
       const userData = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_DATA, {});
       logger.debug(funcName, '提取到的 userData:', userData);
@@ -68,7 +65,7 @@ $(() => {
       try {
         if (themeToggle && typeof themeToggle.updateTheme === 'function') {
           logger.debug(funcName, '调用 ThemeToggle.updateTheme 入口');
-          themeToggle.updateTheme(statWithoutMeta);
+          themeToggle.updateTheme(context);
           logger.debug(funcName, 'ThemeToggle.updateTheme 退出');
         } else {
           logger.warn(funcName, 'ThemeToggle 组件缺失或接口不可用。');
@@ -81,6 +78,7 @@ $(() => {
       try {
         if (userState && typeof userState.updateUserStatus === 'function') {
           logger.debug(funcName, '调用 UserState.updateUserStatus 入口');
+          // userState 仅需 userData，从 statWithoutMeta 中提取
           userState.updateUserStatus(userData);
           logger.debug(funcName, 'UserState.updateUserStatus 退出');
         } else {
@@ -94,7 +92,7 @@ $(() => {
       try {
         if (statusBanner && typeof statusBanner.update === 'function') {
           logger.debug(funcName, '调用 StatusBanner.update 入口');
-          statusBanner.update(statWithoutMeta);
+          statusBanner.update(context);
           logger.debug(funcName, 'StatusBanner.update 退出');
         } else {
           logger.warn(funcName, 'StatusBanner 组件缺失或接口不可用。');
@@ -107,8 +105,7 @@ $(() => {
       try {
         if (ayaNews && typeof ayaNews.updateNews === 'function') {
           logger.debug(funcName, '调用 AyaNews.updateNews 入口');
-          // 传入完整状态对象，组件内部自行从 '文文新闻' 路径读取
-          ayaNews.updateNews(statWithoutMeta);
+          ayaNews.updateNews(context);
           logger.debug(funcName, 'AyaNews.updateNews 退出');
         } else {
           logger.warn(funcName, 'AyaNews 组件缺失或接口不可用。');
@@ -121,7 +118,7 @@ $(() => {
       try {
         if (statusTabContent && typeof statusTabContent.update === 'function') {
           logger.log(funcName, '正在调用 StatusTabContent.update...');
-          statusTabContent.update(statWithoutMeta);
+          statusTabContent.update(context);
           logger.debug(funcName, 'StatusTabContent.update 调用完成');
         } else {
           logger.warn(funcName, 'StatusTabContent 组件缺失或接口不可用。');
@@ -134,7 +131,7 @@ $(() => {
       try {
         if (roleRibbon && typeof roleRibbon.updateRibbon === 'function') {
           logger.log(funcName, '正在调用 RoleRibbon.updateRibbon...');
-          roleRibbon.updateRibbon(statWithoutMeta);
+          roleRibbon.updateRibbon(context);
           logger.debug(funcName, 'RoleRibbon.updateRibbon 调用完成');
         } else {
           logger.warn(funcName, 'RoleRibbon 组件缺失或接口不可用。');
@@ -143,35 +140,18 @@ $(() => {
         logger.warn(funcName, 'RoleRibbon.updateRibbon 执行失败（非致命）。', e);
       }
 
-      // ===== 后台：地图图谱加载 + 位置合法化（从 index.ts 抽离到 backend/mapLocation.ts）=====
-      // 按“FontSizeControls.vue 的方式”在 era:writeDone 时基于传入的 statWithoutMeta 驱动。
-      // 说明：
-      // - 原先从世界书读取 config 的部分，改为从本事件的 statWithoutMeta 中读取；
-      // - 原先写入世界书/变量的部分，通过 eraWriter.updateEraVariable 写入；
-      // - 原先访问 window.xxx 的 runtime，统一改为 utils/runtime 提供的 getRuntimeVar/setRuntimeVar（如后续需要）。
-      // try {
-      //   logger.log(funcName, '准备执行后台流水线：地图图谱加载 + 位置合法化');
-      //   // 动态导入，避免首次加载阻塞渲染
-      //   import('./backend/mapLocation')
-      //     .then(mod => mod?.runMapAndLocationPipeline?.(statWithoutMeta))
-      //     .then(() => logger.log(funcName, '后台流水线执行完成。'))
-      //     .catch(e => logger.warn(funcName, '后台流水线执行异常（非致命）。', e));
-      // } catch (e) {
-      //   logger.warn(funcName, '后台流水线调度异常（已忽略）。', e);
-      // }
-
       // ===== 新增：好感等级计算 + 进度条着色（从 index.ts 抽离到 backend/affection.ts）=====
       try {
         logger.log(funcName, '准备执行后台流水线：好感等级 + 进度条着色');
         import('./backend/affection')
-          .then(mod => mod?.runAffectionPipeline?.(statWithoutMeta))
+          .then(mod => mod?.runAffectionPipeline?.(context))
           .then(() => logger.log(funcName, '好感流水线执行完成。'))
           .catch(e => logger.warn(funcName, '好感流水线执行异常（非致命）。', e));
       } catch (e) {
         logger.warn(funcName, '好感流水线调度异常（已忽略）。', e);
       }
     } catch (e) {
-      logger.error(funcName, 'Test:writeDone 处理过程出现未捕获异常', e);
+      logger.error(funcName, 'GSKO:showUI 处理过程出现未捕获异常', e);
     } finally {
       // 清理上下文，避免影响后续事件
       logContext.mk = '';

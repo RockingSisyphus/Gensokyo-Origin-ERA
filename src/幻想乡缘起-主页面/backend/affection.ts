@@ -1,7 +1,6 @@
 import { ERA_VARIABLE_PATH } from '../utils/constants';
-import { Logger } from '../utils/logger';
 import { get, getRaw } from '../utils/format';
-import { getRuntimeVar, setRuntimeVar } from '../utils/runtime';
+import { Logger } from '../utils/logger';
 
 // —— 新增：一次性注入“仅作用于角色卡”的粒子与着色样式（保持内聚，避免全局污染）
 const AFFECTION_STYLE_ID = 'era-affection-style'; // 唯一ID，避免重复注入
@@ -72,7 +71,7 @@ function ensureAffectionStyles() {
  * 好感等级计算 + 进度条着色（从 index.ts 严格抄录后适配）
  * - 配置改为从传入的 statWithoutMeta 读取（statWithoutMeta.config.affection.*）
  * - 原先写入世界书/变量的，通过 eraWriter.updateEraVariable 写入
- * - 原先从 window.xxx 读写的 runtime，改用 utils/runtime 提供的方法
+ * - runtime 数据现在通过 context.runtime 直接传入，不再通过 API 读写
  * - 保留大量中文注释与调试输出
  */
 
@@ -324,12 +323,21 @@ function scanAll(statWithoutMeta: any) {
 }
 
 /**
- * 后台入口：在 era:writeDone 中被调用
- * - 输入：statWithoutMeta（从事件传入）
- * - 副作用：必要时通过 eraWriter 写回变量；通过 runtime api 读写运行时
+ * 后台入口：在 GSKO:showUI 中被调用
+ * - 输入：context: { statWithoutMeta, runtime }
+ * - 副作用：粒子效果渲染、DOM 操作
  */
-export async function runAffectionPipeline(statWithoutMeta: any): Promise<void> {
+export async function runAffectionPipeline(context: {
+  statWithoutMeta: any;
+  runtime: any;
+}): Promise<void> {
   const funcName = 'runAffectionPipeline';
+  const { statWithoutMeta, runtime } = context || {};
+
+  if (!statWithoutMeta) {
+    logger.warn(funcName, '上下文信息不完整，缺少 statWithoutMeta，已中止。');
+    return;
+  }
 
   try {
     // —— 新增：样式与监听（保证每次调用都已就绪，但只注入/绑定一次）
@@ -339,16 +347,10 @@ export async function runAffectionPipeline(statWithoutMeta: any): Promise<void> 
       mk: (statWithoutMeta && (statWithoutMeta.$mk || statWithoutMeta.mk)) || '',
     });
 
-    // 示例：读取/写入 runtime（如需记录最近一次好感渲染时间）
-    const nowTs = Date.now();
-    await setRuntimeVar('affection.lastRenderAt', nowTs);
-    const prevTs = getRuntimeVar<number>('affection.lastRenderAt', 0);
-    logger.debug(funcName, 'runtime 打点', { prevTs, nowTs });
+    // runtime 现在直接从 context 传入，可按需使用
+    // logger.debug(funcName, '传入的 runtime 对象', { runtime });
 
     scanAll(statWithoutMeta);
-
-    // 可选：将统计信息写回 ERA 变量（示例路径，可按需调整）
-    //updateEraVariable('stats.affection.lastRenderAt', nowTs);
     logger.log(funcName, '好感流水线完成');
   } catch (e) {
     logger.warn(funcName, '好感流水线异常（非致命）', e);

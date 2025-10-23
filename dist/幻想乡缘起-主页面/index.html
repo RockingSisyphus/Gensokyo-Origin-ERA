@@ -216,14 +216,14 @@
       style.textContent = css;
       document.head.appendChild(style);
     }
-    const logger = new _utils_logger__WEBPACK_IMPORTED_MODULE_1__.Vy("backend-affection");
+    const logger = new _utils_logger__WEBPACK_IMPORTED_MODULE_2__.Vy("backend-affection");
     const STAGES_FALLBACK = [ [ -9999, "死敌" ], [ -99, "憎恨" ], [ -20, "厌恶" ], [ 0, "不喜" ], [ 10, "冷淡" ], [ 20, "熟悉" ], [ 40, "亲近" ], [ 70, "亲密" ], [ 99, "思慕" ], [ 9999, "不渝" ] ];
     function stageLabelFrom(statWithoutMeta, fav) {
       try {
         logger.debug("stageLabelFrom", "函数接收到的完整 statWithoutMeta 对象", {
           statWithoutMeta: JSON.parse(JSON.stringify(statWithoutMeta))
         });
-        const stages = (0, _utils_format__WEBPACK_IMPORTED_MODULE_2__.Tu)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_STAGES, STAGES_FALLBACK);
+        const stages = (0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Tu)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_STAGES, STAGES_FALLBACK);
         logger.debug("stageLabelFrom", "开始计算好感度等级", {
           当前好感度: fav,
           等级配置表: JSON.parse(JSON.stringify(stages))
@@ -251,10 +251,10 @@
       }
     }
     function loveThresholdOf(statWithoutMeta) {
-      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_2__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_LOVE_THRESHOLD, 100));
+      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_LOVE_THRESHOLD, 100));
     }
     function hateThresholdOf(statWithoutMeta) {
-      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_2__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_HATE_THRESHOLD, -100));
+      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_HATE_THRESHOLD, -100));
     }
     const CARD_STATE = new WeakMap;
     function paintBar(valEl, fav, love, hate) {
@@ -405,19 +405,17 @@
       });
       return cards.length;
     }
-    async function runAffectionPipeline(statWithoutMeta) {
+    async function runAffectionPipeline(context) {
       const funcName = "runAffectionPipeline";
+      const {statWithoutMeta, runtime} = context || {};
+      if (!statWithoutMeta) {
+        logger.warn(funcName, "上下文信息不完整，缺少 statWithoutMeta，已中止。");
+        return;
+      }
       try {
         ensureAffectionStyles();
         logger.log(funcName, "开始执行好感流水线", {
           mk: statWithoutMeta && (statWithoutMeta.$mk || statWithoutMeta.mk) || ""
-        });
-        const nowTs = Date.now();
-        await (0, _utils_runtime__WEBPACK_IMPORTED_MODULE_3__.Q)("affection.lastRenderAt", nowTs);
-        const prevTs = (0, _utils_runtime__WEBPACK_IMPORTED_MODULE_3__.I)("affection.lastRenderAt", 0);
-        logger.debug(funcName, "runtime 打点", {
-          prevTs,
-          nowTs
         });
         scanAll(statWithoutMeta);
         logger.log(funcName, "好感流水线完成");
@@ -1239,16 +1237,20 @@ const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceOb
       });
       logger.log(funcName, "异变卡片渲染完成。");
     }
-    function readT0() {
-      const t0 = (0, runtime.I)(T0_PATH, null);
+    function readT0(runtime) {
+      if (!runtime) {
+        logger.warn("readT0", "runtime 对象不存在，无法读取 T0。");
+        return null;
+      }
+      const t0 = (0, format.Jt)(runtime, T0_PATH, null);
       if (t0 != null) {
         const n = Number((0, format.fE)(t0));
         if (Number.isFinite(n)) {
-          logger.log("readT0", `读取到 t0: ${n}`);
+          logger.log("readT0", `从 runtime 读取到 t0: ${n}`);
           return n;
         }
       }
-      logger.log("readT0", "未读取到合法 t0。");
+      logger.log("readT0", "未在 runtime 中读取到合法 t0。");
       return null;
     }
     function readCooldownMinutes(state) {
@@ -1264,42 +1266,49 @@ const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceOb
       const n = Number((0, format.fE)(timeProgress));
       return Number.isFinite(n) ? Math.floor(n) : 0;
     }
-    function calcCountdownMinutes(state) {
-      const t0 = readT0();
+    function calcCountdownMinutes(context) {
+      const {statWithoutMeta, runtime} = context;
+      const t0 = readT0(runtime);
       if (t0 === null) {
         logger.log("calcCountdownMinutes", "t0 不存在/非法，本轮倒计时按 0 处理。");
         return 0;
       }
-      const tp = readTimeProgress(state);
-      const cd = readCooldownMinutes(state);
+      const tp = readTimeProgress(statWithoutMeta);
+      const cd = readCooldownMinutes(statWithoutMeta);
       const left = Math.max(0, Math.floor(cd - (tp - t0)));
       logger.log("calcCountdownMinutes", `计算倒计时（分钟）: { t0: ${t0}, timeProgress: ${tp}, cooldown: ${cd}, 剩余: ${left} }`);
       return left;
     }
-    function updateIncidentToolbar(state) {
+    function updateIncidentToolbar(context) {
       const funcName = "updateIncidentToolbar";
+      const {statWithoutMeta} = context;
       const cdEl = document.getElementById("incident-countdown");
       const triggerNowEl = document.getElementById("incident-trigger-now");
       const randomPoolEl = document.getElementById("incident-pool-random");
       if (cdEl) {
-        const left = calcCountdownMinutes(state);
+        const left = calcCountdownMinutes(context);
         cdEl.textContent = left == null ? "—" : String(left);
         logger.log(funcName, `异变倒计时已更新为: ${cdEl.textContent}`);
       }
       if (triggerNowEl) {
-        const shouldTrigger = (0, format.Jt)(state, constants.M.INCIDENT_IMMEDIATE_TRIGGER, false);
+        const shouldTrigger = (0, format.Jt)(statWithoutMeta, constants.M.INCIDENT_IMMEDIATE_TRIGGER, false);
         triggerNowEl.checked = !!shouldTrigger;
         logger.log(funcName, `“立即引发异变”状态已更新为: ${triggerNowEl.checked}`);
       }
       if (randomPoolEl) {
-        const useRandom = (0, format.Jt)(state, constants.M.INCIDENT_RANDOM_POOL, false);
+        const useRandom = (0, format.Jt)(statWithoutMeta, constants.M.INCIDENT_RANDOM_POOL, false);
         randomPoolEl.checked = !!useRandom;
         logger.log(funcName, `“乱序异变”状态已更新为: ${randomPoolEl.checked}`);
       }
     }
-    const update = statWithoutMeta => {
+    const update = context => {
+      const {statWithoutMeta} = context || {};
+      if (!statWithoutMeta) {
+        logger.warn("update", "上下文信息不完整，缺少 statWithoutMeta，已中止。");
+        return;
+      }
       renderIncidents(statWithoutMeta);
-      updateIncidentToolbar(statWithoutMeta);
+      updateIncidentToolbar(context);
     };
     (0, external_Vue_namespaceObject.onMounted)(() => {
       const funcName = "onMounted";
@@ -1329,11 +1338,11 @@ const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceOb
       class: "emoji"
     }, "⚠️"), (0, external_Vue_namespaceObject.createTextVNode)("异变啊异变！") ], -1)), (0, 
     external_Vue_namespaceObject.createCommentVNode)(" ===== 异变工具栏（倒计时 + 立即引发） ===== "), _cache[1] || (_cache[1] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div id="incident-toolbar" class="debug-select" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;" data-v-f95cf19c><span class="label" style="min-width:auto;margin:0;" data-v-f95cf19c><span class="emoji" data-v-f95cf19c>⏳</span>异变倒计时（分钟）: </span><strong id="incident-countdown" data-v-f95cf19c>—</strong><span class="debug-switch" title="来自世界书 config 的初始值；修改即写回到聊天变量的 config.incidents.triggerImmediate" data-v-f95cf19c><input id="incident-trigger-now" type="checkbox" data-v-f95cf19c> 立即引发异变 </span><span class="debug-switch" title="来自 config.incident.random_pool" data-v-f95cf19c><input id="incident-pool-random" type="checkbox" data-v-f95cf19c> 乱序异变 </span></div><div id="incident-list" class="incident-list" data-v-f95cf19c></div>', 2)) ]));
+    external_Vue_namespaceObject.createStaticVNode)('<div id="incident-toolbar" class="debug-select" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;" data-v-43a3df98><span class="label" style="min-width:auto;margin:0;" data-v-43a3df98><span class="emoji" data-v-43a3df98>⏳</span>异变倒计时（分钟）: </span><strong id="incident-countdown" data-v-43a3df98>—</strong><span class="debug-switch" title="来自世界书 config 的初始值；修改即写回到聊天变量的 config.incidents.triggerImmediate" data-v-43a3df98><input id="incident-trigger-now" type="checkbox" data-v-43a3df98> 立即引发异变 </span><span class="debug-switch" title="来自 config.incident.random_pool" data-v-43a3df98><input id="incident-pool-random" type="checkbox" data-v-43a3df98> 乱序异变 </span></div><div id="incident-list" class="incident-list" data-v-43a3df98></div>', 2)) ]));
   }
 });
 
-const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-f95cf19c" ] ]);
+const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-43a3df98" ] ]);
 
 const Incidents = Incidents_exports_;
 
@@ -1699,13 +1708,14 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       logger.log("switchTab", `切换选项卡到: ${tabId}`);
       activeTab.value = tabId;
     };
-    const update = statWithoutMeta => {
+    const update = context => {
       const funcName = "update";
+      const {statWithoutMeta, runtime} = context || {};
       logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, {
-        statWithoutMeta
+        context
       });
       if (!statWithoutMeta) {
-        logger.warn(funcName, "传入的 statWithoutMeta 为空，无法更新 UI。");
+        logger.warn(funcName, "传入的 context 或 statWithoutMeta 为空，无法更新 UI。");
         return;
       }
       if (fontSizeControls.value && typeof fontSizeControls.value.updateFontSize === "function") {
@@ -1717,7 +1727,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         logger.debug(funcName, "已调用 WorldMap.update");
       }
       if (incidents.value && typeof incidents.value.update === "function") {
-        incidents.value.update(statWithoutMeta);
+        incidents.value.update(context);
         logger.debug(funcName, "已调用 Incidents.update");
       }
       if (contentOthers.value && typeof contentOthers.value.update === "function") {
@@ -1831,7 +1841,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7f36b33e" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-2c659b04" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -2123,7 +2133,8 @@ const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_n
         behavior: "smooth"
       });
     };
-    const updateRibbon = newStat => {
+    const updateRibbon = context => {
+      const newStat = context?.statWithoutMeta;
       if (!newStat || typeof newStat !== "object") return;
       statWithoutMeta.value = newStat;
       userLocation.value = String((0, format.Jt)(newStat, constants.M.USER_LOCATION, "")).trim();
@@ -2172,7 +2183,7 @@ const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_n
   }
 });
 
-const RoleRibbonContainer_exports_ = (0, exportHelper.A)(RoleRibbonContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-28419122" ] ]);
+const RoleRibbonContainer_exports_ = (0, exportHelper.A)(RoleRibbonContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6c209266" ] ]);
 
 const RoleRibbonContainer = RoleRibbonContainer_exports_;
 
@@ -2564,15 +2575,16 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
     const logger = new utils_logger.Vy("components-StatusBannerContent");
     const clockInfo = (0, external_Vue_namespaceObject.ref)(null);
     const weather = (0, external_Vue_namespaceObject.ref)(null);
-    const update = statWithoutMeta => {
+    const update = context => {
       const funcName = "update";
-      logger.log(funcName, "状态横幅内容区开始更新，接收到的statWithoutMeta：", statWithoutMeta);
+      const {statWithoutMeta, runtime} = context || {};
+      logger.log(funcName, "状态横幅内容区开始更新，接收到的 context：", context);
       if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+        logger.warn(funcName, "调用失败：传入的 context 或 statWithoutMeta 无效。", context);
         return;
       }
       weather.value = external_default().get(statWithoutMeta, "世界.天气", "—");
-      const clockNow = external_default().get(statWithoutMeta, "runtime.clock.now", null);
+      const clockNow = external_default().get(runtime, "clock.now", null);
       const festivals = external_default().get(statWithoutMeta, "festivals_list", []);
       if (clockNow && typeof clockNow === "object") {
         clockInfo.value = Object.assign({}, clockNow, {
@@ -2606,7 +2618,7 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
   }
 });
 
-const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-d0e1282c" ] ]);
+const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-447bbbb3" ] ]);
 
 const StatusBannerContent = StatusBannerContent_exports_;
 
@@ -2653,14 +2665,15 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
     const logger = new utils_logger.Vy;
-    const updateNews = state => {
+    const updateNews = context => {
       const funcName = "updateNews";
-      if (!state || typeof state !== "object") {
-        logger.warn(funcName, "调用失败：传入的 state 无效。", state);
+      const {statWithoutMeta} = context || {};
+      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
+        logger.warn(funcName, "调用失败：传入的 context 或 statWithoutMeta 无效。", context);
         return;
       }
       try {
-        const newsContent = (0, format.Jt)(state, constants.M.NEWS_TEXT, "");
+        const newsContent = (0, format.Jt)(statWithoutMeta, constants.M.NEWS_TEXT, "");
         logger.log(funcName, "将更新新闻文本", {
           preview: String(newsContent).slice(0, 50)
         });
@@ -2685,7 +2698,7 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   }
 });
 
-const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7fdb09ca" ] ]);
+const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-93f7dbb8" ] ]);
 
 const AyaNewsPopup = AyaNewsPopup_exports_;
 
@@ -2859,10 +2872,11 @@ const ThemeTogglevue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
         logger.warn("applyThemeToDOM", "未找到 document.documentElement 元素。");
       }
     };
-    const updateTheme = statWithoutMeta => {
+    const updateTheme = context => {
       const funcName = "updateTheme";
+      const {statWithoutMeta} = context || {};
       if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+        logger.warn(funcName, "调用失败：传入的 context 或 statWithoutMeta 无效。", context);
         return;
       }
       const newTheme = (0, format.Jt)(statWithoutMeta, constants.M.UI_THEME, LIGHT);
@@ -2902,7 +2916,7 @@ const ThemeTogglevue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
   }
 });
 
-const ThemeToggle_exports_ = (0, exportHelper.A)(ThemeTogglevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7910dc3c" ] ]);
+const ThemeToggle_exports_ = (0, exportHelper.A)(ThemeTogglevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-494161ec" ] ]);
 
 const ThemeToggle = ThemeToggle_exports_;
 
@@ -2973,42 +2987,40 @@ $(() => {
   const appInstance = app.mount("#app");
   window.vueApp = appInstance;
   const logger = new utils_logger.Vy("index");
-  eventOn("Test:writeDone", detail => {
-    const funcName = "onTestWriteDone";
+  eventOn("GSKO:showUI", detail => {
+    const funcName = "onShowUI";
     try {
       utils_logger.EN.mk = String(detail?.mk || "");
     } catch {
       utils_logger.EN.mk = "";
     }
-    logger.log(funcName, "接收到 Test:writeDone 事件", {
-      mk: detail?.mk,
-      message_id: detail?.message_id,
-      actions: detail?.actions,
-      selectedMks: detail?.selectedMks,
-      editLogs: detail?.editLogs,
-      stat: detail?.stat,
-      statWithoutMeta: detail?.statWithoutMeta,
-      consecutiveProcessingCount: detail?.consecutiveProcessingCount
-    });
+    logger.log(funcName, "接收到 GSKO:showUI 事件", detail);
     if (detail?.actions?.apiWrite === true) {
       logger.log(funcName, "检测到 apiWrite 触发的事件，已跳过。");
       return;
     }
-    logger.debug(funcName, "Test:writeDone 事件的完整参数：", detail);
+    logger.debug(funcName, "GSKO:showUI 事件的完整参数：", detail);
     try {
-      const {statWithoutMeta} = detail || {};
+      const {statWithoutMeta, runtime} = detail || {};
       if (!statWithoutMeta) {
         logger.warn(funcName, "事件中未找到 statWithoutMeta，无法更新 UI。");
         return;
       }
-      logger.debug(funcName, "提取到的 statWithoutMeta:", statWithoutMeta);
+      if (!runtime) {
+        logger.warn(funcName, "事件中未找到 runtime 对象，流程可能出错。");
+      }
+      const context = {
+        statWithoutMeta,
+        runtime
+      };
+      logger.debug(funcName, "创建的上下文对象:", context);
       const userData = (0, format.Jt)(statWithoutMeta, constants.M.USER_DATA, {});
       logger.debug(funcName, "提取到的 userData:", userData);
       const {themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
       try {
         if (themeToggle && typeof themeToggle.updateTheme === "function") {
           logger.debug(funcName, "调用 ThemeToggle.updateTheme 入口");
-          themeToggle.updateTheme(statWithoutMeta);
+          themeToggle.updateTheme(context);
           logger.debug(funcName, "ThemeToggle.updateTheme 退出");
         } else {
           logger.warn(funcName, "ThemeToggle 组件缺失或接口不可用。");
@@ -3030,7 +3042,7 @@ $(() => {
       try {
         if (statusBanner && typeof statusBanner.update === "function") {
           logger.debug(funcName, "调用 StatusBanner.update 入口");
-          statusBanner.update(statWithoutMeta);
+          statusBanner.update(context);
           logger.debug(funcName, "StatusBanner.update 退出");
         } else {
           logger.warn(funcName, "StatusBanner 组件缺失或接口不可用。");
@@ -3041,7 +3053,7 @@ $(() => {
       try {
         if (ayaNews && typeof ayaNews.updateNews === "function") {
           logger.debug(funcName, "调用 AyaNews.updateNews 入口");
-          ayaNews.updateNews(statWithoutMeta);
+          ayaNews.updateNews(context);
           logger.debug(funcName, "AyaNews.updateNews 退出");
         } else {
           logger.warn(funcName, "AyaNews 组件缺失或接口不可用。");
@@ -3052,7 +3064,7 @@ $(() => {
       try {
         if (statusTabContent && typeof statusTabContent.update === "function") {
           logger.log(funcName, "正在调用 StatusTabContent.update...");
-          statusTabContent.update(statWithoutMeta);
+          statusTabContent.update(context);
           logger.debug(funcName, "StatusTabContent.update 调用完成");
         } else {
           logger.warn(funcName, "StatusTabContent 组件缺失或接口不可用。");
@@ -3063,7 +3075,7 @@ $(() => {
       try {
         if (roleRibbon && typeof roleRibbon.updateRibbon === "function") {
           logger.log(funcName, "正在调用 RoleRibbon.updateRibbon...");
-          roleRibbon.updateRibbon(statWithoutMeta);
+          roleRibbon.updateRibbon(context);
           logger.debug(funcName, "RoleRibbon.updateRibbon 调用完成");
         } else {
           logger.warn(funcName, "RoleRibbon 组件缺失或接口不可用。");
@@ -3078,7 +3090,7 @@ $(() => {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
     } catch (e) {
-      logger.error(funcName, "Test:writeDone 处理过程出现未捕获异常", e);
+      logger.error(funcName, "GSKO:showUI 处理过程出现未捕获异常", e);
     } finally {
       utils_logger.EN.mk = "";
     }
@@ -3087,14 +3099,14 @@ $(() => {
 h4[data-v-6b80904d]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-6b80904d]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-6b80904d]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-6b80904d]{border:none;border-top:1px dashed var(--line);margin:20px 0}
 [data-v-1e7178c2] .debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}[data-v-1e7178c2] .debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}[data-v-1e7178c2] .incident-list{display:flex;flex-direction:column;gap:12px}[data-v-1e7178c2] #other-roles-list .role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}[data-v-1e7178c2] #other-roles-list .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}[data-v-1e7178c2] #other-roles-list .role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}[data-v-1e7178c2] #other-roles-list .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}[data-v-1e7178c2] #other-roles-list .role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}[data-v-1e7178c2] #other-roles-list .role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}[data-v-1e7178c2] #other-roles-list .card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}[data-v-1e7178c2] #other-roles-list .role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px}[data-v-1e7178c2] #other-roles-list .role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}[data-v-1e7178c2] #other-roles-list .mini-bar{height:8px;background:var(--bar-bg);border:1px solid var(--line);border-radius:4px;overflow:hidden;position:relative;flex-grow:1;margin-left:8px;min-width:50px}[data-v-1e7178c2] #other-roles-list .mini-bar .val{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}[data-v-1e7178c2] #other-roles-list .role-card.collapsed{padding-bottom:8px}[data-v-1e7178c2] #other-roles-list .role-card.collapsed .role-body{display:none}[data-v-1e7178c2] #other-roles-list .role-card.collapsed .role-card-header{margin-bottom:0;padding-bottom:6px}[data-v-1e7178c2] #other-roles-list .role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}:root[data-theme="dark"]{box-shadow:0 2px 12px rgba(0,0,0,.35)}
 [data-v-1969adb7] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-1969adb7] input[type="text"],[data-v-1969adb7] input[type="number"],[data-v-1969adb7] textarea,[data-v-1969adb7] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-1969adb7] input:focus,[data-v-1969adb7] textarea:focus,[data-v-1969adb7] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-1969adb7] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-1969adb7] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-1969adb7] button:hover{background:var(--btn-accent-hover)}[data-v-1969adb7] button:active{transform:translateY(1px)}[data-v-1969adb7] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-1969adb7] .muted-btn:hover{filter:brightness(0.97)}[data-v-1969adb7] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-1969adb7] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-1969adb7] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-1969adb7] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
-#content_incidents h4[data-v-f95cf19c]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-f95cf19c]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-f95cf19c]{margin-bottom:15px}.debug-select[data-v-f95cf19c],.debug-switch[data-v-f95cf19c]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-f95cf19c]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-f95cf19c] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-f95cf19c] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-f95cf19c] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-f95cf19c] .role-card .role-name{font-weight:700}.incident-list[data-v-f95cf19c] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-f95cf19c] .role-card .role-line{margin:6px 0;font-size:.9em}
+#content_incidents h4[data-v-43a3df98]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-43a3df98]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-43a3df98]{margin-bottom:15px}.debug-select[data-v-43a3df98],.debug-switch[data-v-43a3df98]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-43a3df98]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-43a3df98] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-43a3df98] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-43a3df98] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-43a3df98] .role-card .role-name{font-weight:700}.incident-list[data-v-43a3df98] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-43a3df98] .role-card .role-line{margin:6px 0;font-size:.9em}
 .ascii-map[data-v-163c7314]{margin:10px 0;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);line-height:1.35;white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13.5px}.ascii-map .map-loading[data-v-163c7314]{color:var(--muted)}.map-toolbar[data-v-163c7314]{display:flex;align-items:center;gap:6px;margin:6px 0 10px}.map-legend[data-v-163c7314]{display:flex;align-items:center;gap:12px;font-size:.85em;color:var(--muted)}.map-legend .swatch[data-v-163c7314]{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-right:6px}.swatch-hit[data-v-163c7314]{background:linear-gradient(90deg,#ffa94d,#ffd27f)}.swatch-near[data-v-163c7314]{background:linear-gradient(90deg,#8ec5ff,#d6e9ff)}[data-v-163c7314] .map-hit{background:linear-gradient(90deg,#ffa94d,#ffd27f);border-radius:4px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(120,60,0,.35);box-shadow:0 0 0 1px rgba(255,170,90,.45) inset,0 0 0 3px rgba(255,230,180,.9) inset,0 0 18px rgba(255,140,40,.75);animation:mapPulse-163c7314 1.2s ease-in-out infinite}[data-v-163c7314] .map-hit.paused{animation:none}@keyframes mapPulse-163c7314{0%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}50%{box-shadow:0 0 0 1px rgba(255,170,90,.6) inset,0 0 0 4px #ffebbe inset,0 0 20px rgba(255,140,40,.9)}100%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}}[data-v-163c7314] .map-near{background:linear-gradient(90deg,#8ec5ff,#d6e9ff);border-radius:3px;padding:0 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 .8px rgba(0,0,0,.25);outline:1px solid rgba(4,62,130,.25);box-shadow:0 0 0 1px rgba(110,160,220,.35) inset,0 0 8px rgba(120,170,230,.45)}.ascii-map.dim-others[data-v-163c7314]{color:#7d6d5f}[data-v-163c7314] .ascii-map.dim-others .map-hit{color:#2b1e12}:root[data-theme="dark"]{background:var(--paper);color:var(--ink)}@media (max-width:768px){.ascii-map[data-v-163c7314]{font-size:12.5px}}
 .font-size-controls[data-v-abac5656]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-abac5656]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-7f36b33e]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-7f36b33e]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-7f36b33e]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-7f36b33e]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-7f36b33e]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-7f36b33e]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-7f36b33e]{padding:15px}}[data-v-7f36b33e] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-7f36b33e] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-7f36b33e] .incident-list{display:flex;flex-direction:column;gap:12px}
+.status-tabs[data-v-2c659b04]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-2c659b04]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-2c659b04]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-2c659b04]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-2c659b04]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-2c659b04]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-2c659b04]{padding:15px}}[data-v-2c659b04] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-2c659b04] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-2c659b04] .incident-list{display:flex;flex-direction:column;gap:12px}
 .affection-display[data-v-5b26ff4e]{position:relative;display:flex;align-items:center;gap:8px;font-size:.9em}.aff-stage[data-v-5b26ff4e]{font-size:.9em;color:var(--muted)}.mini-bar[data-v-5b26ff4e]{height:10px;background:var(--bar-bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;position:relative;flex-grow:1}.mini-bar.small-bar[data-v-5b26ff4e]{height:8px;max-width:80px}.mini-bar .val[data-v-5b26ff4e]{position:absolute;left:0;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}
 .role-card-wrapper[data-v-2853d2bc]{flex:0 0 220px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;scroll-snap-align:start;cursor:pointer;transition:background .2s ease}.role-card-wrapper[data-v-2853d2bc]:hover{background:color-mix(in srgb,var(--bg) 90%,var(--ink) 10%)}.role-card-header[data-v-2853d2bc]{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.role-avatar[data-v-2853d2bc]{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.role-name[data-v-2853d2bc]{font-weight:700;font-size:.95em}.role-meta[data-v-2853d2bc]{font-size:.8em;color:var(--muted)}
 .popup-overlay[data-v-5b14a83a]{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}.role-detail-popup[data-v-5b14a83a]{position:relative;width:90vw;max-width:600px;max-height:80vh;overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.2)}.close-btn[data-v-5b14a83a]{position:absolute;top:12px;right:12px;width:30px;height:30px;border:none;background:rgba(0,0,0,0);font-size:24px;cursor:pointer;color:var(--muted)}.role-card-header[data-v-5b14a83a]{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}.role-avatar[data-v-5b14a83a]{width:60px;height:60px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-size:24px;font-weight:700;color:var(--muted);flex-shrink:0}.role-name[data-v-5b14a83a]{font-size:1.5em;font-weight:700}.role-meta[data-v-5b14a83a]{font-size:1em;color:var(--muted)}.details-grid[data-v-5b14a83a]{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}.detail-item[data-v-5b14a83a]{background:var(--bg);padding:8px;border-radius:4px;font-size:.95em}.detail-item strong[data-v-5b14a83a]{color:var(--muted);margin-right:8px}.detail-item.full-width[data-v-5b14a83a]{grid-column:1/-1}
-.role-ribbon-container[data-v-28419122]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-28419122]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-28419122]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-28419122]{left:8px}.ribbon-arrow.right[data-v-28419122]{right:8px}.role-card-placeholder[data-v-28419122]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}
+.role-ribbon-container[data-v-6c209266]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-6c209266]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-6c209266]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-6c209266]{left:8px}.ribbon-arrow.right[data-v-6c209266]{right:8px}.role-card-placeholder[data-v-6c209266]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}
 .emoji[data-v-d107629a]{margin-right:0;font-size:1.1em}.banner-chip[data-v-d107629a]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-d107629a]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-d107629a]:active{transform:translateY(1px) scale(0.99)}
 .banner-chip-open[data-v-a8d897e6]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-a8d897e6]{font-size:1.2em;margin-right:8px}.close-icon[data-v-a8d897e6]{font-size:.9em;color:var(--ink)}
 .cal-day-container[data-v-35064b7e]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-35064b7e]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-35064b7e]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-35064b7e]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-35064b7e]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-35064b7e]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-35064b7e]{--importance:5}.cal-day-btn[data-importance="4"][data-v-35064b7e]{--importance:4}.cal-day-btn[data-importance="3"][data-v-35064b7e]{--importance:3}.cal-day-btn[data-importance="2"][data-v-35064b7e]{--importance:2}.cal-day-btn[data-importance="1"][data-v-35064b7e]{--importance:1}.dnum[data-v-35064b7e]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-35064b7e]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-35064b7e]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-35064b7e]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-35064b7e]:first-child{border-top:none;padding-top:0}.fest-header[data-v-35064b7e]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-35064b7e]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-35064b7e]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-35064b7e]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
@@ -3106,10 +3118,10 @@ h4[data-v-6b80904d]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .weather-content[data-v-16c06ed4]{position:static;width:100%;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--ink)}p[data-v-16c06ed4]{margin:4px 0}em[data-v-16c06ed4]{color:var(--muted);font-size:.9em}
 .weather-container[data-v-cb64d90a]{position:relative}
 
-.emoji[data-v-d0e1282c]{margin-right:8px;font-size:1.1em}.status-banner[data-v-d0e1282c]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-d0e1282c]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-d0e1282c]{margin-right:0}.banner-sep[data-v-d0e1282c]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
+.emoji[data-v-447bbbb3]{margin-right:8px;font-size:1.1em}.status-banner[data-v-447bbbb3]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-447bbbb3]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-447bbbb3]{margin-right:0}.banner-sep[data-v-447bbbb3]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
-.aya-news-popup[data-v-7fdb09ca]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-7fdb09ca]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-7fdb09ca]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-7fdb09ca]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.aya-news-popup[data-v-93f7dbb8]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-93f7dbb8]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-93f7dbb8]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-93f7dbb8]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .aya-news-container[data-v-87d6f5a2]{position:relative}
 
 .user-state-button-closed[data-v-89abe3c0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.user-state-button-closed[data-v-89abe3c0]:hover{background-color:var(--paper)}
@@ -3117,7 +3129,7 @@ h4[data-v-6b80904d]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .user-state-popup[data-v-5a85625a]{position:static;width:100%;max-height:none;margin-top:-1px;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;display:flex;flex-direction:column}.sidebar-content[data-v-5a85625a]{overflow:visible}h4[data-v-5a85625a]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}h4 .emoji[data-v-5a85625a]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}p[data-v-5a85625a]{margin:8px 0;font-size:.9em;line-height:1.5}p>span[data-v-5a85625a]:last-child{flex:1 1 auto;min-width:0;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .user-state-container[data-v-12cd5980]{position:relative}
 
-.theme-toggle[data-v-7910dc3c]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-7910dc3c]:active{transform:translateY(1px)}.theme-toggle[data-v-7910dc3c]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
+.theme-toggle[data-v-494161ec]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-494161ec]:active{transform:translateY(1px)}.theme-toggle[data-v-494161ec]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
 /*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

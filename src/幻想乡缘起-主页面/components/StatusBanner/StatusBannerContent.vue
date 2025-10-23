@@ -33,14 +33,16 @@ const weather = ref<string | null>(null);
 
 /**
  * @description 【暴露给外部的唯一入口】更新整个状态横幅。
- * @param statWithoutMeta - 包含天气、时钟和节日列表的完整状态对象。
+ * @param context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-const update = (statWithoutMeta: object) => {
+const update = (context: { statWithoutMeta: any; runtime: any }) => {
   const funcName = 'update';
-  logger.log(funcName, '状态横幅内容区开始更新，接收到的statWithoutMeta：', statWithoutMeta);
+  const { statWithoutMeta, runtime } = context || {};
+
+  logger.log(funcName, '状态横幅内容区开始更新，接收到的 context：', context);
 
   if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。', statWithoutMeta);
+    logger.warn(funcName, '调用失败：传入的 context 或 statWithoutMeta 无效。', context);
     return;
   }
 
@@ -48,7 +50,7 @@ const update = (statWithoutMeta: object) => {
   weather.value = _.get(statWithoutMeta, '世界.天气', '—');
 
   // 更新日期和日历显示
-  const clockNow = _.get(statWithoutMeta, 'runtime.clock.now', null);
+  const clockNow = _.get(runtime, 'clock.now', null);
   const festivals = _.get(statWithoutMeta, 'festivals_list', []) as any[];
   if (clockNow && typeof clockNow === 'object') {
     clockInfo.value = Object.assign({}, clockNow, { festivals });

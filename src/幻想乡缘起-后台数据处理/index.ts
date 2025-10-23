@@ -1,66 +1,84 @@
-import { boundaryData, missingData, standardData } from './test-data';
+import _ from 'lodash';
+import { processTime } from './core/time/processor';
+import { cleanupDevPanel, initDevPanel } from './dev/panel';
+import { WriteDonePayload } from './utils/era';
+import { Logger } from './utils/logger';
+import { getRuntimeObject, setRuntimeObject } from './utils/runtime';
 
+const logger = new Logger();
+
+// 主程序入口
 $(() => {
-  // 创建悬浮面板
-  const panel = $('<div>')
-    .attr('id', 'demo-era-test-harness')
-    .css({
-      position: 'fixed',
-      top: '10px',
-      left: '10px',
-      zIndex: 9999,
-      background: 'rgba(255, 255, 255, 0.9)',
-      border: '1px solid #ccc',
-      padding: '10px',
-      borderRadius: '5px',
-      display: 'flex',
-      flexDirection: 'column',
-      gap: '5px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
-    })
-    .appendTo($('body'));
+  logger.log('main', '后台数据处理脚本加载');
 
-  // 创建标题
-  $('<div><strong>UI 测试工具</strong></div>')
-    .css({
-      marginBottom: '5px',
-      borderBottom: '1px solid #eee',
-      paddingBottom: '5px',
-    })
-    .appendTo(panel);
+  // 初始化开发/测试模块
+  initDevPanel();
 
-  // 定义按钮
-  const buttons = [
-    { text: '发送“标准”数据', data: standardData },
-    { text: '发送“缺失”数据', data: missingData },
-    { text: '发送“边界”数据', data: boundaryData },
-  ];
+  // 在这里可以初始化其他核心模块
+  // import { initCore } from './core/main';
+  // initCore();
 
-  // 创建并添加按钮到面板
-  buttons.forEach(btnInfo => {
-    $('<button>')
-      .text(btnInfo.text)
-      .css({
-        cursor: 'pointer',
-        padding: '8px 12px',
-        border: '1px solid #ddd',
-        background: '#f0f0f0',
-        borderRadius: '4px',
-      })
-      .on('click', () => {
-        console.log(`发送事件 Test:writeDone，场景: ${btnInfo.text}`);
-        // 使用酒馆助手 API 触发自定义事件
-        eventEmit('Test:writeDone', {
-          statWithoutMeta: btnInfo.data,
-        });
-        toastr.success(`已发送测试事件：${btnInfo.text}`);
-      })
-      .appendTo(panel);
+  // 定义核心数据处理函数
+  const handleWriteDone = async (payload: WriteDonePayload) => {
+    const { statWithoutMeta, message_id } = payload;
+    logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
+
+    // 1. 从 chat 变量域中读取上一楼层的 runtime 对象，主要用于获取 ack
+    const prevRuntime = getRuntimeObject();
+
+    // 2. 调用所有核心处理模块
+    const timeResult = processTime(statWithoutMeta, prevRuntime);
+    // const characterResult = processCharacters(statWithoutMeta, prevRuntime);
+    // const worldResult = processWorld(statWithoutMeta, prevRuntime);
+
+    // 3. 将所有模块的结果合并成一个新的、干净的 runtime 对象
+    const newRuntime = _.merge({}, timeResult /*, characterResult, worldResult */);
+
+    // 4. 将新的 runtime 对象【完全替换】旧的
+    await setRuntimeObject(newRuntime, { mode: 'replace' });
+
+    logger.log('handleWriteDone', '所有核心模块处理完毕。', {
+      finalRuntime: newRuntime,
+    });
+
+    // 5. 在所有处理完成后，统一发送 UI 更新事件
+    if (typeof eventEmit === 'function') {
+      const uiPayload = {
+        ...payload, // 继承原始 payload 的所有属性 (mk, actions, etc.)
+        statWithoutMeta: statWithoutMeta,
+        runtime: newRuntime, // 附加被修改后的 runtime 对象
+      };
+      eventEmit('GSKO:showUI', uiPayload);
+      logger.log('handleWriteDone', '已发送 GSKO:showUI 事件', uiPayload);
+    } else {
+      logger.warn('handleWriteDone', 'eventEmit 函数不可用，无法发送 UI 更新事件。');
+    }
+  };
+
+  // 监听真实的 ERA 数据写入完成事件
+  eventOn('era:writeDone', (detail: WriteDonePayload) => {
+    logger.log('main', '接收到真实的 era:writeDone 事件');
+    handleWriteDone(detail);
   });
 
-  toastr.info('ERA 测试工具已加载。');
+  // 监听来自 dev ael 的伪造数据写入事件，用于测试
+  eventOn('dev:fakeWriteDone', (detail: WriteDonePayload) => {
+    logger.log('main', '接收到伪造的 dev:fakeWriteDone 事件');
+    handleWriteDone(detail);
+  });
 
-  $(window).on('pagehide', function () {
-    $('body').find('[id^="demo-"]').remove();
+  // 脚本卸载时的清理工作
+  $(window).on('pagehide.main', () => {
+    logger.log('main', '后台数据处理脚本卸载');
+
+    // 清理开发/测试模块
+    cleanupDevPanel();
+
+    // 在这里可以清理其他核心模块
+    // import { cleanupCore } from './core/main';
+    // cleanupCore();
+
+    // 解除所有命名空间下的事件监听
+    $(window).off('.main');
   });
 });

@@ -15,15 +15,17 @@ defineEmits(['close']);
 
 const logger = new Logger();
 
-const updateNews = (state: object) => {
+const updateNews = (context: { statWithoutMeta: any }) => {
   const funcName = 'updateNews';
-  if (!state || typeof state !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 state 无效。', state);
+  const { statWithoutMeta } = context || {};
+
+  if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
+    logger.warn(funcName, '调用失败：传入的 context 或 statWithoutMeta 无效。', context);
     return;
   }
 
   try {
-    const newsContent = get(state, ERA_VARIABLE_PATH.NEWS_TEXT, '');
+    const newsContent = get(statWithoutMeta, ERA_VARIABLE_PATH.NEWS_TEXT, '');
     logger.log(funcName, '将更新新闻文本', { preview: String(newsContent).slice(0, 50) });
     text('aya-news-content-popup', newsContent);
     logger.debug(funcName, '新闻文本已写入 DOM 完成');

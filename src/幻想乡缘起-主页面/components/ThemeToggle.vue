@@ -53,13 +53,14 @@ const applyThemeToDOM = (theme: string) => {
 };
 
 /**
- * @description 从 stat_data 更新主题。此函数应由 era:writeDone 事件触发。
- * @param {object} statWithoutMeta - 包含所有状态数据的根对象。
+ * @description 从 context 更新主题。此函数应由 GSKO:showUI 事件触发。
+ * @param {object} context - 包含 statWithoutMeta 的上下文对象。
  */
-const updateTheme = (statWithoutMeta: object) => {
+const updateTheme = (context: { statWithoutMeta: any }) => {
   const funcName = 'updateTheme';
+  const { statWithoutMeta } = context || {};
   if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。', statWithoutMeta);
+    logger.warn(funcName, '调用失败：传入的 context 或 statWithoutMeta 无效。', context);
     return;
   }
 

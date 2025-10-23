@@ -105,15 +105,17 @@ const switchTab = (tabId: string) => {
 // ▼ [移植] 将 index.ts 中 era:writeDone 事件监听器内的 UI 更新逻辑，以及废弃的 renderAll 中的逻辑，整合到 update 方法中
 /**
  * @description 接收来自父组件的数据并更新所有相关的子组件。
- *              这个方法的核心逻辑来自于 index.ts 中对 era:writeDone 事件的响应。
- * @param {any} statWithoutMeta - 不包含元数据的状态对象，从 era:writeDone 事件的 detail 中传入。
+ *              这个方法的核心逻辑来自于 index.ts 中对 GSKO:showUI 事件的响应。
+ * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-const update = (statWithoutMeta: any) => {
+const update = (context: { statWithoutMeta: any; runtime: any }) => {
   const funcName = 'update';
-  logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, { statWithoutMeta });
+  const { statWithoutMeta, runtime } = context || {};
+
+  logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, { context });
 
   if (!statWithoutMeta) {
-    logger.warn(funcName, '传入的 statWithoutMeta 为空，无法更新 UI。');
+    logger.warn(funcName, '传入的 context 或 statWithoutMeta 为空，无法更新 UI。');
     return;
   }
 
@@ -130,9 +132,9 @@ const update = (statWithoutMeta: any) => {
   }
 
   // [移植自 index.ts] 调用异变组件的更新函数
-  // [改造] Incidents.vue 组件现在内部自己处理 runtime 逻辑，所以这里只需要调用 update 即可
+  // [改造] Incidents.vue 组件现在需要完整的 context 来访问 runtime
   if (incidents.value && typeof incidents.value.update === 'function') {
-    incidents.value.update(statWithoutMeta);
+    incidents.value.update(context);
     logger.debug(funcName, '已调用 Incidents.update');
   }
 

@@ -1,6 +1,6 @@
 (() => {
   // 自执行：不泄露临时变量
-  const url = encodeURI('http://localhost:5500/dist/era-test_harness/index.js');
+  const url = encodeURI('http://localhost:5500/dist/幻想乡缘起-后台数据处理/index.js');
   const s = document.createElement('script'); // 创建<script>标签
   s.src = url; // 设置要加载的脚本地址
   //s.async = false; // 关闭异步：保证按插入顺序执行，接近内联效果
@@ -9,9 +9,8 @@
   document.head.appendChild(s); // 插入到<head>触发下载与执行
 })();
 
-
 (() => {
-  const url = encodeURI('http://localhost:5500/dist/ERA变量框架/index.js') + '?v=' + Date.now();
+  const url = encodeURI('http://localhost:5500/dist/幻想乡缘起-主界面/index.js') + '?v=' + Date.now();
   const s = document.createElement('script');
   s.src = url;
   s.async = false;

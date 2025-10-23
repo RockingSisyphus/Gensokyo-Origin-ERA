@@ -73,7 +73,7 @@ export class Logger {
    */
   private formatMessage(funcName: string, message: any): string {
     const mkString = logContext.mk ? `（${logContext.mk}）` : '';
-    return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+    return `《幻想乡缘起-后台》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
   }
 
   /**

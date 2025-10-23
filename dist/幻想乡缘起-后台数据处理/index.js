@@ -393,18 +393,6 @@ const standardData = {
     importance: 4,
     主办地: "博丽神社"
   } ],
-  runtime: {
-    clock: {
-      now: {
-        year: 1,
-        month: 4,
-        day: 15,
-        hm: "14:30",
-        periodName: "下午",
-        iso: "0001-04-15T14:30:00"
-      }
-    }
-  },
   文文新闻: "今日头条：幻想乡天气持续晴朗，适合外出。",
   附加正文: "（这里是附加的说明文本）",
   incidents: {
@@ -419,6 +407,8 @@ const standardData = {
     天气: "晴朗"
   }
 };
+
+const missingRuntime = {};
 
 const missingData = {
   config: {
@@ -440,12 +430,22 @@ const missingData = {
       edges: []
     }
   },
-  runtime: {},
   festivals_list: [],
   文文新闻: "",
   附加正文: [],
   incidents: {},
   世界: {}
+};
+
+const boundaryRuntime = {
+  clock: {
+    now: {
+      year: 99,
+      month: 12,
+      day: 31,
+      hm: "23:59"
+    }
+  }
 };
 
 const boundaryData = {
@@ -495,18 +495,8 @@ const boundaryData = {
       edges: []
     }
   },
-  runtime: {
-    clock: {
-      now: {
-        year: 99,
-        month: 12,
-        day: 31,
-        hm: "23:59"
-      }
-    }
-  },
   festivals_list: null,
-  文文新闻: "一条非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的测试新闻，用于检查文本是否会正确换行和溢出处理。",
+  文文新闻: "一条非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的测试新闻，用于检查文本是否会正确换行和溢出处理。",
   附加正文: "附加正文",
   incidents: {},
   世界: {
@@ -515,7 +505,112 @@ const boundaryData = {
   }
 };
 
-$(() => {
+const baseTimeData = {
+  config: {
+    time: {
+      epochISO: "2025-10-24T06:00:00+09:00"
+    }
+  },
+  世界: {
+    timeProgress: 0
+  }
+};
+
+const timeTest_Initial = external_default().cloneDeep(baseTimeData);
+
+const timeTest_NoChange = external_default().cloneDeep(baseTimeData);
+
+timeTest_NoChange.世界.timeProgress = 10;
+
+const timeTest_NewPeriod = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewPeriod.世界.timeProgress = 2 * 60;
+
+const timeTest_NewDay = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewDay.世界.timeProgress = 19 * 60;
+
+const timeTest_NewWeek = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewWeek.世界.timeProgress = 3 * 24 * 60;
+
+const timeTest_NewMonth = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewMonth.世界.timeProgress = 8 * 24 * 60;
+
+const timeTest_NewSeason = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewSeason.世界.timeProgress = (8 + 30) * 24 * 60;
+
+const timeTest_NewYear = external_default().cloneDeep(baseTimeData);
+
+timeTest_NewYear.世界.timeProgress = (8 + 30 + 31) * 24 * 60;
+
+const coreTestPayload = {
+  mk: "test-mk-001",
+  message_id: 999,
+  actions: {
+    apiWrite: true,
+    sync: false
+  },
+  stat: standardData,
+  statWithoutMeta: standardData,
+  editLogs: {},
+  selectedMks: [ "test-mk-001" ],
+  consecutiveProcessingCount: 1
+};
+
+function createTimeTestPayload(data) {
+  return {
+    mk: `time-test-${Date.now()}`,
+    message_id: 1e3,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat: data,
+    statWithoutMeta: data,
+    editLogs: {},
+    selectedMks: [],
+    consecutiveProcessingCount: 1
+  };
+}
+
+const timeTestPayloads = {
+  Initial: createTimeTestPayload(timeTest_Initial),
+  NoChange: createTimeTestPayload(timeTest_NoChange),
+  NewPeriod: createTimeTestPayload(timeTest_NewPeriod),
+  NewDay: createTimeTestPayload(timeTest_NewDay),
+  NewWeek: createTimeTestPayload(timeTest_NewWeek),
+  NewMonth: createTimeTestPayload(timeTest_NewMonth),
+  NewSeason: createTimeTestPayload(timeTest_NewSeason),
+  NewYear: createTimeTestPayload(timeTest_NewYear)
+};
+
+const utils_logger = new Logger("dev-utils");
+
+function addTestButtons(panel, title, configs, style) {
+  $("<div>").html(`<strong>${title}</strong>`).css({
+    marginTop: "10px",
+    borderTop: "1px solid #eee",
+    paddingTop: "5px"
+  }).appendTo(panel);
+  configs.forEach(config => {
+    $("<button>").text(config.text).css(style).on("click", async () => {
+      utils_logger.log("buttonClick", `触发测试: ${config.text}`);
+      if (config.beforeTest) {
+        await config.beforeTest();
+      }
+      const eventType = config.eventType || "dev:fakeWriteDone";
+      eventEmit(eventType, config.payload);
+      toastr.success(`已发送测试事件: ${config.text}`);
+    }).appendTo(panel);
+  });
+}
+
+const panel_logger = new Logger("dev-panel");
+
+function createTestPanel() {
   const panel = $("<div>").attr("id", "demo-era-test-harness").css({
     position: "fixed",
     top: "10px",
@@ -530,20 +625,27 @@ $(() => {
     gap: "5px",
     boxShadow: "0 2px 10px rgba(0,0,0,0.2)"
   }).appendTo($("body"));
-  $("<div><strong>UI 测试工具</strong></div>").css({
-    marginBottom: "5px",
-    borderBottom: "1px solid #eee",
-    paddingBottom: "5px"
-  }).appendTo(panel);
-  const buttons = [ {
-    text: "发送“标准”数据",
-    data: standardData
+  const uiTestConfigs = [ {
+    text: "标准UI",
+    payload: {
+      statWithoutMeta: standardData,
+      runtime: standardRuntime
+    },
+    eventType: "GSKO:showUI"
   }, {
-    text: "发送“缺失”数据",
-    data: missingData
+    text: "缺失UI",
+    payload: {
+      statWithoutMeta: missingData,
+      runtime: missingRuntime
+    },
+    eventType: "GSKO:showUI"
   }, {
-    text: "发送“边界”数据",
-    data: boundaryData
+    text: "边界UI",
+    payload: {
+      statWithoutMeta: boundaryData,
+      runtime: boundaryRuntime
+    },
+    eventType: "GSKO:showUI"
   } ];
   buttons.forEach(btnInfo => {
     $("<button>").text(btnInfo.text).css({
@@ -561,7 +663,291 @@ $(() => {
     }).appendTo(panel);
   });
   toastr.info("ERA 测试工具已加载。");
-  $(window).on("pagehide", function() {
-    $("body").find('[id^="demo-"]').remove();
+}
+
+function destroyTestPanel() {
+  $("body").find("#demo-era-test-harness").remove();
+  toastr.info("ERA 测试工具已卸载。");
+}
+
+function initDevPanel() {
+  panel_logger.log("initDevPanel", "初始化测试面板");
+  createTestPanel();
+  $(window).on("pagehide.devpanel", function() {
+    cleanupDevPanel();
+  });
+}
+
+function cleanupDevPanel() {
+  panel_logger.log("cleanupDevPanel", "清理测试面板");
+  destroyTestPanel();
+  $(window).off("pagehide.devpanel");
+}
+
+const format_logger = new Logger;
+
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
+
+function format_get(obj, path, fallback = "") {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        format_logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    format_logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    format_logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    format_logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
+
+const constants_ERA_VARIABLE_PATH = {
+  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+  UI_THEME: "config.ui.theme",
+  MAP_ASCII: "world.map_ascii",
+  MAP_GRAPH: "world.map_graph",
+  FALLBACK_PLACE: "config.defaults.fallbackPlace",
+  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+  RUNTIME_PREFIX: "runtime.",
+  INCIDENT_COOLDOWN: "config.incident.cooldown",
+  TIME_PROGRESS: "世界.timeProgress",
+  FESTIVALS_LIST: "festivals_list",
+  NEWS_TEXT: "文文新闻",
+  EXTRA_MAIN: "附加正文",
+  USER_LOCATION: "user.所在地区",
+  USER_HOME: "user.居住地区",
+  CHARS: "chars",
+  CHAR_HOME: "居住地区",
+  CHAR_LOCATION: "所在地区",
+  CHAR_AFFECTION: "好感度",
+  USER_DATA: "user",
+  USER_EVENTS: "重要经历",
+  USER_RELATIONSHIPS: "人际关系",
+  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+  UI_RIBBON_STEP: "config.ui.ribbonStep",
+  AFFECTION_STAGES: "config.affection.affectionStages",
+  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+  CONFIG_ROOT: "config"
+};
+
+const runtime_logger = new Logger("runtime");
+
+function getRuntimeVar(path, defaultValue) {
+  const funcName = "getRuntimeVar";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return defaultValue;
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    const value = get(chatVars, runtimePath, defaultValue);
+    runtime_logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+      value
+    });
+    return value;
+  } catch (error) {
+    runtime_logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+    return defaultValue;
+  }
+}
+
+async function setRuntimeVar(path, value) {
+  const funcName = "setRuntimeVar";
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    runtime_logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+      value
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      _.set(chatVars, runtimePath, value);
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+    return false;
+  }
+}
+
+function getRuntimeObject() {
+  const funcName = "getRuntimeObject";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return {};
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtime = format_get(chatVars, constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {});
+    runtime_logger.log(funcName, "成功获取 runtime 对象", {
+      runtime
+    });
+    return runtime || {};
+  } catch (error) {
+    runtime_logger.error(funcName, "获取 runtime 对象失败", error);
+    return {};
+  }
+}
+
+async function setRuntimeObject(runtimeObject, options) {
+  const funcName = "setRuntimeObject";
+  const {mode = "merge"} = options || {};
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePrefix = constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
+    runtime_logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
+      runtimeObject
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      if (mode === "replace") {
+        _.set(chatVars, runtimePrefix, runtimeObject);
+      } else {
+        const existingRuntime = _.get(chatVars, runtimePrefix, {});
+        _.merge(existingRuntime, runtimeObject);
+        _.set(chatVars, runtimePrefix, existingRuntime);
+      }
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, "成功设置 chat.runtime");
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
+    return false;
+  }
+}
+
+const _logger = new Logger;
+
+$(() => {
+  _logger.log("main", "后台数据处理脚本加载");
+  initDevPanel();
+  const handleWriteDone = async payload => {
+    const {statWithoutMeta, message_id} = payload;
+    _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
+    const prevRuntime = getRuntimeObject();
+    const timeResult = processTime(statWithoutMeta, prevRuntime);
+    const newRuntime = external_default().merge({}, timeResult);
+    await setRuntimeObject(newRuntime, {
+      mode: "replace"
+    });
+    _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
+      finalRuntime: newRuntime
+    });
+    if (typeof eventEmit === "function") {
+      const uiPayload = {
+        ...payload,
+        statWithoutMeta,
+        runtime: newRuntime
+      };
+      eventEmit("GSKO:showUI", uiPayload);
+      _logger.log("handleWriteDone", "已发送 GSKO:showUI 事件", uiPayload);
+    } else {
+      _logger.warn("handleWriteDone", "eventEmit 函数不可用，无法发送 UI 更新事件。");
+    }
+  };
+  eventOn("era:writeDone", detail => {
+    _logger.log("main", "接收到真实的 era:writeDone 事件");
+    handleWriteDone(detail);
+  });
+  eventOn("dev:fakeWriteDone", detail => {
+    _logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");
+    handleWriteDone(detail);
+  });
+  $(window).on("pagehide.main", () => {
+    _logger.log("main", "后台数据处理脚本卸载");
+    cleanupDevPanel();
+    $(window).off(".main");
   });
 });

@@ -1,5 +1,13 @@
 {
   "config": {
+    "time": {
+      "epochISO": "2025-10-24T06:00:00+09:00",
+      "periodNames": ["清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜"],
+      "periodKeys": ["newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight"],
+      "seasonNames": ["春", "夏", "秋", "冬"],
+      "seasonKeys": ["newSpring", "newSummer", "newAutumn", "newWinter"],
+      "weekNames": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
+    },
     "ui": {
       "mainFontPercent": 100,
       "mainFontPercent__doc": "正文区域基础字号的百分比（建议 60~200）",

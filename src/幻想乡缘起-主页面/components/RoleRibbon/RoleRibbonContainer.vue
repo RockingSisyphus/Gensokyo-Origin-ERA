@@ -52,7 +52,8 @@ const scroll = (direction: number) => {
   ribbon.value?.scrollBy({ left: direction * ribbonScrollStep.value, behavior: 'smooth' });
 };
 
-const updateRibbon = (newStat: any) => {
+const updateRibbon = (context: { statWithoutMeta: any }) => {
+  const newStat = context?.statWithoutMeta;
   if (!newStat || typeof newStat !== 'object') return;
   statWithoutMeta.value = newStat;
 
