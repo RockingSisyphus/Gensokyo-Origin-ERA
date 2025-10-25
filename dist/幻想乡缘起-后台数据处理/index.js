@@ -864,6 +864,89 @@ const timeTest_NewYear = external_default().cloneDeep(baseTimeData);
 
 timeTest_NewYear.世界.timeProgress = (8 + 30 + 31) * 24 * 60;
 
+const statWithIllegalLocations = {
+  user: {
+    name: "测试用户",
+    居住地区: "人里",
+    所在地区: "火星"
+  },
+  chars: {
+    灵梦: {
+      name: "博丽灵梦",
+      居住地区: "博丽神社",
+      所在地区: "博丽神社"
+    },
+    魔理沙: {
+      name: "雾雨魔理沙",
+      居住地区: "雾雨店",
+      所在地区: "魔法森林"
+    },
+    早苗: {
+      name: "东风谷早苗",
+      居住地区: "幻想乡",
+      所在地区: ""
+    },
+    芙兰朵露: {
+      name: "芙兰朵露·斯卡雷特",
+      居住地区: "红魔馆地下室",
+      所在地区: "玩耍中"
+    }
+  },
+  world: {
+    fallbackPlace: "博丽神社",
+    map_graph: {
+      tree: {
+        幻想乡及周边: {
+          幻想乡本土: {
+            东境丘陵带: [ "博丽神社", "永远亭", "迷途竹林", "神灵庙", "梦殿大祀庙" ],
+            中部平原带: [ "人间之里", "铃奈庵", "命莲寺", "墓地", "香霖堂" ],
+            魔法之森带: [ "魔法之森", "迷途之家", "雾雨魔法店" ],
+            西境水域带: [ "雾之湖", "红魔馆" ]
+          }
+        }
+      },
+      aliases: {
+        博丽神社: [ "博麗神社", "博丽" ],
+        人间之里: [ "人里", "人間之里" ],
+        雾雨魔法店: [ "雾雨店", "魔法店" ],
+        魔法之森: [ "魔法森林" ],
+        红魔馆: [ "红馆" ]
+      }
+    }
+  }
+};
+
+const statWithMissingLocations = {
+  user: {
+    name: "测试用户"
+  },
+  chars: {
+    灵梦: {
+      name: "博丽灵梦",
+      居住地区: "博丽神社",
+      所在地区: "博丽神社"
+    },
+    魔理沙: {
+      name: "雾雨魔理沙"
+    }
+  },
+  world: {
+    fallbackPlace: "人间之里",
+    map_graph: {
+      tree: {
+        幻想乡本土: {
+          东境丘陵带: [ "博丽神社" ],
+          中部平原带: [ "人间之里" ]
+        }
+      },
+      aliases: {
+        博丽神社: [ "博丽" ],
+        人间之里: [ "人里" ]
+      }
+    }
+  }
+};
+
 const coreTestPayload = {
   mk: "test-mk-001",
   message_id: 999,
@@ -903,6 +986,131 @@ const timeTestPayloads = {
   NewMonth: createTimeTestPayload(timeTest_NewMonth),
   NewSeason: createTimeTestPayload(timeTest_NewSeason),
   NewYear: createTimeTestPayload(timeTest_NewYear)
+};
+
+function createNormalizerTestPayload(data) {
+  return {
+    mk: `normalizer-test-${Date.now()}`,
+    message_id: 1001,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat: data,
+    statWithoutMeta: data,
+    editLogs: {},
+    selectedMks: [],
+    consecutiveProcessingCount: 1
+  };
+}
+
+const normalizerTestPayloads = {
+  IllegalLocations: createNormalizerTestPayload(statWithIllegalLocations),
+  MissingLocations: createNormalizerTestPayload(statWithMissingLocations)
+};
+
+const worldWithMapGraph = {
+  map_graph: {
+    tree: {
+      幻想乡及周边: {
+        幻想乡本土: {
+          东境丘陵带: [ "博丽神社", "永远亭", "迷途竹林", "神灵庙", "梦殿大祀庙" ],
+          中部平原带: [ "人间之里", "铃奈庵", "命莲寺", "墓地", "香霖堂" ],
+          魔法之森带: [ "魔法之森", "迷途之家", "雾雨魔法店" ],
+          西境水域带: [ "雾之湖", "红魔馆" ],
+          西北山地带: [ "妖怪之山", "守矢神社", "九天瀑布", "风神之湖", "玄武之泽", "虹龙洞", "秘天崖", "兽道", "大蛤蟆之池" ],
+          南境丘陵带: [ "无名之丘", "太阳花田", "辉针城" ]
+        },
+        冥界: [ "幽冥结界", "白玉楼" ],
+        地底·地狱系: [ "幻想风穴", "间歇泉", "旧都", "血之湖", "地灵殿", "灼热地狱遗址", "地狱", "畜生界（兽王园）" ],
+        彼岸·中阴界: [ "中有之道", "三途河", "彼岸", "柳之运河", "无缘冢" ],
+        天界等上层: [ "天界", "有顶天", "仙界", "梦境世界" ],
+        月面: [ "月都" ],
+        外界: [ "秘封俱乐部" ]
+      }
+    },
+    aliases: {
+      博丽神社: [ "博麗神社", "博丽", "博丽神社周边" ],
+      永远亭: [ "永遠亭" ],
+      迷途竹林: [ "迷途竹林" ],
+      神灵庙: [ "神靈廟" ],
+      梦殿大祀庙: [ "夢殿大祀廟" ],
+      人间之里: [ "人里", "人間之里" ],
+      铃奈庵: [ "鈴奈庵", "铃奈庵·稗田书店" ],
+      命莲寺: [ "命蓮寺" ],
+      墓地: [ "墓地" ],
+      香霖堂: [ "香霖", "古道具屋", "Kourindou" ],
+      魔法之森: [ "魔法森林", "魔之森", "魔法之林" ],
+      迷途之家: [ "爱丽丝的家", "娃娃之家" ],
+      雾雨魔法店: [ "雾雨店", "魔法店", "魔理沙的家" ],
+      雾之湖: [ "霧之湖" ],
+      红魔馆: [ "红馆", "紅魔館", "SDM" ],
+      妖怪之山: [ "妖山", "天狗之山", "河童之山" ],
+      守矢神社: [ "守矢" ],
+      九天瀑布: [ "九天之瀑" ],
+      风神之湖: [ "風神之湖", "风神湖" ],
+      玄武之泽: [ "玄武之澤", "玄武泽" ],
+      虹龙洞: [ "虹龍洞" ],
+      秘天崖: [ "秘天崖" ],
+      兽道: [ "獸道" ],
+      大蛤蟆之池: [ "大蟾蜍之池" ],
+      无名之丘: [ "无名丘" ],
+      太阳花田: [ "太陽花田", "向日葵田" ],
+      辉针城: [ "輝針城" ],
+      幽冥结界: [ "冥界结界", "幽冥結界" ],
+      白玉楼: [ "白玉樓", "白玉楼阁" ],
+      幻想风穴: [ "幻想風穴", "风穴" ],
+      间歇泉: [ "間歇泉", "温泉" ],
+      旧都: [ "舊都", "旧地狱区" ],
+      血之湖: [ "血之湖" ],
+      地灵殿: [ "地靈殿", "地灵殿宅邸" ],
+      灼热地狱遗址: [ "灼熱地獄遺址", "灼热地狱遗迹" ],
+      地狱: [ "地獄" ],
+      "畜生界（兽王园）": [ "畜生界（獸王園）" ],
+      中有之道: [ "中有道" ],
+      三途河: [ "三途之河" ],
+      彼岸: [ "彼岸界" ],
+      柳之运河: [ "柳之運河", "柳川" ],
+      无缘冢: [ "無緣冢", "无缘塚" ],
+      天界: [ "天" ],
+      有顶天: [ "有頂天", "有顶天界" ],
+      仙界: [ "仙境" ],
+      梦境世界: [ "夢境世界", "梦世界" ],
+      月都: [ "月球", "月之都", "月都" ],
+      秘封俱乐部: [ "秘封俱樂部" ]
+    }
+  }
+};
+
+const statUserAtKnownLocation = {
+  user: {
+    name: "测试用户",
+    所在地区: "博丽神社"
+  },
+  world: worldWithMapGraph
+};
+
+const statUserAtUnknownLocation = {
+  user: {
+    name: "测试用户",
+    所在地区: "外界"
+  },
+  world: worldWithMapGraph
+};
+
+const statUserLocationMissing = {
+  user: {
+    name: "测试用户"
+  },
+  world: worldWithMapGraph
+};
+
+const statWorldMissing = {
+  user: {
+    name: "测试用户",
+    所在地区: "博丽神社"
+  },
+  world: []
 };
 
 const utils_logger = new Logger("dev-utils");
@@ -996,12 +1204,10 @@ function createTestPanel() {
     borderRadius: "3px",
     fontSize: "12px"
   });
-  toastr.info("ERA 测试工具已加载。");
 }
 
 function destroyTestPanel() {
   $("body").find("#demo-era-test-harness").remove();
-  toastr.info("ERA 测试工具已卸载。");
 }
 
 function initDevPanel() {
@@ -1017,126 +1223,6 @@ function cleanupDevPanel() {
   destroyTestPanel();
   $(window).off("pagehide.devpanel");
 }
-
-const format_logger = new Logger;
-
-function firstVal(x) {
-  return Array.isArray(x) ? x.length ? x[0] : "" : x;
-}
-
-function format_get(obj, path, fallback = "") {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        format_logger.debug("get", "未找到键，使用默认值。", {
-          路径: String(path),
-          缺失键: String(k),
-          默认值: fallback
-        });
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    const v = firstVal(cur);
-    if (v == null) {
-      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
-        路径: String(path),
-        默认值: fallback
-      });
-      return fallback;
-    }
-    return v;
-  } catch (e) {
-    format_logger.error("get", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function format_text(id, raw) {
-  const el = document.getElementById(id);
-  if (!el) {
-    format_logger.warn("text", "目标元素不存在，跳过写入。", {
-      元素ID: id
-    });
-    return;
-  }
-  el.textContent = toText(raw);
-}
-
-function getRaw(obj, path, fallback = null) {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    return cur == null ? fallback : cur;
-  } catch (e) {
-    format_logger.error("getRaw", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function toText(v) {
-  if (v == null || v === "") return "—";
-  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-  if (typeof v === "object") return JSON.stringify(v);
-  return String(v);
-}
-
-function getStr(obj, path, fallback = "") {
-  const rawValue = getRaw(obj, path, null);
-  if (rawValue === null) {
-    return toText(fallback);
-  }
-  return toText(rawValue);
-}
-
-const constants_ERA_VARIABLE_PATH = {
-  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-  UI_THEME: "config.ui.theme",
-  MAP_ASCII: "world.map_ascii",
-  MAP_GRAPH: "world.map_graph",
-  FALLBACK_PLACE: "config.defaults.fallbackPlace",
-  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-  RUNTIME_PREFIX: "runtime.",
-  INCIDENT_COOLDOWN: "config.incident.cooldown",
-  TIME_PROGRESS: "世界.timeProgress",
-  FESTIVALS_LIST: "festivals_list",
-  NEWS_TEXT: "文文新闻",
-  EXTRA_MAIN: "附加正文",
-  USER_LOCATION: "user.所在地区",
-  USER_HOME: "user.居住地区",
-  CHARS: "chars",
-  CHAR_HOME: "居住地区",
-  CHAR_LOCATION: "所在地区",
-  CHAR_AFFECTION: "好感度",
-  USER_DATA: "user",
-  USER_EVENTS: "重要经历",
-  USER_RELATIONSHIPS: "人际关系",
-  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-  UI_RIBBON_STEP: "config.ui.ribbonStep",
-  AFFECTION_STAGES: "config.affection.affectionStages",
-  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-  CONFIG_ROOT: "config"
-};
 
 const runtime_logger = new Logger("runtime");
 
@@ -1250,9 +1336,11 @@ $(() => {
   const handleWriteDone = async payload => {
     const {statWithoutMeta, message_id} = payload;
     _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
+    const normalizedStat = normalizeAllData(statWithoutMeta);
     const prevRuntime = getRuntimeObject();
-    const timeResult = processTime(statWithoutMeta, prevRuntime);
-    const newRuntime = external_default().merge({}, timeResult);
+    const timeResult = processTime(normalizedStat, prevRuntime);
+    const areaResult = await processArea(normalizedStat, prevRuntime);
+    const newRuntime = external_default().merge({}, timeResult, areaResult);
     await setRuntimeObject(newRuntime, {
       mode: "replace"
     });
@@ -1262,7 +1350,7 @@ $(() => {
     if (typeof eventEmit === "function") {
       const uiPayload = {
         ...payload,
-        statWithoutMeta,
+        statWithoutMeta: normalizedStat,
         runtime: newRuntime
       };
       eventEmit("GSKO:showUI", uiPayload);

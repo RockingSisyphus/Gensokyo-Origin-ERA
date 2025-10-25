@@ -1,6 +1,6 @@
+import { ERA_VARIABLE_PATH } from './constants';
 import { get } from './format';
 import { Logger } from './logger';
-import { ERA_VARIABLE_PATH } from './constants';
 
 const logger = new Logger('runtime');
 

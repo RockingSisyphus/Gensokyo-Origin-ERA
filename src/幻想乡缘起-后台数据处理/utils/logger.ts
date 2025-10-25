@@ -176,7 +176,7 @@ export const LOG_CONFIG = {
   // - 对于 `src/幻想乡缘起-主页面/backend/affection.ts`，模块名为 `backend-affection`
   // - 对于 `src/幻想乡缘起-主页面/components/RoleRibbon.vue`，模块名为 `components-RoleRibbon`
   // - 以此类推
-  debugWhitelist: ['index', 'backend', 'components'] as string[],
+  debugWhitelist: ['index', 'core-area', 'dev', 'utils'] as string[],
 };
 // 初始化时将 currentLevel 设置为 debug 级别
 LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;

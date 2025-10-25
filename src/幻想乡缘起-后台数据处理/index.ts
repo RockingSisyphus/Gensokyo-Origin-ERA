@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { processArea } from './core/area';
+import { normalizeAllData } from './core/normalizer';
 import { processTime } from './core/time/processor';
 import { cleanupDevPanel, initDevPanel } from './dev/panel';
 import { WriteDonePayload } from './utils/era';
@@ -23,16 +25,20 @@ $(() => {
     const { statWithoutMeta, message_id } = payload;
     logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
 
-    // 1. 从 chat 变量域中读取上一楼层的 runtime 对象，主要用于获取 ack
+    // 1. 【数据标准化】在所有核心逻辑开始前，对 stat 数据进行清洗和修正
+    const normalizedStat = normalizeAllData(statWithoutMeta);
+
+    // 2. 从 chat 变量域中读取上一楼层的 runtime 对象，主要用于获取 ack
     const prevRuntime = getRuntimeObject();
 
-    // 2. 调用所有核心处理模块
-    const timeResult = processTime(statWithoutMeta, prevRuntime);
-    // const characterResult = processCharacters(statWithoutMeta, prevRuntime);
-    // const worldResult = processWorld(statWithoutMeta, prevRuntime);
+    // 3. 调用所有核心处理模块，注意要传入标准化后的 stat
+    const timeResult = processTime(normalizedStat, prevRuntime);
+    const areaResult = await processArea(normalizedStat, prevRuntime);
+    // const characterResult = processCharacters(normalizedStat, prevRuntime);
+    // const worldResult = processWorld(normalizedStat, prevRuntime);
 
     // 3. 将所有模块的结果合并成一个新的、干净的 runtime 对象
-    const newRuntime = _.merge({}, timeResult /*, characterResult, worldResult */);
+    const newRuntime = _.merge({}, timeResult, areaResult /*, characterResult, worldResult */);
 
     // 4. 将新的 runtime 对象【完全替换】旧的
     await setRuntimeObject(newRuntime, { mode: 'replace' });
@@ -45,7 +51,7 @@ $(() => {
     if (typeof eventEmit === 'function') {
       const uiPayload = {
         ...payload, // 继承原始 payload 的所有属性 (mk, actions, etc.)
-        statWithoutMeta: statWithoutMeta,
+        statWithoutMeta: normalizedStat, // 传递标准化后的 stat
         runtime: newRuntime, // 附加被修改后的 runtime 对象
       };
       eventEmit('GSKO:showUI', uiPayload);

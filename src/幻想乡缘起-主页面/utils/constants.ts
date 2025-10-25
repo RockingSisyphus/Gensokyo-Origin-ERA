@@ -33,9 +33,9 @@ export const ERA_VARIABLE_PATH = {
 
   /**
    * 当地区信息无效时的备用地点。
-   * 路径: config.defaults.fallbackPlace
+   * 路径: world.fallbackPlace
    */
-  FALLBACK_PLACE: 'config.defaults.fallbackPlace',
+  FALLBACK_PLACE: 'world.fallbackPlace',
 
   /**
    * 是否立即触发异变。

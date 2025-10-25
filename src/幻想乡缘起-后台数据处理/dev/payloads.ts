@@ -1,6 +1,7 @@
 import { WriteDonePayload } from '../utils/era';
 import { standardData } from './test-data/ui';
 import * as timeData from './test-data/time';
+import * as normalizerData from './test-data/normalizer';
 import _ from 'lodash';
 
 /**
@@ -46,4 +47,26 @@ export const timeTestPayloads = {
   NewMonth: createTimeTestPayload(timeData.timeTest_NewMonth),
   NewSeason: createTimeTestPayload(timeData.timeTest_NewSeason),
   NewYear: createTimeTestPayload(timeData.timeTest_NewYear),
+};
+
+// ==================================================================
+// Normalizer 模块测试 Payloads
+// ==================================================================
+
+function createNormalizerTestPayload(data: any): WriteDonePayload {
+    return {
+      mk: `normalizer-test-${Date.now()}`,
+      message_id: 1001,
+      actions: { apiWrite: true, sync: false },
+      stat: data,
+      statWithoutMeta: data,
+      editLogs: {},
+      selectedMks: [],
+      consecutiveProcessingCount: 1,
+    };
+  }
+
+export const normalizerTestPayloads = {
+    IllegalLocations: createNormalizerTestPayload(normalizerData.statWithIllegalLocations),
+    MissingLocations: createNormalizerTestPayload(normalizerData.statWithMissingLocations),
 };

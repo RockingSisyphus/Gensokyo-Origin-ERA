@@ -1,5 +1,6 @@
 import { Logger } from '../utils/logger';
-import { coreTestPayload, timeTestPayloads } from './payloads';
+import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './payloads';
+import * as areaTestData from './test-data/area';
 import {
   boundaryData,
   boundaryRuntime,
@@ -84,12 +85,37 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
-  toastr.info('ERA 测试工具已加载。');
+  // --- 地区模块测试 ---
+  const areaTestConfigs: TestButtonConfig[] = Object.entries(areaTestData).map(([key, statData]) => ({
+    text: key,
+    payload: { statWithoutMeta: statData },
+  }));
+  addTestButtons(panel, '地区模块测试', areaTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #81d4fa',
+    background: '#e1f5fe',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- Normalizer 模块测试 ---
+  const normalizerTestConfigs: TestButtonConfig[] = Object.entries(normalizerTestPayloads).map(([key, payload]) => ({
+    text: key,
+    payload,
+  }));
+  addTestButtons(panel, 'Normalizer 模块测试', normalizerTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #ffab91',
+    background: '#fbe9e7',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
 }
 
 function destroyTestPanel() {
   $('body').find('#demo-era-test-harness').remove();
-  toastr.info('ERA 测试工具已卸载。');
 }
 
 export function initDevPanel() {

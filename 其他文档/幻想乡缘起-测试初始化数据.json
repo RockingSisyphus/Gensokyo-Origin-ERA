@@ -55,6 +55,8 @@
     }
   },
   "world": {
+    "fallbackPlace": "博丽神社",
+    "fallbackPlace__doc": "当地区信息无效时的备用地点",
     "map_ascii": "",
     "map_ascii__doc": "ASCII 世界地图的文本内容",
     "map_graph": "",

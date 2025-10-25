@@ -1,5 +1,18 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  143: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  42: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  494: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       Jt: () => get,
       Qq: () => text,
@@ -7,7 +20,7 @@
       UY: () => getStr,
       fE: () => toText
     });
-    var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(280);
+    var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(929);
     const logger = new _logger__WEBPACK_IMPORTED_MODULE_0__.Vy;
     function firstVal(x) {
       return Array.isArray(x) ? x.length ? x[0] : "" : x;
@@ -89,108 +102,44 @@
       return toText(rawValue);
     }
   },
-  280: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  728: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
-      EN: () => logContext,
-      Vy: () => Logger
+      M: () => ERA_VARIABLE_PATH
     });
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        if (moduleName) {
-          this.moduleName = moduleName;
-        } else {
-          this.moduleName = this._getModuleNameFromStack() || "unknown";
-        }
-      }
-      _getModuleNameFromStack() {
-        try {
-          const stack = (new Error).stack || "";
-          const callerLine = stack.split("\n")[2];
-          if (!callerLine) return null;
-          const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
-          if (!match || !match[1]) return null;
-          let path = match[1];
-          path = path.split("?")[0];
-          path = path.replace(/\.(vue|ts|js)$/, "");
-          return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
-        } catch (e) {
-          return null;
-        }
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
-          return;
-        }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
-      }
-    }
-    const LOG_CONFIG = {
-      levels: {
-        debug: 0,
-        log: 1,
-        warn: 2,
-        error: 3
-      },
-      currentLevel: 0,
-      debugWhitelist: [ "index", "backend", "components" ]
-    };
-    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
-  },
-  441: (__unused_webpack_module, exports) => {
-    var __webpack_unused_export__;
-    __webpack_unused_export__ = {
-      value: true
-    };
-    exports.A = (sfc, props) => {
-      const target = sfc.__vccOpts || sfc;
-      for (const [key, val] of props) {
-        target[key] = val;
-      }
-      return target;
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "world.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
     };
   },
-  502: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       burstBarParticles: () => burstBarParticles,
@@ -423,41 +372,13 @@
       }
     }
   },
-  815: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  929: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
+      EN: () => logContext,
+      Vy: () => Logger
     });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "config.defaults.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
+    const logContext = {
+      mk: ""
     };
   }
 };
@@ -520,11 +441,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(815);
+var constants = __webpack_require__(728);
 
-var format = __webpack_require__(143);
+var format = __webpack_require__(494);
 
-var utils_logger = __webpack_require__(280);
+var utils_logger = __webpack_require__(929);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -585,7 +506,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(441);
+var exportHelper = __webpack_require__(42);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6b80904d" ] ]);
 
@@ -1786,7 +1707,7 @@ const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_s
 
 const StatusTabContent = StatusTabContent_exports_;
 
-var affection = __webpack_require__(502);
+var affection = __webpack_require__(729);
 
 const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "aff-num"
