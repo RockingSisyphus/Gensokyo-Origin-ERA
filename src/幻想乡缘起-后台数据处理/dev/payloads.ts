@@ -54,19 +54,19 @@ export const timeTestPayloads = {
 // ==================================================================
 
 function createNormalizerTestPayload(data: any): WriteDonePayload {
-    return {
-      mk: `normalizer-test-${Date.now()}`,
-      message_id: 1001,
-      actions: { apiWrite: true, sync: false },
-      stat: data,
-      statWithoutMeta: data,
-      editLogs: {},
-      selectedMks: [],
-      consecutiveProcessingCount: 1,
-    };
-  }
+  return {
+    mk: `normalizer-test-${Date.now()}`,
+    message_id: 1001,
+    actions: { apiWrite: true, sync: false },
+    stat: data,
+    statWithoutMeta: data,
+    editLogs: {},
+    selectedMks: [],
+    consecutiveProcessingCount: 1,
+  };
+}
 
 export const normalizerTestPayloads = {
-    IllegalLocations: createNormalizerTestPayload(normalizerData.statWithIllegalLocations),
-    MissingLocations: createNormalizerTestPayload(normalizerData.statWithMissingLocations),
+  IllegalLocations: createNormalizerTestPayload(normalizerData.statWithIllegalLocations),
+  MissingLocations: createNormalizerTestPayload(normalizerData.statWithMissingLocations),
 };

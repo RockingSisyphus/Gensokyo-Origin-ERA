@@ -27,7 +27,31 @@ var __webpack_require__ = {};
   __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 })();
 
+(() => {
+  __webpack_require__.r = exports => {
+    if (typeof Symbol !== "undefined" && Symbol.toStringTag) {
+      Object.defineProperty(exports, Symbol.toStringTag, {
+        value: "Module"
+      });
+    }
+    Object.defineProperty(exports, "__esModule", {
+      value: true
+    });
+  };
+})();
+
 var __webpack_exports__ = {};
+
+var test_data_area_namespaceObject = {};
+
+__webpack_require__.r(test_data_area_namespaceObject);
+
+__webpack_require__.d(test_data_area_namespaceObject, {
+  statUserAtKnownLocation: () => statUserAtKnownLocation,
+  statUserAtUnknownLocation: () => statUserAtUnknownLocation,
+  statUserLocationMissing: () => statUserLocationMissing,
+  statWorldMissing: () => statWorldMissing
+});
 
 const external_namespaceObject = _;
 
@@ -114,10 +138,481 @@ const LOG_CONFIG = {
     error: 3
   },
   currentLevel: 0,
-  debugWhitelist: [ "index", "backend", "components" ]
+  debugWhitelist: [ "index", "core-area", "dev", "utils" ]
 };
 
 LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+
+function getAliasMap(mapGraph) {
+  const aliasMap = Object.create(null);
+  if (mapGraph?.aliases && typeof mapGraph.aliases === "object") {
+    for (const [standardName, aliasValue] of Object.entries(mapGraph.aliases)) {
+      const trimmedStandardName = String(standardName || "").trim();
+      if (!trimmedStandardName) continue;
+      const aliases = Array.isArray(aliasValue) ? aliasValue : [ aliasValue ];
+      for (const alias of aliases) {
+        const trimmedAlias = String(alias || "").trim();
+        if (trimmedAlias) {
+          aliasMap[trimmedAlias] = trimmedStandardName;
+        }
+      }
+    }
+  }
+  return aliasMap;
+}
+
+function extractLeafs(mapGraph) {
+  const leafs = [];
+  function walk(node) {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string" && item.trim()) {
+          leafs.push(item.trim());
+        }
+      }
+      return;
+    }
+    if (typeof node === "object") {
+      for (const value of Object.values(node)) {
+        walk(value);
+      }
+    }
+  }
+  if (mapGraph?.tree) {
+    walk(mapGraph.tree);
+  }
+  return leafs;
+}
+
+const logger = new Logger("core-area-legal-locations");
+
+function getLegalLocations(stat) {
+  const funcName = "getLegalLocations";
+  let legalLocations = [];
+  try {
+    const MAP = _.get(stat, "world.map_graph", null);
+    logger.debug(funcName, "从 stat.world.map_graph 中获取 map_graph...", {
+      MAP
+    });
+    if (MAP && MAP.tree) {
+      legalLocations = extractLeafs(MAP);
+      logger.debug(funcName, `从 map_graph 中提取了 ${legalLocations.length} 个地区关键词`, {
+        legalLocations
+      });
+    } else {
+      logger.log(funcName, "未找到有效的 map_graph，返回空数组");
+    }
+  } catch (e) {
+    logger.error(funcName, "提取合法地区时发生异常", e);
+    legalLocations = [];
+  }
+  logger.debug(funcName, "模块退出");
+  return legalLocations;
+}
+
+const log = new Logger("utils-message");
+
+function getMessageContent(msg) {
+  if (!msg) return null;
+  let content = null;
+  if (typeof msg.mes === "string") {
+    content = msg.mes;
+  } else if (Array.isArray(msg.swipes)) {
+    const sid = Number(msg.swipe_id ?? 0);
+    content = msg.swipes[sid] || null;
+  } else if (typeof msg.message === "string") {
+    content = msg.message;
+  }
+  if (content === null) {
+    return null;
+  }
+  return content;
+}
+
+function escReg(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractContentForMatching(messages, tagName = null) {
+  const segs = [];
+  for (const m of messages) {
+    const messageContent = getMessageContent(m);
+    if (messageContent === null) {
+      continue;
+    }
+    if (tagName) {
+      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi");
+      let match;
+      while ((match = re.exec(messageContent)) !== null) {
+        segs.push(match[1]);
+      }
+    } else {
+      segs.push(messageContent);
+    }
+  }
+  return segs.join("\n");
+}
+
+async function matchMessages(keywords, options = {}) {
+  const {depth = 5, includeSwipes = false, tag = null} = options;
+  const funcName = "matchMessages";
+  try {
+    if (typeof getChatMessages !== "function") {
+      log.warn(funcName, "getChatMessages 函数不可用，无法匹配消息。");
+      return [];
+    }
+    const last = getLastMessageId();
+    const begin = Math.max(0, last - (depth - 1));
+    const msgs = getChatMessages(`${begin}-${last}`, {
+      role: "all",
+      hide_state: "all",
+      include_swipes: includeSwipes
+    });
+    const pool = extractContentForMatching(msgs, tag);
+    if (!pool) {
+      return [];
+    }
+    log.debug(funcName, `待匹配的文本池: ${pool}`);
+    const hits = [];
+    for (const kw of keywords) {
+      if (!kw) continue;
+      const re = new RegExp(escReg(kw), "i");
+      if (re.test(pool)) {
+        hits.push(kw);
+      }
+    }
+    return hits;
+  } catch (e) {
+    log.error(funcName, "批量匹配消息时发生异常", e);
+    return [];
+  }
+}
+
+async function updateMessageContent(message, newContent) {
+  const oldContent = getMessageContent(message);
+  log.debug("updateMessageContent", "更新前的消息内容:", oldContent);
+  log.debug("updateMessageContent", "更新后的消息内容:", newContent);
+  const updatePayload = {
+    message_id: message.message_id
+  };
+  if (Array.isArray(message.swipes)) {
+    const sid = Number(message.swipe_id ?? 0);
+    const newSwipes = [ ...message.swipes ];
+    newSwipes[sid] = newContent;
+    updatePayload.swipes = newSwipes;
+  } else {
+    updatePayload.message = newContent;
+  }
+  await setChatMessages([ updatePayload ], {
+    refresh: "none"
+  });
+}
+
+const constants_ERA_VARIABLE_PATH = {
+  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+  UI_THEME: "config.ui.theme",
+  MAP_ASCII: "world.map_ascii",
+  MAP_GRAPH: "world.map_graph",
+  FALLBACK_PLACE: "world.fallbackPlace",
+  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+  RUNTIME_PREFIX: "runtime.",
+  INCIDENT_COOLDOWN: "config.incident.cooldown",
+  TIME_PROGRESS: "世界.timeProgress",
+  FESTIVALS_LIST: "festivals_list",
+  NEWS_TEXT: "文文新闻",
+  EXTRA_MAIN: "附加正文",
+  GENSOKYO_MAIN_STORY: "gensokyo",
+  USER_LOCATION: "user.所在地区",
+  USER_HOME: "user.居住地区",
+  CHARS: "chars",
+  CHAR_HOME: "居住地区",
+  CHAR_LOCATION: "所在地区",
+  CHAR_AFFECTION: "好感度",
+  USER_DATA: "user",
+  USER_EVENTS: "重要经历",
+  USER_RELATIONSHIPS: "人际关系",
+  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+  UI_RIBBON_STEP: "config.ui.ribbonStep",
+  AFFECTION_STAGES: "config.affection.affectionStages",
+  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+  CONFIG_ROOT: "config"
+};
+
+const location_loader_logger = new Logger("core-area-location-loader");
+
+async function loadLocations(stat, legalLocations) {
+  const funcName = "loadLocations";
+  let hits = [];
+  try {
+    if (!legalLocations || legalLocations.length === 0) {
+      location_loader_logger.log(funcName, "传入的合法地区列表为空，无需加载。");
+      return [];
+    }
+    const matched = await matchMessages(legalLocations, {
+      depth: 5,
+      includeSwipes: false,
+      tag: constants_ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
+    });
+    hits = Array.from(new Set(matched));
+    const userLoc = String(_.get(stat, "user.所在地区", "")).trim();
+    if (userLoc) {
+      location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
+      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
+        hits.push(userLoc);
+      }
+    } else {
+      location_loader_logger.debug(funcName, "在 stat.user.所在地区 中未找到用户位置");
+    }
+    location_loader_logger.log(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
+  } catch (e) {
+    location_loader_logger.error(funcName, "处理加载地区时发生异常", e);
+    hits = [];
+  }
+  location_loader_logger.debug(funcName, "模块退出，最终输出:", {
+    hits
+  });
+  return hits;
+}
+
+const area_logger = new Logger("core-area");
+
+async function processArea(stat, runtime) {
+  const funcName = "processArea";
+  area_logger.debug(funcName, "开始处理地区...");
+  const output = {
+    legal_locations: [],
+    loadArea: []
+  };
+  try {
+    const legalLocations = getLegalLocations(stat);
+    output.legal_locations = legalLocations;
+    area_logger.debug(funcName, `获取到 ${legalLocations.length} 个合法地区`);
+    const areasToLoad = await loadLocations(stat, legalLocations);
+    output.loadArea = areasToLoad;
+    area_logger.debug(funcName, `需要加载 ${areasToLoad.length} 个地区`);
+  } catch (e) {
+    area_logger.error(funcName, "处理地区时发生异常", e);
+    output.legal_locations = [];
+    output.loadArea = [];
+  }
+  area_logger.log(funcName, "地区处理完成", output);
+  return output;
+}
+
+const format_logger = new Logger;
+
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
+
+function format_get(obj, path, fallback = "") {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        format_logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    format_logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    format_logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    format_logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
+
+const location_logger = new Logger("core-normalizer-location");
+
+function normalizeLocationData(originalStat) {
+  const funcName = "normalizeLocationData";
+  location_logger.log(funcName, "开始对 stat 对象进行位置合法化处理...");
+  const stat = external_default().cloneDeep(originalStat);
+  try {
+    const mapGraph = format_get(stat, "world.map_graph", null);
+    if (!mapGraph || typeof mapGraph !== "object" || !mapGraph.tree) {
+      location_logger.warn(funcName, "未找到有效的 world.map_graph，跳过位置合法化。");
+      return stat;
+    }
+    const legalLocations = new Set(extractLeafs(mapGraph));
+    const aliasMap = getAliasMap(mapGraph);
+    const fallbackLocation = format_get(stat, "world.fallbackPlace", "博丽神社");
+    const normalize = (rawLocation, defaultLocation) => {
+      const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] ?? "" : rawLocation ?? "").trim();
+      if (!locationString) {
+        return {
+          isOk: false,
+          fixedLocation: defaultLocation
+        };
+      }
+      if (legalLocations.has(locationString)) {
+        return {
+          isOk: true,
+          fixedLocation: locationString
+        };
+      }
+      const standardName = aliasMap?.[locationString];
+      if (standardName && legalLocations.has(standardName)) {
+        return {
+          isOk: true,
+          fixedLocation: standardName
+        };
+      }
+      return {
+        isOk: false,
+        fixedLocation: defaultLocation
+      };
+    };
+    const USER_HOME_PATH = "user.居住地区";
+    const USER_LOCATION_PATH = "user.所在地区";
+    const CHARS_PATH = "chars";
+    const CHAR_HOME_KEY = "居住地区";
+    const CHAR_LOCATION_KEY = "所在地区";
+    let userHome = format_get(stat, USER_HOME_PATH, undefined);
+    let userLocation = format_get(stat, USER_LOCATION_PATH, undefined);
+    if (external_default().isNil(userHome)) {
+      userHome = fallbackLocation;
+      external_default().set(stat, USER_HOME_PATH, userHome);
+      location_logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
+    }
+    if (external_default().isNil(userLocation)) {
+      userLocation = userHome;
+      external_default().set(stat, USER_LOCATION_PATH, userLocation);
+      location_logger.debug(funcName, `补全用户缺失的所在地区 -> "${userLocation}"`);
+    }
+    const userHomeNormalization = normalize(userHome, fallbackLocation);
+    const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
+    const userLocationNormalization = normalize(userLocation, userLocationFallback);
+    if (!userHomeNormalization.isOk || userHomeNormalization.fixedLocation !== userHome) {
+      external_default().set(stat, USER_HOME_PATH, userHomeNormalization.fixedLocation);
+      location_logger.debug(funcName, `修正用户居住地区: "${userHome}" -> "${userHomeNormalization.fixedLocation}"`);
+    }
+    if (!userLocationNormalization.isOk || userLocationNormalization.fixedLocation !== userLocation) {
+      external_default().set(stat, USER_LOCATION_PATH, userLocationNormalization.fixedLocation);
+      location_logger.debug(funcName, `修正用户所在地区: "${userLocation}" -> "${userLocationNormalization.fixedLocation}"`);
+    }
+    let charactersData = format_get(stat, CHARS_PATH, null);
+    if (typeof charactersData === "string") {
+      try {
+        charactersData = JSON.parse(charactersData);
+      } catch {
+        charactersData = null;
+      }
+    }
+    if (charactersData && typeof charactersData === "object") {
+      for (const [charName, charObject] of Object.entries(charactersData)) {
+        if (String(charName).startsWith("$") || !charObject || typeof charObject !== "object") continue;
+        let charHome = charObject[CHAR_HOME_KEY];
+        let charLocation = charObject[CHAR_LOCATION_KEY];
+        if (external_default().isNil(charHome)) {
+          charHome = fallbackLocation;
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`, charHome);
+          location_logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
+        }
+        if (external_default().isNil(charLocation)) {
+          charLocation = charHome;
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`, charLocation);
+          location_logger.debug(funcName, `补全角色[${charName}]缺失的所在地区 -> "${charLocation}"`);
+        }
+        const charHomeNormalization = normalize(charHome, fallbackLocation);
+        const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
+        const charLocationNormalization = normalize(charLocation, charLocationFallback);
+        if (!charHomeNormalization.isOk || charHomeNormalization.fixedLocation !== charHome) {
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`, charHomeNormalization.fixedLocation);
+          location_logger.debug(funcName, `修正角色[${charName}]居住地区: "${charHome}" -> "${charHomeNormalization.fixedLocation}"`);
+        }
+        if (!charLocationNormalization.isOk || charLocationNormalization.fixedLocation !== charLocation) {
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`, charLocationNormalization.fixedLocation);
+          location_logger.debug(funcName, `修正角色[${charName}]所在地区: "${charLocation}" -> "${charLocationNormalization.fixedLocation}"`);
+        }
+      }
+    }
+    location_logger.log(funcName, "位置合法化检查完成。");
+  } catch (e) {
+    location_logger.error(funcName, "执行位置合法化时发生未知异常，将返回原始克隆数据。", e);
+  }
+  return stat;
+}
+
+const normalizer_logger = new Logger("core-normalizer");
+
+function normalizeAllData(originalStat) {
+  const funcName = "normalizeAllData";
+  normalizer_logger.log(funcName, "开始执行所有数据标准化流程...");
+  let stat = external_default().cloneDeep(originalStat);
+  stat = normalizeLocationData(stat);
+  normalizer_logger.log(funcName, "所有数据标准化流程执行完毕。");
+  return stat;
+}
 
 const PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
 
@@ -164,13 +659,13 @@ function seasonIndexOf(m) {
   return 3;
 }
 
-const logger = new Logger("core-time-processor");
+const processor_logger = new Logger("core-time-processor");
 
 function processTime(stat, runtime) {
   const funcName = "processTime";
   try {
     const prev = external_default().get(runtime, "clock.clockAck", null);
-    logger.log(funcName, `从 runtime 读取上一楼 ACK:`, prev);
+    processor_logger.log(funcName, `从 runtime 读取上一楼 ACK:`, prev);
     const timeConfig = external_default().get(stat, "config.time", {});
     const epochISO = external_default().get(timeConfig, "epochISO", EPOCH_ISO);
     const periodNames = external_default().get(timeConfig, "periodNames", PERIOD_NAMES);
@@ -179,11 +674,11 @@ function processTime(stat, runtime) {
     const seasonKeys = external_default().get(timeConfig, "seasonKeys", SEASON_KEYS);
     const weekNames = external_default().get(timeConfig, "weekNames", WEEK_NAMES);
     const tpMin = external_default().get(stat, "世界.timeProgress", 0);
-    logger.log(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
+    processor_logger.log(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
     const weekStartsOn = 1;
     const epochMS = Date.parse(epochISO);
     if (Number.isNaN(epochMS)) {
-      logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
+      processor_logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
     }
     const baseMS = Number.isNaN(epochMS) ? 0 : epochMS;
     let tzMin = 0;
@@ -215,9 +710,9 @@ function processTime(stat, runtime) {
     const periodName = periodNames[periodIdx];
     const periodKey = periodKeys[periodIdx];
     const periodID = dayID * 10 + periodIdx;
-    logger.log(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
-    logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
-    logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
+    processor_logger.log(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
+    processor_logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
+    processor_logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
     let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
     if (prev && typeof prev === "object") {
       const d = prev.dayID !== dayID;
@@ -232,9 +727,9 @@ function processTime(stat, runtime) {
       newWeek = newMonth || w;
       newDay = newWeek || d;
       newPeriod = newDay || p;
-      logger.log(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
+      processor_logger.log(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
     } else {
-      logger.log(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
+      processor_logger.log(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
     }
     const clockAck = {
       dayID,
@@ -297,10 +792,10 @@ function processTime(stat, runtime) {
         flags
       }
     };
-    logger.log(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
+    processor_logger.log(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
     return result;
   } catch (err) {
-    logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
     return null;
   }
 }
@@ -1201,6 +1696,32 @@ function createTestPanel() {
     padding: "5px 10px",
     border: "1px solid #bcaaa4",
     background: "#efebe9",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const areaTestConfigs = Object.entries(test_data_area_namespaceObject).map(([key, statData]) => ({
+    text: key,
+    payload: {
+      statWithoutMeta: statData
+    }
+  }));
+  addTestButtons(panel, "地区模块测试", areaTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #81d4fa",
+    background: "#e1f5fe",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const normalizerTestConfigs = Object.entries(normalizerTestPayloads).map(([key, payload]) => ({
+    text: key,
+    payload
+  }));
+  addTestButtons(panel, "Normalizer 模块测试", normalizerTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #ffab91",
+    background: "#fbe9e7",
     borderRadius: "3px",
     fontSize: "12px"
   });
