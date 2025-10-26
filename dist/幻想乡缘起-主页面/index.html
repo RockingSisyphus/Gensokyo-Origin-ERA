@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  143: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  306: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.d(__webpack_exports__, {
       Jt: () => get,
       Qq: () => text,
@@ -7,8 +7,8 @@
       UY: () => getStr,
       fE: () => toText
     });
-    var _logger__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(280);
-    const logger = new _logger__WEBPACK_IMPORTED_MODULE_0__.Vy;
+    var _log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(595);
+    const logger = new _log__WEBPACK_IMPORTED_MODULE_0__.V;
     function firstVal(x) {
       return Array.isArray(x) ? x.length ? x[0] : "" : x;
     }
@@ -89,94 +89,6 @@
       return toText(rawValue);
     }
   },
-  280: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      EN: () => logContext,
-      Vy: () => Logger
-    });
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        if (moduleName) {
-          this.moduleName = moduleName;
-        } else {
-          this.moduleName = this._getModuleNameFromStack() || "unknown";
-        }
-      }
-      _getModuleNameFromStack() {
-        try {
-          const stack = (new Error).stack || "";
-          const callerLine = stack.split("\n")[2];
-          if (!callerLine) return null;
-          const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
-          if (!match || !match[1]) return null;
-          let path = match[1];
-          path = path.split("?")[0];
-          path = path.replace(/\.(vue|ts|js)$/, "");
-          return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
-        } catch (e) {
-          return null;
-        }
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《幻想乡缘起》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-        if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
-          return;
-        }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
-      }
-    }
-    const LOG_CONFIG = {
-      levels: {
-        debug: 0,
-        log: 1,
-        warn: 2,
-        error: 3
-      },
-      currentLevel: 0,
-      debugWhitelist: [ "index", "backend", "components" ]
-    };
-    LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
-  },
   441: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
@@ -188,6 +100,134 @@
         target[key] = val;
       }
       return target;
+    };
+  },
+  444: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "world.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
+  },
+  595: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      E: () => logContext,
+      V: () => Logger
+    });
+    const DEBUG_CONFIG_LS_KEY = "era_debug_config";
+    let enabledPatterns = [];
+    let disabledPatterns = [];
+    function loadDebugConfig() {
+      try {
+        const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+        const config = JSON.parse(configStr);
+        const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
+        enabledPatterns = (config.enabled || []).map(toRegex);
+        disabledPatterns = (config.disabled || []).map(toRegex);
+      } catch (e) {
+        console.error("《ERA-Log》: 加载调试配置失败。", e);
+        enabledPatterns = [];
+        disabledPatterns = [];
+      }
+    }
+    function isDebugEnabled(moduleName) {
+      if (!moduleName) return false;
+      if (disabledPatterns.some(re => re.test(moduleName))) {
+        return false;
+      }
+      if (enabledPatterns.length === 0) {
+        return false;
+      }
+      if (enabledPatterns.some(re => re.test(moduleName))) {
+        return true;
+      }
+      return false;
+    }
+    function updateConfig(newConfig) {
+      const uniqueConfig = {
+        enabled: [ ...new Set(newConfig.enabled) ],
+        disabled: [ ...new Set(newConfig.disabled) ]
+      };
+      globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
+      loadDebugConfig();
+      console.log(`%c《ERA-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+        "启用 (Enabled)": uniqueConfig.enabled,
+        "禁用 (Disabled)": uniqueConfig.disabled
+      });
+    }
+    loadDebugConfig();
+    if (typeof globalThis !== "undefined") {
+      const eraDebug = {
+        add(pattern) {
+          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+          const config = JSON.parse(configStr);
+          const enabled = new Set(config.enabled || []);
+          const disabled = new Set(config.disabled || []);
+          enabled.add(pattern);
+          disabled.delete(pattern);
+          updateConfig({
+            enabled: Array.from(enabled),
+            disabled: Array.from(disabled)
+          });
+        },
+        remove(pattern) {
+          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+          const config = JSON.parse(configStr);
+          const enabled = new Set(config.enabled || []);
+          const disabled = new Set(config.disabled || []);
+          disabled.add(pattern);
+          enabled.delete(pattern);
+          updateConfig({
+            enabled: Array.from(enabled),
+            disabled: Array.from(disabled)
+          });
+        },
+        status() {
+          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+          const config = JSON.parse(configStr);
+          console.log(`%c《ERA-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+        },
+        clear() {
+          updateConfig({
+            enabled: [],
+            disabled: []
+          });
+        }
+      };
+      globalThis.eraDebug = eraDebug;
+    }
+    const logContext = {
+      mk: ""
     };
     class Logger {
       moduleName;
@@ -254,7 +294,7 @@
       }
     }
   },
-  502: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  789: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       burstBarParticles: () => burstBarParticles,
@@ -267,9 +307,9 @@
       runAffectionPipeline: () => runAffectionPipeline,
       stageLabelFrom: () => stageLabelFrom
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(643);
-    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(331);
-    var _utils_log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(360);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(444);
+    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(306);
+    var _utils_log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(595);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -486,43 +526,6 @@
         logger.warn(funcName, "好感流水线异常（非致命）", e);
       }
     }
-  },
-  815: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
-    });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "world.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
-    };
   }
 };
 
@@ -584,11 +587,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(815);
+var constants = __webpack_require__(444);
 
-var format = __webpack_require__(143);
+var format = __webpack_require__(306);
 
-var utils_logger = __webpack_require__(280);
+var log = __webpack_require__(595);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -1850,7 +1853,7 @@ const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_s
 
 const StatusTabContent = StatusTabContent_exports_;
 
-var affection = __webpack_require__(502);
+var affection = __webpack_require__(789);
 
 const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "aff-num"
@@ -3090,7 +3093,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 410)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 789)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }
