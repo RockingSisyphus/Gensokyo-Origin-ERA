@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { get } from '../../utils/format';
-import { Logger } from '../../utils/logger';
-import { extractLeafs, getAliasMap, MapGraph } from '../../utils/map';
+import { get } from '../../../utils/format';
+import { Logger } from '../../../utils/log';
+import { extractLeafs, getAliasMap, MapGraph } from '../../../utils/map';
 
-const logger = new Logger('core-normalizer-location');
+const logger = new Logger();
 
 /**
  * @description 对传入的 stat 对象进行深拷贝，并标准化其中所有用户和角色的地区信息。

@@ -16,10 +16,10 @@
 import { get as _get, cloneDeep, isEqual } from 'lodash';
 import { ref } from 'vue';
 import { updateEraVariable } from '../../../utils/eraWriter';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
 // 日志记录器
-const logger = new Logger('components-StatusTab-tabs-ContentSettings');
+const logger = new Logger();
 
 // 响应式变量
 const loadStatus = ref('未载入');

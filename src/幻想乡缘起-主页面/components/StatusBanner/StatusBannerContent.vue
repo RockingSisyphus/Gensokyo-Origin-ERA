@@ -16,11 +16,11 @@
 <script setup lang="ts">
 import _ from 'lodash';
 import { ref } from 'vue';
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../utils/log';
 import TimeContainer from './Icons/TimeContainer/TimeContainer.vue';
 import WeatherContainer from './Icons/WeatherContainer/WeatherContainer.vue';
 
-const logger = new Logger('components-StatusBannerContent');
+const logger = new Logger();
 
 interface ClockInfo {
   [key: string]: any;

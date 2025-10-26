@@ -30,9 +30,9 @@ import { defineExpose, onMounted } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
 import { get, getRaw, toText } from '../../../utils/format';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
-const logger = new Logger('components-StatusTab-tabs-Incidents');
+const logger = new Logger();
 
 // 定义常量
 const T0_PATH = 'incident.异变冷却基准时间';

@@ -1,6 +1,6 @@
-import { Logger } from './logger';
+import { Logger } from './log';
 
-const logger = new Logger('EraWriter');
+const logger = new Logger();
 
 /**
  * @description 通过 era:updateByPath 事件更新 ERA 变量。

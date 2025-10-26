@@ -1,8 +1,8 @@
-import { matchMessages } from '../../../utils/message';
-import { Logger } from '../../../utils/logger';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
+import { ERA_VARIABLE_PATH } from '../../../../utils/constants';
+import { Logger } from '../../../../utils/log';
+import { matchMessages } from '../../../../utils/message';
 
-const logger = new Logger('core-area-location-loader');
+const logger = new Logger();
 
 /**
  * @description 根据合法地区列表、最近消息和用户当前位置，处理并返回需要加载的地区。

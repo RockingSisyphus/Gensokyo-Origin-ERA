@@ -56,7 +56,7 @@
 import { ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
 import { getStr } from '../../utils/format';
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../utils/log';
 import ContentBio from './tabs/ContentBio.vue';
 import ContentOthers from './tabs/ContentOthers.vue';
 import ContentSettings from './tabs/ContentSettings.vue';
@@ -66,7 +66,7 @@ import WorldMap from './tabs/WorldMap.vue';
 import FontSizeControls from './tabs/FontSizeControls.vue';
 
 // 日志工具
-const logger = new Logger('components-StatusTab-StatusTabContent');
+const logger = new Logger();
 
 // 子组件对外暴露的实例类型
 type Updatable = { update: (payload: any) => void };

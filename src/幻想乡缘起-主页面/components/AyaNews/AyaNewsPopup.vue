@@ -9,7 +9,7 @@
 import { defineExpose, onMounted } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
 import { get, text } from '../../utils/format';
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../utils/log';
 
 defineEmits(['close']);
 

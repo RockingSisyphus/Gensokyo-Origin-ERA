@@ -1,6 +1,6 @@
 import { ERA_VARIABLE_PATH } from '../utils/constants';
 import { get, getRaw } from '../utils/format';
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/log';
 
 // —— 新增：一次性注入“仅作用于角色卡”的粒子与着色样式（保持内聚，避免全局污染）
 const AFFECTION_STYLE_ID = 'era-affection-style'; // 唯一ID，避免重复注入
@@ -76,7 +76,7 @@ function ensureAffectionStyles() {
  */
 
 // —— 模块日志器
-const logger = new Logger('backend-affection');
+const logger = new Logger();
 
 // —— 阶段文案（兜底，与 index.ts 中保持一致）
 const STAGES_FALLBACK: Array<[number, string]> = [

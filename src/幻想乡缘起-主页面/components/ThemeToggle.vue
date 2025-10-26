@@ -10,10 +10,10 @@ import { computed, defineExpose, onMounted, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../utils/constants';
 import { updateEraVariable } from '../utils/eraWriter';
 import { get } from '../utils/format';
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/log';
 
 // 初始化日志记录器
-const logger = new Logger('components-ThemeToggle');
+const logger = new Logger();
 
 // 定义主题的可能值
 const LIGHT = 'light';

@@ -6,9 +6,9 @@
 
 'use strict';
 
-import { Logger } from './logger';
+import { Logger } from './log';
 
-const log = new Logger('utils-message');
+const log = new Logger();
 
 // ==================================================================
 // 消息读取与解析

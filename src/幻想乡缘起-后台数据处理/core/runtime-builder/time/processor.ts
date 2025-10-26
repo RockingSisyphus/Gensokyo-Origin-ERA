@@ -1,9 +1,9 @@
 import _ from 'lodash';
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../../utils/log';
 import * as TimeData from './data';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 
-const logger = new Logger('core-time-processor');
+const logger = new Logger();
 
 export function processTime(stat: any, runtime: any) {
   const funcName = 'processTime';

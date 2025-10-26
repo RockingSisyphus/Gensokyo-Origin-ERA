@@ -10,9 +10,9 @@ import { defineExpose, onMounted, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
 import { get } from '../../../utils/format';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
-const logger = new Logger('components-StatusTab-tabs-FontSizeControls');
+const logger = new Logger();
 
 // 内部状态，存储当前字号百分比
 const currentPercent = ref(100);

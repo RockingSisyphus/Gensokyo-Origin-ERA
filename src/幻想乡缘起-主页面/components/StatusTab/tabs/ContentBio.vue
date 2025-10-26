@@ -14,10 +14,10 @@
 import { ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { get, getStr } from '../../../utils/format';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
 // 初始化日志记录器，方便调试
-const logger = new Logger('components-StatusTab-tabs-ContentBio');
+const logger = new Logger();
 
 // 创建 ref 来引用 DOM 元素，这是 Vue 推荐的操作 DOM 的方式
 const userEvents = ref<HTMLElement | null>(null);

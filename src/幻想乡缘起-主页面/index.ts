@@ -3,8 +3,8 @@ import { createApp } from 'vue';
 import App from './app.vue';
 import './style.scss';
 import { ERA_VARIABLE_PATH } from './utils/constants';
-import { Logger, logContext } from './utils/logger';
 import { get } from './utils/format';
+import { Logger, logContext } from './utils/log';
 
 // ===============================================================
 // 应用入口：挂载 Vue，并在 era:writeDone 事件中驱动整套 UI/后台流水线
@@ -18,7 +18,7 @@ $(() => {
   // 将 Vue app 实例挂载到 window 对象上，以便在其他地方访问（调试/外部调用）
   (window as any).vueApp = appInstance;
 
-  const logger = new Logger('index');
+  const logger = new Logger();
 
   // 监听 GSKO:showUI 事件，这是驱动 UI 更新的新入口
   eventOn('GSKO:showUI', (detail: any) => {

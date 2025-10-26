@@ -55,7 +55,104 @@ __webpack_require__.d(test_data_area_namespaceObject, {
 
 const external_namespaceObject = _;
 
-var external_default = __webpack_require__.n(external_namespaceObject);
+__webpack_require__.r(area_namespaceObject);
+
+__webpack_require__.d(area_namespaceObject, {
+  statUserAtKnownLocation: () => statUserAtKnownLocation,
+  statUserAtUnknownLocation: () => statUserAtUnknownLocation,
+  statUserLocationMissing: () => statUserLocationMissing,
+  statWorldMissing: () => statWorldMissing
+});
+
+const DEBUG_CONFIG_LS_KEY = "era_debug_config";
+
+let enabledPatterns = [];
+
+let disabledPatterns = [];
+
+function loadDebugConfig() {
+  try {
+    const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+    const config = JSON.parse(configStr);
+    const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
+    enabledPatterns = (config.enabled || []).map(toRegex);
+    disabledPatterns = (config.disabled || []).map(toRegex);
+  } catch (e) {
+    console.error("《ERA-Log》: 加载调试配置失败。", e);
+    enabledPatterns = [];
+    disabledPatterns = [];
+  }
+}
+
+function isDebugEnabled(moduleName) {
+  if (!moduleName) return false;
+  if (disabledPatterns.some(re => re.test(moduleName))) {
+    return false;
+  }
+  if (enabledPatterns.length === 0) {
+    return false;
+  }
+  if (enabledPatterns.some(re => re.test(moduleName))) {
+    return true;
+  }
+  return false;
+}
+
+function updateConfig(newConfig) {
+  const uniqueConfig = {
+    enabled: [ ...new Set(newConfig.enabled) ],
+    disabled: [ ...new Set(newConfig.disabled) ]
+  };
+  globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
+  loadDebugConfig();
+  console.log(`%c《ERA-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+    "启用 (Enabled)": uniqueConfig.enabled,
+    "禁用 (Disabled)": uniqueConfig.disabled
+  });
+}
+
+loadDebugConfig();
+
+if (typeof globalThis !== "undefined") {
+  const eraDebug = {
+    add(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      enabled.add(pattern);
+      disabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    remove(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      disabled.add(pattern);
+      enabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    status() {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      console.log(`%c《ERA-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+    },
+    clear() {
+      updateConfig({
+        enabled: [],
+        disabled: []
+      });
+    }
+  };
+  globalThis.eraDebug = eraDebug;
+}
 
 const logContext = {
   mk: ""
@@ -63,66 +160,62 @@ const logContext = {
 
 class Logger {
   moduleName;
-  constructor(moduleName) {
-    if (moduleName) {
-      this.moduleName = moduleName;
-    } else {
-      this.moduleName = this._getModuleNameFromStack() || "unknown";
-    }
+  constructor() {
+    this.moduleName = this._getModuleNameFromStack() || "unknown";
   }
   _getModuleNameFromStack() {
     try {
       const stack = (new Error).stack || "";
-      const callerLine = stack.split("\n")[2];
-      if (!callerLine) return null;
-      const match = callerLine.match(/\((?:webpack-internal:\/\/\/)?\.\/(.*)\)/);
-      if (!match || !match[1]) return null;
+      const callerLine = stack.split("\n").find(line => line.includes("/src/ERA变量框架/") && !line.includes("/utils/log.ts"));
+      if (!callerLine) {
+        return null;
+      }
+      const match = callerLine.match(/src\/ERA变量框架\/([^?:\s)]+)/);
+      if (!match || !match[1]) {
+        return null;
+      }
       let path = match[1];
-      path = path.split("?")[0];
       path = path.replace(/\.(vue|ts|js)$/, "");
-      return path.replace(/^src\/幻想乡缘起-主页面\//, "").replace(/\//g, "-");
+      return path.replace(/^src\/ERA变量框架\//, "").replace(/\/index$/, "").replace(/\//g, "-");
     } catch (e) {
+      console.error("《ERA-Log-Debug》: 解析模块名时发生意外错误。", e);
       return null;
     }
   }
   formatMessage(funcName, message) {
     const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-    return `《幻想乡缘起-后台》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+    return `《ERA》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
   }
   debug(funcName, message, obj) {
-    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.debug) return;
-    if (LOG_CONFIG.currentLevel === LOG_CONFIG.levels.debug && !LOG_CONFIG.debugWhitelist.some(prefix => this.moduleName.startsWith(prefix))) {
+    if (!isDebugEnabled(this.moduleName)) {
       return;
     }
     const formattedMessage = this.formatMessage(funcName, message);
-    if (obj) {
+    if (obj !== undefined) {
       console.debug(formattedMessage, obj);
     } else {
       console.debug(formattedMessage);
     }
   }
   log(funcName, message, obj) {
-    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.log) return;
     const formattedMessage = this.formatMessage(funcName, message);
-    if (obj) {
+    if (obj !== undefined) {
       console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
     } else {
       console.log(`%c${formattedMessage}`, "color: #3498db;");
     }
   }
   warn(funcName, message, obj) {
-    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.warn) return;
     const formattedMessage = this.formatMessage(funcName, message);
-    if (obj) {
+    if (obj !== undefined) {
       console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
     } else {
       console.warn(`%c${formattedMessage}`, "color: #f39c12;");
     }
   }
   error(funcName, message, errorObj) {
-    if (LOG_CONFIG.currentLevel > LOG_CONFIG.levels.error) return;
     const formattedMessage = this.formatMessage(funcName, message);
-    if (errorObj) {
+    if (errorObj !== undefined) {
       console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
     } else {
       console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
@@ -141,7 +234,85 @@ const LOG_CONFIG = {
   debugWhitelist: [ "index", "core-area", "dev", "utils" ]
 };
 
-LOG_CONFIG.currentLevel = LOG_CONFIG.levels.debug;
+function buildPrompt(runtime, stat) {
+  const funcName = "buildPrompt";
+  logger.log(funcName, "开始构建提示词...");
+  const prompt = "";
+  logger.log(funcName, "提示词构建完毕。");
+  return prompt;
+}
+
+const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
+
+function getAliasMap(mapGraph) {
+  const aliasMap = Object.create(null);
+  if (mapGraph?.aliases && typeof mapGraph.aliases === "object") {
+    for (const [standardName, aliasValue] of Object.entries(mapGraph.aliases)) {
+      const trimmedStandardName = String(standardName || "").trim();
+      if (!trimmedStandardName) continue;
+      const aliases = Array.isArray(aliasValue) ? aliasValue : [ aliasValue ];
+      for (const alias of aliases) {
+        const trimmedAlias = String(alias || "").trim();
+        if (trimmedAlias) {
+          aliasMap[trimmedAlias] = trimmedStandardName;
+        }
+      }
+    }
+  }
+  return aliasMap;
+}
+
+function extractLeafs(mapGraph) {
+  const leafs = [];
+  function walk(node) {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string" && item.trim()) {
+          leafs.push(item.trim());
+        }
+      }
+      return;
+    }
+    if (typeof node === "object") {
+      for (const value of Object.values(node)) {
+        walk(value);
+      }
+    }
+  }
+  if (mapGraph?.tree) {
+    walk(mapGraph.tree);
+  }
+  return leafs;
+}
+
+const legal_locations_logger = new Logger;
+
+function getLegalLocations(stat) {
+  const funcName = "getLegalLocations";
+  let legalLocations = [];
+  try {
+    const MAP = _.get(stat, "world.map_graph", null);
+    legal_locations_logger.debug(funcName, "从 stat.world.map_graph 中获取 map_graph...", {
+      MAP
+    });
+    if (MAP && MAP.tree) {
+      legalLocations = extractLeafs(MAP);
+      legal_locations_logger.debug(funcName, `从 map_graph 中提取了 ${legalLocations.length} 个地区关键词`, {
+        legalLocations
+      });
+    } else {
+      legal_locations_logger.log(funcName, "未找到有效的 map_graph，返回空数组");
+    }
+  } catch (e) {
+    legal_locations_logger.error(funcName, "提取合法地区时发生异常", e);
+    legalLocations = [];
+  }
+  legal_locations_logger.debug(funcName, "模块退出");
+  return legalLocations;
+}
 
 function getAliasMap(mapGraph) {
   const aliasMap = Object.create(null);
@@ -798,6 +969,388 @@ function processTime(stat, runtime) {
     processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
     return null;
   }
+}
+
+const runtime_builder_logger = new Logger;
+
+function buildRuntime(stat, originalRuntime) {
+  const funcName = "buildRuntime";
+  runtime_builder_logger.log(funcName, "开始构建 runtime...");
+  let runtime = external_default().cloneDeep(originalRuntime);
+  runtime.legal_locations = getLegalLocations(stat);
+  runtime = processTime(runtime, stat);
+  runtime_builder_logger.log(funcName, "Runtime 构建完毕。");
+  return runtime;
+}
+
+const format_logger = new Logger;
+
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
+
+function format_get(obj, path, fallback = "") {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        format_logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    format_logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    format_logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    format_logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
+
+const location_logger = new Logger;
+
+function normalizeLocationData(originalStat) {
+  const funcName = "normalizeLocationData";
+  location_logger.log(funcName, "开始对 stat 对象进行位置合法化处理...");
+  const stat = external_default().cloneDeep(originalStat);
+  try {
+    const mapGraph = format_get(stat, "world.map_graph", null);
+    if (!mapGraph || typeof mapGraph !== "object" || !mapGraph.tree) {
+      location_logger.warn(funcName, "未找到有效的 world.map_graph，跳过位置合法化。");
+      return stat;
+    }
+    const legalLocations = new Set(extractLeafs(mapGraph));
+    const aliasMap = getAliasMap(mapGraph);
+    const fallbackLocation = format_get(stat, "world.fallbackPlace", "博丽神社");
+    const normalize = (rawLocation, defaultLocation) => {
+      const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] ?? "" : rawLocation ?? "").trim();
+      if (!locationString) {
+        return {
+          isOk: false,
+          fixedLocation: defaultLocation
+        };
+      }
+      if (legalLocations.has(locationString)) {
+        return {
+          isOk: true,
+          fixedLocation: locationString
+        };
+      }
+      const standardName = aliasMap?.[locationString];
+      if (standardName && legalLocations.has(standardName)) {
+        return {
+          isOk: true,
+          fixedLocation: standardName
+        };
+      }
+      return {
+        isOk: false,
+        fixedLocation: defaultLocation
+      };
+    };
+    const USER_HOME_PATH = "user.居住地区";
+    const USER_LOCATION_PATH = "user.所在地区";
+    const CHARS_PATH = "chars";
+    const CHAR_HOME_KEY = "居住地区";
+    const CHAR_LOCATION_KEY = "所在地区";
+    let userHome = format_get(stat, USER_HOME_PATH, undefined);
+    let userLocation = format_get(stat, USER_LOCATION_PATH, undefined);
+    if (external_default().isNil(userHome)) {
+      userHome = fallbackLocation;
+      external_default().set(stat, USER_HOME_PATH, userHome);
+      location_logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
+    }
+    if (external_default().isNil(userLocation)) {
+      userLocation = userHome;
+      external_default().set(stat, USER_LOCATION_PATH, userLocation);
+      location_logger.debug(funcName, `补全用户缺失的所在地区 -> "${userLocation}"`);
+    }
+    const userHomeNormalization = normalize(userHome, fallbackLocation);
+    const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
+    const userLocationNormalization = normalize(userLocation, userLocationFallback);
+    if (!userHomeNormalization.isOk || userHomeNormalization.fixedLocation !== userHome) {
+      external_default().set(stat, USER_HOME_PATH, userHomeNormalization.fixedLocation);
+      location_logger.debug(funcName, `修正用户居住地区: "${userHome}" -> "${userHomeNormalization.fixedLocation}"`);
+    }
+    if (!userLocationNormalization.isOk || userLocationNormalization.fixedLocation !== userLocation) {
+      external_default().set(stat, USER_LOCATION_PATH, userLocationNormalization.fixedLocation);
+      location_logger.debug(funcName, `修正用户所在地区: "${userLocation}" -> "${userLocationNormalization.fixedLocation}"`);
+    }
+    let charactersData = format_get(stat, CHARS_PATH, null);
+    if (typeof charactersData === "string") {
+      try {
+        charactersData = JSON.parse(charactersData);
+      } catch {
+        charactersData = null;
+      }
+    }
+    if (charactersData && typeof charactersData === "object") {
+      for (const [charName, charObject] of Object.entries(charactersData)) {
+        if (String(charName).startsWith("$") || !charObject || typeof charObject !== "object") continue;
+        let charHome = charObject[CHAR_HOME_KEY];
+        let charLocation = charObject[CHAR_LOCATION_KEY];
+        if (external_default().isNil(charHome)) {
+          charHome = fallbackLocation;
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`, charHome);
+          location_logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
+        }
+        if (external_default().isNil(charLocation)) {
+          charLocation = charHome;
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`, charLocation);
+          location_logger.debug(funcName, `补全角色[${charName}]缺失的所在地区 -> "${charLocation}"`);
+        }
+        const charHomeNormalization = normalize(charHome, fallbackLocation);
+        const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
+        const charLocationNormalization = normalize(charLocation, charLocationFallback);
+        if (!charHomeNormalization.isOk || charHomeNormalization.fixedLocation !== charHome) {
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`, charHomeNormalization.fixedLocation);
+          location_logger.debug(funcName, `修正角色[${charName}]居住地区: "${charHome}" -> "${charHomeNormalization.fixedLocation}"`);
+        }
+        if (!charLocationNormalization.isOk || charLocationNormalization.fixedLocation !== charLocation) {
+          external_default().set(stat, `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`, charLocationNormalization.fixedLocation);
+          location_logger.debug(funcName, `修正角色[${charName}]所在地区: "${charLocation}" -> "${charLocationNormalization.fixedLocation}"`);
+        }
+      }
+    }
+    location_logger.log(funcName, "位置合法化检查完成。");
+  } catch (e) {
+    location_logger.error(funcName, "执行位置合法化时发生未知异常，将返回原始克隆数据。", e);
+  }
+  return stat;
+}
+
+const stat_processor_logger = new Logger;
+
+function processStat(originalStat) {
+  const funcName = "processStat";
+  stat_processor_logger.log(funcName, "开始执行所有数据修正流程...");
+  let stat = external_default().cloneDeep(originalStat);
+  stat = normalizeLocationData(stat);
+  stat_processor_logger.log(funcName, "所有数据修正流程执行完毕。");
+  return stat;
+}
+
+const constants_ERA_VARIABLE_PATH = {
+  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+  UI_THEME: "config.ui.theme",
+  MAP_ASCII: "world.map_ascii",
+  MAP_GRAPH: "world.map_graph",
+  FALLBACK_PLACE: "world.fallbackPlace",
+  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+  RUNTIME_PREFIX: "runtime.",
+  INCIDENT_COOLDOWN: "config.incident.cooldown",
+  TIME_PROGRESS: "世界.timeProgress",
+  FESTIVALS_LIST: "festivals_list",
+  NEWS_TEXT: "文文新闻",
+  EXTRA_MAIN: "附加正文",
+  GENSOKYO_MAIN_STORY: "gensokyo",
+  USER_LOCATION: "user.所在地区",
+  USER_HOME: "user.居住地区",
+  CHARS: "chars",
+  CHAR_HOME: "居住地区",
+  CHAR_LOCATION: "所在地区",
+  CHAR_AFFECTION: "好感度",
+  USER_DATA: "user",
+  USER_EVENTS: "重要经历",
+  USER_RELATIONSHIPS: "人际关系",
+  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+  UI_RIBBON_STEP: "config.ui.ribbonStep",
+  AFFECTION_STAGES: "config.affection.affectionStages",
+  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+  CONFIG_ROOT: "config"
+};
+
+const runtime_logger = new Logger;
+
+function getRuntimeVar(path, defaultValue) {
+  const funcName = "getRuntimeVar";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return defaultValue;
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    const value = get(chatVars, runtimePath, defaultValue);
+    runtime_logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+      value
+    });
+    return value;
+  } catch (error) {
+    runtime_logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+    return defaultValue;
+  }
+}
+
+async function setRuntimeVar(path, value) {
+  const funcName = "setRuntimeVar";
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    runtime_logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+      value
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      _.set(chatVars, runtimePath, value);
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+    return false;
+  }
+}
+
+function getRuntimeObject() {
+  const funcName = "getRuntimeObject";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return {};
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtime = format_get(chatVars, constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {});
+    runtime_logger.log(funcName, "成功获取 runtime 对象", {
+      runtime
+    });
+    return runtime || {};
+  } catch (error) {
+    runtime_logger.error(funcName, "获取 runtime 对象失败", error);
+    return {};
+  }
+}
+
+async function setRuntimeObject(runtimeObject, options) {
+  const funcName = "setRuntimeObject";
+  const {mode = "merge"} = options || {};
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePrefix = constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
+    runtime_logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
+      runtimeObject
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      if (mode === "replace") {
+        _.set(chatVars, runtimePrefix, runtimeObject);
+      } else {
+        const existingRuntime = _.get(chatVars, runtimePrefix, {});
+        _.merge(existingRuntime, runtimeObject);
+        _.set(chatVars, runtimePrefix, existingRuntime);
+      }
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, "成功设置 chat.runtime");
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
+    return false;
+  }
+}
+
+const data_sender_logger = new Logger;
+
+async function sendData(stat, runtime, originalPayload) {
+  const funcName = "sendData";
+  data_sender_logger.log(funcName, "开始发送数据...");
+  await setRuntimeObject(runtime, {
+    mode: "replace"
+  });
+  if (typeof eventEmit === "function") {
+    const uiPayload = {
+      ...originalPayload,
+      statWithoutMeta: stat,
+      runtime
+    };
+    eventEmit("GSKO:showUI", uiPayload);
+    data_sender_logger.log(funcName, "已发送 GSKO:showUI 事件", uiPayload);
+  } else {
+    data_sender_logger.warn(funcName, "eventEmit 函数不可用，无法发送 UI 更新事件。");
+  }
+  data_sender_logger.log(funcName, "数据发送完毕。");
 }
 
 const standardRuntime = {
@@ -1608,7 +2161,7 @@ const statWorldMissing = {
   world: []
 };
 
-const utils_logger = new Logger("dev-utils");
+const utils_logger = new Logger;
 
 function addTestButtons(panel, title, configs, style) {
   $("<div>").html(`<strong>${title}</strong>`).css({
@@ -1629,7 +2182,7 @@ function addTestButtons(panel, title, configs, style) {
   });
 }
 
-const panel_logger = new Logger("dev-panel");
+const panel_logger = new Logger;
 
 function createTestPanel() {
   const panel = $("<div>").attr("id", "demo-era-test-harness").css({
@@ -1745,140 +2298,22 @@ function cleanupDevPanel() {
   $(window).off("pagehide.devpanel");
 }
 
-const runtime_logger = new Logger("runtime");
-
-function getRuntimeVar(path, defaultValue) {
-  const funcName = "getRuntimeVar";
-  try {
-    if (typeof getVariables !== "function") {
-      runtime_logger.warn(funcName, "getVariables 函数不可用。");
-      return defaultValue;
-    }
-    const chatVars = getVariables({
-      type: "chat"
-    });
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
-    const value = get(chatVars, runtimePath, defaultValue);
-    runtime_logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-      value
-    });
-    return value;
-  } catch (error) {
-    runtime_logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-    return defaultValue;
-  }
-}
-
-async function setRuntimeVar(path, value) {
-  const funcName = "setRuntimeVar";
-  try {
-    if (typeof updateVariablesWith !== "function") {
-      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
-      return false;
-    }
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
-    runtime_logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-      value
-    });
-    await updateVariablesWith(vars => {
-      const chatVars = vars || {};
-      _.set(chatVars, runtimePath, value);
-      return chatVars;
-    }, {
-      type: "chat"
-    });
-    runtime_logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-    return true;
-  } catch (error) {
-    runtime_logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-    return false;
-  }
-}
-
-function getRuntimeObject() {
-  const funcName = "getRuntimeObject";
-  try {
-    if (typeof getVariables !== "function") {
-      runtime_logger.warn(funcName, "getVariables 函数不可用。");
-      return {};
-    }
-    const chatVars = getVariables({
-      type: "chat"
-    });
-    const runtime = format_get(chatVars, constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {});
-    runtime_logger.log(funcName, "成功获取 runtime 对象", {
-      runtime
-    });
-    return runtime || {};
-  } catch (error) {
-    runtime_logger.error(funcName, "获取 runtime 对象失败", error);
-    return {};
-  }
-}
-
-async function setRuntimeObject(runtimeObject, options) {
-  const funcName = "setRuntimeObject";
-  const {mode = "merge"} = options || {};
-  try {
-    if (typeof updateVariablesWith !== "function") {
-      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
-      return false;
-    }
-    const runtimePrefix = constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
-    runtime_logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
-      runtimeObject
-    });
-    await updateVariablesWith(vars => {
-      const chatVars = vars || {};
-      if (mode === "replace") {
-        _.set(chatVars, runtimePrefix, runtimeObject);
-      } else {
-        const existingRuntime = _.get(chatVars, runtimePrefix, {});
-        _.merge(existingRuntime, runtimeObject);
-        _.set(chatVars, runtimePrefix, existingRuntime);
-      }
-      return chatVars;
-    }, {
-      type: "chat"
-    });
-    runtime_logger.log(funcName, "成功设置 chat.runtime");
-    return true;
-  } catch (error) {
-    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
-    return false;
-  }
-}
-
 const _logger = new Logger;
 
 $(() => {
   _logger.log("main", "后台数据处理脚本加载");
   initDevPanel();
   const handleWriteDone = async payload => {
-    const {statWithoutMeta, message_id} = payload;
+    const {statWithoutMeta} = payload;
     _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
-    const normalizedStat = normalizeAllData(statWithoutMeta);
+    const processedStat = processStat(statWithoutMeta);
     const prevRuntime = getRuntimeObject();
-    const timeResult = processTime(normalizedStat, prevRuntime);
-    const areaResult = await processArea(normalizedStat, prevRuntime);
-    const newRuntime = external_default().merge({}, timeResult, areaResult);
-    await setRuntimeObject(newRuntime, {
-      mode: "replace"
-    });
+    const newRuntime = buildRuntime(processedStat, prevRuntime);
+    const prompt = buildPrompt(newRuntime, processedStat);
+    await sendData(processedStat, newRuntime, payload);
     _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
       finalRuntime: newRuntime
     });
-    if (typeof eventEmit === "function") {
-      const uiPayload = {
-        ...payload,
-        statWithoutMeta: normalizedStat,
-        runtime: newRuntime
-      };
-      eventEmit("GSKO:showUI", uiPayload);
-      _logger.log("handleWriteDone", "已发送 GSKO:showUI 事件", uiPayload);
-    } else {
-      _logger.warn("handleWriteDone", "eventEmit 函数不可用，无法发送 UI 更新事件。");
-    }
   };
   eventOn("era:writeDone", detail => {
     _logger.log("main", "接收到真实的 era:writeDone 事件");

@@ -57,9 +57,9 @@ import { defineExpose, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
 import { get, toText } from '../../../utils/format';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
-const logger = new Logger('components-StatusTab-tabs-ContentOthers');
+const logger = new Logger();
 
 // 存储非同区角色的列表
 const otherRoles = ref<any[]>([]);

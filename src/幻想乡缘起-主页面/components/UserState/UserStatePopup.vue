@@ -30,7 +30,7 @@
 <script setup lang="ts">
 import { defineExpose, ref } from 'vue';
 import { get, text } from '../../utils/format';
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../utils/log';
 
 defineEmits(['close']);
 

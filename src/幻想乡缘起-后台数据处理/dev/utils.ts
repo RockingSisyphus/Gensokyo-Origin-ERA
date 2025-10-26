@@ -1,6 +1,6 @@
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/log';
 
-const logger = new Logger('dev-utils');
+const logger = new Logger();
 
 export interface TestButtonConfig {
   text: string;

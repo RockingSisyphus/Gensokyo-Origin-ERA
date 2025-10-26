@@ -27,10 +27,10 @@
 import { defineExpose, onMounted, ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { get, getRaw } from '../../../utils/format';
-import { Logger } from '../../../utils/logger';
+import { Logger } from '../../../utils/log';
 
 // 日志记录器，用于输出调试信息
-const logger = new Logger('components-StatusTab-tabs-WorldMap');
+const logger = new Logger();
 // 存储从 stat_data 获取的原始地图文本
 const mapText = ref('');
 // 存储从 stat_data 获取的地图图谱数据（节点和边）

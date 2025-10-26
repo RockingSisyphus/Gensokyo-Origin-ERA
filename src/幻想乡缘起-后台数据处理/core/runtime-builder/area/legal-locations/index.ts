@@ -1,7 +1,7 @@
-import { Logger } from '../../../utils/logger';
-import { extractLeafs } from '../../../utils/map';
+import { Logger } from '../../../../utils/log';
+import { extractLeafs } from '../../../../utils/map';
 
-const logger = new Logger('core-area-legal-locations');
+const logger = new Logger();
 
 /**
  * @description 从 stat.world.map_graph 中提取所有合法地区。

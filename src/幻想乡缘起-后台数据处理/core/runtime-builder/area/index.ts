@@ -1,8 +1,8 @@
-import { Logger } from '../../utils/logger';
+import { Logger } from '../../../utils/log';
 import { getLegalLocations } from './legal-locations';
 import { loadLocations } from './location-loader';
 
-const logger = new Logger('core-area');
+const logger = new Logger();
 
 /**
  * @description 地区处理总入口。提取合法地区，并根据上下文确定需要加载的地区。

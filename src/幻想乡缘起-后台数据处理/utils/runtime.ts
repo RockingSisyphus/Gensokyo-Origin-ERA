@@ -1,8 +1,8 @@
 import { ERA_VARIABLE_PATH } from './constants';
 import { get } from './format';
-import { Logger } from './logger';
+import { Logger } from './log';
 
-const logger = new Logger('runtime');
+const logger = new Logger();
 
 /**
  * @description 从聊天作用域的 runtime 对象中读取指定路径的变量。

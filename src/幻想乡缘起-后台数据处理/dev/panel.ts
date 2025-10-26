@@ -1,4 +1,4 @@
-import { Logger } from '../utils/logger';
+import { Logger } from '../utils/log';
 import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './payloads';
 import * as areaTestData from './test-data/area';
 import {
@@ -11,7 +11,7 @@ import {
 } from './test-data/ui';
 import { addTestButtons, TestButtonConfig } from './utils';
 
-const logger = new Logger('dev-panel');
+const logger = new Logger();
 
 function createTestPanel() {
   // 创建悬浮面板

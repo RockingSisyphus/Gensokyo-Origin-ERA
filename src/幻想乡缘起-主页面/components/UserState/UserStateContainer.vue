@@ -8,10 +8,10 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import { Logger } from '../../utils/log';
 import UserStateButtonClosed from './UserStateButtonClosed.vue';
 import UserStateButtonOpen from './UserStateButtonOpen.vue';
 import UserStatePopup from './UserStatePopup.vue';
-import { Logger } from '../../utils/logger';
 
 const logger = new Logger();
 const sidebarVisible = ref(false);

@@ -1,11 +1,12 @@
 import _ from 'lodash';
-import { processArea } from './core/area';
-import { normalizeAllData } from './core/normalizer';
-import { processTime } from './core/time/processor';
+import { buildPrompt } from './core/prompt-builder';
+import { buildRuntime } from './core/runtime-builder';
+import { processStat } from './core/stat-processor';
+import { sendData } from './core/data-sender';
 import { cleanupDevPanel, initDevPanel } from './dev/panel';
 import { WriteDonePayload } from './utils/era';
-import { Logger } from './utils/logger';
-import { getRuntimeObject, setRuntimeObject } from './utils/runtime';
+import { Logger } from './utils/log';
+import { getRuntimeObject } from './utils/runtime';
 
 const logger = new Logger();
 
@@ -16,49 +17,29 @@ $(() => {
   // 初始化开发/测试模块
   initDevPanel();
 
-  // 在这里可以初始化其他核心模块
-  // import { initCore } from './core/main';
-  // initCore();
-
   // 定义核心数据处理函数
   const handleWriteDone = async (payload: WriteDonePayload) => {
-    const { statWithoutMeta, message_id } = payload;
+    const { statWithoutMeta } = payload;
     logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
 
-    // 1. 【数据标准化】在所有核心逻辑开始前，对 stat 数据进行清洗和修正
-    const normalizedStat = normalizeAllData(statWithoutMeta);
+    // 1. Stat 处理
+    const processedStat = processStat(statWithoutMeta);
 
-    // 2. 从 chat 变量域中读取上一楼层的 runtime 对象，主要用于获取 ack
+    // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
     const prevRuntime = getRuntimeObject();
 
-    // 3. 调用所有核心处理模块，注意要传入标准化后的 stat
-    const timeResult = processTime(normalizedStat, prevRuntime);
-    const areaResult = await processArea(normalizedStat, prevRuntime);
-    // const characterResult = processCharacters(normalizedStat, prevRuntime);
-    // const worldResult = processWorld(normalizedStat, prevRuntime);
+    // 3. Runtime 构建
+    const newRuntime = buildRuntime(processedStat, prevRuntime);
 
-    // 3. 将所有模块的结果合并成一个新的、干净的 runtime 对象
-    const newRuntime = _.merge({}, timeResult, areaResult /*, characterResult, worldResult */);
+    // 4. 提示词构建 (暂未实现)
+    const prompt = buildPrompt(newRuntime, processedStat);
 
-    // 4. 将新的 runtime 对象【完全替换】旧的
-    await setRuntimeObject(newRuntime, { mode: 'replace' });
+    // 5. 数据写入/发送
+    await sendData(processedStat, newRuntime, payload);
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
       finalRuntime: newRuntime,
     });
-
-    // 5. 在所有处理完成后，统一发送 UI 更新事件
-    if (typeof eventEmit === 'function') {
-      const uiPayload = {
-        ...payload, // 继承原始 payload 的所有属性 (mk, actions, etc.)
-        statWithoutMeta: normalizedStat, // 传递标准化后的 stat
-        runtime: newRuntime, // 附加被修改后的 runtime 对象
-      };
-      eventEmit('GSKO:showUI', uiPayload);
-      logger.log('handleWriteDone', '已发送 GSKO:showUI 事件', uiPayload);
-    } else {
-      logger.warn('handleWriteDone', 'eventEmit 函数不可用，无法发送 UI 更新事件。');
-    }
   };
 
   // 监听真实的 ERA 数据写入完成事件
