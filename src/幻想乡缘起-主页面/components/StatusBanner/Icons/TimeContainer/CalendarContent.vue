@@ -29,11 +29,12 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import type { ClockInfo } from '../../../../utils/constants';
 import { text } from '../../../../utils/format';
 import CalendarDay from './CalendarDay.vue';
 
 const props = defineProps<{
-  clockInfo: any | null;
+  clockInfo: ClockInfo | null;
 }>();
 
 const displayMonth = ref(new Date());

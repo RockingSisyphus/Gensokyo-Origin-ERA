@@ -7,13 +7,10 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
+import type { ClockInfo } from '../../../../utils/constants';
 
 const props = defineProps<{
-  clockInfo: {
-    hm: string;
-    periodName: string;
-    iso: string;
-  } | null;
+  clockInfo: ClockInfo | null;
 }>();
 
 defineEmits(['open-calendar']);

@@ -183,3 +183,42 @@ export const ERA_VARIABLE_PATH = {
    */
   CONFIG_ROOT: 'config',
 };
+
+/**
+ * @description ERA `writeDone` 事件的 `detail` 对象类型。
+ */
+export interface WriteDonePayload {
+  mk: string;
+  message_id: number;
+  actions: Record<string, boolean>;
+  stat: any;
+  statWithoutMeta: StatWithoutMeta;
+  editLogs: any;
+  selectedMks: string[];
+  consecutiveProcessingCount: number;
+}
+
+/**
+ * @description 不含 `$meta` 字段的纯净变量对象类型。
+ * 这是一个非常基础的定义，你可以根据实际数据结构进行扩展。
+ */
+export interface StatWithoutMeta {
+  [key: string]: any;
+}
+
+/**
+ * @description 时钟信息对象类型，由 runtime.clock.now 和 stat.festivals_list 组合而成。
+ */
+export interface ClockInfo {
+  hm: string;
+  periodName: string;
+  iso: string;
+  festivals: {
+    name: string;
+    month: number;
+    start_day: number;
+    end_day: number;
+    description: string;
+  }[];
+  [key: string]: any; // 允许其他来自 runtime.clock.now 的未知属性
+}

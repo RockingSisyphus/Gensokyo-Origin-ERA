@@ -8,12 +8,13 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { ClockInfo } from '../../../../utils/constants';
 import TimeButtonClosed from './TimeButtonClosed.vue';
 import TimeButtonOpen from './TimeButtonOpen.vue';
 import CalendarContent from './CalendarContent.vue';
 
 defineProps<{
-  clockInfo: object | null;
+  clockInfo: ClockInfo | null;
 }>();
 
 const calendarVisible = ref(false);

@@ -7,7 +7,7 @@
 
 <script setup lang="ts">
 import { defineExpose, onMounted } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
+import { ERA_VARIABLE_PATH, type StatWithoutMeta } from '../../utils/constants';
 import { get, text } from '../../utils/format';
 import { Logger } from '../../utils/log';
 
@@ -15,12 +15,11 @@ defineEmits(['close']);
 
 const logger = new Logger();
 
-const updateNews = (context: { statWithoutMeta: any }) => {
+const updateNews = (statWithoutMeta: StatWithoutMeta) => {
   const funcName = 'updateNews';
-  const { statWithoutMeta } = context || {};
 
   if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 context 或 statWithoutMeta 无效。', context);
+    logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。', statWithoutMeta);
     return;
   }
 
