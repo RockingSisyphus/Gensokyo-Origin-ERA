@@ -140,16 +140,7 @@ $(() => {
         logger.warn(funcName, 'RoleRibbon.updateRibbon 执行失败（非致命）。', e);
       }
 
-      // ===== 新增：好感等级计算 + 进度条着色（从 index.ts 抽离到 backend/affection.ts）=====
-      try {
-        logger.log(funcName, '准备执行后台流水线：好感等级 + 进度条着色');
-        import('./backend/affection')
-          .then(mod => mod?.runAffectionPipeline?.(context))
-          .then(() => logger.log(funcName, '好感流水线执行完成。'))
-          .catch(e => logger.warn(funcName, '好感流水线执行异常（非致命）。', e));
-      } catch (e) {
-        logger.warn(funcName, '好感流水线调度异常（已忽略）。', e);
-      }
+      // [已移除] 旧的好感度处理逻辑已迁移到 Vue 组件内部
     } catch (e) {
       logger.error(funcName, 'GSKO:showUI 处理过程出现未捕获异常', e);
     } finally {

@@ -55,6 +55,16 @@ __webpack_require__.d(affection_namespaceObject, {
   smallChange: () => smallChange
 });
 
+var affection_level_namespaceObject = {};
+
+__webpack_require__.r(affection_level_namespaceObject);
+
+__webpack_require__.d(affection_level_namespaceObject, {
+  emptyStages: () => emptyStages,
+  missingConfig: () => missingConfig,
+  standardAffectionLevel: () => standardAffectionLevel
+});
+
 var area_namespaceObject = {};
 
 __webpack_require__.r(area_namespaceObject);
@@ -235,6 +245,26 @@ const standardRuntime = {
       hm: "14:30",
       periodName: "下午",
       iso: "0001-04-15T14:30:00"
+    }
+  },
+  chars: {
+    博丽灵梦: {
+      好感度等级: "亲近"
+    },
+    西瓜: {
+      好感度等级: "不渝"
+    },
+    秦心: {
+      好感度等级: "憎恨"
+    },
+    路人: {
+      好感度等级: "厌恶"
+    },
+    雾雨魔理沙: {
+      好感度等级: "思慕"
+    },
+    琪露诺: {
+      好感度等级: "憎恨"
     }
   }
 };
@@ -1141,6 +1171,47 @@ const mixedOps = {
   consecutiveProcessingCount: 1
 };
 
+const standardAffectionLevel = {
+  config: {
+    affection: {
+      affectionStages: [ '[-99999,"死敌"]', '[-100,"憎恨"]', '[-20,"厌恶"]', '[0,"陌生"]', '[10,"普通"]', '[20,"熟悉"]', '[40,"亲近"]', '[70,"亲密"]', '[100,"思慕"]', '[99999,"不渝"]' ]
+    }
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    },
+    雾雨魔理沙: {
+      好感度: 75
+    },
+    十六夜咲夜: {
+      好感度: -50
+    },
+    无好感度角色: {}
+  }
+};
+
+const missingConfig = {
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    }
+  }
+};
+
+const emptyStages = {
+  config: {
+    affection: {
+      affectionStages: []
+    }
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    }
+  }
+};
+
 const worldWithMapGraph = {
   map_graph: {
     tree: {
@@ -1390,6 +1461,21 @@ function createTestPanel() {
     border: "1px solid #7b1fa2",
     background: "#4a148c",
     color: "#f3e5f5",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const affectionLevelTestConfigs = Object.entries(affection_level_namespaceObject).map(([key, statData]) => ({
+    text: key,
+    payload: {
+      statWithoutMeta: statData
+    }
+  }));
+  addTestButtons(panel, "好感度等级模块测试", affectionLevelTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #c2185b",
+    background: "#880e4f",
+    color: "#fce4ec",
     borderRadius: "3px",
     fontSize: "12px"
   });

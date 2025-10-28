@@ -1,29 +1,65 @@
 <template>
-  <div class="role-card-wrapper" @click="$emit('show-details', character)">
-    <div class="role-card-header">
-      <div class="role-avatar">{{ character.name.slice(0, 1) }}</div>
+  <div class="GensokyoOrigin-RoleCard-wrapper" @click="$emit('show-details', character)">
+    <div class="GensokyoOrigin-RoleCard-header">
+      <div class="GensokyoOrigin-RoleCard-avatar">{{ character.name.slice(0, 1) }}</div>
       <div>
-        <div class="role-name">{{ character.name }}</div>
-        <div class="role-meta">{{ character['所在地区'] || '未知' }}</div>
+        <div class="GensokyoOrigin-RoleCard-name">{{ character.name }}</div>
+        <div class="GensokyoOrigin-RoleCard-meta">{{ character['所在地区'] || '未知' }}</div>
       </div>
     </div>
-    <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" size="small" />
+    <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="small" />
+    <ParticleEmitter
+      ref="particleEmitter"
+      :active="affectionState === 'love' || affectionState === 'hate'"
+      :particle-type="affectionState === 'hate' ? 'skull' : 'heart'"
+      :emission-rate="2"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, watch } from 'vue';
 import AffectionDisplay from './AffectionDisplay.vue';
+import ParticleEmitter from '../common/ParticleEmitter.vue';
+import { get } from '../../utils/format';
+import { ERA_VARIABLE_PATH } from '../../utils/constants';
 
-defineProps<{
+const props = defineProps<{
   character: any;
   statWithoutMeta: any;
+  runtime: any;
 }>();
 
 defineEmits(['show-details']);
+
+const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
+
+// --- 数据计算 (与粒子效果相关) ---
+const affectionValue = computed(() => props.character?.['好感度'] || 0);
+const loveThreshold = computed(() => Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)));
+const hateThreshold = computed(() => Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)));
+
+const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {
+  if (affectionValue.value >= loveThreshold.value) return 'love';
+  if (affectionValue.value <= hateThreshold.value) return 'hate';
+  return 'neutral';
+});
+
+// --- 效果触发 ---
+watch(affectionState, (newState, oldState) => {
+  if (newState !== oldState && particleEmitter.value) {
+    if (newState === 'love') {
+      particleEmitter.value.burst('heart', 10);
+    } else if (newState === 'hate') {
+      particleEmitter.value.burst('skull', 8);
+    }
+  }
+});
 </script>
 
-<style lang="scss" scoped>
-.role-card-wrapper {
+<style lang="scss">
+.GensokyoOrigin-RoleCard-wrapper {
+  position: relative; /* 确保粒子发射器能正确定位 */
   flex: 0 0 220px;
   min-width: 0;
   background: var(--bg);
@@ -39,7 +75,7 @@ defineEmits(['show-details']);
   }
 }
 
-.role-card-header {
+.GensokyoOrigin-RoleCard-header {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -48,7 +84,7 @@ defineEmits(['show-details']);
   border-bottom: 1px dashed var(--line);
 }
 
-.role-avatar {
+.GensokyoOrigin-RoleCard-avatar {
   width: 36px;
   height: 36px;
   border-radius: 50%;
@@ -61,12 +97,12 @@ defineEmits(['show-details']);
   flex-shrink: 0;
 }
 
-.role-name {
+.GensokyoOrigin-RoleCard-name {
   font-weight: 700;
   font-size: 0.95em;
 }
 
-.role-meta {
+.GensokyoOrigin-RoleCard-meta {
   font-size: 0.8em;
   color: var(--muted);
 }

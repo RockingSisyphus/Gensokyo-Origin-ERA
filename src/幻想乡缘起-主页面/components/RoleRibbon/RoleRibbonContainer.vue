@@ -8,6 +8,7 @@
         :key="char.name"
         :character="char"
         :stat-without-meta="statWithoutMeta"
+        :runtime="runtime"
         @show-details="selectedCharacter = $event"
       />
       <div v-if="!nearbyCharacters.length" class="role-card-placeholder">附近暂无角色</div>
@@ -17,6 +18,7 @@
       v-if="selectedCharacter"
       :character="selectedCharacter"
       :stat-without-meta="statWithoutMeta"
+      :runtime="runtime"
       @close="selectedCharacter = null"
     />
   </div>
@@ -35,6 +37,7 @@ const userLocation = ref('');
 const ribbonScrollStep = ref(320);
 const selectedCharacter = ref<any | null>(null);
 const statWithoutMeta = ref<any>({});
+const runtime = ref<any>({}); // <-- Add runtime ref
 
 const nearbyCharacters = computed(() => {
   if (!userLocation.value || !Object.keys(allCharacters.value).length) {
@@ -52,10 +55,11 @@ const scroll = (direction: number) => {
   ribbon.value?.scrollBy({ left: direction * ribbonScrollStep.value, behavior: 'smooth' });
 };
 
-const updateRibbon = (context: { statWithoutMeta: any }) => {
+const updateRibbon = (context: { statWithoutMeta: any; runtime: any }) => {
   const newStat = context?.statWithoutMeta;
   if (!newStat || typeof newStat !== 'object') return;
   statWithoutMeta.value = newStat;
+  runtime.value = context.runtime || {}; // <-- Update runtime
 
   userLocation.value = String(get(newStat, ERA_VARIABLE_PATH.USER_LOCATION, '')).trim();
 

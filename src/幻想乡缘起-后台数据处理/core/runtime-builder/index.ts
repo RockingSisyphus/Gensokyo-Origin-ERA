@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Logger } from '../../utils/log';
+import { processAffectionLevel } from './affection-level';
 import { getLegalLocations } from './area/legal-locations/index';
 import { processTime } from './time/processor';
 
@@ -17,6 +18,9 @@ export function buildRuntime(stat: any, originalRuntime: any): any {
   // time
   runtime = processTime(runtime, stat);
 
-  logger.log(funcName, 'Runtime 构建完毕。');
+  // affection-level
+  runtime = processAffectionLevel(runtime, stat);
+
+  logger.log(funcName, 'Runtime 构建完毕。', runtime);
   return runtime;
 }

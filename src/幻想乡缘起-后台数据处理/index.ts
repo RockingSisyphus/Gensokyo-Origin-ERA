@@ -1,8 +1,7 @@
-import _ from 'lodash';
+import { sendData } from './core/data-sender';
 import { buildPrompt } from './core/prompt-builder';
 import { buildRuntime } from './core/runtime-builder';
 import { processStat } from './core/stat-processor';
-import { sendData } from './core/data-sender';
 import { WriteDonePayload } from './utils/era';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';

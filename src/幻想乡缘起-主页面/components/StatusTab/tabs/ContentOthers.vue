@@ -2,48 +2,54 @@
   <div>
     <h4><span class="emoji">🧑‍🤝‍🧑</span>其他角色</h4>
     <!-- ===== 其他角色工具条 ===== -->
-    <div id="others-toolbar" class="debug-toolbar" style="margin: 6px 0 10px">
-      <span class="debug-switch" title="config.mvuLifeMeet.rules.incident.skipVisitHunters">
+    <div id="others-toolbar" class="GensokyoOrigin-ContentOthers-debug-toolbar" style="margin: 6px 0 10px">
+      <span class="GensokyoOrigin-ContentOthers-debug-switch" title="config.mvuLifeMeet.rules.incident.skipVisitHunters">
         <input id="life-skip-visit-hunters" v-model="skipVisitHunters" type="checkbox" @change="onSkipVisitChange" />
         异变中退治者不拜访
       </span>
-      <span class="debug-switch" title="config.mvuLifeMeet.rules.incident.skipSleepHunters">
+      <span class="GensokyoOrigin-ContentOthers-debug-switch" title="config.mvuLifeMeet.rules.incident.skipSleepHunters">
         <input id="life-skip-sleep-hunters" v-model="skipSleepHunters" type="checkbox" @change="onSkipSleepChange" />
         异变中退治者不睡觉
       </span>
     </div>
 
-    <div id="other-roles-list" class="incident-list" @click="handleToggle">
+    <div id="other-roles-list" class="GensokyoOrigin-ContentOthers-incident-list" @click="handleToggle">
       <template v-if="otherRoles.length">
-        <div v-for="role in otherRoles" :key="role.name" class="role-card collapsed" :data-name="role.name">
-          <div class="role-card-header">
-            <div class="role-avatar">{{ role.name.slice(0, 1) }}</div>
+        <div
+          v-for="(role, index) in otherRoles"
+          :key="role.name"
+          class="GensokyoOrigin-ContentOthers-role-card collapsed"
+          :data-name="role.name"
+        >
+          <div class="GensokyoOrigin-ContentOthers-role-card-header">
+            <div class="GensokyoOrigin-ContentOthers-role-avatar">{{ role.name.slice(0, 1) }}</div>
             <div>
-              <div class="role-name">{{ role.name }}</div>
-              <div class="role-meta">{{ role.location }}</div>
+              <div class="GensokyoOrigin-ContentOthers-role-name">{{ role.name }}</div>
+              <div class="GensokyoOrigin-ContentOthers-role-meta">{{ role.location }}</div>
             </div>
-            <button class="card-toggle" aria-expanded="false" aria-label="展开/收起">▼</button>
+            <button class="GensokyoOrigin-ContentOthers-card-toggle" aria-expanded="false" aria-label="展开/收起">▼</button>
           </div>
-          <div class="role-body">
-            <div v-for="field in role.fields" :key="field.label" class="role-line">
+          <div class="GensokyoOrigin-ContentOthers-role-body">
+            <div v-for="field in role.fields" :key="field.label" class="GensokyoOrigin-ContentOthers-role-line">
               <strong>{{ field.label }}：</strong>{{ field.value }}
             </div>
-            <div class="role-line">
-              <strong>好感度：</strong>
-              <span class="aff-num">{{ role.affection.value }}</span>
-              <span class="aff-stage" style="margin-left: 6px; color: var(--muted); font-size: 0.85em">—</span>
-              <div class="mini-bar"><div class="val" :style="{ width: role.affection.barWidth }"></div></div>
-            </div>
+            <AffectionDisplay :character="role.raw" :stat-without-meta="stat" :runtime="runtime" size="large" />
+            <ParticleEmitter
+              :ref="el => (particleEmitters[index] = el)"
+              :active="role.affectionState === 'love' || role.affectionState === 'hate'"
+              :particle-type="role.affectionState === 'hate' ? 'skull' : 'heart'"
+              :emission-rate="2"
+            />
           </div>
         </div>
       </template>
       <template v-else>
-        <div class="role-card">
-          <div class="role-card-header">
-            <div class="role-avatar">✔</div>
+        <div class="GensokyoOrigin-ContentOthers-role-card">
+          <div class="GensokyoOrigin-ContentOthers-role-card-header">
+            <div class="GensokyoOrigin-ContentOthers-role-avatar">✔</div>
             <div>
-              <div class="role-name">当前无“其他角色”</div>
-              <div class="role-meta">与玩家不同区的角色为 0</div>
+              <div class="GensokyoOrigin-ContentOthers-role-name">当前无“其他角色”</div>
+              <div class="GensokyoOrigin-ContentOthers-role-meta">与玩家不同区的角色为 0</div>
             </div>
           </div>
         </div>
@@ -53,48 +59,47 @@
 </template>
 
 <script setup lang="ts">
-import { defineExpose, ref } from 'vue';
+import { defineExpose, ref, watch } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { updateEraVariable } from '../../../utils/eraWriter';
 import { get, toText } from '../../../utils/format';
 import { Logger } from '../../../utils/log';
+import AffectionDisplay from '../../RoleRibbon/AffectionDisplay.vue';
+import ParticleEmitter from '../../common/ParticleEmitter.vue';
 
 const logger = new Logger();
 
-// 存储非同区角色的列表
 const otherRoles = ref<any[]>([]);
-// 工具条勾选框的状态
+const stat = ref<any>({});
+const runtime = ref<any>({});
 const skipVisitHunters = ref(false);
 const skipSleepHunters = ref(false);
+const particleEmitters = ref<any[]>([]);
 
-/**
- * @description 从 stat_data 更新“其他角色”列表和工具条状态。由 era:writeDone 事件触发。
- * @param {object} statWithoutMeta - 包含所有状态数据的根对象。
- */
-const update = (statWithoutMeta: object) => {
+const update = (context: { statWithoutMeta: any; runtime: any }) => {
   const funcName = 'update';
-  logger.log(funcName, `开始更新“其他角色”组件`, { statWithoutMeta });
+  const { statWithoutMeta, runtime: newRuntime } = context || {};
+  logger.log(funcName, `开始更新“其他角色”组件`, { statWithoutMeta, newRuntime });
 
   if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
     logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。');
     return;
   }
 
-  // 1. 更新工具条状态
+  stat.value = statWithoutMeta;
+  runtime.value = newRuntime || {};
+
   try {
     skipVisitHunters.value = !!get(statWithoutMeta, ERA_VARIABLE_PATH.SKIP_VISIT_HUNTERS, false);
     skipSleepHunters.value = !!get(statWithoutMeta, ERA_VARIABLE_PATH.SKIP_SLEEP_HUNTERS, false);
-    logger.log(funcName, `工具条状态已更新`, { visit: skipVisitHunters.value, sleep: skipSleepHunters.value });
   } catch (e) {
     logger.error(funcName, `更新工具条状态时出错`, e);
   }
 
-  // 2. 更新其他角色列表
   try {
     const uLoc = String(get(statWithoutMeta, ERA_VARIABLE_PATH.USER_LOCATION, '')).trim();
     let chars = get(statWithoutMeta, ERA_VARIABLE_PATH.CHARS, {});
 
-    // 兼容 chars 为 JSON 字符串的情况
     if (typeof chars === 'string') {
       try {
         chars = JSON.parse(chars);
@@ -105,7 +110,6 @@ const update = (statWithoutMeta: object) => {
     }
 
     if (!chars || typeof chars !== 'object') {
-      logger.warn(funcName, 'stat_data.chars 无效或不存在。');
       otherRoles.value = [];
       return;
     }
@@ -119,7 +123,6 @@ const update = (statWithoutMeta: object) => {
       return !(uLoc && cLoc && cLoc === uLoc);
     });
 
-    // 排序：按“所在地区”+ 名称
     others.sort((a: [string, any], b: [string, any]) => {
       const la = String(get(a[1], ERA_VARIABLE_PATH.CHAR_LOCATION, '')).localeCompare(
         String(get(b[1], ERA_VARIABLE_PATH.CHAR_LOCATION, '')),
@@ -129,8 +132,10 @@ const update = (statWithoutMeta: object) => {
       return String(a[0]).localeCompare(String(b[0]), 'zh-Hans-CN');
     });
 
-    // 格式化为模板所需的数据结构
-    otherRoles.value = others.map(([name, obj]: [string, any]) => {
+    const loveThreshold = Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100));
+    const hateThreshold = Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100));
+
+    const newRoles = others.map(([name, obj]: [string, any]) => {
       const fields = [
         ['年龄', '年龄'],
         ['性别', '性别'],
@@ -147,70 +152,80 @@ const update = (statWithoutMeta: object) => {
         ['所想', '当前所想'],
         ['居住地区', '居住地区'],
       ];
-      const fav = get(obj, ERA_VARIABLE_PATH.CHAR_AFFECTION, 0);
+      const affectionValue = get(obj, ERA_VARIABLE_PATH.CHAR_AFFECTION, 0);
+      let affectionState: 'neutral' | 'love' | 'hate' = 'neutral';
+      if (affectionValue >= loveThreshold) affectionState = 'love';
+      if (affectionValue <= hateThreshold) affectionState = 'hate';
+
       return {
         name,
         location: toText(get(obj, ERA_VARIABLE_PATH.CHAR_LOCATION, '未知')),
         fields: fields.map(([label, key]) => ({ label, value: toText(get(obj, key, '—')) })),
-        affection: {
-          value: toText(fav),
-          barWidth: `${Math.min(Math.abs(Number(fav) || 0), 100)}%`,
-        },
+        raw: { name, ...obj },
+        affectionState,
       };
     });
 
-    logger.log(funcName, `“其他角色”列表已更新，共 ${otherRoles.value.length} 人。`);
+    // 监视好感度状态变化以触发粒子爆发
+    watch(
+      newRoles,
+      (currentRoles, oldRoles) => {
+        currentRoles.forEach((role, index) => {
+          const oldRole = oldRoles?.find(r => r.name === role.name);
+          if (oldRole && role.affectionState !== oldRole.affectionState) {
+            const emitter = particleEmitters.value[index];
+            if (emitter) {
+              if (role.affectionState === 'love') emitter.burst('heart', 10);
+              else if (role.affectionState === 'hate') emitter.burst('skull', 8);
+            }
+          }
+        });
+      },
+      { deep: true },
+    );
+
+    otherRoles.value = newRoles;
+    particleEmitters.value = new Array(newRoles.length);
   } catch (e) {
     logger.error(funcName, `更新“其他角色”列表时出错`, e);
     otherRoles.value = [];
   }
 };
 
-// 勾选框变化时，通过 era 事件请求写回
 const onSkipVisitChange = () => {
-  logger.log('onSkipVisitChange', `请求更新 skipVisitHunters: ${skipVisitHunters.value}`);
   updateEraVariable(ERA_VARIABLE_PATH.SKIP_VISIT_HUNTERS, skipVisitHunters.value);
 };
 
 const onSkipSleepChange = () => {
-  logger.log('onSkipSleepChange', `请求更新 skipSleepHunters: ${skipSleepHunters.value}`);
   updateEraVariable(ERA_VARIABLE_PATH.SKIP_SLEEP_HUNTERS, skipSleepHunters.value);
 };
 
-// 使用事件委托处理卡片的展开/收起
 const handleToggle = (e: MouseEvent) => {
-  const btn = (e.target as HTMLElement).closest('.card-toggle');
+  const btn = (e.target as HTMLElement).closest('.GensokyoOrigin-ContentOthers-card-toggle');
   if (!btn) return;
-
-  const card = btn.closest('.role-card');
+  const card = btn.closest('.GensokyoOrigin-ContentOthers-role-card');
   if (!card) return;
-
   const expand = !card.classList.contains('expanded');
   card.classList.toggle('expanded', expand);
   card.classList.toggle('collapsed', !expand);
   btn.setAttribute('aria-expanded', String(expand));
   btn.textContent = expand ? '▲' : '▼';
-
-  const roleName = card.getAttribute('data-name') || '未知角色';
-  logger.log('handleToggle', `切换角色卡片展开状态`, { 角色: roleName, 展开: expand });
 };
 
-// 暴露 update 函数，以便在 index.ts 中可以调用
 defineExpose({
   update,
 });
 </script>
 
-<style lang="scss" scoped>
-// From style.scss: .debug-toolbar and .incident-list
-:deep(.debug-toolbar) {
+<style lang="scss">
+.GensokyoOrigin-ContentOthers-debug-toolbar {
   display: flex;
   align-items: center;
   gap: 8px;
   margin-bottom: 10px;
   flex-wrap: wrap;
 }
-:deep(.debug-switch) {
+.GensokyoOrigin-ContentOthers-debug-switch {
   display: flex;
   align-items: center;
   gap: 6px;
@@ -220,16 +235,15 @@ defineExpose({
   border-radius: 6px;
   background: rgba(255, 255, 255, 0.08);
 }
-:deep(.incident-list) {
+.GensokyoOrigin-ContentOthers-incident-list {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-// From style_modeled.scss (section 3) for .role-card used in this component
-:deep(#other-roles-list) {
-  .role-card {
-    flex: 1 1 auto; // Use flex for responsiveness
+.GensokyoOrigin-ContentOthers-incident-list {
+  .GensokyoOrigin-ContentOthers-role-card {
+    flex: 1 1 auto;
     min-width: 0;
     background: var(--bg);
     border: 1px solid var(--line);
@@ -241,7 +255,7 @@ defineExpose({
       box-shadow 0.2s ease,
       transform 0.02s ease;
   }
-  .role-card-header {
+  .GensokyoOrigin-ContentOthers-role-card-header {
     display: flex;
     align-items: center;
     gap: 10px;
@@ -253,7 +267,7 @@ defineExpose({
       min-width: 0;
     }
   }
-  .role-avatar {
+  .GensokyoOrigin-ContentOthers-role-avatar {
     width: 40px;
     height: 40px;
     border-radius: 50%;
@@ -265,14 +279,14 @@ defineExpose({
     color: var(--muted);
     flex-shrink: 0;
   }
-  .role-name {
+  .GensokyoOrigin-ContentOthers-role-name {
     font-weight: 700;
     white-space: nowrap;
     overflow: hidden;
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  .role-meta {
+  .GensokyoOrigin-ContentOthers-role-meta {
     font-size: 0.85em;
     color: var(--muted);
     white-space: nowrap;
@@ -280,7 +294,7 @@ defineExpose({
     text-overflow: ellipsis;
     max-width: 100%;
   }
-  .card-toggle {
+  .GensokyoOrigin-ContentOthers-card-toggle {
     margin-left: auto;
     border: 1px solid var(--line);
     background: var(--paper);
@@ -290,50 +304,29 @@ defineExpose({
     cursor: pointer;
     flex: 0 0 auto;
   }
-  .role-body {
+  .GensokyoOrigin-ContentOthers-role-body {
     margin-top: 8px;
     border-top: 1px dashed var(--line);
     padding-top: 8px;
+    position: relative; /* For ParticleEmitter */
   }
-  .role-line {
+  .GensokyoOrigin-ContentOthers-role-line {
     margin: 6px 0;
     font-size: 0.9em;
     display: flex;
     flex-wrap: wrap;
   }
-  .mini-bar {
-    height: 8px;
-    background: var(--bar-bg);
-    border: 1px solid var(--line);
-    border-radius: 4px;
-    overflow: hidden;
-    position: relative;
-    flex-grow: 1;
-    margin-left: 8px;
-    min-width: 50px;
-  }
-  .mini-bar .val {
-    position: absolute;
-    left: 0;
-    top: 0;
-    bottom: 0;
-    height: 100%;
-    width: 0%;
-    background: linear-gradient(90deg, #c0a58a, #8c7b6a);
-    transition: width 0.3s ease;
-  }
-  // Collapse/Expand styles
-  .role-card.collapsed {
+  .GensokyoOrigin-ContentOthers-role-card.collapsed {
     padding-bottom: 8px;
-    .role-body {
+    .GensokyoOrigin-ContentOthers-role-body {
       display: none;
     }
-    .role-card-header {
+    .GensokyoOrigin-ContentOthers-role-card-header {
       margin-bottom: 0;
       padding-bottom: 6px;
     }
   }
-  .role-card.expanded {
+  .GensokyoOrigin-ContentOthers-role-card.expanded {
     padding-bottom: calc(var(--pad) + 8px);
     box-shadow: 0 2px 12px rgba(0, 0, 0, 0.06);
     max-height: none;
@@ -341,11 +334,10 @@ defineExpose({
   }
 }
 
-// Dark theme overrides
-:global(:root[data-theme='dark']) .debug-switch {
+:root[data-theme='dark'] .GensokyoOrigin-ContentOthers-debug-switch {
   background: rgba(255, 255, 255, 0.05);
 }
-:global(:root[data-theme='dark']) #other-roles-list .role-card.expanded {
+:root[data-theme='dark'] .GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded {
   box-shadow: 0 2px 12px rgba(0, 0, 0, 0.35);
 }
 </style>

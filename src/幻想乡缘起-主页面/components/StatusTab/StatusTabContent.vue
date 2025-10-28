@@ -140,7 +140,7 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
 
   // [移植自 index.ts] 调用其他角色组件的更新函数
   if (contentOthers.value && typeof contentOthers.value.update === 'function') {
-    contentOthers.value.update(statWithoutMeta);
+    contentOthers.value.update(context);
     logger.debug(funcName, '已调用 ContentOthers.update');
   }
 

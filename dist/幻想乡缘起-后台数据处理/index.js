@@ -189,19 +189,335 @@ class Logger {
   }
 }
 
-const logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
+const constants_ERA_VARIABLE_PATH = {
+  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+  UI_THEME: "config.ui.theme",
+  MAP_ASCII: "world.map_ascii",
+  MAP_GRAPH: "world.map_graph",
+  FALLBACK_PLACE: "world.fallbackPlace",
+  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+  RUNTIME_PREFIX: "runtime.",
+  INCIDENT_COOLDOWN: "config.incident.cooldown",
+  TIME_PROGRESS: "世界.timeProgress",
+  FESTIVALS_LIST: "festivals_list",
+  NEWS_TEXT: "文文新闻",
+  EXTRA_MAIN: "附加正文",
+  GENSOKYO_MAIN_STORY: "gensokyo",
+  USER_LOCATION: "user.所在地区",
+  USER_HOME: "user.居住地区",
+  CHARS: "chars",
+  CHAR_HOME: "居住地区",
+  CHAR_LOCATION: "所在地区",
+  CHAR_AFFECTION: "好感度",
+  USER_DATA: "user",
+  USER_EVENTS: "重要经历",
+  USER_RELATIONSHIPS: "人际关系",
+  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+  UI_RIBBON_STEP: "config.ui.ribbonStep",
+  AFFECTION_STAGES: "config.affection.affectionStages",
+  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+  CONFIG_ROOT: "config"
+};
+
+const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
+  module,
+  path,
+  oldValue,
+  newValue,
+  reason
+});
+
+const logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
+
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
+
+function format_get(obj, path, fallback = "") {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
+
+const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
+
+function getRuntimeVar(path, defaultValue) {
+  const funcName = "getRuntimeVar";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return defaultValue;
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    const value = get(chatVars, runtimePath, defaultValue);
+    runtime_logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
+      value
+    });
+    return value;
+  } catch (error) {
+    runtime_logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
+    return defaultValue;
+  }
+}
+
+async function setRuntimeVar(path, value) {
+  const funcName = "setRuntimeVar";
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    runtime_logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
+      value
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      _.set(chatVars, runtimePath, value);
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, `成功更新 chat.runtime: ${path}`);
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
+    return false;
+  }
+}
+
+function getRuntimeObject() {
+  const funcName = "getRuntimeObject";
+  try {
+    if (typeof getVariables !== "function") {
+      runtime_logger.warn(funcName, "getVariables 函数不可用。");
+      return {};
+    }
+    const chatVars = getVariables({
+      type: "chat"
+    });
+    const runtime = format_get(chatVars, constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {});
+    runtime_logger.log(funcName, "成功获取 runtime 对象", {
+      runtime
+    });
+    return runtime || {};
+  } catch (error) {
+    runtime_logger.error(funcName, "获取 runtime 对象失败", error);
+    return {};
+  }
+}
+
+async function setRuntimeObject(runtimeObject, options) {
+  const funcName = "setRuntimeObject";
+  const {mode = "merge"} = options || {};
+  try {
+    if (typeof updateVariablesWith !== "function") {
+      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      return false;
+    }
+    const runtimePrefix = constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
+    runtime_logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
+      runtimeObject
+    });
+    await updateVariablesWith(vars => {
+      const chatVars = vars || {};
+      if (mode === "replace") {
+        _.set(chatVars, runtimePrefix, runtimeObject);
+      } else {
+        const existingRuntime = _.get(chatVars, runtimePrefix, {});
+        _.merge(existingRuntime, runtimeObject);
+        _.set(chatVars, runtimePrefix, existingRuntime);
+      }
+      return chatVars;
+    }, {
+      type: "chat"
+    });
+    runtime_logger.log(funcName, "成功设置 chat.runtime");
+    return true;
+  } catch (error) {
+    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
+    return false;
+  }
+}
+
+const data_sender_logger = new Logger("幻想乡缘起-后台数据处理/core/data-sender");
+
+async function sendData(stat, runtime, originalPayload, changes) {
+  const funcName = "sendData";
+  data_sender_logger.log(funcName, "开始发送数据...");
+  await setRuntimeObject(runtime, {
+    mode: "replace"
+  });
+  if (typeof eventEmit === "function") {
+    const uiPayload = {
+      ...originalPayload,
+      statWithoutMeta: stat,
+      runtime,
+      statChanges: changes
+    };
+    eventEmit("GSKO:showUI", uiPayload);
+    data_sender_logger.log(funcName, "已发送 GSKO:showUI 事件", uiPayload);
+  } else {
+    data_sender_logger.warn(funcName, "eventEmit 函数不可用，无法发送 UI 更新事件。");
+  }
+  data_sender_logger.log(funcName, "数据发送完毕。");
+}
+
+const prompt_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
 
 function buildPrompt(runtime, stat) {
   const funcName = "buildPrompt";
-  logger.log(funcName, "开始构建提示词...");
+  prompt_builder_logger.log(funcName, "开始构建提示词...");
   const prompt = "";
-  logger.log(funcName, "提示词构建完毕。");
+  prompt_builder_logger.log(funcName, "提示词构建完毕。");
   return prompt;
 }
 
 const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
+
+const affection_level_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/affection-level");
+
+function parseAffectionStages(affectionStages) {
+  if (!Array.isArray(affectionStages)) {
+    return [];
+  }
+  return affectionStages.map(stage => {
+    try {
+      const match = stage.match(/\[(-?\d+),"(.*?)"\]/);
+      if (match) {
+        const [, threshold, name] = match;
+        return [ Number(threshold), name ];
+      }
+      return null;
+    } catch (e) {
+      affection_level_logger.error("parseAffectionStages", `解析好感度阶段时出错: ${stage}`, e);
+      return null;
+    }
+  }).filter(Boolean);
+}
+
+function calculateAffectionLevel(affectionValue, stages) {
+  const sortedStages = stages.sort((a, b) => a[0] - b[0]);
+  let level = sortedStages.length > 0 ? sortedStages[0][1] : "未知";
+  for (const [threshold, name] of sortedStages) {
+    if (affectionValue >= threshold) {
+      level = name;
+    }
+  }
+  return level;
+}
+
+function processAffectionLevel(runtime, stat) {
+  const funcName = "processAffectionLevel";
+  affection_level_logger.log(funcName, "开始处理好感度等级...");
+  const affectionStagesConfig = (0, external_namespaceObject.get)(stat, "config.affection.affectionStages");
+  if (!affectionStagesConfig) {
+    affection_level_logger.warn(funcName, "未找到好感度等级配置，跳过处理。");
+    return runtime;
+  }
+  const affectionStages = parseAffectionStages(affectionStagesConfig);
+  if (affectionStages.length === 0) {
+    affection_level_logger.warn(funcName, "好感度等级配置解析为空，跳过处理。");
+    return runtime;
+  }
+  const characters = (0, external_namespaceObject.get)(stat, "chars", {});
+  for (const charId in characters) {
+    if (Object.prototype.hasOwnProperty.call(characters, charId)) {
+      const affectionValue = (0, external_namespaceObject.get)(stat, [ "chars", charId, "好感度" ]);
+      if (typeof affectionValue === "number") {
+        const affectionLevel = calculateAffectionLevel(affectionValue, affectionStages);
+        (0, external_namespaceObject.set)(runtime, [ "chars", charId, "好感度等级" ], affectionLevel);
+        affection_level_logger.debug(funcName, `角色 ${charId} 的好感度等级计算为: ${affectionLevel}`);
+      }
+    }
+  }
+  affection_level_logger.log(funcName, "好感度等级处理完毕。");
+  return runtime;
+}
 
 function getAliasMap(mapGraph) {
   const aliasMap = Object.create(null);
@@ -465,7 +781,8 @@ function buildRuntime(stat, originalRuntime) {
   let runtime = external_default().cloneDeep(originalRuntime);
   runtime.legal_locations = getLegalLocations(stat);
   runtime = processTime(runtime, stat);
-  runtime_builder_logger.log(funcName, "Runtime 构建完毕。");
+  runtime = processAffectionLevel(runtime, stat);
+  runtime_builder_logger.log(funcName, "Runtime 构建完毕。", runtime);
   return runtime;
 }
 
@@ -751,135 +1068,6 @@ function processAffection(stat, editLog) {
   };
 }
 
-const constants_ERA_VARIABLE_PATH = {
-  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-  UI_THEME: "config.ui.theme",
-  MAP_ASCII: "world.map_ascii",
-  MAP_GRAPH: "world.map_graph",
-  FALLBACK_PLACE: "world.fallbackPlace",
-  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-  RUNTIME_PREFIX: "runtime.",
-  INCIDENT_COOLDOWN: "config.incident.cooldown",
-  TIME_PROGRESS: "世界.timeProgress",
-  FESTIVALS_LIST: "festivals_list",
-  NEWS_TEXT: "文文新闻",
-  EXTRA_MAIN: "附加正文",
-  GENSOKYO_MAIN_STORY: "gensokyo",
-  USER_LOCATION: "user.所在地区",
-  USER_HOME: "user.居住地区",
-  CHARS: "chars",
-  CHAR_HOME: "居住地区",
-  CHAR_LOCATION: "所在地区",
-  CHAR_AFFECTION: "好感度",
-  USER_DATA: "user",
-  USER_EVENTS: "重要经历",
-  USER_RELATIONSHIPS: "人际关系",
-  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-  UI_RIBBON_STEP: "config.ui.ribbonStep",
-  AFFECTION_STAGES: "config.affection.affectionStages",
-  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-  CONFIG_ROOT: "config"
-};
-
-const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
-  module,
-  path,
-  oldValue,
-  newValue,
-  reason
-});
-
-const format_logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
-
-function firstVal(x) {
-  return Array.isArray(x) ? x.length ? x[0] : "" : x;
-}
-
-function format_get(obj, path, fallback = "") {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        format_logger.debug("get", "未找到键，使用默认值。", {
-          路径: String(path),
-          缺失键: String(k),
-          默认值: fallback
-        });
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    const v = firstVal(cur);
-    if (v == null) {
-      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
-        路径: String(path),
-        默认值: fallback
-      });
-      return fallback;
-    }
-    return v;
-  } catch (e) {
-    format_logger.error("get", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function format_text(id, raw) {
-  const el = document.getElementById(id);
-  if (!el) {
-    format_logger.warn("text", "目标元素不存在，跳过写入。", {
-      元素ID: id
-    });
-    return;
-  }
-  el.textContent = toText(raw);
-}
-
-function getRaw(obj, path, fallback = null) {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    return cur == null ? fallback : cur;
-  } catch (e) {
-    format_logger.error("getRaw", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function toText(v) {
-  if (v == null || v === "") return "—";
-  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-  if (typeof v === "object") return JSON.stringify(v);
-  return String(v);
-}
-
-function getStr(obj, path, fallback = "") {
-  const rawValue = getRaw(obj, path, null);
-  if (rawValue === null) {
-    return toText(fallback);
-  }
-  return toText(rawValue);
-}
-
 const location_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor/normalizer/location");
 
 function normalizeLocationData(originalStat) {
@@ -1039,133 +1227,6 @@ function processStat(originalStat, editLog) {
     processedStat: stat,
     changes: allChanges
   };
-}
-
-const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
-
-function getRuntimeVar(path, defaultValue) {
-  const funcName = "getRuntimeVar";
-  try {
-    if (typeof getVariables !== "function") {
-      runtime_logger.warn(funcName, "getVariables 函数不可用。");
-      return defaultValue;
-    }
-    const chatVars = getVariables({
-      type: "chat"
-    });
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
-    const value = get(chatVars, runtimePath, defaultValue);
-    runtime_logger.log(funcName, `从 chat.runtime 读取: ${path}`, {
-      value
-    });
-    return value;
-  } catch (error) {
-    runtime_logger.error(funcName, `读取 runtime 变量失败: ${path}`, error);
-    return defaultValue;
-  }
-}
-
-async function setRuntimeVar(path, value) {
-  const funcName = "setRuntimeVar";
-  try {
-    if (typeof updateVariablesWith !== "function") {
-      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
-      return false;
-    }
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
-    runtime_logger.log(funcName, `准备更新 chat.runtime: ${path}`, {
-      value
-    });
-    await updateVariablesWith(vars => {
-      const chatVars = vars || {};
-      _.set(chatVars, runtimePath, value);
-      return chatVars;
-    }, {
-      type: "chat"
-    });
-    runtime_logger.log(funcName, `成功更新 chat.runtime: ${path}`);
-    return true;
-  } catch (error) {
-    runtime_logger.error(funcName, `更新 runtime 变量失败: ${path}`, error);
-    return false;
-  }
-}
-
-function getRuntimeObject() {
-  const funcName = "getRuntimeObject";
-  try {
-    if (typeof getVariables !== "function") {
-      runtime_logger.warn(funcName, "getVariables 函数不可用。");
-      return {};
-    }
-    const chatVars = getVariables({
-      type: "chat"
-    });
-    const runtime = format_get(chatVars, constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {});
-    runtime_logger.log(funcName, "成功获取 runtime 对象", {
-      runtime
-    });
-    return runtime || {};
-  } catch (error) {
-    runtime_logger.error(funcName, "获取 runtime 对象失败", error);
-    return {};
-  }
-}
-
-async function setRuntimeObject(runtimeObject, options) {
-  const funcName = "setRuntimeObject";
-  const {mode = "merge"} = options || {};
-  try {
-    if (typeof updateVariablesWith !== "function") {
-      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
-      return false;
-    }
-    const runtimePrefix = constants_ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
-    runtime_logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
-      runtimeObject
-    });
-    await updateVariablesWith(vars => {
-      const chatVars = vars || {};
-      if (mode === "replace") {
-        _.set(chatVars, runtimePrefix, runtimeObject);
-      } else {
-        const existingRuntime = _.get(chatVars, runtimePrefix, {});
-        _.merge(existingRuntime, runtimeObject);
-        _.set(chatVars, runtimePrefix, existingRuntime);
-      }
-      return chatVars;
-    }, {
-      type: "chat"
-    });
-    runtime_logger.log(funcName, "成功设置 chat.runtime");
-    return true;
-  } catch (error) {
-    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
-    return false;
-  }
-}
-
-const data_sender_logger = new Logger("幻想乡缘起-后台数据处理/core/data-sender");
-
-async function sendData(stat, runtime, originalPayload, changes) {
-  const funcName = "sendData";
-  data_sender_logger.log(funcName, "开始发送数据...");
-  await setRuntimeObject(runtime, {
-    mode: "replace"
-  });
-  if (typeof eventEmit === "function") {
-    const uiPayload = {
-      ...originalPayload,
-      statWithoutMeta: stat,
-      runtime,
-      statChanges: changes
-    };
-    eventEmit("GSKO:showUI", uiPayload);
-    data_sender_logger.log(funcName, "已发送 GSKO:showUI 事件", uiPayload);
-  } else {
-    data_sender_logger.warn(funcName, "eventEmit 函数不可用，无法发送 UI 更新事件。");
-  }
-  data_sender_logger.log(funcName, "数据发送完毕。");
 }
 
 const _logger = new Logger("幻想乡缘起-后台数据处理");

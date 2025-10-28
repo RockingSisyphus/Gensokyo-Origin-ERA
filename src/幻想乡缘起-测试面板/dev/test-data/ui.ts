@@ -8,6 +8,14 @@ export const standardRuntime = {
   clock: {
     now: { year: 1, month: 4, day: 15, hm: '14:30', periodName: '下午', iso: '0001-04-15T14:30:00' },
   },
+  chars: {
+    博丽灵梦: { 好感度等级: '亲近' },
+    西瓜: { 好感度等级: '不渝' },
+    秦心: { 好感度等级: '憎恨' },
+    路人: { 好感度等级: '厌恶' },
+    雾雨魔理沙: { 好感度等级: '思慕' },
+    琪露诺: { 好感度等级: '憎恨' },
+  },
 };
 
 export const standardData = {
