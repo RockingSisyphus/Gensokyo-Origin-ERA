@@ -565,6 +565,7 @@ const legal_locations_logger = new Logger("幻想乡缘起-后台数据处理/co
 
 function getLegalLocations(stat) {
   const funcName = "getLegalLocations";
+  legal_locations_logger.log(funcName, "开始提取合法地区。");
   let legalLocations = [];
   try {
     const MAP = _.get(stat, "world.map_graph", null);
@@ -583,7 +584,7 @@ function getLegalLocations(stat) {
     legal_locations_logger.error(funcName, "提取合法地区时发生异常", e);
     legalLocations = [];
   }
-  legal_locations_logger.debug(funcName, "模块退出");
+  legal_locations_logger.debug(funcName, "合法地区提取完成。");
   return legalLocations;
 }
 
