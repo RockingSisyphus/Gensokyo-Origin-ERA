@@ -1,94 +1,4 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  143: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      Jt: () => get,
-      Qq: () => text,
-      Tu: () => getRaw,
-      UY: () => getStr,
-      fE: () => toText
-    });
-    var _log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(460);
-    const logger = new _log__WEBPACK_IMPORTED_MODULE_0__.V("幻想乡缘起-主页面/utils/format");
-    function firstVal(x) {
-      return Array.isArray(x) ? x.length ? x[0] : "" : x;
-    }
-    function get(obj, path, fallback = "") {
-      try {
-        const ks = Array.isArray(path) ? path : String(path).split(".");
-        let cur = obj;
-        for (const k of ks) {
-          if (!cur || typeof cur !== "object" || !(k in cur)) {
-            logger.debug("get", "未找到键，使用默认值。", {
-              路径: String(path),
-              缺失键: String(k),
-              默认值: fallback
-            });
-            return fallback;
-          }
-          cur = cur[k];
-        }
-        const v = firstVal(cur);
-        if (v == null) {
-          logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
-            路径: String(path),
-            默认值: fallback
-          });
-          return fallback;
-        }
-        return v;
-      } catch (e) {
-        logger.error("get", "异常，使用默认值。", {
-          路径: String(path),
-          异常: String(e),
-          默认值: fallback
-        });
-        return fallback;
-      }
-    }
-    function text(id, raw) {
-      const el = document.getElementById(id);
-      if (!el) {
-        logger.warn("text", "目标元素不存在，跳过写入。", {
-          元素ID: id
-        });
-        return;
-      }
-      el.textContent = toText(raw);
-    }
-    function getRaw(obj, path, fallback = null) {
-      try {
-        const ks = Array.isArray(path) ? path : String(path).split(".");
-        let cur = obj;
-        for (const k of ks) {
-          if (!cur || typeof cur !== "object" || !(k in cur)) {
-            return fallback;
-          }
-          cur = cur[k];
-        }
-        return cur == null ? fallback : cur;
-      } catch (e) {
-        logger.error("getRaw", "异常，使用默认值。", {
-          路径: String(path),
-          异常: String(e),
-          默认值: fallback
-        });
-        return fallback;
-      }
-    }
-    function toText(v) {
-      if (v == null || v === "") return "—";
-      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-      if (typeof v === "object") return JSON.stringify(v);
-      return String(v);
-    }
-    function getStr(obj, path, fallback = "") {
-      const rawValue = getRaw(obj, path, null);
-      if (rawValue === null) {
-        return toText(fallback);
-      }
-      return toText(rawValue);
-    }
-  },
   441: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
@@ -100,431 +10,6 @@
         target[key] = val;
       }
       return target;
-    };
-  },
-  460: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      E: () => logContext,
-      V: () => Logger
-    });
-    const PROJECT_NAME = "幻想乡缘起-主页面";
-    const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
-    let enabledPatterns = [];
-    let disabledPatterns = [];
-    function loadDebugConfig() {
-      try {
-        const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-        const config = JSON.parse(configStr);
-        const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
-        enabledPatterns = (config.enabled || []).map(toRegex);
-        disabledPatterns = (config.disabled || []).map(toRegex);
-      } catch (e) {
-        console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
-        enabledPatterns = [];
-        disabledPatterns = [];
-      }
-    }
-    function isDebugEnabled(moduleName) {
-      if (!moduleName) return false;
-      if (disabledPatterns.some(re => re.test(moduleName))) {
-        return false;
-      }
-      if (enabledPatterns.length === 0) {
-        return false;
-      }
-      if (enabledPatterns.some(re => re.test(moduleName))) {
-        return true;
-      }
-      return false;
-    }
-    function updateConfig(newConfig) {
-      const uniqueConfig = {
-        enabled: [ ...new Set(newConfig.enabled) ],
-        disabled: [ ...new Set(newConfig.disabled) ]
-      };
-      globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
-      loadDebugConfig();
-      console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
-        "启用 (Enabled)": uniqueConfig.enabled,
-        "禁用 (Disabled)": uniqueConfig.disabled
-      });
-    }
-    loadDebugConfig();
-    if (typeof globalThis !== "undefined") {
-      const eraDebug = {
-        add(pattern) {
-          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-          const config = JSON.parse(configStr);
-          const enabled = new Set(config.enabled || []);
-          const disabled = new Set(config.disabled || []);
-          enabled.add(pattern);
-          disabled.delete(pattern);
-          updateConfig({
-            enabled: Array.from(enabled),
-            disabled: Array.from(disabled)
-          });
-        },
-        remove(pattern) {
-          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-          const config = JSON.parse(configStr);
-          const enabled = new Set(config.enabled || []);
-          const disabled = new Set(config.disabled || []);
-          disabled.add(pattern);
-          enabled.delete(pattern);
-          updateConfig({
-            enabled: Array.from(enabled),
-            disabled: Array.from(disabled)
-          });
-        },
-        status() {
-          const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-          const config = JSON.parse(configStr);
-          console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
-        },
-        clear() {
-          updateConfig({
-            enabled: [],
-            disabled: []
-          });
-        }
-      };
-      globalThis.eraDebug = eraDebug;
-    }
-    const logContext = {
-      mk: ""
-    };
-    class Logger {
-      moduleName;
-      constructor(moduleName) {
-        this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
-      }
-      _getModuleNameFromStack() {
-        try {
-          const stack = (new Error).stack || "";
-          const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
-          if (!callerLine) {
-            return null;
-          }
-          const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
-          if (!match || !match[2]) {
-            return null;
-          }
-          const path = match[2];
-          return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
-        } catch (e) {
-          console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
-          return null;
-        }
-      }
-      formatMessage(funcName, message) {
-        const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-      }
-      debug(funcName, message, obj) {
-        if (!isDebugEnabled(this.moduleName)) {
-          return;
-        }
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj !== undefined) {
-          console.debug(formattedMessage, obj);
-        } else {
-          console.debug(formattedMessage);
-        }
-      }
-      log(funcName, message, obj) {
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj !== undefined) {
-          console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-        } else {
-          console.log(`%c${formattedMessage}`, "color: #3498db;");
-        }
-      }
-      warn(funcName, message, obj) {
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (obj !== undefined) {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-        } else {
-          console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-        }
-      }
-      error(funcName, message, errorObj) {
-        const formattedMessage = this.formatMessage(funcName, message);
-        if (errorObj !== undefined) {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-        } else {
-          console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-        }
-      }
-    }
-  },
-  502: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.r(__webpack_exports__);
-    __webpack_require__.d(__webpack_exports__, {
-      burstBarParticles: () => burstBarParticles,
-      burstCardParticles: () => burstCardParticles,
-      ensureLoveTicker: () => ensureLoveTicker,
-      ensureSkullTicker: () => ensureSkullTicker,
-      hateThresholdOf: () => hateThresholdOf,
-      loveThresholdOf: () => loveThresholdOf,
-      paintBar: () => paintBar,
-      runAffectionPipeline: () => runAffectionPipeline,
-      stageLabelFrom: () => stageLabelFrom
-    });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(815);
-    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(143);
-    var _utils_log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(460);
-    const AFFECTION_STYLE_ID = "era-affection-style";
-    function ensureAffectionStyles() {
-      if (document.getElementById(AFFECTION_STYLE_ID)) return;
-      const css = `\n/* ===== ERA affection (injected by affection.ts) ===== */\n@keyframes affPop {\n  0% { transform: translateY(0) scale(.85); opacity: 0; }\n  20% { opacity: 1; }\n  100% { transform: translateY(-18px) scale(1.15); opacity: 0; }\n}\n@keyframes cardPop {\n  0% { transform: translate(0,0) scale(.8) rotate(0deg); opacity: 0; }\n  20% { opacity: 1; }\n  100% { transform: translate(var(--dx,0), var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg)); opacity: 0; }\n}\n\n/* 仅作用于角色卡区域，避免全局污染 */\n.role-card .aff-particle,\n.role-card .card-particle{\n  position:absolute; line-height:1; pointer-events:none; user-select:none; opacity:0;\n  filter:drop-shadow(0 0 6px rgba(0,0,0,.25));\n}\n.role-card .aff-particle{ animation: affPop 1.1s ease-out forwards; }\n.role-card .card-particle{ animation: cardPop 1.2s ease-out forwards; font-size:16px; }\n.role-card .card-particle.heart{ color:#b65ff7; text-shadow:0 0 8px rgba(126,63,242,.5); }\n.role-card .card-particle.skull{ color:#222; text-shadow:0 0 6px rgba(0,0,0,.5); }\n.role-card .aff-particle.heart{ text-shadow:0 0 6px rgba(126,63,242,.45); }\n.role-card .aff-particle.skull{ color:#000; text-shadow:0 0 6px rgba(0,0,0,.35); }\n\n/* 进度条修饰：与原生逻辑一致 */\n/* 让“朝向”绝对覆盖 scoped 的 left:0 */\n.role-card .mini-bar .val.rtl{ left:auto !important; right:0 !important; }\n\n/* 让配色绝对覆盖 scoped 的默认背景 */\n.role-card .mini-bar .val.negative{\n  background:#b00020 !important;\n}\n.role-card .mini-bar .val.very-hate{\n  background:#000 !important;\n}\n.role-card .mini-bar .val.very-love{\n  background:linear-gradient(90deg,#7e3ff2,#c084fc) !important;\n}\n\n\n/* （可选）深色主题下骷髅视觉微调，保持观感一致 */\n:root[data-theme='dark'] .role-card .card-particle.skull,\n:root[data-theme='dark'] .role-card .aff-particle.skull{\n  color:#714f4f; text-shadow:0 0 6px rgba(185,88,88,.6);\n}\n`;
-      const style = document.createElement("style");
-      style.id = AFFECTION_STYLE_ID;
-      style.textContent = css;
-      document.head.appendChild(style);
-    }
-    const logger = new _utils_log__WEBPACK_IMPORTED_MODULE_2__.V("幻想乡缘起-主页面/backend/affection");
-    const STAGES_FALLBACK = [ [ -9999, "死敌" ], [ -99, "憎恨" ], [ -20, "厌恶" ], [ 0, "不喜" ], [ 10, "冷淡" ], [ 20, "熟悉" ], [ 40, "亲近" ], [ 70, "亲密" ], [ 99, "思慕" ], [ 9999, "不渝" ] ];
-    function stageLabelFrom(statWithoutMeta, fav) {
-      try {
-        logger.debug("stageLabelFrom", "函数接收到的完整 statWithoutMeta 对象", {
-          statWithoutMeta: JSON.parse(JSON.stringify(statWithoutMeta))
-        });
-        const stages = (0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Tu)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_STAGES, STAGES_FALLBACK);
-        logger.debug("stageLabelFrom", "开始计算好感度等级", {
-          当前好感度: fav,
-          等级配置表: JSON.parse(JSON.stringify(stages))
-        });
-        for (let i = stages.length - 1; i >= 0; i--) {
-          if (fav >= Number(stages[i][0])) {
-            const label = String(stages[i][1] ?? "—");
-            logger.debug("stageLabelFrom", "计算成功", {
-              当前好感度: fav,
-              匹配到的等级阈值: stages[i][0],
-              最终等级名称: label
-            });
-            return label;
-          }
-        }
-        const fallbackLabel = String(stages[0]?.[1] ?? "—");
-        logger.debug("stageLabelFrom", "在配置表中未找到匹配，使用最低等级作为保底", {
-          当前好感度: fav,
-          保底等级名称: fallbackLabel
-        });
-        return fallbackLabel;
-      } catch (e) {
-        logger.warn("stageLabelFrom", "阶段计算失败，使用兜底。", e);
-        return "—";
-      }
-    }
-    function loveThresholdOf(statWithoutMeta) {
-      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_LOVE_THRESHOLD, 100));
-    }
-    function hateThresholdOf(statWithoutMeta) {
-      return Number((0, _utils_format__WEBPACK_IMPORTED_MODULE_1__.Jt)(statWithoutMeta, _utils_constants__WEBPACK_IMPORTED_MODULE_0__.M.AFFECTION_HATE_THRESHOLD, -100));
-    }
-    const CARD_STATE = new WeakMap;
-    function paintBar(valEl, fav, love, hate) {
-      if (!valEl) return;
-      valEl.classList.remove("negative", "very-hate", "very-love", "rtl");
-      if (fav < 0) valEl.classList.add("rtl");
-      if (fav <= hate) valEl.classList.add("very-hate"); else if (fav < 0) valEl.classList.add("negative"); else if (fav >= love) valEl.classList.add("very-love");
-      logger.debug("paintBar", "已着色进度条", {
-        fav,
-        className: valEl.className
-      });
-    }
-    function burstBarParticles(valEl, kind = "heart", count = 5) {
-      if (!valEl) return;
-      const host = valEl.parentElement || valEl;
-      for (let i = 0; i < count; i++) {
-        const s = document.createElement("span");
-        s.className = "aff-particle " + (kind === "skull" ? "skull" : "heart");
-        s.textContent = kind === "skull" ? "☠" : "❤";
-        s.style.left = 10 + Math.random() * 80 + "%";
-        s.style.bottom = 2 + Math.random() * 4 + "px";
-        s.style.animationDelay = i * .06 + "s";
-        host.appendChild(s);
-        setTimeout(() => s.remove(), 1300);
-      }
-    }
-    function burstCardParticles(card, kind = "heart", count = 10) {
-      const nowTs = performance.now();
-      const rec = CARD_STATE.get(card) || {};
-      if (rec.lastBurstAt && nowTs - rec.lastBurstAt < 1e3) return;
-      for (let i = 0; i < count; i++) {
-        const s = document.createElement("span");
-        s.className = "card-particle " + (kind === "skull" ? "skull" : "heart");
-        s.textContent = kind === "skull" ? "☠" : "❤";
-        s.style.left = 5 + Math.random() * 90 + "%";
-        s.style.top = 10 + Math.random() * 80 + "%";
-        s.style.setProperty("--dx", (Math.random() - .5) * 60 + "px");
-        s.style.setProperty("--dy", -40 - Math.random() * 40 + "px");
-        s.style.setProperty("--rot", (Math.random() - .5) * 40 + "deg");
-        s.style.animationDelay = i * .05 + "s";
-        card.appendChild(s);
-        setTimeout(() => s.remove(), 1500);
-      }
-      rec.lastBurstAt = nowTs;
-      CARD_STATE.set(card, rec);
-    }
-    function ensureSkullTicker(card, enabled) {
-      const rec = CARD_STATE.get(card) || {};
-      if (enabled) {
-        if (!rec.skullTimer) {
-          rec.skullTimer = setInterval(() => {
-            try {
-              const valEl = card.querySelector(".mini-bar .val");
-              burstCardParticles(card, "skull", 6);
-              if (valEl) burstBarParticles(valEl, "skull", 4);
-            } catch (e) {
-              logger.debug("ensureSkullTicker", "粒子渲染异常，忽略", e);
-            }
-          }, 1400);
-          logger.debug("ensureSkullTicker", "骷髅续喷 开启");
-        }
-      } else if (rec.skullTimer) {
-        clearInterval(rec.skullTimer);
-        rec.skullTimer = null;
-        logger.debug("ensureSkullTicker", "骷髅续喷 关闭");
-      }
-      CARD_STATE.set(card, rec);
-    }
-    function ensureLoveTicker(card, enabled) {
-      const rec = CARD_STATE.get(card) || {};
-      if (enabled) {
-        if (!rec.loveTimer) {
-          rec.loveTimer = setInterval(() => {
-            try {
-              const valEl = card.querySelector(".mini-bar .val");
-              burstCardParticles(card, "heart", 6);
-              if (valEl) burstBarParticles(valEl, "heart", 4);
-            } catch (e) {
-              logger.debug("ensureLoveTicker", "粒子渲染异常，忽略", e);
-            }
-          }, 1600);
-          logger.debug("ensureLoveTicker", "爱心续喷 开启");
-        }
-      } else if (rec.loveTimer) {
-        clearInterval(rec.loveTimer);
-        rec.loveTimer = null;
-        logger.debug("ensureLoveTicker", "爱心续喷 关闭");
-      }
-      CARD_STATE.set(card, rec);
-    }
-    function processCard(statWithoutMeta, card) {
-      try {
-        const favRaw = card.querySelector(".aff-num")?.textContent || "0";
-        const fav = parseInt(favRaw || "0", 10) || 0;
-        const valEl = card.querySelector(".mini-bar .val");
-        const lblEl = card.querySelector(".aff-stage");
-        if (lblEl) lblEl.textContent = stageLabelFrom(statWithoutMeta, fav);
-        const LOVE = loveThresholdOf(statWithoutMeta);
-        const HATE = hateThresholdOf(statWithoutMeta);
-        paintBar(valEl, fav, LOVE, HATE);
-        let cur = "neutral";
-        if (fav <= HATE) cur = "hate"; else if (fav >= LOVE) cur = "love";
-        const rec = CARD_STATE.get(card) || {};
-        const prev = rec.state;
-        if (cur !== prev) {
-          if (cur === "love") {
-            burstCardParticles(card, "heart", 10);
-            if (valEl) burstBarParticles(valEl, "heart", 5);
-          } else if (cur === "hate") {
-            burstCardParticles(card, "skull", 8);
-            if (valEl) burstBarParticles(valEl, "skull", 5);
-          }
-        }
-        if (cur === "love") {
-          const nowTs = performance.now();
-          if (!rec.lastLoveAt || nowTs - rec.lastLoveAt > 1600) {
-            if (valEl) burstBarParticles(valEl, "heart", 3);
-            rec.lastLoveAt = nowTs;
-          }
-        }
-        ensureSkullTicker(card, cur === "hate");
-        ensureLoveTicker(card, cur === "love");
-        rec.state = cur;
-        rec.lastFav = fav;
-        CARD_STATE.set(card, rec);
-        logger.debug("processCard", "处理完成", {
-          名称: card.querySelector(".role-name")?.textContent || "—",
-          fav,
-          阶段: cur,
-          阶段文案: lblEl?.textContent || "—",
-          条类: valEl?.className || "—"
-        });
-      } catch (e) {
-        logger.warn("processCard", "处理异常", e);
-      }
-    }
-    function scanAll(statWithoutMeta) {
-      const cards = document.querySelectorAll(".role-card");
-      if (!cards.length) {
-        logger.debug("scanAll", "暂无角色卡片可处理");
-        return 0;
-      }
-      cards.forEach(card => processCard(statWithoutMeta, card));
-      logger.log("scanAll", "好感渲染完成", {
-        数量: cards.length,
-        love: loveThresholdOf(statWithoutMeta),
-        hate: hateThresholdOf(statWithoutMeta)
-      });
-      return cards.length;
-    }
-    async function runAffectionPipeline(context) {
-      const funcName = "runAffectionPipeline";
-      const {statWithoutMeta, runtime} = context || {};
-      if (!statWithoutMeta) {
-        logger.warn(funcName, "上下文信息不完整，缺少 statWithoutMeta，已中止。");
-        return;
-      }
-      try {
-        ensureAffectionStyles();
-        logger.log(funcName, "开始执行好感流水线", {
-          mk: statWithoutMeta && (statWithoutMeta.$mk || statWithoutMeta.mk) || ""
-        });
-        scanAll(statWithoutMeta);
-        logger.log(funcName, "好感流水线完成");
-      } catch (e) {
-        logger.warn(funcName, "好感流水线异常（非致命）", e);
-      }
-    }
-  },
-  815: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
-    __webpack_require__.d(__webpack_exports__, {
-      M: () => ERA_VARIABLE_PATH
-    });
-    const ERA_VARIABLE_PATH = {
-      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-      UI_THEME: "config.ui.theme",
-      MAP_ASCII: "world.map_ascii",
-      MAP_GRAPH: "world.map_graph",
-      FALLBACK_PLACE: "world.fallbackPlace",
-      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-      RUNTIME_PREFIX: "runtime.",
-      INCIDENT_COOLDOWN: "config.incident.cooldown",
-      TIME_PROGRESS: "世界.timeProgress",
-      FESTIVALS_LIST: "festivals_list",
-      NEWS_TEXT: "文文新闻",
-      EXTRA_MAIN: "附加正文",
-      USER_LOCATION: "user.所在地区",
-      USER_HOME: "user.居住地区",
-      CHARS: "chars",
-      CHAR_HOME: "居住地区",
-      CHAR_LOCATION: "所在地区",
-      CHAR_AFFECTION: "好感度",
-      USER_DATA: "user",
-      USER_EVENTS: "重要经历",
-      USER_RELATIONSHIPS: "人际关系",
-      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-      UI_RIBBON_STEP: "config.ui.ribbonStep",
-      AFFECTION_STAGES: "config.affection.affectionStages",
-      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-      CONFIG_ROOT: "config"
     };
   }
 };
@@ -574,11 +59,285 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(815);
+const ERA_VARIABLE_PATH = {
+  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+  UI_THEME: "config.ui.theme",
+  MAP_ASCII: "world.map_ascii",
+  MAP_GRAPH: "world.map_graph",
+  FALLBACK_PLACE: "world.fallbackPlace",
+  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+  RUNTIME_PREFIX: "runtime.",
+  INCIDENT_COOLDOWN: "config.incident.cooldown",
+  TIME_PROGRESS: "世界.timeProgress",
+  FESTIVALS_LIST: "festivals_list",
+  NEWS_TEXT: "文文新闻",
+  EXTRA_MAIN: "附加正文",
+  USER_LOCATION: "user.所在地区",
+  USER_HOME: "user.居住地区",
+  CHARS: "chars",
+  CHAR_HOME: "居住地区",
+  CHAR_LOCATION: "所在地区",
+  CHAR_AFFECTION: "好感度",
+  USER_DATA: "user",
+  USER_EVENTS: "重要经历",
+  USER_RELATIONSHIPS: "人际关系",
+  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+  UI_RIBBON_STEP: "config.ui.ribbonStep",
+  AFFECTION_STAGES: "config.affection.affectionStages",
+  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+  CONFIG_ROOT: "config"
+};
 
-var format = __webpack_require__(143);
+const PROJECT_NAME = "幻想乡缘起-主页面";
 
-var log = __webpack_require__(460);
+const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
+
+let enabledPatterns = [];
+
+let disabledPatterns = [];
+
+function loadDebugConfig() {
+  try {
+    const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+    const config = JSON.parse(configStr);
+    const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
+    enabledPatterns = (config.enabled || []).map(toRegex);
+    disabledPatterns = (config.disabled || []).map(toRegex);
+  } catch (e) {
+    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
+    enabledPatterns = [];
+    disabledPatterns = [];
+  }
+}
+
+function isDebugEnabled(moduleName) {
+  if (!moduleName) return false;
+  if (disabledPatterns.some(re => re.test(moduleName))) {
+    return false;
+  }
+  if (enabledPatterns.length === 0) {
+    return false;
+  }
+  if (enabledPatterns.some(re => re.test(moduleName))) {
+    return true;
+  }
+  return false;
+}
+
+function updateConfig(newConfig) {
+  const uniqueConfig = {
+    enabled: [ ...new Set(newConfig.enabled) ],
+    disabled: [ ...new Set(newConfig.disabled) ]
+  };
+  globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
+  loadDebugConfig();
+  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+    "启用 (Enabled)": uniqueConfig.enabled,
+    "禁用 (Disabled)": uniqueConfig.disabled
+  });
+}
+
+loadDebugConfig();
+
+if (typeof globalThis !== "undefined") {
+  const eraDebug = {
+    add(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      enabled.add(pattern);
+      disabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    remove(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      disabled.add(pattern);
+      enabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    status() {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+    },
+    clear() {
+      updateConfig({
+        enabled: [],
+        disabled: []
+      });
+    }
+  };
+  globalThis.eraDebug = eraDebug;
+}
+
+const logContext = {
+  mk: ""
+};
+
+class Logger {
+  moduleName;
+  constructor(moduleName) {
+    this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
+  }
+  _getModuleNameFromStack() {
+    try {
+      const stack = (new Error).stack || "";
+      const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
+      if (!callerLine) {
+        return null;
+      }
+      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
+      if (!match || !match[2]) {
+        return null;
+      }
+      const path = match[2];
+      return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
+    } catch (e) {
+      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
+      return null;
+    }
+  }
+  formatMessage(funcName, message) {
+    const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+  }
+  debug(funcName, message, obj) {
+    if (!isDebugEnabled(this.moduleName)) {
+      return;
+    }
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.debug(formattedMessage, obj);
+    } else {
+      console.debug(formattedMessage);
+    }
+  }
+  log(funcName, message, obj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+    } else {
+      console.log(`%c${formattedMessage}`, "color: #3498db;");
+    }
+  }
+  warn(funcName, message, obj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+    } else {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+    }
+  }
+  error(funcName, message, errorObj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (errorObj !== undefined) {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+    } else {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+    }
+  }
+}
+
+const logger = new Logger("幻想乡缘起-主页面/utils/format");
+
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
+
+function get(obj, path, fallback = "") {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -639,7 +398,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(42);
+var exportHelper = __webpack_require__(441);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7256a290" ] ]);
 
@@ -759,7 +518,7 @@ const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-285b536c" ] ]);
+const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1ee196a8" ] ]);
 
 const AffectionDisplay = AffectionDisplay_exports_;
 
@@ -1092,7 +851,7 @@ const ContentOthersvue_type_script_setup_true_lang_ts = (0, external_Vue_namespa
       class: "GensokyoOrigin-ContentOthers-card-toggle",
       "aria-expanded": "false",
       "aria-label": "展开/收起"
-    }, "▼", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [ ((0, 
+    }, " ▼ ", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(role.fields, field => ((0, external_Vue_namespaceObject.openBlock)(), 
     (0, external_Vue_namespaceObject.createElementBlock)("div", {
@@ -2060,96 +1819,6 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
 const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-85b52c0a" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
-
-var affection = __webpack_require__(502);
-
-const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "aff-num"
-};
-
-const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2 = {
-  class: "aff-stage"
-};
-
-const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "AffectionDisplay",
-  props: {
-    character: {},
-    statWithoutMeta: {},
-    size: {}
-  },
-  setup(__props) {
-    const props = __props;
-    const root = (0, external_Vue_namespaceObject.ref)(null);
-    const valEl = (0, external_Vue_namespaceObject.ref)(null);
-    const affectionValue = (0, external_Vue_namespaceObject.computed)(() => props.character?.["好感度"] || 0);
-    const loveThreshold = (0, external_Vue_namespaceObject.computed)(() => (0, affection.loveThresholdOf)(props.statWithoutMeta));
-    const hateThreshold = (0, external_Vue_namespaceObject.computed)(() => (0, affection.hateThresholdOf)(props.statWithoutMeta));
-    const affectionStage = (0, external_Vue_namespaceObject.computed)(() => (0, affection.stageLabelFrom)(props.statWithoutMeta, affectionValue.value));
-    const barWidth = (0, external_Vue_namespaceObject.computed)(() => `${Math.min(Math.abs(affectionValue.value), 100)}%`);
-    let previousState = "neutral";
-    const updateAffectionVisuals = () => {
-      if (!root.value || !valEl.value) return;
-      (0, affection.paintBar)(valEl.value, affectionValue.value, loveThreshold.value, hateThreshold.value);
-      let currentState = "neutral";
-      if (affectionValue.value >= loveThreshold.value) {
-        currentState = "love";
-      } else if (affectionValue.value <= hateThreshold.value) {
-        currentState = "hate";
-      }
-      if (currentState !== previousState) {
-        if (currentState === "love") {
-          (0, affection.burstCardParticles)(root.value, "heart", 10);
-          (0, affection.burstBarParticles)(valEl.value, "heart", 5);
-        } else if (currentState === "hate") {
-          (0, affection.burstCardParticles)(root.value, "skull", 8);
-          (0, affection.burstBarParticles)(valEl.value, "skull", 5);
-        }
-      }
-      (0, affection.ensureLoveTicker)(root.value, currentState === "love");
-      (0, affection.ensureSkullTicker)(root.value, currentState === "hate");
-      previousState = currentState;
-    };
-    (0, external_Vue_namespaceObject.watch)(() => [ props.character, props.statWithoutMeta ], () => {
-      updateAffectionVisuals();
-    }, {
-      deep: true,
-      immediate: true
-    });
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      updateAffectionVisuals();
-    });
-    (0, external_Vue_namespaceObject.onUnmounted)(() => {
-      if (root.value) {
-        (0, affection.ensureLoveTicker)(root.value, false);
-        (0, affection.ensureSkullTicker)(root.value, false);
-      }
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      ref_key: "root",
-      ref: root,
-      class: "affection-display role-card"
-    }, [ _cache[0] || (_cache[0] = (0, external_Vue_namespaceObject.createElementVNode)("strong", null, "好感度：", -1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1, (0, 
-    external_Vue_namespaceObject.toDisplayString)(affectionValue.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
-    external_Vue_namespaceObject.toDisplayString)(affectionStage.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "mini-bar", {
-        "small-bar": __props.size === "small"
-      } ])
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      ref_key: "valEl",
-      ref: valEl,
-      class: "val",
-      style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        width: barWidth.value
-      })
-    }, null, 4) ], 2) ], 512));
-  }
-});
-
-const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-5b26ff4e" ] ]);
-
-const AffectionDisplay = AffectionDisplay_exports_;
 
 const RoleCardvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "GensokyoOrigin-RoleCard-header"
@@ -3355,12 +3024,6 @@ $(() => {
       } catch (e) {
         logger.warn(funcName, "RoleRibbon.updateRibbon 执行失败（非致命）。", e);
       }
-      try {
-        logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 502)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
-      } catch (e) {
-        logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
-      }
     } catch (e) {
       logger.error(funcName, "GSKO:showUI 处理过程出现未捕获异常", e);
     } finally {
@@ -3370,7 +3033,7 @@ $(() => {
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
 h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-7256a290]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-7256a290]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-7256a290]{border:none;border-top:1px dashed var(--line);margin:20px 0}
 .styled-progress-bar[data-v-0390f826]{background:var(--bar-bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;position:relative;flex-grow:1}.styled-progress-bar.size-large[data-v-0390f826]{height:10px}.styled-progress-bar.size-small[data-v-0390f826]{height:8px;max-width:80px}.styled-progress-bar .val[data-v-0390f826]{position:absolute;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.styled-progress-bar.rtl .val[data-v-0390f826]{left:auto;right:0}.styled-progress-bar.negative .val[data-v-0390f826]{background:#b00020}.styled-progress-bar.very-hate .val[data-v-0390f826]{background:#000}.styled-progress-bar.very-love .val[data-v-0390f826]{background:linear-gradient(90deg,#7e3ff2,#c084fc)}
-.affection-display[data-v-285b536c]{width:100%}.info-line[data-v-285b536c]{display:flex;align-items:center;gap:8px;font-size:.9em;margin-bottom:4px}.aff-stage[data-v-285b536c]{font-size:.9em;color:var(--muted);margin-left:auto}
+.affection-display[data-v-1ee196a8]{width:100%}.info-line[data-v-1ee196a8]{display:flex;align-items:center;gap:8px;font-size:.9em;margin-bottom:4px}.aff-stage[data-v-1ee196a8]{font-size:.9em;color:var(--muted);margin-left:auto}
 .GensokyoOrigin-Particle{position:absolute;line-height:1;-webkit-user-select:none;user-select:none;opacity:0;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25));animation:GensokyoOrigin-Particle-pop 1.2s ease-out forwards;font-size:16px}@keyframes GensokyoOrigin-Particle-pop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}.GensokyoOrigin-Particle--heart{color:#b65ff7;text-shadow:0 0 8px rgba(182,95,247,.7),0 0 4px hsla(0,0%,100%,.8)}.GensokyoOrigin-Particle--skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5),0 0 3px #fff}:root[data-theme=dark] .GensokyoOrigin-Particle--skull{color:#714f4f;text-shadow:0 0 7px rgba(185,88,88,.7),0 0 3px rgba(255,210,210,.8)}
 .particle-emitter-root{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
 .GensokyoOrigin-ContentOthers-debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}.GensokyoOrigin-ContentOthers-incident-list{display:flex;flex-direction:column;gap:12px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;position:relative}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed{padding-bottom:8px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-body{display:none}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-card-header{margin-bottom:0;padding-bottom:6px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-debug-switch{background:hsla(0,0%,100%,.05)}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{box-shadow:0 2px 12px rgba(0,0,0,.35)}
@@ -3406,5 +3069,5 @@ h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--
 
 .theme-toggle[data-v-3137ed48]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-3137ed48]:active{transform:translateY(1px)}.theme-toggle[data-v-3137ed48]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
-/*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

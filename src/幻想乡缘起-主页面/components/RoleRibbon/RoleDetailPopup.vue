@@ -10,14 +10,30 @@
         </div>
       </div>
       <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item"><strong>年龄:</strong> {{ toText(character['年龄']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item"><strong>性别:</strong> {{ toText(character['性别']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item"><strong>身份:</strong> {{ toText(character['身份']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item"><strong>居住地:</strong> {{ toText(character['居住地区']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"><strong>性格:</strong> {{ toText(character['性格']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"><strong>外貌:</strong> {{ toText(character['外貌']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"><strong>人际关系:</strong> {{ toText(character['人际关系']) }}</div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"><strong>当前目标:</strong> {{ toText(character['当前目标']) }}</div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+          <strong>年龄:</strong> {{ toText(character['年龄']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+          <strong>性别:</strong> {{ toText(character['性别']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+          <strong>身份:</strong> {{ toText(character['身份']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+          <strong>居住地:</strong> {{ toText(character['居住地区']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+          <strong>性格:</strong> {{ toText(character['性格']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+          <strong>外貌:</strong> {{ toText(character['外貌']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+          <strong>人际关系:</strong> {{ toText(character['人际关系']) }}
+        </div>
+        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+          <strong>当前目标:</strong> {{ toText(character['当前目标']) }}
+        </div>
       </div>
       <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="large" />
       <ParticleEmitter
@@ -55,8 +71,12 @@ const toText = (v: any) => {
 
 // --- 数据计算 (与粒子效果相关) ---
 const affectionValue = computed(() => props.character?.['好感度'] || 0);
-const loveThreshold = computed(() => Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)));
-const hateThreshold = computed(() => Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)));
+const loveThreshold = computed(() =>
+  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)),
+);
+const hateThreshold = computed(() =>
+  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)),
+);
 
 const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {
   if (affectionValue.value >= loveThreshold.value) return 'love';

@@ -3,11 +3,17 @@
     <h4><span class="emoji">🧑‍🤝‍🧑</span>其他角色</h4>
     <!-- ===== 其他角色工具条 ===== -->
     <div id="others-toolbar" class="GensokyoOrigin-ContentOthers-debug-toolbar" style="margin: 6px 0 10px">
-      <span class="GensokyoOrigin-ContentOthers-debug-switch" title="config.mvuLifeMeet.rules.incident.skipVisitHunters">
+      <span
+        class="GensokyoOrigin-ContentOthers-debug-switch"
+        title="config.mvuLifeMeet.rules.incident.skipVisitHunters"
+      >
         <input id="life-skip-visit-hunters" v-model="skipVisitHunters" type="checkbox" @change="onSkipVisitChange" />
         异变中退治者不拜访
       </span>
-      <span class="GensokyoOrigin-ContentOthers-debug-switch" title="config.mvuLifeMeet.rules.incident.skipSleepHunters">
+      <span
+        class="GensokyoOrigin-ContentOthers-debug-switch"
+        title="config.mvuLifeMeet.rules.incident.skipSleepHunters"
+      >
         <input id="life-skip-sleep-hunters" v-model="skipSleepHunters" type="checkbox" @change="onSkipSleepChange" />
         异变中退治者不睡觉
       </span>
@@ -27,7 +33,9 @@
               <div class="GensokyoOrigin-ContentOthers-role-name">{{ role.name }}</div>
               <div class="GensokyoOrigin-ContentOthers-role-meta">{{ role.location }}</div>
             </div>
-            <button class="GensokyoOrigin-ContentOthers-card-toggle" aria-expanded="false" aria-label="展开/收起">▼</button>
+            <button class="GensokyoOrigin-ContentOthers-card-toggle" aria-expanded="false" aria-label="展开/收起">
+              ▼
+            </button>
           </div>
           <div class="GensokyoOrigin-ContentOthers-role-body">
             <div v-for="field in role.fields" :key="field.label" class="GensokyoOrigin-ContentOthers-role-line">

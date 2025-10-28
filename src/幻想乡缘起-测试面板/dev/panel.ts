@@ -136,10 +136,12 @@ function createTestPanel() {
   });
 
   // --- 好感度等级模块测试 ---
-  const affectionLevelTestConfigs: TestButtonConfig[] = Object.entries(affectionLevelTestData).map(([key, statData]) => ({
-    text: key,
-    payload: { statWithoutMeta: statData },
-  }));
+  const affectionLevelTestConfigs: TestButtonConfig[] = Object.entries(affectionLevelTestData).map(
+    ([key, statData]) => ({
+      text: key,
+      payload: { statWithoutMeta: statData },
+    }),
+  );
   addTestButtons(panel, '好感度等级模块测试', affectionLevelTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',

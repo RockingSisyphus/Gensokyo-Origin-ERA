@@ -56,19 +56,31 @@ onMounted(() => {
 }
 
 @keyframes GensokyoOrigin-Particle-pop {
-  0% { transform: translate(0, 0) scale(0.8) rotate(0deg); opacity: 0; }
-  20% { opacity: 1; }
-  100% { transform: translate(var(--dx, 0), var(--dy, -40px)) scale(1.1) rotate(var(--rot, 0deg)); opacity: 0; }
+  0% {
+    transform: translate(0, 0) scale(0.8) rotate(0deg);
+    opacity: 0;
+  }
+  20% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx, 0), var(--dy, -40px)) scale(1.1) rotate(var(--rot, 0deg));
+    opacity: 0;
+  }
 }
 
 .GensokyoOrigin-Particle--heart {
   color: #b65ff7;
-  text-shadow: 0 0 8px rgba(182, 95, 247, 0.7), 0 0 4px rgba(255, 255, 255, 0.8);
+  text-shadow:
+    0 0 8px rgba(182, 95, 247, 0.7),
+    0 0 4px rgba(255, 255, 255, 0.8);
 }
 
 .GensokyoOrigin-Particle--skull {
   color: #222;
-  text-shadow: 0 0 6px rgba(0, 0, 0, 0.5), 0 0 3px #fff;
+  text-shadow:
+    0 0 6px rgba(0, 0, 0, 0.5),
+    0 0 3px #fff;
 }
 
 /*
@@ -76,6 +88,8 @@ onMounted(() => {
 */
 :root[data-theme='dark'] .GensokyoOrigin-Particle--skull {
   color: #714f4f;
-  text-shadow: 0 0 7px rgba(185, 88, 88, 0.7), 0 0 3px rgba(255, 210, 210, 0.8);
+  text-shadow:
+    0 0 7px rgba(185, 88, 88, 0.7),
+    0 0 3px rgba(255, 210, 210, 0.8);
 }
 </style>

@@ -77,14 +77,14 @@ const stopTicker = () => {
 
 watch(
   () => props.active,
-  (isActive) => {
+  isActive => {
     if (isActive) {
       startTicker();
     } else {
       stopTicker();
     }
   },
-  { immediate: true }
+  { immediate: true },
 );
 
 const burst = (type: ParticleType, count: number) => {
