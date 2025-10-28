@@ -10,6 +10,7 @@ const logger = new Logger();
  */
 export function getLegalLocations(stat: any): string[] {
   const funcName = 'getLegalLocations';
+  logger.log(funcName, '开始提取合法地区。');
   let legalLocations: string[] = [];
 
   try {
@@ -27,6 +28,6 @@ export function getLegalLocations(stat: any): string[] {
     legalLocations = [];
   }
 
-  logger.debug(funcName, '模块退出');
+  logger.debug(funcName, '合法地区提取完成。');
   return legalLocations;
 }
