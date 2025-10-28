@@ -24,11 +24,11 @@ export function buildTimePrompt({ runtime }: { runtime: any }): string | null {
     const month = now.month ?? 0;
     const day = now.day ?? 0;
     const weekdayName = now.weekdayName || '周?';
-    const hourMinute = now.hm || (
-      (Number.isFinite(now.hour) && Number.isFinite(now.minute))
+    const hourMinute =
+      now.hm ||
+      (Number.isFinite(now.hour) && Number.isFinite(now.minute)
         ? String(now.hour).padStart(2, '0') + ':' + String(now.minute).padStart(2, '0')
-        : '--:--'
-    );
+        : '--:--');
     const periodName = now.periodName || '—';
     const seasonName = now.seasonName || '';
 
@@ -45,13 +45,12 @@ export function buildTimePrompt({ runtime }: { runtime: any }): string | null {
     if (flags.newDay) changes.push('新日');
     if (flags.newSeason) changes.push('新季' + (seasonName ? `(${seasonName})` : ''));
     if (flags.newPeriod) changes.push('新时段' + (periodName ? `(${periodName})` : ''));
-    
+
     const line2 = changes.length ? `【上一轮时间变化】${changes.join('，')}。` : '';
 
-    const result = line2 ? (line1 + '\n' + line2) : line1;
+    const result = line2 ? line1 + '\n' + line2 : line1;
     logger.log(funcName, '成功构建时间提示词。', { result });
     return result;
-
   } catch (err: any) {
     logger.error(funcName, '构建时间提示词失败: ' + (err?.message || String(err)), err);
     return null;

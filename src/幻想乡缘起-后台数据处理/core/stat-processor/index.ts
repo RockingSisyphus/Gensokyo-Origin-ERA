@@ -13,13 +13,10 @@ const logger = new Logger();
  * @param {any} editLog - 当前 mk 对应的 editLog。
  * @returns {{processedStat: any, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和所有变更日志的对象。
  */
-export function processStat({
-  originalStat,
-  editLog,
-}: {
-  originalStat: any;
-  editLog: any;
-}): { processedStat: any; changes: ChangeLogEntry[] } {
+export function processStat({ originalStat, editLog }: { originalStat: any; editLog: any }): {
+  processedStat: any;
+  changes: ChangeLogEntry[];
+} {
   const funcName = 'processStat';
   logger.log(funcName, '开始执行所有数据修正流程...', { editLog });
 
