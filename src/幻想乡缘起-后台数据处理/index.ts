@@ -1,4 +1,5 @@
 import { sendData } from './core/data-sender';
+import { processMixed } from './core/mixed-processor';
 import { buildPrompt } from './core/prompt-builder';
 import { buildRuntime } from './core/runtime-builder';
 import { processStat } from './core/stat-processor';
@@ -21,7 +22,7 @@ $(() => {
     const currentEditLog = (editLogs as any)?.[mk];
 
     // 1. Stat 处理
-    const { processedStat, changes: statChanges } = processStat({
+    let { processedStat, changes: statChanges } = processStat({
       originalStat: statWithoutMeta,
       editLog: currentEditLog,
     });
@@ -29,18 +30,27 @@ $(() => {
     // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
     const prevRuntime = getRuntimeObject();
 
+    // 2.5. 混合处理（可能同时修改 stat 和 runtime）
+    const mixedResult = processMixed({ runtime: prevRuntime, stat: processedStat });
+    const mixedProcessedStat = mixedResult.stat;
+    const mixedProcessedRuntime = mixedResult.runtime;
+    const mixedChanges = mixedResult.changes;
+
+    // 合并所有 changes
+    const allChanges = statChanges.concat(mixedChanges);
+
     // 3. Runtime 构建
-    const newRuntime = await buildRuntime({ stat: processedStat, runtime: prevRuntime });
+    const newRuntime = await buildRuntime({ stat: mixedProcessedStat, runtime: mixedProcessedRuntime });
 
     // 4. 提示词构建
-    const prompt = buildPrompt({ runtime: newRuntime, stat: processedStat });
+    const prompt = buildPrompt({ runtime: newRuntime, stat: mixedProcessedStat });
     logger.log('handleWriteDone', '提示词构建完毕:', prompt);
     // 5. 数据写入/发送
     await sendData({
-      stat: processedStat,
+      stat: mixedProcessedStat,
       runtime: newRuntime,
       eraPayload: payload,
-      changes: statChanges,
+      changes: allChanges,
     });
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
