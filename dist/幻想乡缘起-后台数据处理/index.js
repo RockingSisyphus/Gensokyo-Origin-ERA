@@ -424,7 +424,7 @@ async function setRuntimeObject(runtimeObject, options) {
 
 const data_sender_logger = new Logger("幻想乡缘起-后台数据处理/core/data-sender");
 
-async function sendData(stat, runtime, originalPayload, changes) {
+async function sendData({stat, runtime, eraPayload: originalPayload, changes}) {
   const funcName = "sendData";
   data_sender_logger.log(funcName, "开始发送数据...");
   await setRuntimeObject(runtime, {
@@ -445,19 +445,142 @@ async function sendData(stat, runtime, originalPayload, changes) {
   data_sender_logger.log(funcName, "数据发送完毕。");
 }
 
-const prompt_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
-
-function buildPrompt(runtime, stat) {
-  const funcName = "buildPrompt";
-  prompt_builder_logger.log(funcName, "开始构建提示词...");
-  const prompt = "";
-  prompt_builder_logger.log(funcName, "提示词构建完毕。");
-  return prompt;
-}
-
 const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
+
+const festival_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/festival");
+
+function buildFestivalPrompt({runtime}) {
+  const funcName = "buildFestivalPrompt";
+  const prompts = [];
+  try {
+    const festivalInfo = external_default().get(runtime, "festival");
+    if (!festivalInfo) {
+      festival_logger.debug(funcName, "runtime 中无节日信息，跳过。");
+      return [];
+    }
+    const {current, next} = festivalInfo;
+    if (current) {
+      const nDays = current.end_day - current.start_day + 1;
+      const customsText = (current.customs || []).join("请在正文中令幻想乡角色提醒{{user}}!!；");
+      const line = `【重要事件-节日提示】今天是「${current.name}」（从${current.month}/${current.start_day}到${current.month}/${current.end_day}，共${nDays}天），主办地：${current.host}。习俗：${customsText}`;
+      prompts.push(line);
+    }
+    if (next) {
+      const customsText = (next.customs || []).join("；");
+      const line = `【重要事件-节日预告】「${next.name}」将在${next.days_until}天后开始（从${next.month}/${next.start_day}到${next.month}/${next.end_day}），主办地：${next.host}。习俗：${customsText}`;
+      prompts.push(line);
+    }
+    if (prompts.length > 0) {
+      festival_logger.debug(funcName, "生成节日提示词:", prompts);
+    }
+    return prompts;
+  } catch (err) {
+    festival_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    return [];
+  }
+}
+
+const route_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/route");
+
+function formatPath(path) {
+  if (!path || !path.steps || path.steps.length === 0) {
+    return "";
+  }
+  return path.steps.map(step => `${step.from}->${step.to}`).join("；");
+}
+
+function buildRoutePrompt({runtime, stat}) {
+  const funcName = "buildRoutePrompt";
+  const routeInfo = external_default().get(runtime, "route");
+  const currentUserLocation = external_default().get(stat, "user.所在地区", "博丽神社");
+  const characterName = external_default().get(stat, "user.姓名", "你");
+  if (!routeInfo || external_default().isEmpty(routeInfo.routes)) {
+    return `【路线提示】：${characterName}当前位于${currentUserLocation}。最近消息未检测到目的地或不可达。`;
+  }
+  const lines = routeInfo.routes.map(route => {
+    const pathString = formatPath(route.path);
+    if (!pathString) return "";
+    return `${route.destination}：最短路线(${route.path.hops}步)：${pathString}`;
+  }).filter(Boolean);
+  if (lines.length === 0) {
+    return `【路线提示】：${characterName}当前位于${currentUserLocation}。最近消息未检测到目的地或不可达。`;
+  }
+  const prompt = `【最短路线】：${characterName}当前位于${currentUserLocation}。若要前往下列地点，**必须按以下路线**：\n- ${lines.join("\n- ")}`;
+  route_logger.debug(funcName, "生成的路线提示词:", prompt);
+  return prompt;
+}
+
+const time_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/time");
+
+function buildTimePrompt({runtime}) {
+  const funcName = "buildTimePrompt";
+  try {
+    const now = external_default().get(runtime, "clock.now");
+    const flags = external_default().get(runtime, "clock.flags");
+    if (!now || !flags) {
+      time_logger.warn(funcName, "runtime.clock.now 或 runtime.clock.flags 不存在，无法构建时间提示词。");
+      return null;
+    }
+    const year = now.year ?? 0;
+    const month = now.month ?? 0;
+    const day = now.day ?? 0;
+    const weekdayName = now.weekdayName || "周?";
+    const hourMinute = now.hm || (Number.isFinite(now.hour) && Number.isFinite(now.minute) ? String(now.hour).padStart(2, "0") + ":" + String(now.minute).padStart(2, "0") : "--:--");
+    const periodName = now.periodName || "—";
+    const seasonName = now.seasonName || "";
+    const monthString = String(month).padStart(2, "0");
+    const dayString = String(day).padStart(2, "0");
+    const line1 = `【当前轮世界时钟】当前是 ${year}年${monthString}月${dayString}日（${weekdayName}） ${hourMinute} · ${periodName}${seasonName ? " · " + seasonName : ""}`;
+    const changes = [];
+    if (flags.newYear) changes.push("新年");
+    if (flags.newMonth) changes.push("新月");
+    if (flags.newWeek) changes.push("新周");
+    if (flags.newDay) changes.push("新日");
+    if (flags.newSeason) changes.push("新季" + (seasonName ? `(${seasonName})` : ""));
+    if (flags.newPeriod) changes.push("新时段" + (periodName ? `(${periodName})` : ""));
+    const line2 = changes.length ? `【上一轮时间变化】${changes.join("，")}。` : "";
+    const result = line2 ? line1 + "\n" + line2 : line1;
+    time_logger.log(funcName, "成功构建时间提示词。", {
+      result
+    });
+    return result;
+  } catch (err) {
+    time_logger.error(funcName, "构建时间提示词失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
+const prompt_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
+
+function buildPrompt({runtime, stat}) {
+  const funcName = "buildPrompt";
+  prompt_builder_logger.log(funcName, "开始构建提示词...");
+  const prompts = [];
+  const timePrompt = buildTimePrompt({
+    runtime
+  });
+  if (timePrompt) {
+    prompts.push(timePrompt);
+  }
+  const festivalPrompts = buildFestivalPrompt({
+    runtime
+  });
+  if (festivalPrompts.length > 0) {
+    prompts.push(...festivalPrompts);
+  }
+  const routePrompt = buildRoutePrompt({
+    runtime,
+    stat
+  });
+  if (routePrompt) {
+    prompts.push(routePrompt);
+  }
+  const finalPrompt = prompts.join("\n\n");
+  prompt_builder_logger.log(funcName, "提示词构建完毕。");
+  return finalPrompt;
+}
 
 const affection_level_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/affection-level");
 
@@ -491,9 +614,16 @@ function calculateAffectionLevel(affectionValue, stages) {
   return level;
 }
 
-function processAffectionLevel(runtime, stat) {
+function processAffectionLevel({runtime, stat}) {
   const funcName = "processAffectionLevel";
   affection_level_logger.log(funcName, "开始处理好感度等级...");
+  if (runtime.chars) {
+    for (const charId in runtime.chars) {
+      if (Object.prototype.hasOwnProperty.call(runtime.chars, charId)) {
+        (0, external_namespaceObject.unset)(runtime, [ "chars", charId, "好感度等级" ]);
+      }
+    }
+  }
   const affectionStagesConfig = (0, external_namespaceObject.get)(stat, "config.affection.affectionStages");
   if (!affectionStagesConfig) {
     affection_level_logger.warn(funcName, "未找到好感度等级配置，跳过处理。");
@@ -563,7 +693,7 @@ function extractLeafs(mapGraph) {
 
 const legal_locations_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/legal-locations");
 
-function getLegalLocations(stat) {
+function getLegalLocations({stat}) {
   const funcName = "getLegalLocations";
   legal_locations_logger.log(funcName, "开始提取合法地区。");
   let legalLocations = [];
@@ -586,6 +716,445 @@ function getLegalLocations(stat) {
   }
   legal_locations_logger.debug(funcName, "合法地区提取完成。");
   return legalLocations;
+}
+
+const log = new Logger("幻想乡缘起-后台数据处理/utils/message");
+
+function getMessageContent(msg) {
+  if (!msg) return null;
+  let content = null;
+  if (typeof msg.mes === "string") {
+    content = msg.mes;
+  } else if (Array.isArray(msg.swipes)) {
+    const sid = Number(msg.swipe_id ?? 0);
+    content = msg.swipes[sid] || null;
+  } else if (typeof msg.message === "string") {
+    content = msg.message;
+  }
+  if (content === null) {
+    return null;
+  }
+  return content;
+}
+
+function escReg(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractContentForMatching(messages, tagName = null) {
+  const segs = [];
+  for (const m of messages) {
+    const messageContent = getMessageContent(m);
+    if (messageContent === null) {
+      continue;
+    }
+    if (tagName) {
+      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi");
+      let match;
+      while ((match = re.exec(messageContent)) !== null) {
+        segs.push(match[1]);
+      }
+    } else {
+      segs.push(messageContent);
+    }
+  }
+  return segs.join("\n");
+}
+
+async function matchMessages(keywords, options = {}) {
+  const {depth = 5, includeSwipes = false, tag = null} = options;
+  const funcName = "matchMessages";
+  try {
+    if (typeof getChatMessages !== "function") {
+      log.warn(funcName, "getChatMessages 函数不可用，无法匹配消息。");
+      return [];
+    }
+    const last = getLastMessageId();
+    const begin = Math.max(0, last - (depth - 1));
+    const msgs = getChatMessages(`${begin}-${last}`, {
+      role: "all",
+      hide_state: "all",
+      include_swipes: includeSwipes
+    });
+    const pool = extractContentForMatching(msgs, tag);
+    if (!pool) {
+      return [];
+    }
+    log.debug(funcName, `待匹配的文本池: ${pool}`);
+    const hits = [];
+    for (const kw of keywords) {
+      if (!kw) continue;
+      const re = new RegExp(escReg(kw), "i");
+      if (re.test(pool)) {
+        hits.push(kw);
+      }
+    }
+    return hits;
+  } catch (e) {
+    log.error(funcName, "批量匹配消息时发生异常", e);
+    return [];
+  }
+}
+
+async function updateMessageContent(message, newContent) {
+  const oldContent = getMessageContent(message);
+  log.debug("updateMessageContent", "更新前的消息内容:", oldContent);
+  log.debug("updateMessageContent", "更新后的消息内容:", newContent);
+  const updatePayload = {
+    message_id: message.message_id
+  };
+  if (Array.isArray(message.swipes)) {
+    const sid = Number(message.swipe_id ?? 0);
+    const newSwipes = [ ...message.swipes ];
+    newSwipes[sid] = newContent;
+    updatePayload.swipes = newSwipes;
+  } else {
+    updatePayload.message = newContent;
+  }
+  await setChatMessages([ updatePayload ], {
+    refresh: "none"
+  });
+}
+
+const utils_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/utils");
+
+function buildGraph({stat}) {
+  const funcName = "buildGraph";
+  const graph = {};
+  const leafNodes = [];
+  try {
+    const mapData = external_default().get(stat, "world.map_graph");
+    if (!mapData) {
+      utils_logger.warn(funcName, "stat.world.map_graph 为空或不存在。");
+      return {
+        graph,
+        leafNodes
+      };
+    }
+    utils_logger.debug(funcName, "stat.world.map_graph获取成功：", mapData);
+    const addEdge = (nodeA, nodeB) => {
+      if (nodeA === nodeB) return;
+      if (!graph[nodeA]) graph[nodeA] = {};
+      if (!graph[nodeB]) graph[nodeB] = {};
+      graph[nodeA][nodeB] = true;
+      graph[nodeB][nodeA] = true;
+    };
+    const walkTree = node => {
+      if (Array.isArray(node)) {
+        node.forEach(item => {
+          if (typeof item === "string") {
+            if (!leafNodes.includes(item)) leafNodes.push(item);
+          } else if (item && typeof item === "object") {
+            walkTree(item);
+          }
+        });
+      } else if (node && typeof node === "object") {
+        Object.values(node).forEach(walkTree);
+      }
+    };
+    if (mapData.tree) {
+      walkTree(mapData.tree);
+    }
+    const edges = external_default().get(mapData, "edges", []);
+    utils_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
+    if (Array.isArray(edges)) {
+      edges.forEach(edge => {
+        if (edge && edge.a && edge.b) {
+          utils_logger.debug(funcName, `正在添加边: ${edge.a} <-> ${edge.b}`);
+          addEdge(edge.a, edge.b);
+        }
+      });
+    }
+  } catch (error) {
+    utils_logger.error(funcName, "构建地图图谱时出错", error);
+  }
+  utils_logger.debug(funcName, "graph完成构建：", graph);
+  utils_logger.debug(funcName, "leafNodes完成构建：", leafNodes);
+  return {
+    graph,
+    leafNodes
+  };
+}
+
+function bfs(source, destination, graph) {
+  const funcName = "bfs";
+  if (!graph[source] || !graph[destination]) return null;
+  const queue = [ source ];
+  const previousNode = {
+    [source]: null
+  };
+  let head = 0;
+  while (head < queue.length) {
+    const currentNode = queue[head++];
+    if (currentNode === destination) break;
+    const neighbors = graph[currentNode] || {};
+    for (const neighbor in neighbors) {
+      if (previousNode[neighbor] !== undefined) continue;
+      previousNode[neighbor] = currentNode;
+      queue.push(neighbor);
+    }
+  }
+  if (previousNode[destination] === undefined) return null;
+  const steps = [];
+  let currentNode = destination;
+  let guard = 0;
+  while (previousNode[currentNode] != null && guard < 1e3) {
+    steps.push({
+      from: previousNode[currentNode],
+      to: currentNode
+    });
+    currentNode = previousNode[currentNode];
+    guard++;
+  }
+  if (guard >= 1e3) {
+    utils_logger.error(funcName, `BFS路径回溯时陷入死循环, destination=${destination}`);
+    return null;
+  }
+  steps.reverse();
+  return {
+    hops: steps.length,
+    steps
+  };
+}
+
+const location_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/location-loader");
+
+async function loadLocations({stat, legalLocations}) {
+  const funcName = "loadLocations";
+  let hits = [];
+  try {
+    if (!legalLocations || legalLocations.length === 0) {
+      location_loader_logger.log(funcName, "传入的合法地区列表为空，无需加载。");
+      return [];
+    }
+    const matched = await matchMessages(legalLocations, {
+      depth: 5,
+      includeSwipes: false,
+      tag: constants_ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
+    });
+    hits = Array.from(new Set(matched));
+    const userLoc = String(external_default().get(stat, "user.所在地区", "")).trim();
+    if (userLoc) {
+      location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
+      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
+        hits.push(userLoc);
+      }
+    } else {
+      location_loader_logger.debug(funcName, "在 stat.user.所在地区 中未找到用户位置");
+    }
+    try {
+      const {graph} = buildGraph({
+        stat
+      });
+      if (!external_default().isEmpty(graph) && userLoc && graph[userLoc]) {
+        const neighbors = Object.keys(graph[userLoc]);
+        neighbors.forEach(neighbor => {
+          if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+            hits.push(neighbor);
+          }
+        });
+        location_loader_logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
+      }
+    } catch (e) {
+      location_loader_logger.error(funcName, "合并邻居地区时发生异常", e);
+    }
+    location_loader_logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
+  } catch (e) {
+    location_loader_logger.error(funcName, "处理加载地区时发生异常", e);
+    hits = [];
+  }
+  location_loader_logger.debug(funcName, "模块退出，最终输出:", {
+    hits
+  });
+  return hits;
+}
+
+const area_route_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/route");
+
+function processRoute({stat, runtime}) {
+  const funcName = "processRoute";
+  const defaultRouteInfo = {
+    candidates: [],
+    routes: []
+  };
+  try {
+    const currentUserLocation = external_default().get(stat, "user.所在地区", "博丽神社");
+    area_route_logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
+    const {graph, leafNodes} = buildGraph({
+      stat
+    });
+    if (external_default().isEmpty(graph)) {
+      area_route_logger.warn(funcName, "图为空，无法计算路线。");
+      return defaultRouteInfo;
+    }
+    if (external_default().isEmpty(leafNodes)) {
+      area_route_logger.warn(funcName, "叶子节点为空，无法计算路线。");
+      return defaultRouteInfo;
+    }
+    area_route_logger.debug(funcName, "图构建完成", {
+      nodes: Object.keys(graph).length
+    });
+    const candidates = external_default().cloneDeep(external_default().get(runtime, "loadArea", []));
+    area_route_logger.debug(funcName, `路线计算候选地点: ${candidates.join(", ")}`);
+    if (candidates.length === 0) {
+      area_route_logger.debug(funcName, "没有候选地点，无需计算路线。");
+      return defaultRouteInfo;
+    }
+    const routes = [];
+    candidates.forEach(destination => {
+      if (destination === currentUserLocation) {
+        area_route_logger.debug(funcName, `跳过到自身的路线计算: ${destination}`);
+        return;
+      }
+      area_route_logger.debug(funcName, `正在计算路线: 从 ${currentUserLocation} 到 ${destination}`);
+      const path = bfs(currentUserLocation, destination, graph);
+      if (path) {
+        area_route_logger.debug(funcName, `找到路线: 从 ${currentUserLocation} 到 ${destination}`, {
+          path
+        });
+        routes.push({
+          destination,
+          path
+        });
+      } else {
+        area_route_logger.debug(funcName, `未找到路线: 从 ${currentUserLocation} 到 ${destination}`);
+      }
+    });
+    const routeInfo = {
+      candidates,
+      routes
+    };
+    area_route_logger.log(funcName, "路线计算完成", routeInfo);
+    return routeInfo;
+  } catch (error) {
+    area_route_logger.error(funcName, "处理路线时发生异常", error);
+    return defaultRouteInfo;
+  }
+}
+
+const area_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area");
+
+async function processArea(stat, runtime) {
+  const funcName = "processArea";
+  area_logger.debug(funcName, "开始处理地区...");
+  const output = {
+    legal_locations: [],
+    loadArea: []
+  };
+  try {
+    const legalLocations = getLegalLocations({
+      stat
+    });
+    output.legal_locations = legalLocations;
+    area_logger.debug(funcName, `获取到 ${legalLocations.length} 个合法地区`);
+    const areasToLoad = await loadLocations({
+      stat,
+      legalLocations
+    });
+    output.loadArea = areasToLoad;
+    area_logger.debug(funcName, `需要加载 ${areasToLoad.length} 个地区`);
+    const tempRuntimeForRoute = {
+      loadArea: areasToLoad
+    };
+    const routeInfo = processRoute({
+      stat,
+      runtime: tempRuntimeForRoute
+    });
+    output.route = routeInfo;
+    area_logger.debug(funcName, "路线计算完成");
+  } catch (e) {
+    area_logger.error(funcName, "处理地区时发生异常", e);
+    output.legal_locations = [];
+    output.loadArea = [];
+    output.route = {
+      candidates: [],
+      routes: []
+    };
+  }
+  area_logger.log(funcName, "地区处理完成", output);
+  return output;
+}
+
+const MONTH_DAYS = [ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 ];
+
+function dayOfYear(month, day) {
+  let dayIndex = 0;
+  for (let i = 0; i < month - 1; i++) {
+    dayIndex += MONTH_DAYS[i];
+  }
+  return dayIndex + day;
+}
+
+function toNumber(value, fallback = 0) {
+  const n = Number(value);
+  return Number.isFinite(n) ? n : fallback;
+}
+
+const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/festival/processor");
+
+function processFestival({runtime, stat}) {
+  const funcName = "processFestival";
+  const defaultFestivalInfo = {
+    ongoing: false,
+    upcoming: false,
+    current: null,
+    next: null
+  };
+  try {
+    const currentMonth = external_default().get(runtime, "clock.now.month");
+    const currentDay = external_default().get(runtime, "clock.now.day");
+    const festivalList = external_default().get(stat, "festivals_list", []);
+    if (!currentMonth || !currentDay || !Array.isArray(festivalList) || festivalList.length === 0) {
+      processor_logger.debug(funcName, "日期信息不完整或节日列表为空，写入默认节日信息。");
+      external_default().set(runtime, "festival", defaultFestivalInfo);
+      return runtime;
+    }
+    processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
+    const todayFest = festivalList.find(fest => toNumber(fest.month) === currentMonth && toNumber(fest.start_day) <= currentDay && currentDay <= toNumber(fest.end_day)) || null;
+    const todayDayOfYear = dayOfYear(currentMonth, currentDay);
+    let nextFest = null;
+    let minDayGap = Infinity;
+    for (const fest of festivalList) {
+      const startDayOfYear = dayOfYear(toNumber(fest.month), toNumber(fest.start_day));
+      const rawGap = startDayOfYear - todayDayOfYear;
+      const normalizedGap = (rawGap % 365 + 365) % 365;
+      if (normalizedGap === 0) {
+        continue;
+      }
+      if (normalizedGap > 0 && normalizedGap < minDayGap) {
+        minDayGap = normalizedGap;
+        nextFest = fest;
+      }
+    }
+    const festivalInfo = {
+      ongoing: !!todayFest,
+      upcoming: !!(nextFest && minDayGap <= 3),
+      current: todayFest ? {
+        name: todayFest.name,
+        host: todayFest["主办地"],
+        customs: Array.isArray(todayFest.customs) ? todayFest.customs.slice(0, 6) : [],
+        month: toNumber(todayFest.month),
+        start_day: toNumber(todayFest.start_day),
+        end_day: toNumber(todayFest.end_day)
+      } : null,
+      next: nextFest && minDayGap <= 3 ? {
+        name: nextFest.name,
+        host: nextFest["主办地"],
+        customs: Array.isArray(nextFest.customs) ? nextFest.customs.slice(0, 6) : [],
+        month: toNumber(nextFest.month),
+        start_day: toNumber(nextFest.start_day),
+        end_day: toNumber(nextFest.end_day),
+        days_until: minDayGap
+      } : null
+    };
+    external_default().set(runtime, "festival", festivalInfo);
+    processor_logger.debug(funcName, "节日数据处理完成，写入 runtime 的数据：", festivalInfo);
+    return runtime;
+  } catch (err) {
+    processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    external_default().set(runtime, "festival", defaultFestivalInfo);
+    return runtime;
+  }
 }
 
 const PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
@@ -633,13 +1202,19 @@ function seasonIndexOf(m) {
   return 3;
 }
 
-const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/time/processor");
+const time_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/time/processor");
 
-function processTime(stat, runtime) {
+function processTime({runtime, stat}) {
   const funcName = "processTime";
+  if (runtime.clock) {
+    delete runtime.clock.now;
+    delete runtime.clock.flags;
+  }
   try {
+    time_processor_logger.debug(funcName, `开始时间计算，stat=`, stat);
+    time_processor_logger.debug(funcName, `开始时间计算，runtime=`, runtime);
     const prev = external_default().get(runtime, "clock.clockAck", null);
-    processor_logger.log(funcName, `从 runtime 读取上一楼 ACK:`, prev);
+    time_processor_logger.debug(funcName, `从 runtime 读取上一楼 ACK:`, prev);
     const timeConfig = external_default().get(stat, "config.time", {});
     const epochISO = external_default().get(timeConfig, "epochISO", EPOCH_ISO);
     const periodNames = external_default().get(timeConfig, "periodNames", PERIOD_NAMES);
@@ -648,11 +1223,11 @@ function processTime(stat, runtime) {
     const seasonKeys = external_default().get(timeConfig, "seasonKeys", SEASON_KEYS);
     const weekNames = external_default().get(timeConfig, "weekNames", WEEK_NAMES);
     const tpMin = external_default().get(stat, "世界.timeProgress", 0);
-    processor_logger.log(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
+    time_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
     const weekStartsOn = 1;
     const epochMS = Date.parse(epochISO);
     if (Number.isNaN(epochMS)) {
-      processor_logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
+      time_processor_logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
     }
     const baseMS = Number.isNaN(epochMS) ? 0 : epochMS;
     let tzMin = 0;
@@ -684,9 +1259,9 @@ function processTime(stat, runtime) {
     const periodName = periodNames[periodIdx];
     const periodKey = periodKeys[periodIdx];
     const periodID = dayID * 10 + periodIdx;
-    processor_logger.log(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
-    processor_logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
-    processor_logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
+    time_processor_logger.log(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
+    time_processor_logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
+    time_processor_logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
     let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
     if (prev && typeof prev === "object") {
       const d = prev.dayID !== dayID;
@@ -701,9 +1276,9 @@ function processTime(stat, runtime) {
       newWeek = newMonth || w;
       newDay = newWeek || d;
       newPeriod = newDay || p;
-      processor_logger.log(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
+      time_processor_logger.log(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
     } else {
-      processor_logger.log(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
+      time_processor_logger.log(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
     }
     const clockAck = {
       dayID,
@@ -766,23 +1341,55 @@ function processTime(stat, runtime) {
         flags
       }
     };
-    processor_logger.log(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
-    return result;
+    time_processor_logger.log(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
+    external_default().merge(runtime, result);
+    return runtime;
   } catch (err) {
-    processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
-    return null;
+    time_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    if (runtime.clock) {
+      delete runtime.clock.now;
+      delete runtime.clock.flags;
+    }
+    return runtime;
   }
 }
 
 const runtime_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder");
 
-function buildRuntime(stat, originalRuntime) {
+async function buildRuntime({stat, runtime: originalRuntime}) {
   const funcName = "buildRuntime";
   runtime_builder_logger.log(funcName, "开始构建 runtime...");
   let runtime = external_default().cloneDeep(originalRuntime);
-  runtime.legal_locations = getLegalLocations(stat);
-  runtime = processTime(runtime, stat);
-  runtime = processAffectionLevel(runtime, stat);
+  const areaResult = await processArea(stat, runtime);
+  runtime = external_default().merge(runtime, areaResult);
+  runtime_builder_logger.log(funcName, "processArea 处理完成。", {
+    runtime: external_default().cloneDeep(runtime),
+    stat: external_default().cloneDeep(stat)
+  });
+  runtime = processTime({
+    runtime,
+    stat
+  });
+  runtime_builder_logger.log(funcName, "processTime 处理完成。", {
+    runtime: external_default().cloneDeep(runtime),
+    stat: external_default().cloneDeep(stat)
+  });
+  runtime = processFestival({
+    runtime,
+    stat
+  });
+  runtime_builder_logger.log(funcName, "processFestival 处理完成。", {
+    runtime: external_default().cloneDeep(runtime),
+    stat: external_default().cloneDeep(stat)
+  });
+  runtime = processAffectionLevel({
+    runtime,
+    stat
+  });
+  runtime_builder_logger.log(funcName, "processAffectionLevel 处理完成。", {
+    runtime: external_default().cloneDeep(runtime),
+    stat: external_default().cloneDeep(stat)
+  });
   runtime_builder_logger.log(funcName, "Runtime 构建完毕。", runtime);
   return runtime;
 }
@@ -949,7 +1556,7 @@ function findChangeByPath(logJson, targetPath) {
 
 const affection_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor/affection-processor");
 
-function processAffection(stat, editLog) {
+function processAffection({stat, editLog}) {
   const funcName = "processAffection";
   const changes = [];
   const internalLogs = [];
@@ -1210,7 +1817,7 @@ function normalizeLocationData(originalStat) {
 
 const stat_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor");
 
-function processStat(originalStat, editLog) {
+function processStat({originalStat, editLog}) {
   const funcName = "processStat";
   stat_processor_logger.log(funcName, "开始执行所有数据修正流程...", {
     editLog
@@ -1220,9 +1827,18 @@ function processStat(originalStat, editLog) {
   const locationResult = normalizeLocationData(stat);
   stat = locationResult.stat;
   allChanges = allChanges.concat(locationResult.changes);
-  const affectionResult = processAffection(stat, editLog);
+  stat_processor_logger.log(funcName, "normalizeLocationData 处理完成。", {
+    stat: external_default().cloneDeep(stat)
+  });
+  const affectionResult = processAffection({
+    stat,
+    editLog
+  });
   stat = affectionResult.stat;
   allChanges = allChanges.concat(affectionResult.changes);
+  stat_processor_logger.log(funcName, "processAffection 处理完成。", {
+    stat: external_default().cloneDeep(stat)
+  });
   stat_processor_logger.log(funcName, "所有数据修正流程执行完毕。");
   return {
     processedStat: stat,
@@ -1238,11 +1854,26 @@ $(() => {
     const {statWithoutMeta, mk, editLogs} = payload;
     _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
     const currentEditLog = editLogs?.[mk];
-    const {processedStat, changes: statChanges} = processStat(statWithoutMeta, currentEditLog);
+    const {processedStat, changes: statChanges} = processStat({
+      originalStat: statWithoutMeta,
+      editLog: currentEditLog
+    });
     const prevRuntime = getRuntimeObject();
-    const newRuntime = buildRuntime(processedStat, prevRuntime);
-    const prompt = buildPrompt(newRuntime, processedStat);
-    await sendData(processedStat, newRuntime, payload, statChanges);
+    const newRuntime = await buildRuntime({
+      stat: processedStat,
+      runtime: prevRuntime
+    });
+    const prompt = buildPrompt({
+      runtime: newRuntime,
+      stat: processedStat
+    });
+    _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
+    await sendData({
+      stat: processedStat,
+      runtime: newRuntime,
+      eraPayload: payload,
+      changes: statChanges
+    });
     _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
       finalRuntime: newRuntime
     });

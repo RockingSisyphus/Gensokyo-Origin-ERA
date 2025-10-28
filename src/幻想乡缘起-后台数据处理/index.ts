@@ -21,19 +21,27 @@ $(() => {
     const currentEditLog = (editLogs as any)?.[mk];
 
     // 1. Stat 处理
-    const { processedStat, changes: statChanges } = processStat(statWithoutMeta, currentEditLog);
+    const { processedStat, changes: statChanges } = processStat({
+      originalStat: statWithoutMeta,
+      editLog: currentEditLog,
+    });
 
     // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
     const prevRuntime = getRuntimeObject();
 
     // 3. Runtime 构建
-    const newRuntime = buildRuntime(processedStat, prevRuntime);
+    const newRuntime = await buildRuntime({ stat: processedStat, runtime: prevRuntime });
 
-    // 4. 提示词构建 (暂未实现)
-    const prompt = buildPrompt(newRuntime, processedStat);
-
+    // 4. 提示词构建
+    const prompt = buildPrompt({ runtime: newRuntime, stat: processedStat });
+    logger.log('handleWriteDone', '提示词构建完毕:', prompt);
     // 5. 数据写入/发送
-    await sendData(processedStat, newRuntime, payload, statChanges);
+    await sendData({
+      stat: processedStat,
+      runtime: newRuntime,
+      eraPayload: payload,
+      changes: statChanges,
+    });
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
       finalRuntime: newRuntime,

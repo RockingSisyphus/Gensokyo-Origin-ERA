@@ -1,4 +1,4 @@
-import { get, set } from 'lodash';
+import { get, set, unset } from 'lodash';
 import { Logger } from '../../../utils/log';
 
 const logger = new Logger();
@@ -53,9 +53,18 @@ function calculateAffectionLevel(affectionValue: number, stages: [number, string
  * @param stat - 状态对象
  * @returns - 更新好感度等级后的运行时对象
  */
-export function processAffectionLevel(runtime: any, stat: any): any {
+export function processAffectionLevel({ runtime, stat }: { runtime: any; stat: any }): any {
   const funcName = 'processAffectionLevel';
   logger.log(funcName, '开始处理好感度等级...');
+
+  // 先清空所有角色在 runtime 中的好感度等级，确保旧数据不被保留
+  if (runtime.chars) {
+    for (const charId in runtime.chars) {
+      if (Object.prototype.hasOwnProperty.call(runtime.chars, charId)) {
+        unset(runtime, ['chars', charId, '好感度等级']);
+      }
+    }
+  }
 
   const affectionStagesConfig = get(stat, 'config.affection.affectionStages');
   if (!affectionStagesConfig) {

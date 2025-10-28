@@ -18,7 +18,7 @@ const logger = new Logger();
  * @param editLog - 当前 mk 对应的 editLog (可以是 JSON 字符串或对象)。
  * @returns {{ stat: any; changes: ChangeLogEntry[] }} - 处理后的 stat 对象和变更日志。
  */
-export function processAffection(stat: any, editLog: any): { stat: any; changes: ChangeLogEntry[] } {
+export function processAffection({ stat, editLog }: { stat: any; editLog: any }): { stat: any; changes: ChangeLogEntry[] } {
   const funcName = 'processAffection';
   const changes: ChangeLogEntry[] = [];
   const internalLogs: any[] = [];

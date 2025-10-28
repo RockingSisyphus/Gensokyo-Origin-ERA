@@ -33,6 +33,72 @@ const worldWithMapGraph = {
         外界: ['秘封俱乐部'],
       },
     },
+    edges: [
+      { a: '博丽神社', b: '兽道', mode: ['walk', 'fly'] },
+      { a: '人间之里', b: '兽道', mode: ['walk', 'fly'] },
+      { a: '人间之里', b: '铃奈庵', mode: ['walk'] },
+
+      { a: '雾之湖', b: '博丽神社', mode: ['walk', 'fly'] },
+      { a: '雾之湖', b: '红魔馆', mode: ['walk', 'fly'] },
+      { a: '雾之湖', b: '妖怪之山', mode: ['walk', 'fly'] },
+      { a: '雾之湖', b: '魔法之森', mode: ['walk', 'fly'] },
+
+      { a: '风神之湖', b: '妖怪之山', mode: ['walk', 'fly'] },
+      { a: '妖怪之山', b: '玄武之泽', mode: ['walk', 'fly'] },
+
+      { a: '守矢神社', b: '大蛤蟆之池', mode: ['walk'] },
+      { a: '玄武之泽', b: '大蛤蟆之池', mode: ['walk'] },
+      { a: '妖怪之山', b: '大蛤蟆之池', mode: ['walk'] },
+      { a: '风神之湖', b: '守矢神社', mode: ['walk', 'fly'] },
+      { a: '秘天崖', b: '九天瀑布', mode: ['walk'] },
+      { a: '秘天崖', b: '守矢神社', mode: ['walk'] },
+      { a: '秘天崖', b: '天界', mode: ['fly'] },
+      { a: '虹龙洞', b: '九天瀑布', mode: ['walk'] },
+
+      { a: '魔法之森', b: '人间之里', mode: ['walk', 'fly'] },
+      { a: '魔法之森', b: '雾雨魔法店', mode: ['walk'] },
+      { a: '雾雨魔法店', b: '香霖堂', mode: ['walk'] },
+      { a: '魔法之森', b: '迷途之家', mode: ['walk'] },
+      { a: '墓地', b: '命莲寺', mode: ['walk'] },
+      { a: '人间之里', b: '香霖堂', mode: ['walk'] },
+      { a: '人间之里', b: '命莲寺', mode: ['walk'] },
+
+      { a: '命莲寺', b: '神灵庙', mode: ['walk', 'fly'] },
+      { a: '命莲寺', b: '迷途竹林', mode: ['walk', 'fly'] },
+      { a: '神灵庙', b: '梦殿大祀庙', mode: ['walk'] },
+
+      { a: '迷途竹林', b: '永远亭', mode: ['walk'] },
+      { a: '迷途竹林', b: '辉针城', mode: ['walk'] },
+
+      { a: '太阳花田', b: '无名之丘', mode: ['walk'] },
+      { a: '太阳花田', b: '幻想风穴', mode: ['walk'] },
+      { a: '太阳花田', b: '魔法之森', mode: ['walk'] },
+      { a: '无名之丘', b: '幻想风穴', mode: ['walk'] },
+
+      { a: '幻想风穴', b: '间歇泉', mode: ['walk'] },
+      { a: '间歇泉', b: '地灵殿', mode: ['walk'] },
+      { a: '旧都', b: '血之湖', mode: ['walk'] },
+      { a: '血之湖', b: '地灵殿', mode: ['walk'] },
+      { a: '旧都', b: '灼热地狱遗址', mode: ['walk'] },
+      { a: '灼热地狱遗址', b: '地狱', mode: ['walk'] },
+      { a: '地狱', b: '畜生界（兽王园）', mode: ['walk'] },
+
+      { a: '无缘冢', b: '柳之运河', mode: ['walk'] },
+      { a: '墓地', b: '中有之道', mode: ['walk'] },
+      { a: '柳之运河', b: '中有之道', mode: ['walk'] },
+      { a: '中有之道', b: '三途河', mode: ['walk'] },
+      { a: '无缘冢', b: '畜生界（兽王园）', mode: ['walk'] },
+      { a: '彼岸', b: '三途河', mode: ['walk'] },
+
+      { a: '无缘冢', b: '幽冥结界', mode: ['walk', 'fly'] },
+      { a: '幽冥结界', b: '白玉楼', mode: ['walk'] },
+
+      { a: '天界', b: '有顶天', mode: ['fly'] },
+      { a: '有顶天', b: '仙界', mode: ['fly'] },
+      { a: '仙界', b: '梦境世界', mode: ['fly'] },
+      { a: '梦境世界', b: '月都', mode: ['fly'] },
+      { a: '红魔馆', b: '月都', mode: ['fly'] },
+    ],
     aliases: {
       博丽神社: ['博麗神社', '博丽', '博丽神社周边'],
       永远亭: ['永遠亭'],
@@ -119,4 +185,33 @@ export const statWorldMissing = {
     所在地区: '博丽神社',
   },
   world: [],
+};
+
+// === 路线计算测试场景 ===
+
+// 场景 5: 从博丽神社出发，应能看到到人间之里和魔法之森的路线
+export const statForRouteFromShrine = {
+  user: {
+    name: '测试用户',
+    所在地区: '博丽神社',
+  },
+  world: worldWithMapGraph,
+};
+
+// 场景 6: 从永远亭出发，应能看到到迷途竹林的路线
+export const statForRouteFromEientei = {
+  user: {
+    name: '测试用户',
+    所在地区: '永远亭',
+  },
+  world: worldWithMapGraph,
+};
+
+// 场景 7: 从一个没有边的孤立点出发（如天界），不应有任何路线
+export const statForRouteFromIsolated = {
+  user: {
+    name: '测试用户',
+    所在地区: '天界',
+  },
+  world: worldWithMapGraph,
 };

@@ -8,7 +8,7 @@ const logger = new Logger();
  * @param {any} stat - 不含 $meta 的纯净变量对象。
  * @returns {string[]} 合法地区名称的数组。
  */
-export function getLegalLocations(stat: any): string[] {
+export function getLegalLocations({ stat }: { stat: any }): string[] {
   const funcName = 'getLegalLocations';
   logger.log(funcName, '开始提取合法地区。');
   let legalLocations: string[] = [];

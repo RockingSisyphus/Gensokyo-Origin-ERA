@@ -1,4 +1,7 @@
 import { Logger } from '../../utils/log';
+import { buildFestivalPrompt } from './festival';
+import { buildRoutePrompt } from './route';
+import { buildTimePrompt } from './time';
 
 const logger = new Logger();
 
@@ -8,14 +11,32 @@ const logger = new Logger();
  * @param {any} stat - 状态对象。
  * @returns {string} 构建好的提示词。
  */
-export function buildPrompt(runtime: any, stat: any): string {
+export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): string {
   const funcName = 'buildPrompt';
   logger.log(funcName, '开始构建提示词...');
 
-  // TODO: 实现提示词构建逻辑
+  const prompts: string[] = [];
 
-  const prompt = '';
+  // 构建时间提示词
+  const timePrompt = buildTimePrompt({ runtime });
+  if (timePrompt) {
+    prompts.push(timePrompt);
+  }
+
+  // 构建节日提示词
+  const festivalPrompts = buildFestivalPrompt({ runtime });
+  if (festivalPrompts.length > 0) {
+    prompts.push(...festivalPrompts);
+  }
+
+  // 构建路线提示词
+  const routePrompt = buildRoutePrompt({ runtime, stat });
+  if (routePrompt) {
+    prompts.push(routePrompt);
+  }
+
+  const finalPrompt = prompts.join('\n\n');
 
   logger.log(funcName, '提示词构建完毕。');
-  return prompt;
+  return finalPrompt;
 }

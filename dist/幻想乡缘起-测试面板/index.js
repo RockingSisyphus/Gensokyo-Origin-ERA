@@ -70,10 +70,27 @@ var area_namespaceObject = {};
 __webpack_require__.r(area_namespaceObject);
 
 __webpack_require__.d(area_namespaceObject, {
+  statForRouteFromEientei: () => statForRouteFromEientei,
+  statForRouteFromIsolated: () => statForRouteFromIsolated,
+  statForRouteFromShrine: () => statForRouteFromShrine,
   statUserAtKnownLocation: () => statUserAtKnownLocation,
   statUserAtUnknownLocation: () => statUserAtUnknownLocation,
   statUserLocationMissing: () => statUserLocationMissing,
   statWorldMissing: () => statWorldMissing
+});
+
+var festival_namespaceObject = {};
+
+__webpack_require__.r(festival_namespaceObject);
+
+__webpack_require__.d(festival_namespaceObject, {
+  festivalTest_BoundaryEnd: () => festivalTest_BoundaryEnd,
+  festivalTest_BoundaryStart: () => festivalTest_BoundaryStart,
+  festivalTest_CrossYearUpcoming: () => festivalTest_CrossYearUpcoming,
+  festivalTest_EmptyList: () => festivalTest_EmptyList,
+  festivalTest_None: () => festivalTest_None,
+  festivalTest_Ongoing: () => festivalTest_Ongoing,
+  festivalTest_Upcoming: () => festivalTest_Upcoming
 });
 
 const PROJECT_NAME = "幻想乡缘起-测试面板";
@@ -1232,6 +1249,219 @@ const worldWithMapGraph = {
         外界: [ "秘封俱乐部" ]
       }
     },
+    edges: [ {
+      a: "博丽神社",
+      b: "兽道",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "人间之里",
+      b: "兽道",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "人间之里",
+      b: "铃奈庵",
+      mode: [ "walk" ]
+    }, {
+      a: "雾之湖",
+      b: "博丽神社",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "雾之湖",
+      b: "红魔馆",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "雾之湖",
+      b: "妖怪之山",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "雾之湖",
+      b: "魔法之森",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "风神之湖",
+      b: "妖怪之山",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "妖怪之山",
+      b: "玄武之泽",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "守矢神社",
+      b: "大蛤蟆之池",
+      mode: [ "walk" ]
+    }, {
+      a: "玄武之泽",
+      b: "大蛤蟆之池",
+      mode: [ "walk" ]
+    }, {
+      a: "妖怪之山",
+      b: "大蛤蟆之池",
+      mode: [ "walk" ]
+    }, {
+      a: "风神之湖",
+      b: "守矢神社",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "秘天崖",
+      b: "九天瀑布",
+      mode: [ "walk" ]
+    }, {
+      a: "秘天崖",
+      b: "守矢神社",
+      mode: [ "walk" ]
+    }, {
+      a: "秘天崖",
+      b: "天界",
+      mode: [ "fly" ]
+    }, {
+      a: "虹龙洞",
+      b: "九天瀑布",
+      mode: [ "walk" ]
+    }, {
+      a: "魔法之森",
+      b: "人间之里",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "魔法之森",
+      b: "雾雨魔法店",
+      mode: [ "walk" ]
+    }, {
+      a: "雾雨魔法店",
+      b: "香霖堂",
+      mode: [ "walk" ]
+    }, {
+      a: "魔法之森",
+      b: "迷途之家",
+      mode: [ "walk" ]
+    }, {
+      a: "墓地",
+      b: "命莲寺",
+      mode: [ "walk" ]
+    }, {
+      a: "人间之里",
+      b: "香霖堂",
+      mode: [ "walk" ]
+    }, {
+      a: "人间之里",
+      b: "命莲寺",
+      mode: [ "walk" ]
+    }, {
+      a: "命莲寺",
+      b: "神灵庙",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "命莲寺",
+      b: "迷途竹林",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "神灵庙",
+      b: "梦殿大祀庙",
+      mode: [ "walk" ]
+    }, {
+      a: "迷途竹林",
+      b: "永远亭",
+      mode: [ "walk" ]
+    }, {
+      a: "迷途竹林",
+      b: "辉针城",
+      mode: [ "walk" ]
+    }, {
+      a: "太阳花田",
+      b: "无名之丘",
+      mode: [ "walk" ]
+    }, {
+      a: "太阳花田",
+      b: "幻想风穴",
+      mode: [ "walk" ]
+    }, {
+      a: "太阳花田",
+      b: "魔法之森",
+      mode: [ "walk" ]
+    }, {
+      a: "无名之丘",
+      b: "幻想风穴",
+      mode: [ "walk" ]
+    }, {
+      a: "幻想风穴",
+      b: "间歇泉",
+      mode: [ "walk" ]
+    }, {
+      a: "间歇泉",
+      b: "地灵殿",
+      mode: [ "walk" ]
+    }, {
+      a: "旧都",
+      b: "血之湖",
+      mode: [ "walk" ]
+    }, {
+      a: "血之湖",
+      b: "地灵殿",
+      mode: [ "walk" ]
+    }, {
+      a: "旧都",
+      b: "灼热地狱遗址",
+      mode: [ "walk" ]
+    }, {
+      a: "灼热地狱遗址",
+      b: "地狱",
+      mode: [ "walk" ]
+    }, {
+      a: "地狱",
+      b: "畜生界（兽王园）",
+      mode: [ "walk" ]
+    }, {
+      a: "无缘冢",
+      b: "柳之运河",
+      mode: [ "walk" ]
+    }, {
+      a: "墓地",
+      b: "中有之道",
+      mode: [ "walk" ]
+    }, {
+      a: "柳之运河",
+      b: "中有之道",
+      mode: [ "walk" ]
+    }, {
+      a: "中有之道",
+      b: "三途河",
+      mode: [ "walk" ]
+    }, {
+      a: "无缘冢",
+      b: "畜生界（兽王园）",
+      mode: [ "walk" ]
+    }, {
+      a: "彼岸",
+      b: "三途河",
+      mode: [ "walk" ]
+    }, {
+      a: "无缘冢",
+      b: "幽冥结界",
+      mode: [ "walk", "fly" ]
+    }, {
+      a: "幽冥结界",
+      b: "白玉楼",
+      mode: [ "walk" ]
+    }, {
+      a: "天界",
+      b: "有顶天",
+      mode: [ "fly" ]
+    }, {
+      a: "有顶天",
+      b: "仙界",
+      mode: [ "fly" ]
+    }, {
+      a: "仙界",
+      b: "梦境世界",
+      mode: [ "fly" ]
+    }, {
+      a: "梦境世界",
+      b: "月都",
+      mode: [ "fly" ]
+    }, {
+      a: "红魔馆",
+      b: "月都",
+      mode: [ "fly" ]
+    } ],
     aliases: {
       博丽神社: [ "博麗神社", "博丽", "博丽神社周边" ],
       永远亭: [ "永遠亭" ],
@@ -1315,6 +1545,107 @@ const statWorldMissing = {
   },
   world: []
 };
+
+const statForRouteFromShrine = {
+  user: {
+    name: "测试用户",
+    所在地区: "博丽神社"
+  },
+  world: worldWithMapGraph
+};
+
+const statForRouteFromEientei = {
+  user: {
+    name: "测试用户",
+    所在地区: "永远亭"
+  },
+  world: worldWithMapGraph
+};
+
+const statForRouteFromIsolated = {
+  user: {
+    name: "测试用户",
+    所在地区: "天界"
+  },
+  world: worldWithMapGraph
+};
+
+const baseFestivalStat = {
+  config: {
+    time: {
+      epochISO: "2025-01-01T00:00:00+09:00"
+    }
+  },
+  世界: {
+    timeProgress: 0
+  },
+  festivals_list: [ {
+    month: 1,
+    start_day: 1,
+    end_day: 3,
+    name: "正月（三天）",
+    type: "seasonal_festival",
+    customs: [ "初诣参拜", "食御节料理", "发压岁钱" ],
+    importance: 5,
+    主办地: "博丽神社"
+  }, {
+    month: 2,
+    start_day: 3,
+    end_day: 3,
+    name: "节分",
+    type: "seasonal_festival",
+    customs: [ "撒豆驱鬼" ],
+    importance: 4,
+    主办地: "博丽神社"
+  }, {
+    month: 12,
+    start_day: 31,
+    end_day: 31,
+    name: "大晦日（除夜）",
+    type: "seasonal_festival",
+    customs: [ "食跨年荞麦面", "敲钟一百零八声" ],
+    importance: 4,
+    主办地: "博丽神社"
+  } ]
+};
+
+const getProgress = (targetMonth, targetDay) => {
+  const epoch = new Date("2025-01-01T00:00:00+09:00");
+  const target = new Date(epoch);
+  target.setMonth(targetMonth - 1, targetDay);
+  const diffMs = target.getTime() - epoch.getTime();
+  return diffMs / 6e4;
+};
+
+const festivalTest_Ongoing = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_Ongoing.世界.timeProgress = getProgress(1, 2);
+
+const festivalTest_Upcoming = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_Upcoming.世界.timeProgress = getProgress(2, 1);
+
+const festivalTest_None = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_None.世界.timeProgress = getProgress(4, 15);
+
+const festivalTest_BoundaryStart = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_BoundaryStart.世界.timeProgress = getProgress(1, 1);
+
+const festivalTest_BoundaryEnd = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_BoundaryEnd.世界.timeProgress = getProgress(1, 3);
+
+const festivalTest_CrossYearUpcoming = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_CrossYearUpcoming.世界.timeProgress = getProgress(12, 29);
+
+const festivalTest_EmptyList = external_default().cloneDeep(baseFestivalStat);
+
+festivalTest_EmptyList.festivals_list = [];
+
+festivalTest_EmptyList.世界.timeProgress = getProgress(1, 1);
 
 const logger = new Logger("幻想乡缘起-测试面板/dev/utils");
 
@@ -1438,6 +1769,31 @@ function createTestPanel() {
     borderRadius: "3px",
     fontSize: "12px"
   });
+  const routeTestConfigs = [ {
+    text: "从神社出发",
+    payload: {
+      statWithoutMeta: statForRouteFromShrine
+    }
+  }, {
+    text: "从永远亭出发",
+    payload: {
+      statWithoutMeta: statForRouteFromEientei
+    }
+  }, {
+    text: "从孤立点出发",
+    payload: {
+      statWithoutMeta: statForRouteFromIsolated
+    }
+  } ];
+  addTestButtons(panel, "路线计算测试", routeTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #4caf50",
+    background: "#2e7d32",
+    color: "#e8f5e9",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
   const normalizerTestConfigs = Object.entries(normalizerTestPayloads).map(([key, payload]) => ({
     text: key,
     payload
@@ -1476,6 +1832,21 @@ function createTestPanel() {
     border: "1px solid #c2185b",
     background: "#880e4f",
     color: "#fce4ec",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const festivalTestConfigs = Object.entries(festival_namespaceObject).map(([key, statData]) => ({
+    text: key.replace("festivalTest_", ""),
+    payload: {
+      statWithoutMeta: statData
+    }
+  }));
+  addTestButtons(panel, "节日模块测试", festivalTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #ff6f00",
+    background: "#e65100",
+    color: "#fff3e0",
     borderRadius: "3px",
     fontSize: "12px"
   });

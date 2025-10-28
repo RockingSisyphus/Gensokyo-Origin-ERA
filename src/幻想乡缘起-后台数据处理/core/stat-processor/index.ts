@@ -13,7 +13,13 @@ const logger = new Logger();
  * @param {any} editLog - 当前 mk 对应的 editLog。
  * @returns {{processedStat: any, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和所有变更日志的对象。
  */
-export function processStat(originalStat: any, editLog: any): { processedStat: any; changes: ChangeLogEntry[] } {
+export function processStat({
+  originalStat,
+  editLog,
+}: {
+  originalStat: any;
+  editLog: any;
+}): { processedStat: any; changes: ChangeLogEntry[] } {
   const funcName = 'processStat';
   logger.log(funcName, '开始执行所有数据修正流程...', { editLog });
 
@@ -26,11 +32,13 @@ export function processStat(originalStat: any, editLog: any): { processedStat: a
   const locationResult = normalizeLocationData(stat);
   stat = locationResult.stat;
   allChanges = allChanges.concat(locationResult.changes);
+  logger.log(funcName, 'normalizeLocationData 处理完成。', { stat: _.cloneDeep(stat) });
 
   // 好感度折算处理器
-  const affectionResult = processAffection(stat, editLog);
+  const affectionResult = processAffection({ stat, editLog });
   stat = affectionResult.stat;
   allChanges = allChanges.concat(affectionResult.changes);
+  logger.log(funcName, 'processAffection 处理完成。', { stat: _.cloneDeep(stat) });
 
   // 未来可以加入更多的 normalizer，例如：
   // const someResult = someNormalizer(stat, editLog);

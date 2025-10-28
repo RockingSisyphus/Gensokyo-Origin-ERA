@@ -5,12 +5,21 @@ import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './ut
 
 const logger = new Logger();
 
-export function processTime(stat: any, runtime: any) {
+export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
   const funcName = 'processTime';
+
+  // 预先清理上一轮的计算结果，但保留 clockAck
+  if (runtime.clock) {
+    delete runtime.clock.now;
+    delete runtime.clock.flags;
+  }
+
   try {
+    logger.debug(funcName, `开始时间计算，stat=`, stat);
+    logger.debug(funcName, `开始时间计算，runtime=`, runtime);
     // ---------- 读取上一楼层的 ACK (从传入的 runtime 对象) ----------
     const prev = _.get(runtime, 'clock.clockAck', null) as any;
-    logger.log(funcName, `从 runtime 读取上一楼 ACK:`, prev);
+    logger.debug(funcName, `从 runtime 读取上一楼 ACK:`, prev);
 
     // ---------- 读取时间源和配置 ----------
     const timeConfig = _.get(stat, 'config.time', {});
@@ -22,7 +31,7 @@ export function processTime(stat: any, runtime: any) {
     const weekNames = _.get(timeConfig, 'weekNames', TimeData.WEEK_NAMES);
 
     const tpMin = _.get(stat, '世界.timeProgress', 0);
-    logger.log(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
+    logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
 
     const weekStartsOn = 1; // 周一
 
@@ -172,9 +181,15 @@ export function processTime(stat: any, runtime: any) {
     };
 
     logger.log(funcName, '时间数据处理完成，返回待写入 runtime 的数据。');
-    return result;
+    _.merge(runtime, result);
+    return runtime;
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
-    return null;
+    // 失败时也要确保清理
+    if (runtime.clock) {
+      delete runtime.clock.now;
+      delete runtime.clock.flags;
+    }
+    return runtime;
   }
 }

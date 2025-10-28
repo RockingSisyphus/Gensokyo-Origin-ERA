@@ -3,6 +3,7 @@ import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './pay
 import * as affectionTestData from './test-data/affection';
 import * as affectionLevelTestData from './test-data/affection-level';
 import * as areaTestData from './test-data/area';
+import * as festivalTestData from './test-data/festival';
 import {
   boundaryData,
   boundaryRuntime,
@@ -105,6 +106,22 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
+  // --- 路线计算测试 ---
+  const routeTestConfigs: TestButtonConfig[] = [
+    { text: '从神社出发', payload: { statWithoutMeta: areaTestData.statForRouteFromShrine } },
+    { text: '从永远亭出发', payload: { statWithoutMeta: areaTestData.statForRouteFromEientei } },
+    { text: '从孤立点出发', payload: { statWithoutMeta: areaTestData.statForRouteFromIsolated } },
+  ];
+  addTestButtons(panel, '路线计算测试', routeTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #4caf50',
+    background: '#2e7d32',
+    color: '#e8f5e9',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
   // --- Normalizer 模块测试 ---
   const normalizerTestConfigs: TestButtonConfig[] = Object.entries(normalizerTestPayloads).map(([key, payload]) => ({
     text: key,
@@ -148,6 +165,21 @@ function createTestPanel() {
     border: '1px solid #c2185b',
     background: '#880e4f',
     color: '#fce4ec',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 节日模块测试 ---
+  const festivalTestConfigs: TestButtonConfig[] = Object.entries(festivalTestData).map(([key, statData]) => ({
+    text: key.replace('festivalTest_', ''), // 移除前缀以简化按钮文本
+    payload: { statWithoutMeta: statData },
+  }));
+  addTestButtons(panel, '节日模块测试', festivalTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #ff6f00',
+    background: '#e65100',
+    color: '#fff3e0',
     borderRadius: '3px',
     fontSize: '12px',
   });

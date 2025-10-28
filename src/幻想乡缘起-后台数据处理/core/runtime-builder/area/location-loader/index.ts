@@ -1,6 +1,8 @@
+import _ from 'lodash';
 import { ERA_VARIABLE_PATH } from '../../../../utils/constants';
 import { Logger } from '../../../../utils/log';
 import { matchMessages } from '../../../../utils/message';
+import { buildGraph } from '../utils';
 
 const logger = new Logger();
 
@@ -10,7 +12,13 @@ const logger = new Logger();
  * @param {string[]} legalLocations - 合法地区列表。
  * @returns {Promise<string[]>} 需要加载的地区数组。
  */
-export async function loadLocations(stat: any, legalLocations: string[]): Promise<string[]> {
+export async function loadLocations({
+  stat,
+  legalLocations,
+}: {
+  stat: any;
+  legalLocations: string[];
+}): Promise<string[]> {
   const funcName = 'loadLocations';
   let hits: string[] = [];
 
@@ -39,7 +47,23 @@ export async function loadLocations(stat: any, legalLocations: string[]): Promis
       logger.debug(funcName, '在 stat.user.所在地区 中未找到用户位置');
     }
 
-    logger.log(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
+    // 3. 合并与当前位置相邻的地区
+    try {
+      const { graph } = buildGraph({ stat });
+      if (!_.isEmpty(graph) && userLoc && graph[userLoc]) {
+        const neighbors = Object.keys(graph[userLoc]);
+        neighbors.forEach(neighbor => {
+          if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+            hits.push(neighbor);
+          }
+        });
+        logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
+      }
+    } catch (e) {
+      logger.error(funcName, '合并邻居地区时发生异常', e);
+    }
+
+    logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
   } catch (e) {
     logger.error(funcName, '处理加载地区时发生异常', e);
     hits = [];

@@ -1,25 +1,34 @@
 import _ from 'lodash';
 import { Logger } from '../../utils/log';
 import { processAffectionLevel } from './affection-level';
-import { getLegalLocations } from './area/legal-locations/index';
+import { processArea } from './area';
+import { processFestival } from './festival/processor';
 import { processTime } from './time/processor';
 
 const logger = new Logger();
 
-export function buildRuntime(stat: any, originalRuntime: any): any {
+export async function buildRuntime({ stat, runtime: originalRuntime }: { stat: any; runtime: any }): Promise<any> {
   const funcName = 'buildRuntime';
   logger.log(funcName, '开始构建 runtime...');
 
   let runtime = _.cloneDeep(originalRuntime);
 
-  // legal-locations
-  runtime.legal_locations = getLegalLocations(stat);
+  // area
+  const areaResult = await processArea(stat, runtime);
+  runtime = _.merge(runtime, areaResult);
+  logger.log(funcName, 'processArea 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // time
-  runtime = processTime(runtime, stat);
+  runtime = processTime({ runtime, stat });
+  logger.log(funcName, 'processTime 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
+
+  // festival
+  runtime = processFestival({ runtime, stat });
+  logger.log(funcName, 'processFestival 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // affection-level
-  runtime = processAffectionLevel(runtime, stat);
+  runtime = processAffectionLevel({ runtime, stat });
+  logger.log(funcName, 'processAffectionLevel 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   logger.log(funcName, 'Runtime 构建完毕。', runtime);
   return runtime;
