@@ -26,9 +26,7 @@ const baseStat = {
 // 1. 大幅增加
 const stat_largeIncrease = _.cloneDeep(baseStat);
 stat_largeIncrease.chars.角色A.好感度 = 150;
-const log_largeIncrease = JSON.stringify([
-  { op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: 150 },
-]);
+const log_largeIncrease = JSON.stringify([{ op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: 150 }]);
 export const largeIncrease: WriteDonePayload = {
   mk: 'affection-test-1',
   message_id: 2001,
@@ -43,9 +41,7 @@ export const largeIncrease: WriteDonePayload = {
 // 2. 大幅减少
 const stat_largeDecrease = _.cloneDeep(baseStat);
 stat_largeDecrease.chars.角色A.好感度 = -50;
-const log_largeDecrease = JSON.stringify([
-  { op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: -50 },
-]);
+const log_largeDecrease = JSON.stringify([{ op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: -50 }]);
 export const largeDecrease: WriteDonePayload = {
   mk: 'affection-test-2',
   message_id: 2002,
@@ -60,9 +56,7 @@ export const largeDecrease: WriteDonePayload = {
 // 3. 小幅变化 (不应折算)
 const stat_smallChange = _.cloneDeep(baseStat);
 stat_smallChange.chars.角色A.好感度 = 52;
-const log_smallChange = JSON.stringify([
-  { op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: 52 },
-]);
+const log_smallChange = JSON.stringify([{ op: 'update', path: 'chars.角色A.好感度', value_old: 50, value_new: 52 }]);
 export const smallChange: WriteDonePayload = {
   mk: 'affection-test-3',
   message_id: 2003,

@@ -4,12 +4,7 @@ import { setRuntimeObject } from '../../utils/runtime';
 
 const logger = new Logger();
 
-export async function sendData(
-  stat: any,
-  runtime: any,
-  originalPayload: any,
-  changes: ChangeLogEntry[],
-) {
+export async function sendData(stat: any, runtime: any, originalPayload: any, changes: ChangeLogEntry[]) {
   const funcName = 'sendData';
   logger.log(funcName, '开始发送数据...');
 

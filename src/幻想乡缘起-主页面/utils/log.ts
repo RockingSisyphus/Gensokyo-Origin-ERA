@@ -183,14 +183,16 @@ export class Logger {
     try {
       const stack = new Error().stack || '';
       // 智能寻找调用者：遍历堆栈，找到第一个不属于 log.ts 的、包含项目路径的行
-      const callerLine = stack.split('\n').find(
-        line =>
-          (line.includes(`/src/${PROJECT_NAME}/`) ||
-            line.includes(`/dist/${PROJECT_NAME}/`) ||
-            line.includes(`\\src\\${PROJECT_NAME}\\`) ||
-            line.includes(`\\dist\\${PROJECT_NAME}\\`)) &&
-          !line.includes('/utils/log.ts'),
-      );
+      const callerLine = stack
+        .split('\n')
+        .find(
+          line =>
+            (line.includes(`/src/${PROJECT_NAME}/`) ||
+              line.includes(`/dist/${PROJECT_NAME}/`) ||
+              line.includes(`\\src\\${PROJECT_NAME}\\`) ||
+              line.includes(`\\dist\\${PROJECT_NAME}\\`)) &&
+            !line.includes('/utils/log.ts'),
+        );
 
       if (!callerLine) {
         return null;

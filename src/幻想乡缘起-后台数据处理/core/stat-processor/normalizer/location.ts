@@ -75,9 +75,7 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
       const oldValue = _.get(stat, USER_HOME_PATH);
       userHome = fallbackLocation;
       _.set(stat, USER_HOME_PATH, userHome);
-      changes.push(
-        createChangeLogEntry(funcName, USER_HOME_PATH, oldValue, userHome, '补全用户缺失的居住地区'),
-      );
+      changes.push(createChangeLogEntry(funcName, USER_HOME_PATH, oldValue, userHome, '补全用户缺失的居住地区'));
       logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
     }
     if (_.isNil(userLocation)) {
@@ -148,9 +146,7 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
           const oldValue = _.get(stat, path);
           charHome = fallbackLocation;
           _.set(stat, path, charHome);
-          changes.push(
-            createChangeLogEntry(funcName, path, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`),
-          );
+          changes.push(createChangeLogEntry(funcName, path, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`));
           logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
         }
         if (_.isNil(charLocation)) {

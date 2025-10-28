@@ -160,7 +160,8 @@ export function getAllAtomicChanges(logJson: EditLogOp[]): AtomicChange[] {
     } else {
       // 对象插入
       const newMap = flattenObject(valueToInsert);
-      if (newMap.size === 0 && _.isObject(valueToInsert)) { // 插入空对象
+      if (newMap.size === 0 && _.isObject(valueToInsert)) {
+        // 插入空对象
         allChanges.push({ path: op.path, oldVal: null, newVal: valueToInsert });
       } else {
         newMap.forEach((vNew, key) => {
@@ -185,7 +186,8 @@ export function getAllAtomicChanges(logJson: EditLogOp[]): AtomicChange[] {
     } else {
       // 对象删除
       const oldMap = flattenObject(valueToDelete);
-      if (oldMap.size === 0 && _.isObject(valueToDelete)) { // 删除空对象
+      if (oldMap.size === 0 && _.isObject(valueToDelete)) {
+        // 删除空对象
         allChanges.push({ path: op.path, oldVal: valueToDelete, newVal: null });
       } else {
         oldMap.forEach((vOld, key) => {
