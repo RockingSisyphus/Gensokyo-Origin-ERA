@@ -1647,6 +1647,112 @@ festivalTest_EmptyList.festivals_list = [];
 
 festivalTest_EmptyList.世界.timeProgress = getProgress(1, 1);
 
+const incidentTestData = {
+  "前置-设置冷却锚点": {
+    stat: {
+      config: {
+        incident: {
+          cooldownMinutes: 100
+        }
+      },
+      世界: {
+        timeProgress: 10
+      },
+      incidents: {}
+    }
+  },
+  "日常(基于前置)": {
+    stat: {
+      config: {
+        incident: {
+          cooldownMinutes: 100
+        }
+      },
+      世界: {
+        timeProgress: 50
+      },
+      incidents: {}
+    }
+  },
+  "触发新异变(冷却结束)": {
+    stat: {
+      config: {
+        incident: {
+          cooldownMinutes: 100,
+          isRandomPool: false,
+          pool: [ {
+            name: "红雾异变",
+            detail: "幻想乡被红色的雾气笼罩了。",
+            mainLoc: [ "红魔馆" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 111
+      },
+      incidents: {}
+    }
+  },
+  "触发新异变(强制)": {
+    stat: {
+      config: {
+        incident: {
+          cooldownMinutes: 9999,
+          forceTrigger: true,
+          isRandomPool: false,
+          pool: [ {
+            name: "春雪异变",
+            detail: "春天来了，但雪还在下。",
+            mainLoc: [ "白玉楼" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 1
+      },
+      incidents: {}
+    }
+  },
+  推进现有异变: {
+    stat: {
+      config: {
+        incident: {
+          pool: [ {
+            name: "红雾异变",
+            detail: "幻想乡被红色的雾气笼罩了。",
+            mainLoc: [ "红魔馆" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 200
+      },
+      incidents: {
+        红雾异变: {
+          异变进程: "进行中",
+          异变细节: "天空中弥漫着不祥的红色雾气。",
+          主要地区: [ "红魔馆" ],
+          异变退治者: [ "博丽灵梦", "雾雨魔理沙" ]
+        }
+      }
+    }
+  },
+  "触发随机异变(池为空)": {
+    stat: {
+      config: {
+        incident: {
+          cooldownMinutes: 10,
+          pool: []
+        }
+      },
+      世界: {
+        timeProgress: 15
+      },
+      incidents: {}
+    }
+  }
+};
+
 const logger = new Logger("幻想乡缘起-测试面板/dev/utils");
 
 function addTestButtons(panel, title, configs, style) {
@@ -1847,6 +1953,21 @@ function createTestPanel() {
     border: "1px solid #ff6f00",
     background: "#e65100",
     color: "#fff3e0",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const incidentTestConfigs = Object.entries(incidentTestData).map(([key, data]) => ({
+    text: key,
+    payload: {
+      statWithoutMeta: data.stat
+    }
+  }));
+  addTestButtons(panel, "异变模块测试", incidentTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #b71c1c",
+    background: "#d32f2f",
+    color: "#ffebee",
     borderRadius: "3px",
     fontSize: "12px"
   });

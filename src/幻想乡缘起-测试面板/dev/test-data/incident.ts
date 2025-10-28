@@ -9,7 +9,7 @@ export const incidentTestData = {
       config: {
         incident: { cooldownMinutes: 100 },
       },
-      '世界': { timeProgress: 10 },
+      世界: { timeProgress: 10 },
       incidents: {},
     },
   },
@@ -25,7 +25,7 @@ export const incidentTestData = {
       config: {
         incident: { cooldownMinutes: 100 },
       },
-      '世界': { timeProgress: 50 }, // 50 - 10 < 100
+      世界: { timeProgress: 50 }, // 50 - 10 < 100
       incidents: {},
     },
   },
@@ -45,7 +45,7 @@ export const incidentTestData = {
           pool: [{ name: '红雾异变', detail: '幻想乡被红色的雾气笼罩了。', mainLoc: ['红魔馆'] }],
         },
       },
-      '世界': { timeProgress: 111 }, // 111 - 10 > 100
+      世界: { timeProgress: 111 }, // 111 - 10 > 100
       incidents: {},
     },
   },
@@ -65,7 +65,7 @@ export const incidentTestData = {
           pool: [{ name: '春雪异变', detail: '春天来了，但雪还在下。', mainLoc: ['白玉楼'] }],
         },
       },
-      '世界': { timeProgress: 1 },
+      世界: { timeProgress: 1 },
       incidents: {},
     },
   },
@@ -75,20 +75,20 @@ export const incidentTestData = {
   // - 预期决策: 'continue'
   // - 预期 runtime.incident.current 包含 '红雾异变' 的信息
   // =================================================================
-  '推进现有异变': {
+  推进现有异变: {
     stat: {
       config: {
         incident: {
           pool: [{ name: '红雾异变', detail: '幻想乡被红色的雾气笼罩了。', mainLoc: ['红魔馆'] }],
         },
       },
-      '世界': { timeProgress: 200 },
+      世界: { timeProgress: 200 },
       incidents: {
-        '红雾异变': {
-          '异变进程': '进行中',
-          '异变细节': '天空中弥漫着不祥的红色雾气。',
-          '主要地区': ['红魔馆'],
-          '异变退治者': ['博丽灵梦', '雾雨魔理沙'],
+        红雾异变: {
+          异变进程: '进行中',
+          异变细节: '天空中弥漫着不祥的红色雾气。',
+          主要地区: ['红魔馆'],
+          异变退治者: ['博丽灵梦', '雾雨魔理沙'],
         },
       },
     },
@@ -108,7 +108,7 @@ export const incidentTestData = {
           pool: [],
         },
       },
-      '世界': { timeProgress: 15 },
+      世界: { timeProgress: 15 },
       incidents: {},
     },
   },
