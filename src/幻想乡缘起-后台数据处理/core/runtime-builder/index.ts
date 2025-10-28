@@ -15,7 +15,8 @@ export async function buildRuntime({ stat, runtime: originalRuntime }: { stat: a
 
   // area
   const areaResult = await processArea(stat, runtime);
-  runtime = _.merge(runtime, areaResult);
+  // 使用 Object.assign 进行浅合并，确保新计算的空值能够覆盖旧数据
+  runtime = Object.assign(runtime, areaResult);
   logger.log(funcName, 'processArea 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // time

@@ -211,7 +211,7 @@ export const statForRouteFromEientei = {
 export const statForRouteFromIsolated = {
   user: {
     name: '测试用户',
-    所在地区: '天界',
+    所在地区: '秘封俱乐部',
   },
   world: worldWithMapGraph,
 };

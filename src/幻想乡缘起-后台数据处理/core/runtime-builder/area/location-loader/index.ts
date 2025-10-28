@@ -2,22 +2,25 @@ import _ from 'lodash';
 import { ERA_VARIABLE_PATH } from '../../../../utils/constants';
 import { Logger } from '../../../../utils/log';
 import { matchMessages } from '../../../../utils/message';
-import { buildGraph } from '../utils';
 
 const logger = new Logger();
 
 /**
- * @description 根据合法地区列表、最近消息和用户当前位置，处理并返回需要加载的地区。
- * @param {any} stat - 不含 $meta 的纯净变量对象。
- * @param {string[]} legalLocations - 合法地区列表。
+ * @description 根据合法地区列表、最近消息、用户当前位置和相邻地区，处理并返回需要加载的地区。
+ * @param {object} params
+ * @param {any} params.stat - The stat object.
+ * @param {string[]} params.legalLocations - An array of legal locations.
+ * @param {string[]} params.neighbors - An array of neighboring locations.
  * @returns {Promise<string[]>} 需要加载的地区数组。
  */
 export async function loadLocations({
   stat,
   legalLocations,
+  neighbors,
 }: {
   stat: any;
   legalLocations: string[];
+  neighbors: string[];
 }): Promise<string[]> {
   const funcName = 'loadLocations';
   let hits: string[] = [];
@@ -48,19 +51,13 @@ export async function loadLocations({
     }
 
     // 3. 合并与当前位置相邻的地区
-    try {
-      const { graph } = buildGraph({ stat });
-      if (!_.isEmpty(graph) && userLoc && graph[userLoc]) {
-        const neighbors = Object.keys(graph[userLoc]);
-        neighbors.forEach(neighbor => {
-          if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
-            hits.push(neighbor);
-          }
-        });
-        logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
-      }
-    } catch (e) {
-      logger.error(funcName, '合并邻居地区时发生异常', e);
+    if (neighbors && neighbors.length > 0) {
+      neighbors.forEach(neighbor => {
+        if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+          hits.push(neighbor);
+        }
+      });
+      logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
     }
 
     logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
@@ -70,5 +67,5 @@ export async function loadLocations({
   }
 
   logger.debug(funcName, '模块退出，最终输出:', { hits });
-  return hits;
+  return _.uniq(hits);
 }

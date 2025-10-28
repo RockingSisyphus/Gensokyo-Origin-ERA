@@ -649,73 +649,68 @@ function processAffectionLevel({runtime, stat}) {
   return runtime;
 }
 
-function getAliasMap(mapGraph) {
-  const aliasMap = Object.create(null);
-  if (mapGraph?.aliases && typeof mapGraph.aliases === "object") {
-    for (const [standardName, aliasValue] of Object.entries(mapGraph.aliases)) {
-      const trimmedStandardName = String(standardName || "").trim();
-      if (!trimmedStandardName) continue;
-      const aliases = Array.isArray(aliasValue) ? aliasValue : [ aliasValue ];
-      for (const alias of aliases) {
-        const trimmedAlias = String(alias || "").trim();
-        if (trimmedAlias) {
-          aliasMap[trimmedAlias] = trimmedStandardName;
-        }
-      }
-    }
-  }
-  return aliasMap;
-}
+const graph_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/graph-builder");
 
-function extractLeafs(mapGraph) {
-  const leafs = [];
-  function walk(node) {
-    if (!node) return;
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        if (typeof item === "string" && item.trim()) {
-          leafs.push(item.trim());
-        }
-      }
-      return;
-    }
-    if (typeof node === "object") {
-      for (const value of Object.values(node)) {
-        walk(value);
-      }
-    }
-  }
-  if (mapGraph?.tree) {
-    walk(mapGraph.tree);
-  }
-  return leafs;
-}
-
-const legal_locations_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/legal-locations");
-
-function getLegalLocations({stat}) {
-  const funcName = "getLegalLocations";
-  legal_locations_logger.log(funcName, "开始提取合法地区。");
-  let legalLocations = [];
+function buildGraph({stat}) {
+  const funcName = "buildGraph";
+  const graph = {};
+  const leafNodes = [];
   try {
-    const MAP = _.get(stat, "world.map_graph", null);
-    legal_locations_logger.debug(funcName, "从 stat.world.map_graph 中获取 map_graph...", {
-      MAP
-    });
-    if (MAP && MAP.tree) {
-      legalLocations = extractLeafs(MAP);
-      legal_locations_logger.debug(funcName, `从 map_graph 中提取了 ${legalLocations.length} 个地区关键词`, {
-        legalLocations
-      });
-    } else {
-      legal_locations_logger.log(funcName, "未找到有效的 map_graph，返回空数组");
+    const mapData = external_default().get(stat, "world.map_graph");
+    if (!mapData) {
+      graph_builder_logger.warn(funcName, "stat.world.map_graph 为空或不存在。");
+      return {
+        graph,
+        leafNodes
+      };
     }
-  } catch (e) {
-    legal_locations_logger.error(funcName, "提取合法地区时发生异常", e);
-    legalLocations = [];
+    graph_builder_logger.debug(funcName, "stat.world.map_graph获取成功：", mapData);
+    const addEdge = (nodeA, nodeB) => {
+      if (nodeA === nodeB) return;
+      if (!graph[nodeA]) graph[nodeA] = {};
+      if (!graph[nodeB]) graph[nodeB] = {};
+      graph[nodeA][nodeB] = true;
+      graph[nodeB][nodeA] = true;
+    };
+    const walkTree = node => {
+      if (Array.isArray(node)) {
+        node.forEach(item => {
+          if (typeof item === "string") {
+            if (!leafNodes.includes(item)) leafNodes.push(item);
+          } else if (item && typeof item === "object") {
+            walkTree(item);
+          }
+        });
+      } else if (node && typeof node === "object") {
+        Object.values(node).forEach(walkTree);
+      }
+    };
+    if (mapData.tree) {
+      walkTree(mapData.tree);
+    }
+    leafNodes.forEach(node => {
+      if (!graph[node]) {
+        graph[node] = {};
+      }
+    });
+    const edges = external_default().get(mapData, "edges", []);
+    graph_builder_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
+    if (Array.isArray(edges)) {
+      edges.forEach(edge => {
+        if (edge && edge.a && edge.b) {
+          addEdge(edge.a, edge.b);
+        }
+      });
+    }
+  } catch (error) {
+    graph_builder_logger.error(funcName, "构建地图图谱时出错", error);
   }
-  legal_locations_logger.debug(funcName, "合法地区提取完成。");
-  return legalLocations;
+  graph_builder_logger.debug(funcName, "graph完成构建：", graph);
+  graph_builder_logger.debug(funcName, "leafNodes完成构建：", leafNodes);
+  return {
+    graph,
+    leafNodes
+  };
 }
 
 const log = new Logger("幻想乡缘起-后台数据处理/utils/message");
@@ -816,65 +811,74 @@ async function updateMessageContent(message, newContent) {
   });
 }
 
-const utils_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/utils");
+const location_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/location-loader");
 
-function buildGraph({stat}) {
-  const funcName = "buildGraph";
-  const graph = {};
-  const leafNodes = [];
+async function loadLocations({stat, legalLocations, neighbors}) {
+  const funcName = "loadLocations";
+  let hits = [];
   try {
-    const mapData = external_default().get(stat, "world.map_graph");
-    if (!mapData) {
-      utils_logger.warn(funcName, "stat.world.map_graph 为空或不存在。");
-      return {
-        graph,
-        leafNodes
-      };
+    if (!legalLocations || legalLocations.length === 0) {
+      location_loader_logger.log(funcName, "传入的合法地区列表为空，无需加载。");
+      return [];
     }
-    utils_logger.debug(funcName, "stat.world.map_graph获取成功：", mapData);
-    const addEdge = (nodeA, nodeB) => {
-      if (nodeA === nodeB) return;
-      if (!graph[nodeA]) graph[nodeA] = {};
-      if (!graph[nodeB]) graph[nodeB] = {};
-      graph[nodeA][nodeB] = true;
-      graph[nodeB][nodeA] = true;
-    };
-    const walkTree = node => {
-      if (Array.isArray(node)) {
-        node.forEach(item => {
-          if (typeof item === "string") {
-            if (!leafNodes.includes(item)) leafNodes.push(item);
-          } else if (item && typeof item === "object") {
-            walkTree(item);
-          }
-        });
-      } else if (node && typeof node === "object") {
-        Object.values(node).forEach(walkTree);
+    const matched = await matchMessages(legalLocations, {
+      depth: 5,
+      includeSwipes: false,
+      tag: constants_ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
+    });
+    hits = Array.from(new Set(matched));
+    const userLoc = String(external_default().get(stat, "user.所在地区", "")).trim();
+    if (userLoc) {
+      location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
+      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
+        hits.push(userLoc);
       }
-    };
-    if (mapData.tree) {
-      walkTree(mapData.tree);
+    } else {
+      location_loader_logger.debug(funcName, "在 stat.user.所在地区 中未找到用户位置");
     }
-    const edges = external_default().get(mapData, "edges", []);
-    utils_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
-    if (Array.isArray(edges)) {
-      edges.forEach(edge => {
-        if (edge && edge.a && edge.b) {
-          utils_logger.debug(funcName, `正在添加边: ${edge.a} <-> ${edge.b}`);
-          addEdge(edge.a, edge.b);
+    if (neighbors && neighbors.length > 0) {
+      neighbors.forEach(neighbor => {
+        if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+          hits.push(neighbor);
         }
       });
+      location_loader_logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
     }
-  } catch (error) {
-    utils_logger.error(funcName, "构建地图图谱时出错", error);
+    location_loader_logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
+  } catch (e) {
+    location_loader_logger.error(funcName, "处理加载地区时发生异常", e);
+    hits = [];
   }
-  utils_logger.debug(funcName, "graph完成构建：", graph);
-  utils_logger.debug(funcName, "leafNodes完成构建：", leafNodes);
-  return {
-    graph,
-    leafNodes
-  };
+  location_loader_logger.debug(funcName, "模块退出，最终输出:", {
+    hits
+  });
+  return external_default().uniq(hits);
 }
+
+const neighbor_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/neighbor-loader");
+
+function processNeighbors({stat, graph}) {
+  const funcName = "processNeighbors";
+  try {
+    const currentUserLocation = external_default().get(stat, "user.所在地区", "");
+    if (!currentUserLocation) {
+      neighbor_loader_logger.debug(funcName, "用户当前位置未知，无法获取邻居。");
+      return [];
+    }
+    if (external_default().isEmpty(graph) || !graph[currentUserLocation]) {
+      neighbor_loader_logger.debug(funcName, `图中没有节点 ${currentUserLocation} 或该节点没有邻居。`);
+      return [];
+    }
+    const neighbors = Object.keys(graph[currentUserLocation]);
+    neighbor_loader_logger.log(funcName, `找到 ${currentUserLocation} 的邻居: ${neighbors.join(", ")}`);
+    return neighbors;
+  } catch (error) {
+    neighbor_loader_logger.error(funcName, "获取相邻地区时发生异常", error);
+    return [];
+  }
+}
+
+const utils_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/utils");
 
 function bfs(source, destination, graph) {
   const funcName = "bfs";
@@ -917,61 +921,9 @@ function bfs(source, destination, graph) {
   };
 }
 
-const location_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/location-loader");
-
-async function loadLocations({stat, legalLocations}) {
-  const funcName = "loadLocations";
-  let hits = [];
-  try {
-    if (!legalLocations || legalLocations.length === 0) {
-      location_loader_logger.log(funcName, "传入的合法地区列表为空，无需加载。");
-      return [];
-    }
-    const matched = await matchMessages(legalLocations, {
-      depth: 5,
-      includeSwipes: false,
-      tag: constants_ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
-    });
-    hits = Array.from(new Set(matched));
-    const userLoc = String(external_default().get(stat, "user.所在地区", "")).trim();
-    if (userLoc) {
-      location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
-      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
-        hits.push(userLoc);
-      }
-    } else {
-      location_loader_logger.debug(funcName, "在 stat.user.所在地区 中未找到用户位置");
-    }
-    try {
-      const {graph} = buildGraph({
-        stat
-      });
-      if (!external_default().isEmpty(graph) && userLoc && graph[userLoc]) {
-        const neighbors = Object.keys(graph[userLoc]);
-        neighbors.forEach(neighbor => {
-          if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
-            hits.push(neighbor);
-          }
-        });
-        location_loader_logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
-      }
-    } catch (e) {
-      location_loader_logger.error(funcName, "合并邻居地区时发生异常", e);
-    }
-    location_loader_logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
-  } catch (e) {
-    location_loader_logger.error(funcName, "处理加载地区时发生异常", e);
-    hits = [];
-  }
-  location_loader_logger.debug(funcName, "模块退出，最终输出:", {
-    hits
-  });
-  return hits;
-}
-
 const area_route_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/route");
 
-function processRoute({stat, runtime}) {
+function processRoute({stat, runtime, graph}) {
   const funcName = "processRoute";
   const defaultRouteInfo = {
     candidates: [],
@@ -980,18 +932,11 @@ function processRoute({stat, runtime}) {
   try {
     const currentUserLocation = external_default().get(stat, "user.所在地区", "博丽神社");
     area_route_logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
-    const {graph, leafNodes} = buildGraph({
-      stat
-    });
     if (external_default().isEmpty(graph)) {
       area_route_logger.warn(funcName, "图为空，无法计算路线。");
       return defaultRouteInfo;
     }
-    if (external_default().isEmpty(leafNodes)) {
-      area_route_logger.warn(funcName, "叶子节点为空，无法计算路线。");
-      return defaultRouteInfo;
-    }
-    area_route_logger.debug(funcName, "图构建完成", {
+    area_route_logger.debug(funcName, "图已接收", {
       nodes: Object.keys(graph).length
     });
     const candidates = external_default().cloneDeep(external_default().get(runtime, "loadArea", []));
@@ -1039,37 +984,42 @@ async function processArea(stat, runtime) {
   area_logger.debug(funcName, "开始处理地区...");
   const output = {
     legal_locations: [],
-    loadArea: []
+    neighbors: [],
+    loadArea: [],
+    route: {
+      candidates: [],
+      routes: []
+    }
   };
   try {
-    const legalLocations = getLegalLocations({
+    const {graph, leafNodes} = buildGraph({
       stat
     });
-    output.legal_locations = legalLocations;
-    area_logger.debug(funcName, `获取到 ${legalLocations.length} 个合法地区`);
-    const areasToLoad = await loadLocations({
+    area_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
+    output.legal_locations = leafNodes;
+    area_logger.debug(funcName, `获取到 ${leafNodes.length} 个合法地区`);
+    output.neighbors = processNeighbors({
       stat,
-      legalLocations
+      graph
     });
-    output.loadArea = areasToLoad;
-    area_logger.debug(funcName, `需要加载 ${areasToLoad.length} 个地区`);
+    area_logger.debug(funcName, `获取到 ${output.neighbors.length} 个相邻地区`);
+    output.loadArea = await loadLocations({
+      stat,
+      legalLocations: leafNodes,
+      neighbors: output.neighbors
+    });
+    area_logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
     const tempRuntimeForRoute = {
-      loadArea: areasToLoad
+      loadArea: output.loadArea
     };
-    const routeInfo = processRoute({
+    output.route = processRoute({
       stat,
-      runtime: tempRuntimeForRoute
+      runtime: tempRuntimeForRoute,
+      graph
     });
-    output.route = routeInfo;
     area_logger.debug(funcName, "路线计算完成");
   } catch (e) {
     area_logger.error(funcName, "处理地区时发生异常", e);
-    output.legal_locations = [];
-    output.loadArea = [];
-    output.route = {
-      candidates: [],
-      routes: []
-    };
   }
   area_logger.log(funcName, "地区处理完成", output);
   return output;
@@ -1361,7 +1311,7 @@ async function buildRuntime({stat, runtime: originalRuntime}) {
   runtime_builder_logger.log(funcName, "开始构建 runtime...");
   let runtime = external_default().cloneDeep(originalRuntime);
   const areaResult = await processArea(stat, runtime);
-  runtime = external_default().merge(runtime, areaResult);
+  runtime = Object.assign(runtime, areaResult);
   runtime_builder_logger.log(funcName, "processArea 处理完成。", {
     runtime: external_default().cloneDeep(runtime),
     stat: external_default().cloneDeep(stat)
@@ -1674,6 +1624,48 @@ function processAffection({stat, editLog}) {
     stat,
     changes
   };
+}
+
+function getAliasMap(mapGraph) {
+  const aliasMap = Object.create(null);
+  if (mapGraph?.aliases && typeof mapGraph.aliases === "object") {
+    for (const [standardName, aliasValue] of Object.entries(mapGraph.aliases)) {
+      const trimmedStandardName = String(standardName || "").trim();
+      if (!trimmedStandardName) continue;
+      const aliases = Array.isArray(aliasValue) ? aliasValue : [ aliasValue ];
+      for (const alias of aliases) {
+        const trimmedAlias = String(alias || "").trim();
+        if (trimmedAlias) {
+          aliasMap[trimmedAlias] = trimmedStandardName;
+        }
+      }
+    }
+  }
+  return aliasMap;
+}
+
+function extractLeafs(mapGraph) {
+  const leafs = [];
+  function walk(node) {
+    if (!node) return;
+    if (Array.isArray(node)) {
+      for (const item of node) {
+        if (typeof item === "string" && item.trim()) {
+          leafs.push(item.trim());
+        }
+      }
+      return;
+    }
+    if (typeof node === "object") {
+      for (const value of Object.values(node)) {
+        walk(value);
+      }
+    }
+  }
+  if (mapGraph?.tree) {
+    walk(mapGraph.tree);
+  }
+  return leafs;
 }
 
 const location_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor/normalizer/location");
