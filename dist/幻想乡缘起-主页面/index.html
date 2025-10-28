@@ -144,7 +144,8 @@
       E: () => logContext,
       V: () => Logger
     });
-    const DEBUG_CONFIG_LS_KEY = "era_debug_config";
+    const PROJECT_NAME = "幻想乡缘起-主页面";
+    const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
     let enabledPatterns = [];
     let disabledPatterns = [];
     function loadDebugConfig() {
@@ -155,7 +156,7 @@
         enabledPatterns = (config.enabled || []).map(toRegex);
         disabledPatterns = (config.disabled || []).map(toRegex);
       } catch (e) {
-        console.error("《ERA-Log》: 加载调试配置失败。", e);
+        console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
         enabledPatterns = [];
         disabledPatterns = [];
       }
@@ -180,7 +181,7 @@
       };
       globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
       loadDebugConfig();
-      console.log(`%c《ERA-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+      console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
         "启用 (Enabled)": uniqueConfig.enabled,
         "禁用 (Disabled)": uniqueConfig.disabled
       });
@@ -215,7 +216,7 @@
         status() {
           const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
           const config = JSON.parse(configStr);
-          console.log(`%c《ERA-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+          console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
         },
         clear() {
           updateConfig({
@@ -231,31 +232,30 @@
     };
     class Logger {
       moduleName;
-      constructor() {
-        this.moduleName = this._getModuleNameFromStack() || "unknown";
+      constructor(moduleName) {
+        this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
       }
       _getModuleNameFromStack() {
         try {
           const stack = (new Error).stack || "";
-          const callerLine = stack.split("\n").find(line => line.includes("/src/ERA变量框架/") && !line.includes("/utils/log.ts"));
+          const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
           if (!callerLine) {
             return null;
           }
-          const match = callerLine.match(/src\/ERA变量框架\/([^?:\s)]+)/);
-          if (!match || !match[1]) {
+          const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
+          if (!match || !match[2]) {
             return null;
           }
-          let path = match[1];
-          path = path.replace(/\.(vue|ts|js)$/, "");
-          return path.replace(/^src\/ERA变量框架\//, "").replace(/\/index$/, "").replace(/\//g, "-");
+          const path = match[2];
+          return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
         } catch (e) {
-          console.error("《ERA-Log-Debug》: 解析模块名时发生意外错误。", e);
+          console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
           return null;
         }
       }
       formatMessage(funcName, message) {
         const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-        return `《ERA》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+        return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
       }
       debug(funcName, message, obj) {
         if (!isDebugEnabled(this.moduleName)) {
@@ -316,7 +316,7 @@
       fE: () => toText
     });
     var _log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(39);
-    const logger = new _log__WEBPACK_IMPORTED_MODULE_0__.V;
+    const logger = new _log__WEBPACK_IMPORTED_MODULE_0__.V("幻想乡缘起-主页面/utils/format");
     function firstVal(x) {
       return Array.isArray(x) ? x.length ? x[0] : "" : x;
     }
@@ -459,7 +459,7 @@
       style.textContent = css;
       document.head.appendChild(style);
     }
-    const logger = new _utils_log__WEBPACK_IMPORTED_MODULE_2__.V;
+    const logger = new _utils_log__WEBPACK_IMPORTED_MODULE_2__.V("幻想乡缘起-主页面/backend/affection");
     const STAGES_FALLBACK = [ [ -9999, "死敌" ], [ -99, "憎恨" ], [ -20, "厌恶" ], [ 0, "不喜" ], [ 10, "冷淡" ], [ 20, "熟悉" ], [ 40, "亲近" ], [ 70, "亲密" ], [ 99, "思慕" ], [ 9999, "不渝" ] ];
     function stageLabelFrom(statWithoutMeta, fav) {
       try {
@@ -736,7 +736,7 @@ var log = __webpack_require__(39);
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/ContentBio");
     const userEvents = (0, external_Vue_namespaceObject.ref)(null);
     const userRelationships = (0, external_Vue_namespaceObject.ref)(null);
     function update(statWithoutMeta) {
@@ -798,7 +798,7 @@ const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lan
 
 const ContentBio = __exports__;
 
-const logger = new log.V;
+const logger = new log.V("幻想乡缘起-主页面/utils/eraWriter");
 
 function updateEraVariable(path, value) {
   const funcName = "updateEraVariable";
@@ -880,7 +880,7 @@ const _hoisted_13 = {
 const ContentOthersvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentOthers",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/ContentOthers");
     const otherRoles = (0, external_Vue_namespaceObject.ref)([]);
     const skipVisitHunters = (0, external_Vue_namespaceObject.ref)(false);
     const skipSleepHunters = (0, external_Vue_namespaceObject.ref)(false);
@@ -1084,7 +1084,7 @@ const ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_2 = {
 const ContentSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentSettings",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/ContentSettings");
     const loadStatus = (0, external_Vue_namespaceObject.ref)("未载入");
     const configRoot = (0, external_Vue_namespaceObject.ref)(null);
     let initialConfig = null;
@@ -1345,7 +1345,7 @@ const T0_PATH = "incident.异变冷却基准时间";
 const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "Incidents",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/Incidents");
     function extractIncidents(data) {
       let root = (0, format.Jt)(data, "incidents");
       if (typeof root === "string") {
@@ -1497,7 +1497,7 @@ const Incidents = Incidents_exports_;
 const WorldMapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WorldMap",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/WorldMap");
     const mapText = (0, external_Vue_namespaceObject.ref)("");
     const mapGraph = (0, external_Vue_namespaceObject.ref)(null);
     function escHtml(s) {
@@ -1740,7 +1740,7 @@ const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
 const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "FontSizeControls",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/tabs/FontSizeControls");
     const currentPercent = (0, external_Vue_namespaceObject.ref)(100);
     const stepPct = (0, external_Vue_namespaceObject.ref)(10);
     const clamp = n => Math.max(60, Math.min(200, Math.floor(Number(n) || 100)));
@@ -1825,7 +1825,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_4 = {
 const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StatusTabContent",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusTab/StatusTabContent");
     const fontSizeControls = (0, external_Vue_namespaceObject.ref)(null);
     const worldMap = (0, external_Vue_namespaceObject.ref)(null);
     const incidents = (0, external_Vue_namespaceObject.ref)(null);
@@ -2720,7 +2720,7 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
 const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StatusBannerContent",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/StatusBanner/StatusBannerContent");
     const clockInfo = (0, external_Vue_namespaceObject.ref)(null);
     const weather = (0, external_Vue_namespaceObject.ref)(null);
     const update = context => {
@@ -2813,7 +2813,7 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   __name: "AyaNewsPopup",
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/AyaNews/AyaNewsPopup");
     const updateNews = statWithoutMeta => {
       const funcName = "updateNews";
       if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
@@ -2925,7 +2925,7 @@ const UserStatePopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namesp
   __name: "UserStatePopup",
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/UserState/UserStatePopup");
     const style = (0, external_Vue_namespaceObject.ref)({});
     const positionPopup = _anchorEl => {
       style.value = {};
@@ -2969,7 +2969,7 @@ const UserStateContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
 const UserStateContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "UserStateContainer",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/UserState/UserStateContainer");
     const sidebarVisible = (0, external_Vue_namespaceObject.ref)(false);
     const userStatePopup = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
@@ -3005,7 +3005,7 @@ const DARK = "dark";
 const ThemeTogglevue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ThemeToggle",
   setup(__props, {expose: __expose}) {
-    const logger = new log.V;
+    const logger = new log.V("幻想乡缘起-主页面/components/ThemeToggle");
     const currentTheme = (0, external_Vue_namespaceObject.ref)(LIGHT);
     const icon = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === LIGHT ? "🌙" : "🌞");
     const ariaLabel = (0, external_Vue_namespaceObject.computed)(() => currentTheme.value === LIGHT ? "切换为黑夜模式" : "切换为白日模式");
@@ -3134,7 +3134,7 @@ $(() => {
   const app = (0, external_Vue_namespaceObject.createApp)(_app);
   const appInstance = app.mount("#app");
   window.vueApp = appInstance;
-  const logger = new log.V;
+  const logger = new log.V("幻想乡缘起-主页面");
   eventOn("GSKO:showUI", detail => {
     const funcName = "onShowUI";
     try {

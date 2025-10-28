@@ -22,17 +22,31 @@ export function addTestButtons(
   configs: TestButtonConfig[],
   style: Record<string, string | number>,
 ) {
-  // 添加标题
-  $('<div>')
+  // 创建一个 <details> 元素作为可折叠的块
+  const details = $('<details>').css({
+    marginTop: '10px',
+    borderTop: '1px solid #eee',
+    paddingTop: '5px',
+  });
+
+  // 创建 <summary> 元素作为标题
+  $('<summary>')
     .html(`<strong>${title}</strong>`)
     .css({
-      marginTop: '10px',
-      borderTop: '1px solid #eee',
-      paddingTop: '5px',
+      cursor: 'pointer',
+      userSelect: 'none',
     })
-    .appendTo(panel);
+    .appendTo(details);
 
-  // 创建并添加按钮
+  // 创建一个容器来存放按钮
+  const buttonContainer = $('<div>').css({
+    display: 'flex',
+    flexWrap: 'wrap',
+    gap: '5px',
+    marginTop: '5px',
+  });
+
+  // 创建并添加按钮到容器中
   configs.forEach(config => {
     $('<button>')
       .text(config.text)
@@ -46,6 +60,12 @@ export function addTestButtons(
         eventEmit(eventType, config.payload);
         toastr.success(`已发送测试事件: ${config.text}`);
       })
-      .appendTo(panel);
+      .appendTo(buttonContainer);
   });
+
+  // 将按钮容器添加到 <details> 元素中
+  details.append(buttonContainer);
+
+  // 将整个 <details> 块添加到主面板
+  panel.append(details);
 }

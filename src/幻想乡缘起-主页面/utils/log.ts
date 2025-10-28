@@ -1,8 +1,10 @@
 /**
- * @file ERA 变量框架 - 日志记录模块 (V3 - 规则分离版)
+ * @file 幻想乡缘起-主页面 - 日志记录模块
  */
 
 'use strict';
+
+const PROJECT_NAME = '幻想乡缘起-主页面';
 
 // --- 新的运行时调试配置系统 (V3) ---
 
@@ -10,7 +12,7 @@
  * @constant {string} DEBUG_CONFIG_LS_KEY
  * @description 用于在 localStorage 中存储调试配置的键名。
  */
-const DEBUG_CONFIG_LS_KEY = 'era_debug_config';
+const DEBUG_CONFIG_LS_KEY = 'gsko_era_debug_config';
 
 let enabledPatterns: RegExp[] = [];
 let disabledPatterns: RegExp[] = [];
@@ -34,7 +36,7 @@ function loadDebugConfig() {
     enabledPatterns = (config.enabled || []).map(toRegex);
     disabledPatterns = (config.disabled || []).map(toRegex);
   } catch (e) {
-    console.error('《ERA-Log》: 加载调试配置失败。', e);
+    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
     enabledPatterns = [];
     disabledPatterns = [];
   }
@@ -77,7 +79,7 @@ function updateConfig(newConfig: { enabled: string[]; disabled: string[] }) {
   };
   globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
   loadDebugConfig();
-  console.log(`%c《ERA-Log》调试模式已更新。`, 'color: #3498db; font-weight: bold;', {
+  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, 'color: #3498db; font-weight: bold;', {
     '启用 (Enabled)': uniqueConfig.enabled,
     '禁用 (Disabled)': uniqueConfig.disabled,
   });
@@ -135,7 +137,7 @@ if (typeof globalThis !== 'undefined') {
     status() {
       const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
       const config = JSON.parse(configStr);
-      console.log(`%c《ERA-Log》当前调试配置:`, 'color: #3498db; font-weight: bold;', config);
+      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, 'color: #3498db; font-weight: bold;', config);
     },
 
     /**
@@ -153,11 +155,11 @@ if (typeof globalThis !== 'undefined') {
 
 /**
  * @class Logger
- * @description 一个为 ERA 框架设计的、支持动态配置的日志记录器。
+ * @description 一个为项目设计的、支持动态配置的日志记录器。
  *
  * **核心功能**:
  * 1. **动态调试**: 可通过浏览器控制台 `eraDebug('...')` 命令在运行时开启/关闭指定模块的 `debug` 日志。
- * 2. **统一格式**: 所有日志都遵循 `《ERA》「模块名」【函数名】日志内容` 的格式。
+ * 2. **统一格式**: 所有日志都遵循 `《${PROJECT_NAME}》「模块名」【函数名】日志内容` 的格式。
  * 3. **自动模块名**: 自动从调用栈解析模块名，推荐在每个文件中创建独立的 logger 实例以保证准确性。
  *    例如: `const logger = new Logger();`
  */
@@ -168,50 +170,55 @@ export const logContext = {
 export class Logger {
   private moduleName: string;
 
-  constructor() {
-    // 自动从调用栈获取模块名，能有效避免因实例共享导致的模块名不准问题
-    this.moduleName = this._getModuleNameFromStack() || 'unknown';
+  /**
+   * 创建一个新的 Logger 实例。
+   * @param moduleName - 【请勿手动填写】此参数由 Webpack 构建过程自动注入，用于标识当前模块。
+   */
+  constructor(moduleName?: string) {
+    // 优先使用由 Webpack 注入的模块名，如果不存在，则回退到旧的堆栈解析方法（仅用于非打包环境）
+    this.moduleName = moduleName || this._getModuleNameFromStack() || 'unknown';
   }
 
   private _getModuleNameFromStack(): string | null {
     try {
       const stack = new Error().stack || '';
       // 智能寻找调用者：遍历堆栈，找到第一个不属于 log.ts 的、包含项目路径的行
-      const callerLine = stack
-        .split('\n')
-        .find(line => line.includes('/src/ERA变量框架/') && !line.includes('/utils/log.ts'));
+      const callerLine = stack.split('\n').find(
+        line =>
+          (line.includes(`/src/${PROJECT_NAME}/`) ||
+            line.includes(`/dist/${PROJECT_NAME}/`) ||
+            line.includes(`\\src\\${PROJECT_NAME}\\`) ||
+            line.includes(`\\dist\\${PROJECT_NAME}\\`)) &&
+          !line.includes('/utils/log.ts'),
+      );
 
       if (!callerLine) {
-        // 如果找不到，优雅降级
         return null;
       }
 
       // 更鲁棒的正则，用于从不同格式的堆栈行中提取路径
-      const match = callerLine.match(/src\/ERA变量框架\/([^?:\s)]+)/);
+      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
 
-      if (!match || !match[1]) {
-        // 如果正则匹配失败，优雅降级
+      if (!match || !match[2]) {
         return null;
       }
 
-      let path = match[1];
+      const path = match[2];
 
-      // 移除文件扩展名
-      path = path.replace(/\.(vue|ts|js)$/, '');
-      // 将 'src/ERA变量框架/' 替换为空，并用 '-' 替换 '/'
+      // 移除文件扩展名和 /index 后缀，并统一路径分隔符
       return path
-        .replace(/^src\/ERA变量框架\//, '')
-        .replace(/\/index$/, '')
-        .replace(/\//g, '-');
+        .replace(/\\/g, '/')
+        .replace(/\.(vue|ts|js)$/, '')
+        .replace(/\/index$/, '');
     } catch (e) {
-      console.error('《ERA-Log-Debug》: 解析模块名时发生意外错误。', e);
+      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
       return null;
     }
   }
 
   private formatMessage(funcName: string, message: any): string {
     const mkString = logContext.mk ? `（${logContext.mk}）` : '';
-    return `《ERA》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
   }
 
   debug(funcName: string, message: any, obj?: any) {

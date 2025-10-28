@@ -29,7 +29,9 @@ var __webpack_require__ = {};
 
 var __webpack_exports__ = {};
 
-const DEBUG_CONFIG_LS_KEY = "era_debug_config";
+const PROJECT_NAME = "幻想乡缘起-后台数据处理";
+
+const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
 
 let enabledPatterns = [];
 
@@ -43,7 +45,7 @@ function loadDebugConfig() {
     enabledPatterns = (config.enabled || []).map(toRegex);
     disabledPatterns = (config.disabled || []).map(toRegex);
   } catch (e) {
-    console.error("《ERA-Log》: 加载调试配置失败。", e);
+    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
     enabledPatterns = [];
     disabledPatterns = [];
   }
@@ -70,7 +72,7 @@ function updateConfig(newConfig) {
   };
   globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
   loadDebugConfig();
-  console.log(`%c《ERA-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
     "启用 (Enabled)": uniqueConfig.enabled,
     "禁用 (Disabled)": uniqueConfig.disabled
   });
@@ -107,7 +109,7 @@ if (typeof globalThis !== "undefined") {
     status() {
       const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
       const config = JSON.parse(configStr);
-      console.log(`%c《ERA-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
     },
     clear() {
       updateConfig({
@@ -125,31 +127,30 @@ const logContext = {
 
 class Logger {
   moduleName;
-  constructor() {
-    this.moduleName = this._getModuleNameFromStack() || "unknown";
+  constructor(moduleName) {
+    this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
   }
   _getModuleNameFromStack() {
     try {
       const stack = (new Error).stack || "";
-      const callerLine = stack.split("\n").find(line => line.includes("/src/ERA变量框架/") && !line.includes("/utils/log.ts"));
+      const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
       if (!callerLine) {
         return null;
       }
-      const match = callerLine.match(/src\/ERA变量框架\/([^?:\s)]+)/);
-      if (!match || !match[1]) {
+      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
+      if (!match || !match[2]) {
         return null;
       }
-      let path = match[1];
-      path = path.replace(/\.(vue|ts|js)$/, "");
-      return path.replace(/^src\/ERA变量框架\//, "").replace(/\/index$/, "").replace(/\//g, "-");
+      const path = match[2];
+      return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
     } catch (e) {
-      console.error("《ERA-Log-Debug》: 解析模块名时发生意外错误。", e);
+      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
       return null;
     }
   }
   formatMessage(funcName, message) {
     const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-    return `《ERA》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
   }
   debug(funcName, message, obj) {
     if (!isDebugEnabled(this.moduleName)) {
@@ -188,7 +189,7 @@ class Logger {
   }
 }
 
-const logger = new Logger;
+const logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
 
 function buildPrompt(runtime, stat) {
   const funcName = "buildPrompt";
@@ -244,7 +245,7 @@ function extractLeafs(mapGraph) {
   return leafs;
 }
 
-const legal_locations_logger = new Logger;
+const legal_locations_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/legal-locations");
 
 function getLegalLocations(stat) {
   const funcName = "getLegalLocations";
@@ -315,7 +316,7 @@ function seasonIndexOf(m) {
   return 3;
 }
 
-const processor_logger = new Logger;
+const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/time/processor");
 
 function processTime(stat, runtime) {
   const funcName = "processTime";
@@ -456,7 +457,7 @@ function processTime(stat, runtime) {
   }
 }
 
-const runtime_builder_logger = new Logger;
+const runtime_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder");
 
 function buildRuntime(stat, originalRuntime) {
   const funcName = "buildRuntime";
@@ -476,7 +477,7 @@ const PATH_RE = /^chars\.[^.]+\.好感度$/;
 
 const isTarget = path => PATH_RE.test(String(path || ""));
 
-const editLog_logger = new Logger;
+const editLog_logger = new Logger("幻想乡缘起-后台数据处理/utils/editLog");
 
 function parseEditLogString(logString) {
   try {
@@ -628,7 +629,7 @@ function findChangeByPath(logJson, targetPath) {
   return null;
 }
 
-const affection_processor_logger = new Logger;
+const affection_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor/affection-processor");
 
 function processAffection(stat, editLog) {
   const funcName = "processAffection";
@@ -792,7 +793,7 @@ const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
   reason
 });
 
-const format_logger = new Logger;
+const format_logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
 
 function firstVal(x) {
   return Array.isArray(x) ? x.length ? x[0] : "" : x;
@@ -879,7 +880,7 @@ function getStr(obj, path, fallback = "") {
   return toText(rawValue);
 }
 
-const location_logger = new Logger;
+const location_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor/normalizer/location");
 
 function normalizeLocationData(originalStat) {
   const funcName = "normalizeLocationData";
@@ -1018,7 +1019,7 @@ function normalizeLocationData(originalStat) {
   };
 }
 
-const stat_processor_logger = new Logger;
+const stat_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/stat-processor");
 
 function processStat(originalStat, editLog) {
   const funcName = "processStat";
@@ -1040,7 +1041,7 @@ function processStat(originalStat, editLog) {
   };
 }
 
-const runtime_logger = new Logger;
+const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
 
 function getRuntimeVar(path, defaultValue) {
   const funcName = "getRuntimeVar";
@@ -1144,7 +1145,7 @@ async function setRuntimeObject(runtimeObject, options) {
   }
 }
 
-const data_sender_logger = new Logger;
+const data_sender_logger = new Logger("幻想乡缘起-后台数据处理/core/data-sender");
 
 async function sendData(stat, runtime, originalPayload, changes) {
   const funcName = "sendData";
@@ -1167,7 +1168,7 @@ async function sendData(stat, runtime, originalPayload, changes) {
   data_sender_logger.log(funcName, "数据发送完毕。");
 }
 
-const _logger = new Logger;
+const _logger = new Logger("幻想乡缘起-后台数据处理");
 
 $(() => {
   _logger.log("main", "后台数据处理脚本加载");

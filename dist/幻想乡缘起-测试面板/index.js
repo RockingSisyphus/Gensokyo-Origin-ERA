@@ -66,7 +66,9 @@ __webpack_require__.d(area_namespaceObject, {
   statWorldMissing: () => statWorldMissing
 });
 
-const DEBUG_CONFIG_LS_KEY = "era_debug_config";
+const PROJECT_NAME = "幻想乡缘起-测试面板";
+
+const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
 
 let enabledPatterns = [];
 
@@ -80,7 +82,7 @@ function loadDebugConfig() {
     enabledPatterns = (config.enabled || []).map(toRegex);
     disabledPatterns = (config.disabled || []).map(toRegex);
   } catch (e) {
-    console.error("《ERA-Log》: 加载调试配置失败。", e);
+    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
     enabledPatterns = [];
     disabledPatterns = [];
   }
@@ -107,7 +109,7 @@ function updateConfig(newConfig) {
   };
   globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
   loadDebugConfig();
-  console.log(`%c《ERA-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
     "启用 (Enabled)": uniqueConfig.enabled,
     "禁用 (Disabled)": uniqueConfig.disabled
   });
@@ -144,7 +146,7 @@ if (typeof globalThis !== "undefined") {
     status() {
       const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
       const config = JSON.parse(configStr);
-      console.log(`%c《ERA-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
     },
     clear() {
       updateConfig({
@@ -162,31 +164,30 @@ const logContext = {
 
 class Logger {
   moduleName;
-  constructor() {
-    this.moduleName = this._getModuleNameFromStack() || "unknown";
+  constructor(moduleName) {
+    this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
   }
   _getModuleNameFromStack() {
     try {
       const stack = (new Error).stack || "";
-      const callerLine = stack.split("\n").find(line => line.includes("/src/ERA变量框架/") && !line.includes("/utils/log.ts"));
+      const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
       if (!callerLine) {
         return null;
       }
-      const match = callerLine.match(/src\/ERA变量框架\/([^?:\s)]+)/);
-      if (!match || !match[1]) {
+      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
+      if (!match || !match[2]) {
         return null;
       }
-      let path = match[1];
-      path = path.replace(/\.(vue|ts|js)$/, "");
-      return path.replace(/^src\/ERA变量框架\//, "").replace(/\/index$/, "").replace(/\//g, "-");
+      const path = match[2];
+      return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
     } catch (e) {
-      console.error("《ERA-Log-Debug》: 解析模块名时发生意外错误。", e);
+      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
       return null;
     }
   }
   formatMessage(funcName, message) {
     const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-    return `《ERA》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
   }
   debug(funcName, message, obj) {
     if (!isDebugEnabled(this.moduleName)) {
@@ -1244,14 +1245,24 @@ const statWorldMissing = {
   world: []
 };
 
-const logger = new Logger;
+const logger = new Logger("幻想乡缘起-测试面板/dev/utils");
 
 function addTestButtons(panel, title, configs, style) {
-  $("<div>").html(`<strong>${title}</strong>`).css({
+  const details = $("<details>").css({
     marginTop: "10px",
     borderTop: "1px solid #eee",
     paddingTop: "5px"
-  }).appendTo(panel);
+  });
+  $("<summary>").html(`<strong>${title}</strong>`).css({
+    cursor: "pointer",
+    userSelect: "none"
+  }).appendTo(details);
+  const buttonContainer = $("<div>").css({
+    display: "flex",
+    flexWrap: "wrap",
+    gap: "5px",
+    marginTop: "5px"
+  });
   configs.forEach(config => {
     $("<button>").text(config.text).css(style).on("click", async () => {
       logger.log("buttonClick", `触发测试: ${config.text}`);
@@ -1261,11 +1272,13 @@ function addTestButtons(panel, title, configs, style) {
       const eventType = config.eventType || "dev:fakeWriteDone";
       eventEmit(eventType, config.payload);
       toastr.success(`已发送测试事件: ${config.text}`);
-    }).appendTo(panel);
+    }).appendTo(buttonContainer);
   });
+  details.append(buttonContainer);
+  panel.append(details);
 }
 
-const panel_logger = new Logger;
+const panel_logger = new Logger("幻想乡缘起-测试面板/dev/panel");
 
 function createTestPanel() {
   const panel = $("<div>").attr("id", "demo-era-test-harness").css({
@@ -1273,14 +1286,15 @@ function createTestPanel() {
     top: "10px",
     left: "10px",
     zIndex: 9999,
-    background: "rgba(255, 255, 255, 0.9)",
-    border: "1px solid #ccc",
+    background: "rgba(40, 40, 40, 0.95)",
+    color: "#f0f0f0",
+    border: "1px solid #555",
     padding: "10px",
     borderRadius: "5px",
     display: "flex",
     flexDirection: "column",
     gap: "5px",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.2)"
+    boxShadow: "0 2px 10px rgba(0,0,0,0.5)"
   }).appendTo($("body"));
   const uiTestConfigs = [ {
     text: "标准UI",
@@ -1307,8 +1321,9 @@ function createTestPanel() {
   addTestButtons(panel, "UI 测试", uiTestConfigs, {
     cursor: "pointer",
     padding: "8px 12px",
-    border: "1px solid #ddd",
-    background: "#f0f0f0",
+    border: "1px solid #666",
+    background: "#444",
+    color: "#eee",
     borderRadius: "4px"
   });
   const coreTestConfigs = [ {
@@ -1318,8 +1333,9 @@ function createTestPanel() {
   addTestButtons(panel, "Core 逻辑测试", coreTestConfigs, {
     cursor: "pointer",
     padding: "8px 12px",
-    border: "1px solid #aed581",
-    background: "#dcedc8",
+    border: "1px solid #5c8b2e",
+    background: "#385923",
+    color: "#dcedc8",
     borderRadius: "4px",
     fontWeight: "bold"
   });
@@ -1330,8 +1346,9 @@ function createTestPanel() {
   addTestButtons(panel, "时间模块测试", timeTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
-    border: "1px solid #bcaaa4",
-    background: "#efebe9",
+    border: "1px solid #8c7b75",
+    background: "#5d4037",
+    color: "#efebe9",
     borderRadius: "3px",
     fontSize: "12px"
   });
@@ -1344,8 +1361,9 @@ function createTestPanel() {
   addTestButtons(panel, "地区模块测试", areaTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
-    border: "1px solid #81d4fa",
-    background: "#e1f5fe",
+    border: "1px solid #0288d1",
+    background: "#01579b",
+    color: "#e1f5fe",
     borderRadius: "3px",
     fontSize: "12px"
   });
@@ -1356,8 +1374,9 @@ function createTestPanel() {
   addTestButtons(panel, "Normalizer 模块测试", normalizerTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
-    border: "1px solid #ffab91",
-    background: "#fbe9e7",
+    border: "1px solid #d84315",
+    background: "#bf360c",
+    color: "#fbe9e7",
     borderRadius: "3px",
     fontSize: "12px"
   });
@@ -1368,8 +1387,9 @@ function createTestPanel() {
   addTestButtons(panel, "好感度模块测试", affectionTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
-    border: "1px solid #ce93d8",
-    background: "#f3e5f5",
+    border: "1px solid #7b1fa2",
+    background: "#4a148c",
+    color: "#f3e5f5",
     borderRadius: "3px",
     fontSize: "12px"
   });
@@ -1393,7 +1413,7 @@ function cleanupDevPanel() {
   $(window).off("pagehide.devpanel");
 }
 
-const _logger = new Logger;
+const _logger = new Logger("幻想乡缘起-测试面板");
 
 $(() => {
   _logger.log("main", "测试面板脚本加载");

@@ -23,14 +23,15 @@ function createTestPanel() {
       top: '10px',
       left: '10px',
       zIndex: 9999,
-      background: 'rgba(255, 255, 255, 0.9)',
-      border: '1px solid #ccc',
+      background: 'rgba(40, 40, 40, 0.95)', // 深色背景
+      color: '#f0f0f0', // 浅色字体
+      border: '1px solid #555', // 深色边框
       padding: '10px',
       borderRadius: '5px',
       display: 'flex',
       flexDirection: 'column',
       gap: '5px',
-      boxShadow: '0 2px 10px rgba(0,0,0,0.2)',
+      boxShadow: '0 2px 10px rgba(0,0,0,0.5)',
     })
     .appendTo($('body'));
 
@@ -55,8 +56,9 @@ function createTestPanel() {
   addTestButtons(panel, 'UI 测试', uiTestConfigs, {
     cursor: 'pointer',
     padding: '8px 12px',
-    border: '1px solid #ddd',
-    background: '#f0f0f0',
+    border: '1px solid #666',
+    background: '#444',
+    color: '#eee',
     borderRadius: '4px',
   });
 
@@ -65,8 +67,9 @@ function createTestPanel() {
   addTestButtons(panel, 'Core 逻辑测试', coreTestConfigs, {
     cursor: 'pointer',
     padding: '8px 12px',
-    border: '1px solid #aed581',
-    background: '#dcedc8',
+    border: '1px solid #5c8b2e',
+    background: '#385923',
+    color: '#dcedc8',
     borderRadius: '4px',
     fontWeight: 'bold',
   });
@@ -75,13 +78,13 @@ function createTestPanel() {
   const timeTestConfigs: TestButtonConfig[] = Object.entries(timeTestPayloads).map(([key, payload]) => ({
     text: key,
     payload,
-    // beforeTest 逻辑已移除，因为 runtime 现在是事件 payload 的一部分
   }));
   addTestButtons(panel, '时间模块测试', timeTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
-    border: '1px solid #bcaaa4',
-    background: '#efebe9',
+    border: '1px solid #8c7b75',
+    background: '#5d4037',
+    color: '#efebe9',
     borderRadius: '3px',
     fontSize: '12px',
   });
@@ -94,8 +97,9 @@ function createTestPanel() {
   addTestButtons(panel, '地区模块测试', areaTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
-    border: '1px solid #81d4fa',
-    background: '#e1f5fe',
+    border: '1px solid #0288d1',
+    background: '#01579b',
+    color: '#e1f5fe',
     borderRadius: '3px',
     fontSize: '12px',
   });
@@ -108,8 +112,9 @@ function createTestPanel() {
   addTestButtons(panel, 'Normalizer 模块测试', normalizerTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
-    border: '1px solid #ffab91',
-    background: '#fbe9e7',
+    border: '1px solid #d84315',
+    background: '#bf360c',
+    color: '#fbe9e7',
     borderRadius: '3px',
     fontSize: '12px',
   });
@@ -122,8 +127,9 @@ function createTestPanel() {
   addTestButtons(panel, '好感度模块测试', affectionTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
-    border: '1px solid #ce93d8',
-    background: '#f3e5f5',
+    border: '1px solid #7b1fa2',
+    background: '#4a148c',
+    color: '#f3e5f5',
     borderRadius: '3px',
     fontSize: '12px',
   });
