@@ -449,6 +449,228 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
+const DEFAULT_INCIDENT_CONFIG = {
+  cooldownMinutes: 10080,
+  isRandomPool: true,
+  forceTrigger: false,
+  pool: [],
+  randomCore: [ "季节", "结界", "妖气", "梦境", "影子", "星光", "时间", "语言", "乐声", "香气" ],
+  randomType: [ "错乱", "逆流", "溢出", "停滞", "偏移", "回响", "侵染", "共鸣", "倒置", "反噬" ]
+};
+
+const DEFAULT_RANDOM_CORE = DEFAULT_INCIDENT_CONFIG.randomCore;
+
+const DEFAULT_RANDOM_TYPE = DEFAULT_INCIDENT_CONFIG.randomType;
+
+const strip = inputString => {
+  try {
+    const match = String(inputString || "").match(/^\s*```(?:json)?\s*([\s\S]*?)\s*```/i);
+    return match ? match[1] : String(inputString || "");
+  } catch (_) {
+    return String(inputString || "");
+  }
+};
+
+const asArray = value => Array.isArray(value) ? value.map(item => String(item)) : value == null || value === "" ? [] : [ String(value) ];
+
+const pick = array => Array.isArray(array) && array.length ? array[Math.floor(Math.random() * array.length)] : undefined;
+
+const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/mixed-processor/incident/processor");
+
+function getIncidentConfig(stat) {
+  const userConfig = external_default().get(stat, "config.incident", {});
+  return {
+    ...DEFAULT_INCIDENT_CONFIG,
+    ...userConfig
+  };
+}
+
+function getCurrentIncident(stat) {
+  const allIncidents = external_default().get(stat, "incidents", {});
+  for (const name in allIncidents) {
+    const incident = allIncidents[name];
+    if (incident && typeof incident === "object" && !Array.isArray(incident) && incident["异变进程"] === "进行中") {
+      return {
+        name,
+        status: "进行中",
+        detail: String(incident["异变细节"] || ""),
+        solver: asArray(incident["异变退治者"]),
+        mainLoc: asArray(incident["主要地区"]),
+        isFinished: !!incident["异变已结束"],
+        raw: incident
+      };
+    }
+  }
+  return null;
+}
+
+function getAvailableIncidents(stat) {
+  const {pool} = getIncidentConfig(stat);
+  const allIncidents = external_default().get(stat, "incidents", {});
+  const existingNames = new Set(Object.keys(allIncidents));
+  return pool.map(item => ({
+    name: String(item?.name || "").trim(),
+    detail: String(item?.detail || "").trim(),
+    mainLoc: asArray(item?.mainLoc)
+  })).filter(item => item.name && !existingNames.has(item.name));
+}
+
+function spawnRandomIncident(runtime, stat) {
+  const {randomCore, randomType} = getIncidentConfig(stat);
+  const legalLocations = external_default().get(runtime, "legal_locations", [ "博丽神社" ]);
+  const baseLocation = pick(legalLocations) || "博丽神社";
+  const newIncidentName = `${baseLocation}${pick(randomCore)}${pick(randomType)}异变`;
+  return {
+    name: newIncidentName,
+    detail: "",
+    mainLoc: [ baseLocation ]
+  };
+}
+
+function shouldTriggerNewIncident(runtime, stat) {
+  const {cooldownMinutes, forceTrigger} = getIncidentConfig(stat);
+  const timeProgress = external_default().get(stat, "世界.timeProgress", 0);
+  let anchor = external_default().get(runtime, "incident.incidentCooldownAnchor", null);
+  if (getCurrentIncident(stat)) {
+    return {
+      trigger: false,
+      anchor: null
+    };
+  }
+  if (anchor === null) {
+    anchor = timeProgress;
+  }
+  const remainingCooldown = cooldownMinutes - (timeProgress - anchor);
+  processor_logger.debug("shouldTriggerNewIncident", `冷却锚点: ${anchor}, 剩余冷却: ${remainingCooldown} 分钟`);
+  return {
+    trigger: forceTrigger || remainingCooldown <= 0,
+    anchor
+  };
+}
+
+function getContinueDecision(stat) {
+  const currentIncident = getCurrentIncident(stat);
+  const {pool} = getIncidentConfig(stat);
+  const poolEntry = pool.find(item => item.name === currentIncident.name);
+  currentIncident.detail = poolEntry?.detail || currentIncident.detail;
+  processor_logger.log("getContinueDecision", `推进异变《${currentIncident.name}》，地点:`, currentIncident.mainLoc);
+  return {
+    decision: "continue",
+    current: currentIncident,
+    solver: currentIncident.solver || [],
+    changes: []
+  };
+}
+
+function getStartNewDecision(runtime, stat) {
+  const {isRandomPool} = getIncidentConfig(stat);
+  const availablePool = getAvailableIncidents(stat);
+  let newIncident;
+  const nextFromPool = isRandomPool ? pick(availablePool) : availablePool[0];
+  if (nextFromPool) {
+    newIncident = nextFromPool;
+  } else {
+    newIncident = spawnRandomIncident(runtime, stat);
+  }
+  if (newIncident.mainLoc.length === 0) {
+    newIncident.mainLoc = [ "博丽神社" ];
+  }
+  processor_logger.log("getStartNewDecision", `开启新异变《${newIncident.name}》，地点:`, newIncident.mainLoc);
+  const path = `incidents.${newIncident.name}`;
+  const newValue = {
+    异变进程: "进行中",
+    异变细节: newIncident.detail,
+    主要地区: newIncident.mainLoc,
+    异变已结束: false
+  };
+  const oldValue = external_default().get(stat, path);
+  external_default().set(stat, path, newValue);
+  const change = createChangeLogEntry("incident-processor", path, oldValue, newValue, `冷却结束，触发新异变`);
+  return {
+    decision: "start_new",
+    spawn: newIncident,
+    changes: [ change ]
+  };
+}
+
+function getDailyDecision(runtime, stat) {
+  const {cooldownMinutes} = getIncidentConfig(stat);
+  const timeProgress = external_default().get(stat, "世界.timeProgress", 0);
+  const anchor = external_default().get(runtime, "incident.incidentCooldownAnchor", timeProgress);
+  const remainingCooldown = Math.max(0, cooldownMinutes - (timeProgress - anchor));
+  processor_logger.log("getDailyDecision", "日常剧情，新异变冷却中。");
+  return {
+    decision: "daily",
+    remainingCooldown,
+    changes: []
+  };
+}
+
+function processIncident({runtime, stat}) {
+  const funcName = "processIncident";
+  processor_logger.debug(funcName, "开始异变处理...");
+  const newStat = external_default().cloneDeep(stat);
+  try {
+    const currentIncident = getCurrentIncident(newStat);
+    const {trigger: shouldTrigger, anchor: newAnchor} = shouldTriggerNewIncident(runtime, newStat);
+    let decisionResult;
+    if (currentIncident) {
+      decisionResult = getContinueDecision(newStat);
+    } else if (shouldTrigger) {
+      decisionResult = getStartNewDecision(runtime, newStat);
+    } else {
+      decisionResult = getDailyDecision(runtime, newStat);
+    }
+    const {decision, current, solver, spawn, remainingCooldown, changes} = decisionResult;
+    runtime.incident = {
+      decision,
+      current,
+      solver,
+      spawn,
+      remainingCooldown,
+      incidentCooldownAnchor: newAnchor,
+      isIncidentActive: !!currentIncident
+    };
+    processor_logger.debug(funcName, "异变处理完成, runtime.incident=", runtime.incident);
+    return {
+      runtime,
+      stat: newStat,
+      changes
+    };
+  } catch (err) {
+    processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    runtime.incident = {};
+    return {
+      runtime,
+      stat,
+      changes: []
+    };
+  }
+}
+
+const mixed_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/mixed-processor");
+
+function processMixed({runtime, stat}) {
+  const funcName = "processMixed";
+  mixed_processor_logger.log(funcName, "开始执行混合处理模块...");
+  let currentStat = external_default().cloneDeep(stat);
+  let currentRuntime = external_default().cloneDeep(runtime);
+  let allChanges = [];
+  const incidentResult = processIncident({
+    runtime: currentRuntime,
+    stat: currentStat
+  });
+  currentRuntime = incidentResult.runtime;
+  currentStat = incidentResult.stat;
+  allChanges = allChanges.concat(incidentResult.changes);
+  mixed_processor_logger.log(funcName, "混合处理模块执行完毕。");
+  return {
+    runtime: currentRuntime,
+    stat: currentStat,
+    changes: allChanges
+  };
+}
+
 const festival_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/festival");
 
 function buildFestivalPrompt({runtime}) {
@@ -1056,7 +1278,7 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/festival/processor");
+const festival_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/festival/processor");
 
 function processFestival({runtime, stat}) {
   const funcName = "processFestival";
@@ -1071,11 +1293,11 @@ function processFestival({runtime, stat}) {
     const currentDay = external_default().get(runtime, "clock.now.day");
     const festivalList = external_default().get(stat, "festivals_list", []);
     if (!currentMonth || !currentDay || !Array.isArray(festivalList) || festivalList.length === 0) {
-      processor_logger.debug(funcName, "日期信息不完整或节日列表为空，写入默认节日信息。");
+      festival_processor_logger.debug(funcName, "日期信息不完整或节日列表为空，写入默认节日信息。");
       external_default().set(runtime, "festival", defaultFestivalInfo);
       return runtime;
     }
-    processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
+    festival_processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
     const todayFest = festivalList.find(fest => toNumber(fest.month) === currentMonth && toNumber(fest.start_day) <= currentDay && currentDay <= toNumber(fest.end_day)) || null;
     const todayDayOfYear = dayOfYear(currentMonth, currentDay);
     let nextFest = null;
@@ -1114,10 +1336,10 @@ function processFestival({runtime, stat}) {
       } : null
     };
     external_default().set(runtime, "festival", festivalInfo);
-    processor_logger.debug(funcName, "节日数据处理完成，写入 runtime 的数据：", festivalInfo);
+    festival_processor_logger.debug(funcName, "节日数据处理完成，写入 runtime 的数据：", festivalInfo);
     return runtime;
   } catch (err) {
-    processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    festival_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
     external_default().set(runtime, "festival", defaultFestivalInfo);
     return runtime;
   }
@@ -1862,25 +2084,33 @@ $(() => {
     const {statWithoutMeta, mk, editLogs} = payload;
     _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
     const currentEditLog = editLogs?.[mk];
-    const {processedStat, changes: statChanges} = processStat({
+    let {processedStat, changes: statChanges} = processStat({
       originalStat: statWithoutMeta,
       editLog: currentEditLog
     });
     const prevRuntime = getRuntimeObject();
+    const mixedResult = processMixed({
+      runtime: prevRuntime,
+      stat: processedStat
+    });
+    const mixedProcessedStat = mixedResult.stat;
+    const mixedProcessedRuntime = mixedResult.runtime;
+    const mixedChanges = mixedResult.changes;
+    const allChanges = statChanges.concat(mixedChanges);
     const newRuntime = await buildRuntime({
-      stat: processedStat,
-      runtime: prevRuntime
+      stat: mixedProcessedStat,
+      runtime: mixedProcessedRuntime
     });
     const prompt = buildPrompt({
       runtime: newRuntime,
-      stat: processedStat
+      stat: mixedProcessedStat
     });
     _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
     await sendData({
-      stat: processedStat,
+      stat: mixedProcessedStat,
       runtime: newRuntime,
       eraPayload: payload,
-      changes: statChanges
+      changes: allChanges
     });
     _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
       finalRuntime: newRuntime

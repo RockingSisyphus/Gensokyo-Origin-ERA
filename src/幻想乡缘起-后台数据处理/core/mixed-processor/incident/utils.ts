@@ -20,11 +20,7 @@ export const strip = (inputString: string): string => {
  * @returns 字符串数组
  */
 export const asArray = (value: any): string[] =>
-  Array.isArray(value)
-    ? value.map((item) => String(item))
-    : value == null || value === ''
-    ? []
-    : [String(value)];
+  Array.isArray(value) ? value.map(item => String(item)) : value == null || value === '' ? [] : [String(value)];
 
 /**
  * @description 从数组中随机选一个元素
@@ -32,6 +28,4 @@ export const asArray = (value: any): string[] =>
  * @returns 随机选中的元素
  */
 export const pick = <T>(array: T[]): T | undefined =>
-  Array.isArray(array) && array.length
-    ? array[Math.floor(Math.random() * array.length)]
-    : undefined;
+  Array.isArray(array) && array.length ? array[Math.floor(Math.random() * array.length)] : undefined;
