@@ -482,6 +482,16 @@ function buildFestivalPrompt({runtime}) {
   }
 }
 
+function buildLegalLocationsPrompt({runtime}) {
+  const legalLocations = external_default().get(runtime, "legal_locations");
+  if (external_default().isEmpty(legalLocations)) {
+    return "";
+  }
+  const locationsString = legalLocations.join(", ");
+  const prompt = `【合法地点】：以下是当前所有合法的地点名称：[${locationsString}]。在进行任何与地点相关的变量更新时, 你必须只能使用上述列表中的地点。`;
+  return prompt;
+}
+
 const route_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/route");
 
 function formatPath(path) {
@@ -576,6 +586,12 @@ function buildPrompt({runtime, stat}) {
   });
   if (routePrompt) {
     prompts.push(routePrompt);
+  }
+  const legalLocationsPrompt = buildLegalLocationsPrompt({
+    runtime
+  });
+  if (legalLocationsPrompt) {
+    prompts.push(legalLocationsPrompt);
   }
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.log(funcName, "提示词构建完毕。");

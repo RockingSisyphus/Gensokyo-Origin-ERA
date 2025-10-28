@@ -1,5 +1,6 @@
 import { Logger } from '../../utils/log';
 import { buildFestivalPrompt } from './festival';
+import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildRoutePrompt } from './route';
 import { buildTimePrompt } from './time';
 
@@ -33,6 +34,12 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const routePrompt = buildRoutePrompt({ runtime, stat });
   if (routePrompt) {
     prompts.push(routePrompt);
+  }
+
+  // 构建合法地点提示词
+  const legalLocationsPrompt = buildLegalLocationsPrompt({ runtime });
+  if (legalLocationsPrompt) {
+    prompts.push(legalLocationsPrompt);
   }
 
   const finalPrompt = prompts.join('\n\n');
