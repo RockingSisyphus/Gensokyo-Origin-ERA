@@ -4,6 +4,7 @@ import * as affectionTestData from './test-data/affection';
 import * as affectionLevelTestData from './test-data/affection-level';
 import * as areaTestData from './test-data/area';
 import * as festivalTestData from './test-data/festival';
+import { incidentTestData } from './test-data/incident';
 import {
   boundaryData,
   boundaryRuntime,
@@ -180,6 +181,21 @@ function createTestPanel() {
     border: '1px solid #ff6f00',
     background: '#e65100',
     color: '#fff3e0',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 异变模块测试 ---
+  const incidentTestConfigs: TestButtonConfig[] = Object.entries(incidentTestData).map(([key, data]) => ({
+    text: key,
+    payload: { statWithoutMeta: data.stat },
+  }));
+  addTestButtons(panel, '异变模块测试', incidentTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #b71c1c',
+    background: '#d32f2f',
+    color: '#ffebee',
     borderRadius: '3px',
     fontSize: '12px',
   });
