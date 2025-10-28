@@ -3,7 +3,6 @@ import { buildPrompt } from './core/prompt-builder';
 import { buildRuntime } from './core/runtime-builder';
 import { processStat } from './core/stat-processor';
 import { sendData } from './core/data-sender';
-import { cleanupDevPanel, initDevPanel } from './dev/panel';
 import { WriteDonePayload } from './utils/era';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
@@ -14,16 +13,16 @@ const logger = new Logger();
 $(() => {
   logger.log('main', '后台数据处理脚本加载');
 
-  // 初始化开发/测试模块
-  initDevPanel();
-
   // 定义核心数据处理函数
   const handleWriteDone = async (payload: WriteDonePayload) => {
-    const { statWithoutMeta } = payload;
+    const { statWithoutMeta, mk, editLogs } = payload;
     logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
 
+    // 根据当前 mk 获取对应的 editLog
+    const currentEditLog = (editLogs as any)?.[mk];
+
     // 1. Stat 处理
-    const processedStat = processStat(statWithoutMeta);
+    const { processedStat, changes: statChanges } = processStat(statWithoutMeta, currentEditLog);
 
     // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
     const prevRuntime = getRuntimeObject();
@@ -35,7 +34,7 @@ $(() => {
     const prompt = buildPrompt(newRuntime, processedStat);
 
     // 5. 数据写入/发送
-    await sendData(processedStat, newRuntime, payload);
+    await sendData(processedStat, newRuntime, payload, statChanges);
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
       finalRuntime: newRuntime,
@@ -57,9 +56,6 @@ $(() => {
   // 脚本卸载时的清理工作
   $(window).on('pagehide.main', () => {
     logger.log('main', '后台数据处理脚本卸载');
-
-    // 清理开发/测试模块
-    cleanupDevPanel();
 
     // 在这里可以清理其他核心模块
     // import { cleanupCore } from './core/main';

@@ -294,7 +294,147 @@
       }
     }
   },
-  789: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+  42: (__unused_webpack_module, exports) => {
+    var __webpack_unused_export__;
+    __webpack_unused_export__ = {
+      value: true
+    };
+    exports.A = (sfc, props) => {
+      const target = sfc.__vccOpts || sfc;
+      for (const [key, val] of props) {
+        target[key] = val;
+      }
+      return target;
+    };
+  },
+  494: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      Jt: () => get,
+      Qq: () => text,
+      Tu: () => getRaw,
+      UY: () => getStr,
+      fE: () => toText
+    });
+    var _log__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(39);
+    const logger = new _log__WEBPACK_IMPORTED_MODULE_0__.V;
+    function firstVal(x) {
+      return Array.isArray(x) ? x.length ? x[0] : "" : x;
+    }
+    function get(obj, path, fallback = "") {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            logger.debug("get", "未找到键，使用默认值。", {
+              路径: String(path),
+              缺失键: String(k),
+              默认值: fallback
+            });
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        const v = firstVal(cur);
+        if (v == null) {
+          logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+            路径: String(path),
+            默认值: fallback
+          });
+          return fallback;
+        }
+        return v;
+      } catch (e) {
+        logger.error("get", "异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function text(id, raw) {
+      const el = document.getElementById(id);
+      if (!el) {
+        logger.warn("text", "目标元素不存在，跳过写入。", {
+          元素ID: id
+        });
+        return;
+      }
+      el.textContent = toText(raw);
+    }
+    function getRaw(obj, path, fallback = null) {
+      try {
+        const ks = Array.isArray(path) ? path : String(path).split(".");
+        let cur = obj;
+        for (const k of ks) {
+          if (!cur || typeof cur !== "object" || !(k in cur)) {
+            return fallback;
+          }
+          cur = cur[k];
+        }
+        return cur == null ? fallback : cur;
+      } catch (e) {
+        logger.error("getRaw", "异常，使用默认值。", {
+          路径: String(path),
+          异常: String(e),
+          默认值: fallback
+        });
+        return fallback;
+      }
+    }
+    function toText(v) {
+      if (v == null || v === "") return "—";
+      if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+      if (typeof v === "object") return JSON.stringify(v);
+      return String(v);
+    }
+    function getStr(obj, path, fallback = "") {
+      const rawValue = getRaw(obj, path, null);
+      if (rawValue === null) {
+        return toText(fallback);
+      }
+      return toText(rawValue);
+    }
+  },
+  728: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
+    __webpack_require__.d(__webpack_exports__, {
+      M: () => ERA_VARIABLE_PATH
+    });
+    const ERA_VARIABLE_PATH = {
+      MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
+      FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
+      UI_THEME: "config.ui.theme",
+      MAP_ASCII: "world.map_ascii",
+      MAP_GRAPH: "world.map_graph",
+      FALLBACK_PLACE: "world.fallbackPlace",
+      INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
+      INCIDENT_RANDOM_POOL: "config.incident.random_pool",
+      RUNTIME_PREFIX: "runtime.",
+      INCIDENT_COOLDOWN: "config.incident.cooldown",
+      TIME_PROGRESS: "世界.timeProgress",
+      FESTIVALS_LIST: "festivals_list",
+      NEWS_TEXT: "文文新闻",
+      EXTRA_MAIN: "附加正文",
+      USER_LOCATION: "user.所在地区",
+      USER_HOME: "user.居住地区",
+      CHARS: "chars",
+      CHAR_HOME: "居住地区",
+      CHAR_LOCATION: "所在地区",
+      CHAR_AFFECTION: "好感度",
+      USER_DATA: "user",
+      USER_EVENTS: "重要经历",
+      USER_RELATIONSHIPS: "人际关系",
+      SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
+      SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
+      UI_RIBBON_STEP: "config.ui.ribbonStep",
+      AFFECTION_STAGES: "config.affection.affectionStages",
+      AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
+      AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
+      CONFIG_ROOT: "config"
+    };
+  },
+  729: (__unused_webpack_module, __webpack_exports__, __webpack_require__) => {
     __webpack_require__.r(__webpack_exports__);
     __webpack_require__.d(__webpack_exports__, {
       burstBarParticles: () => burstBarParticles,
@@ -307,9 +447,9 @@
       runAffectionPipeline: () => runAffectionPipeline,
       stageLabelFrom: () => stageLabelFrom
     });
-    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(444);
-    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(306);
-    var _utils_log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(595);
+    var _utils_constants__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(728);
+    var _utils_format__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(494);
+    var _utils_log__WEBPACK_IMPORTED_MODULE_2__ = __webpack_require__(39);
     const AFFECTION_STYLE_ID = "era-affection-style";
     function ensureAffectionStyles() {
       if (document.getElementById(AFFECTION_STYLE_ID)) return;
@@ -587,11 +727,11 @@ var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
 
-var constants = __webpack_require__(444);
+var constants = __webpack_require__(728);
 
-var format = __webpack_require__(306);
+var format = __webpack_require__(494);
 
-var log = __webpack_require__(595);
+var log = __webpack_require__(39);
 
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
@@ -1853,7 +1993,7 @@ const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_s
 
 const StatusTabContent = StatusTabContent_exports_;
 
-var affection = __webpack_require__(789);
+var affection = __webpack_require__(729);
 
 const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "aff-num"
@@ -3093,7 +3233,7 @@ $(() => {
       }
       try {
         logger.log(funcName, "准备执行后台流水线：好感等级 + 进度条着色");
-        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 789)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
+        Promise.resolve().then(__webpack_require__.bind(__webpack_require__, 729)).then(mod => mod?.runAffectionPipeline?.(context)).then(() => logger.log(funcName, "好感流水线执行完成。")).catch(e => logger.warn(funcName, "好感流水线执行异常（非致命）。", e));
       } catch (e) {
         logger.warn(funcName, "好感流水线调度异常（已忽略）。", e);
       }

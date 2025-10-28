@@ -106,6 +106,7 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
   const script_filepath = path.parse(entry.script);
 
   return (_env, argv) => ({
+    cache: argv.mode === 'production' ? false : undefined,
     experiments: {
       outputModule: true,
     },

@@ -1,5 +1,6 @@
 import { Logger } from '../utils/log';
 import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './payloads';
+import * as affectionTestData from './test-data/affection';
 import * as areaTestData from './test-data/area';
 import {
   boundaryData,
@@ -109,6 +110,20 @@ function createTestPanel() {
     padding: '5px 10px',
     border: '1px solid #ffab91',
     background: '#fbe9e7',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 好感度模块测试 ---
+  const affectionTestConfigs: TestButtonConfig[] = Object.entries(affectionTestData).map(([key, payload]) => ({
+    text: key,
+    payload,
+  }));
+  addTestButtons(panel, '好感度模块测试', affectionTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #ce93d8',
+    background: '#f3e5f5',
     borderRadius: '3px',
     fontSize: '12px',
   });
