@@ -785,7 +785,7 @@ async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
   character_processor_logger.log(funcName, "开始处理角色决策...");
   try {
-    const processedRuntime = preprocess({
+    const {runtime: processedRuntime} = preprocess({
       runtime,
       stat
     });

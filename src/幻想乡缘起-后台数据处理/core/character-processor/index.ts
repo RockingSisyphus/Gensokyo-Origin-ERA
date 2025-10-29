@@ -23,7 +23,7 @@ export async function processCharacterDecisions({ stat, runtime }: { stat: any; 
 
   try {
     // 1. 预处理
-  const processedRuntime = preprocess({ runtime, stat });
+  const { runtime: processedRuntime } = preprocess({ runtime, stat });
 
   // 2. 角色分组
   const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
