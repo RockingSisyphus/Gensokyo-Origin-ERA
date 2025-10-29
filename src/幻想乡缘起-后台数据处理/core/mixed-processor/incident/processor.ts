@@ -77,20 +77,33 @@ function spawnRandomIncident(runtime: any, stat: any): Incident {
 function shouldTriggerNewIncident(runtime: any, stat: any): { trigger: boolean; anchor: number | null } {
   const { cooldownMinutes, forceTrigger } = getIncidentConfig(stat);
   const timeProgress = _.get(stat, '世界.timeProgress', 0);
-  let anchor = _.get(runtime, 'incident.incidentCooldownAnchor', null);
+  const anchor = _.get(runtime, 'incident.incidentCooldownAnchor', null);
 
   if (getCurrentIncident(stat)) {
     return { trigger: false, anchor: null };
   }
 
-  if (anchor === null) {
-    anchor = timeProgress;
+  // 强制触发，触发后清除锚点，进入无锚点状态
+  if (forceTrigger) {
+    return { trigger: true, anchor: null };
   }
 
+  // 首次运行，不触发，但提议设置新锚点
+  if (anchor === null) {
+    return { trigger: false, anchor: timeProgress };
+  }
+
+  // 非首次运行，计算冷却
   const remainingCooldown = cooldownMinutes - (timeProgress - anchor);
   logger.debug('shouldTriggerNewIncident', `冷却锚点: ${anchor}, 剩余冷却: ${remainingCooldown} 分钟`);
 
-  return { trigger: forceTrigger || remainingCooldown <= 0, anchor };
+  if (remainingCooldown <= 0) {
+    // 冷却结束，触发并提议清除锚点
+    return { trigger: true, anchor: null };
+  } else {
+    // 冷却中，不触发并保持旧锚点
+    return { trigger: false, anchor: anchor };
+  }
 }
 
 /**

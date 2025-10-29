@@ -530,22 +530,38 @@ function spawnRandomIncident(runtime, stat) {
 function shouldTriggerNewIncident(runtime, stat) {
   const {cooldownMinutes, forceTrigger} = getIncidentConfig(stat);
   const timeProgress = external_default().get(stat, "世界.timeProgress", 0);
-  let anchor = external_default().get(runtime, "incident.incidentCooldownAnchor", null);
+  const anchor = external_default().get(runtime, "incident.incidentCooldownAnchor", null);
   if (getCurrentIncident(stat)) {
     return {
       trigger: false,
       anchor: null
     };
   }
+  if (forceTrigger) {
+    return {
+      trigger: true,
+      anchor: null
+    };
+  }
   if (anchor === null) {
-    anchor = timeProgress;
+    return {
+      trigger: false,
+      anchor: timeProgress
+    };
   }
   const remainingCooldown = cooldownMinutes - (timeProgress - anchor);
   processor_logger.debug("shouldTriggerNewIncident", `冷却锚点: ${anchor}, 剩余冷却: ${remainingCooldown} 分钟`);
-  return {
-    trigger: forceTrigger || remainingCooldown <= 0,
-    anchor
-  };
+  if (remainingCooldown <= 0) {
+    return {
+      trigger: true,
+      anchor: null
+    };
+  } else {
+    return {
+      trigger: false,
+      anchor
+    };
+  }
 }
 
 function getContinueDecision(stat) {
