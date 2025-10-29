@@ -55,11 +55,7 @@ function areConditionsMet(entry: Entry, { runtime, stat }: { runtime: any; stat:
  * 从角色的行动列表中选择一个行动。
  * 优先级: specials > routine
  */
-function chooseAction(
-  charId: string,
-  char: Character,
-  { runtime, stat }: { runtime: any; stat: any },
-): Action | null {
+function chooseAction(charId: string, char: Character, { runtime, stat }: { runtime: any; stat: any }): Action | null {
   const funcName = 'chooseAction';
 
   // 1. 检查特殊行动 (specials)
@@ -67,7 +63,7 @@ function chooseAction(
   logger.debug(funcName, `角色 ${charId}: 开始检查 ${specials.length} 个特殊行动...`);
   const metSpecials = specials
     .map((entry, index) => ({ ...entry, originalIndex: index }))
-    .filter((entry) => {
+    .filter(entry => {
       const met = areConditionsMet(entry, { runtime, stat });
       if (met) {
         logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。`);
@@ -105,7 +101,11 @@ function chooseAction(
 /**
  * 常规行动决策处理器。
  */
-export function makeActionDecisions({ runtime, stat, remainingChars }: {
+export function makeActionDecisions({
+  runtime,
+  stat,
+  remainingChars,
+}: {
   runtime: any;
   stat: any;
   remainingChars: string[];

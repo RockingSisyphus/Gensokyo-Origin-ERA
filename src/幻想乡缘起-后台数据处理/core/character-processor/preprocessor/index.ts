@@ -52,45 +52,42 @@ export function preprocess({ runtime, stat }: { runtime: any; stat: any }): {
     const changes: ChangeLogEntry[] = [];
 
     const charIds = Object.keys(stat.chars);
-  const globalAffectionStages = getGlobalAffectionStages(stat);
+    const globalAffectionStages = getGlobalAffectionStages(stat);
 
-  for (const charId of charIds) {
-    const char = getChar(stat, charId);
-    if (!char) continue;
+    for (const charId of charIds) {
+      const char = getChar(stat, charId);
+      if (!char) continue;
 
-    // 1. 解析好感度等级并存入 runtime
-    const affectionStage = getAffectionStage(char, globalAffectionStages);
-    setAffectionStageInContext(newRuntime, charId, affectionStage);
+      // 1. 解析好感度等级并存入 runtime
+      const affectionStage = getAffectionStage(char, globalAffectionStages);
+      setAffectionStageInContext(newRuntime, charId, affectionStage);
 
-    if (affectionStage) {
-      logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
-    } else {
-      logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
-      continue;
-    }
+      if (affectionStage) {
+        logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
+      } else {
+        logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
+        continue;
+      }
 
-    // 2. 重置来访冷却
-    const coolUnit = _.get(affectionStage, 'visit.coolUnit');
-    const cooling = isVisitCooling(newRuntime, charId);
-    const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
+      // 2. 重置来访冷却
+      const coolUnit = _.get(affectionStage, 'visit.coolUnit');
+      const cooling = isVisitCooling(newRuntime, charId);
+      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
 
-    if (cooling && triggered) {
-      setVisitCooling(newRuntime, charId, false);
-      logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
-      const change: ChangeLogEntry = {
-        module: funcName,
-        path: VISIT_COOLING_IN_STATE_PATH(charId),
-        oldValue: true,
-        newValue: false,
-        reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`,
-      };
-      changes.push(change);
-    } else if (cooling) {
-      logger.debug(
-        funcName,
-        `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || '无'})。`,
-      );
-    }
+      if (cooling && triggered) {
+        setVisitCooling(newRuntime, charId, false);
+        logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
+        const change: ChangeLogEntry = {
+          module: funcName,
+          path: VISIT_COOLING_IN_STATE_PATH(charId),
+          oldValue: true,
+          newValue: false,
+          reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`,
+        };
+        changes.push(change);
+      } else if (cooling) {
+        logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || '无'})。`);
+      }
     }
 
     logger.log(funcName, '预处理执行完毕。');

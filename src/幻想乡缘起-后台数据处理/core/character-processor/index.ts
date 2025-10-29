@@ -9,42 +9,48 @@ const logger = new Logger();
 
 /**
  * 角色决策处理器主函数。
- * 
+ *
  * 依次执行预处理、角色分组、决策制定和结果聚合。
- * 
+ *
  * @param {object} params - 参数对象。
  * @param {any} params.stat - 完整的持久层数据。
  * @param {any} params.runtime - 完整的易失层数据。
  * @returns {Promise<any>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
-export async function processCharacterDecisions({ stat, runtime }: { stat: any; runtime: any }): Promise<{ stat: any; runtime: any }> {
+export async function processCharacterDecisions({
+  stat,
+  runtime,
+}: {
+  stat: any;
+  runtime: any;
+}): Promise<{ stat: any; runtime: any }> {
   const funcName = 'processCharacterDecisions';
   logger.log(funcName, '开始处理角色决策...');
 
   try {
     // 1. 预处理
-  const { runtime: processedRuntime } = preprocess({ runtime, stat });
+    const { runtime: processedRuntime } = preprocess({ runtime, stat });
 
-  // 2. 角色分组
-  const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
+    // 2. 角色分组
+    const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
 
-  // 3. 决策制定
-  const { companionDecisions, otherDecisions } = makeDecisions({
-    runtime: processedRuntime,
-    stat,
-    coLocatedChars,
-    remoteChars,
-  });
+    // 3. 决策制定
+    const { companionDecisions, otherDecisions } = makeDecisions({
+      runtime: processedRuntime,
+      stat,
+      coLocatedChars,
+      remoteChars,
+    });
 
-  // 4. 结果聚合
-  const { stat: finalStat, runtime: finalRuntime } = aggregateResults({
-    stat,
-    runtime: processedRuntime,
-    companionDecisions,
-    otherDecisions,
-  });
+    // 4. 结果聚合
+    const { stat: finalStat, runtime: finalRuntime } = aggregateResults({
+      stat,
+      runtime: processedRuntime,
+      companionDecisions,
+      otherDecisions,
+    });
 
-  logger.log(funcName, '角色决策处理完毕。');
+    logger.log(funcName, '角色决策处理完毕。');
 
     return { stat: finalStat, runtime: finalRuntime };
   } catch (e) {

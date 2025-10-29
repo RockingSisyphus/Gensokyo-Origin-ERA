@@ -12,7 +12,12 @@ const baseCharacterData = {
     },
     affection: {
       affectionStages: [
-        { threshold: 0, name: '陌生', patienceUnit: 'period', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
+        {
+          threshold: 0,
+          name: '陌生',
+          patienceUnit: 'period',
+          visit: { enabled: true, probBase: 1.0, coolUnit: 'day' },
+        },
         { threshold: 50, name: '熟悉', patienceUnit: 'day', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
       ],
     },
@@ -25,7 +30,7 @@ const baseCharacterData = {
     },
     // 移植自 area.ts 的 worldWithMapGraph
     map_graph: {
-      tree: { '幻想乡本土': { '东境丘陵带': ['博丽神社'], '魔法之森带': ['魔法之森'], '西北山地带': ['守矢神社'] } },
+      tree: { 幻想乡本土: { 东境丘陵带: ['博丽神社'], 魔法之森带: ['魔法之森'], 西北山地带: ['守矢神社'] } },
       edges: [
         { a: '博丽神社', b: '魔法之森', mode: ['fly'] },
         { a: '博丽神社', b: '守矢神社', mode: ['fly'] },
@@ -38,31 +43,31 @@ const baseCharacterData = {
     },
   },
   user: {
-    '所在地区': '博丽神社',
+    所在地区: '博丽神社',
   },
   chars: {
     reimu: {
-      '好感度': 60, // 熟悉, patienceUnit: 'day'
-      '所在地区': '博丽神社',
-      'routine': [{ when: { byFlag: ['newDay'] }, action: { to: '博丽神社', do: '打扫神社' } }],
+      好感度: 60, // 熟悉, patienceUnit: 'day'
+      所在地区: '博丽神社',
+      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '博丽神社', do: '打扫神社' } }],
     },
     marisa: {
-      '好感度': 20, // 陌生, patienceUnit: 'period'
-      '所在地区': '魔法森林',
-      'routine': [{ when: { byFlag: ['newDay'] }, action: { to: '魔法之森', do: '进行魔法研究' } }],
+      好感度: 20, // 陌生, patienceUnit: 'period'
+      所在地区: '魔法森林',
+      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '魔法之森', do: '进行魔法研究' } }],
     },
     sanae: {
-      '好感度': 10, // 陌生
-      'affectionStages': [
-        { threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: false } },
+      好感度: 10, // 陌生
+      affectionStages: [{ threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: false } }],
+      所在地区: '守矢神社',
+      specials: [
+        {
+          when: { byFestival: '夏日祭' },
+          priority: 10,
+          action: { to: '博丽神社', do: '参加祭典' },
+        },
       ],
-      '所在地区': '守矢神社',
-      'specials': [{
-        when: { byFestival: '夏日祭' },
-        priority: 10,
-        action: { to: '博丽神社', do: '参加祭典' },
-      }],
-      'routine': [{ when: { byFlag: ['newDay'] }, action: { to: '守矢神社', do: '进行风祝的修行' } }],
+      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '守矢神社', do: '进行风祝的修行' } }],
     },
   },
 };

@@ -43,7 +43,15 @@ function checkProbability(
 /**
  * 来访决策处理器。在异区角色中决定谁会前来拜访。
  */
-export function makeVisitDecisions({ runtime, stat, remoteChars }: { runtime: any; stat: any; remoteChars: string[] }): {
+export function makeVisitDecisions({
+  runtime,
+  stat,
+  remoteChars,
+}: {
+  runtime: any;
+  stat: any;
+  remoteChars: string[];
+}): {
   decisions: Record<string, any>;
   decidedChars: string[];
 } {

@@ -16,36 +16,36 @@ export function partitionCharacters({ stat }: { stat: any }): {
 
   try {
     const userLocation = getUserLocation(stat);
-  if (!userLocation) {
-    logger.warn(funcName, '无法找到主角位置，所有角色将被视为异区。');
-    const allChars = Object.keys(stat.chars || {});
-    logger.debug(funcName, `所有角色: [${allChars.join(', ')}]`);
-    return {
-      coLocatedChars: [],
-      remoteChars: allChars,
-    };
-  }
+    if (!userLocation) {
+      logger.warn(funcName, '无法找到主角位置，所有角色将被视为异区。');
+      const allChars = Object.keys(stat.chars || {});
+      logger.debug(funcName, `所有角色: [${allChars.join(', ')}]`);
+      return {
+        coLocatedChars: [],
+        remoteChars: allChars,
+      };
+    }
 
-  logger.debug(funcName, `主角当前位置: [${userLocation}]`);
+    logger.debug(funcName, `主角当前位置: [${userLocation}]`);
 
-  const charIds = Object.keys(stat.chars || {});
+    const charIds = Object.keys(stat.chars || {});
 
-  const partitions = _.partition(charIds, (charId) => {
-    const char = getChar(stat, charId);
-    const charLocation = getCharLocation(char);
-    logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation || '未知'}]`);
-    return charLocation === userLocation;
-  });
+    const partitions = _.partition(charIds, charId => {
+      const char = getChar(stat, charId);
+      const charLocation = getCharLocation(char);
+      logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation || '未知'}]`);
+      return charLocation === userLocation;
+    });
 
-  const coLocatedChars = partitions[0];
-  const remoteChars = partitions[1];
+    const coLocatedChars = partitions[0];
+    const remoteChars = partitions[1];
 
-  logger.log(
-    funcName,
-    `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(
-      ', ',
-    )}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(', ')}]`,
-  );
+    logger.log(
+      funcName,
+      `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(
+        ', ',
+      )}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(', ')}]`,
+    );
 
     return { coLocatedChars, remoteChars };
   } catch (e) {

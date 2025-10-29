@@ -52,10 +52,7 @@ export function makeDecisions({
     const allCharIds = _.union(coLocatedChars, remoteChars);
     // 真正剩余的、需要做常规决策且非相伴的角色
     const remainingChars = _.difference(allCharIds, visitingChars, companionChars);
-    logger.debug(
-      funcName,
-      `开始为 ${remainingChars.length} 个“常规”角色进行行动决策: [${remainingChars.join(', ')}]`,
-    );
+    logger.debug(funcName, `开始为 ${remainingChars.length} 个“常规”角色进行行动决策: [${remainingChars.join(', ')}]`);
     const { decisions: normalActionDecisions } = makeActionDecisions({ runtime, stat, remainingChars });
     logger.debug(funcName, '“常规”角色行动决策完毕。');
 

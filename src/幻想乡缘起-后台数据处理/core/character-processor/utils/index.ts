@@ -47,7 +47,10 @@ export function checkConditions(when: any, runtime: any): boolean {
  * @param context - 上下文对象，包含 `userLocation` 和 `graph` 等信息。
  * @returns 解析后的具体地点名称。
  */
-export function resolveLocation(to: string, context: { userLocation: string; graph: any; currentLocation: string }): string {
+export function resolveLocation(
+  to: string,
+  context: { userLocation: string; graph: any; currentLocation: string },
+): string {
   // TODO: 实现完整的地点解析逻辑
   // 1. HERO
   // 2. FIXED:地点名
