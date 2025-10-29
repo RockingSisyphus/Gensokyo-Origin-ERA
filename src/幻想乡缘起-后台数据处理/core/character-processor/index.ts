@@ -29,10 +29,20 @@ export async function processCharacterDecisions({ stat, runtime }: { stat: any; 
   const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
 
   // 3. 决策制定
-  const decisions = makeDecisions({ runtime: processedRuntime, stat, coLocatedChars, remoteChars });
+  const { companionDecisions, otherDecisions } = makeDecisions({
+    runtime: processedRuntime,
+    stat,
+    coLocatedChars,
+    remoteChars,
+  });
 
   // 4. 结果聚合
-  const { stat: finalStat, runtime: finalRuntime } = aggregateResults({ stat, runtime: processedRuntime, decisions });
+  const { stat: finalStat, runtime: finalRuntime } = aggregateResults({
+    stat,
+    runtime: processedRuntime,
+    companionDecisions,
+    otherDecisions,
+  });
 
   logger.log(funcName, '角色决策处理完毕。');
 

@@ -181,15 +181,10 @@ export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
     };
 
     logger.log(funcName, '时间数据处理完成，返回待写入 runtime 的数据。');
-    _.merge(runtime, result);
-    return runtime;
+    return result;
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
-    // 失败时也要确保清理
-    if (runtime.clock) {
-      delete runtime.clock.now;
-      delete runtime.clock.flags;
-    }
-    return runtime;
+    // 失败时返回一个空的 clock 对象，以覆盖旧数据
+    return { clock: {} };
   }
 }

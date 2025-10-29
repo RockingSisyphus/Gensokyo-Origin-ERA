@@ -76,7 +76,7 @@ export function getRuntimeObject(): object {
     }
     const chatVars = getVariables({ type: 'chat' });
     const runtime = get(chatVars, ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {}); // 移除末尾的点
-    logger.log(funcName, '成功获取 runtime 对象', { runtime });
+    logger.debug(funcName, '成功获取 runtime 对象', { runtime });
     return runtime || {};
   } catch (error) {
     logger.error(funcName, '获取 runtime 对象失败', error);

@@ -100,15 +100,14 @@ export function processFestival({ runtime, stat }: { runtime: any; stat: any }):
           : null,
     };
 
-    // ---------- 5. 显式设置 runtime.festival 并返回 ----------
-    _.set(runtime, 'festival', festivalInfo);
+    // ---------- 5. 构造返回值 ----------
+    const result = { festival: festivalInfo };
 
-    logger.debug(funcName, '节日数据处理完成，写入 runtime 的数据：', festivalInfo);
-    return runtime;
+    logger.debug(funcName, '节日数据处理完成，返回待写入 runtime 的数据：', result);
+    return result;
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
-    // 即使失败，也写入默认值以确保覆盖
-    _.set(runtime, 'festival', defaultFestivalInfo);
-    return runtime;
+    // 失败时返回一个空的 festival 对象，以覆盖旧数据
+    return { festival: defaultFestivalInfo };
   }
 }

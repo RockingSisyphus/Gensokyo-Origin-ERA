@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromContext, PREDEFINED_ACTIONS } from '../../constants';
 
@@ -28,15 +27,14 @@ function isPatienceWindowHit(patienceUnit: string, flags: any): boolean {
 }
 
 /**
- * 相伴决策处理器。在同区角色中决定谁会继续与主角相伴。
+ * 相伴决策处理器。在同区角色中筛选出决定与主角相伴的角色。
  */
 export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: any; coLocatedChars: string[] }): {
-  decisions: Record<string, any>;
-  decidedChars: string[];
+  companionChars: string[];
 } {
   const funcName = 'makeCompanionDecisions';
-  const decisions: Record<string, any> = {};
-  const decidedChars: string[] = [];
+  // const companionDecisions: Record<string, any> = {}; // 暂时停用，目前只需要返回角色列表
+  const companionChars: string[] = [];
 
   for (const charId of coLocatedChars) {
     const affectionStage = getAffectionStageFromContext(runtime, charId);
@@ -50,14 +48,14 @@ export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: a
 
     // 如果未命中耐心窗口（即耐心未耗尽），则角色决定继续相伴
     if (!patienceHit) {
-      decisions[charId] = PREDEFINED_ACTIONS.STAY_WITH_HERO;
-      decidedChars.push(charId);
-      logger.log(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，决定继续与主角相伴。`);
+      // companionDecisions[charId] = { ...PREDEFINED_ACTIONS.STAY_WITH_HERO, isCompanion: true }; // 暂时停用
+      companionChars.push(charId);
+      logger.log(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，标记为“相伴”。`);
     } else {
       // 如果命中了耐心窗口，则耐心耗尽，不在此处做决定，交由 action-processor 处理
       logger.log(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);
     }
   }
 
-  return { decisions, decidedChars };
+  return { companionChars };
 }

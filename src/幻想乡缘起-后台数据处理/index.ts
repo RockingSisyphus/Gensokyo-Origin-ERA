@@ -30,25 +30,25 @@ $(() => {
 
     // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
     const prevRuntime = getRuntimeObject();
-
+    logger.log('handleWriteDone', '读取到上一层runtime域的对象...', prevRuntime);
     // 2.5. 混合处理（可能同时修改 stat 和 runtime）
     const mixedResult = processMixed({ runtime: prevRuntime, stat: processedStat });
     const mixedProcessedStat = mixedResult.stat;
     const mixedProcessedRuntime = mixedResult.runtime;
     const mixedChanges = mixedResult.changes;
-
+    logger.log('handleWriteDone', '完成混合处理的runtime域的对象...', mixedProcessedRuntime);
     // 合并所有 changes
     const allChanges = statChanges.concat(mixedChanges);
 
     // 3. Runtime 构建
     const builtRuntime = await buildRuntime({ stat: mixedProcessedStat, runtime: mixedProcessedRuntime });
-
+    logger.log('handleWriteDone', '完成build的runtime域的对象...', mixedProcessedRuntime);
     // 3.5. 角色决策处理
     const { stat: charProcessedStat, runtime: charProcessedRuntime } = await processCharacterDecisions({
       stat: mixedProcessedStat,
       runtime: builtRuntime,
     });
-
+    logger.log('handleWriteDone', '完成角色决策的runtime域的对象...', mixedProcessedRuntime);
     // 4. 提示词构建
     const prompt = buildPrompt({ runtime: charProcessedRuntime, stat: charProcessedStat });
     logger.log('handleWriteDone', '提示词构建完毕:', prompt);

@@ -20,11 +20,13 @@ export async function buildRuntime({ stat, runtime: originalRuntime }: { stat: a
   logger.log(funcName, 'processArea 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // time
-  runtime = processTime({ runtime, stat });
+  const timeResult = processTime({ runtime, stat });
+  runtime = Object.assign(runtime, timeResult);
   logger.log(funcName, 'processTime 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // festival
-  runtime = processFestival({ runtime, stat });
+  const festivalResult = processFestival({ runtime, stat });
+  runtime = Object.assign(runtime, festivalResult);
   logger.log(funcName, 'processFestival 处理完成。', { runtime: _.cloneDeep(runtime), stat: _.cloneDeep(stat) });
 
   // affection-level (暂时停用，其功能已移至 character-processor/preprocessor)
