@@ -3,6 +3,7 @@ import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './pay
 import * as affectionTestData from './test-data/affection';
 import * as affectionLevelTestData from './test-data/affection-level';
 import * as areaTestData from './test-data/area';
+import * as characterTestData from './test-data/character';
 import * as festivalTestData from './test-data/festival';
 import { incidentTestData } from './test-data/incident';
 import {
@@ -196,6 +197,21 @@ function createTestPanel() {
     border: '1px solid #b71c1c',
     background: '#d32f2f',
     color: '#ffebee',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 角色决策模块测试 ---
+  const characterTestConfigs: TestButtonConfig[] = Object.entries(characterTestData).map(([key, statData]) => ({
+    text: key.replace('charTest_', ''), // 移除前缀以简化按钮文本
+    payload: { statWithoutMeta: statData },
+  }));
+  addTestButtons(panel, '角色决策模块测试', characterTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #283593',
+    background: '#1a237e',
+    color: '#e8eaf6',
     borderRadius: '3px',
     fontSize: '12px',
   });

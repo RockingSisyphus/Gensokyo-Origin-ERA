@@ -1,3 +1,5 @@
+import _ from 'lodash';
+
 /**
  * @description ERA 变量路径常量，用于统一管理通过 era:event 更新的变量路径。
  */
@@ -188,6 +190,29 @@ export const ERA_VARIABLE_PATH = {
    * 路径: config
    */
   CONFIG_ROOT: 'config',
+};
+
+// ==================== RUNTIME 路径 ====================
+/**
+ * @description Runtime 变量路径常量
+ */
+export const RUNTIME_PATH = {
+  /**
+   * 当前节日名称
+   * 路径: festival.current.name
+   */
+  CURRENT_FESTIVAL_NAME: 'festival.current.name',
+};
+
+// ==================== RUNTIME 数据访问器 ====================
+
+/**
+ * 从 runtime 中获取当前节日名称。
+ * @param runtime - The runtime object.
+ * @returns {string | null} The name of the current festival or null.
+ */
+export const getCurrentFestivalName = (runtime: any): string | null => {
+  return _.get(runtime, RUNTIME_PATH.CURRENT_FESTIVAL_NAME, null);
 };
 
 // ==================== 数据处理与日志 ====================

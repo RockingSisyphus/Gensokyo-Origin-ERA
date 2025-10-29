@@ -79,6 +79,18 @@ __webpack_require__.d(area_namespaceObject, {
   statWorldMissing: () => statWorldMissing
 });
 
+var character_namespaceObject = {};
+
+__webpack_require__.r(character_namespaceObject);
+
+__webpack_require__.d(character_namespaceObject, {
+  charTest_S1_R1_Standard: () => charTest_S1_R1_Standard,
+  charTest_S2_R2_StandardNextDay: () => charTest_S2_R2_StandardNextDay,
+  charTest_S3_VisitProbFail: () => charTest_S3_VisitProbFail,
+  charTest_S4_AllIdle: () => charTest_S4_AllIdle,
+  charTest_S5_NoUserLocation: () => charTest_S5_NoUserLocation
+});
+
 var festival_namespaceObject = {};
 
 __webpack_require__.r(festival_namespaceObject);
@@ -1570,6 +1582,172 @@ const statForRouteFromIsolated = {
   world: worldWithMapGraph
 };
 
+const baseCharacterData = {
+  config: {
+    time: {
+      epochISO: "2025-10-24T08:00:00+09:00"
+    },
+    affection: {
+      affectionStages: [ {
+        threshold: 0,
+        name: "陌生",
+        patienceUnit: "period",
+        visit: {
+          enabled: true,
+          probBase: 1,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 50,
+        name: "熟悉",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: 1,
+          coolUnit: "day"
+        }
+      } ]
+    }
+  },
+  世界: {
+    timeProgress: 0,
+    festival: {
+      list: [ {
+        name: "夏日祭",
+        start: "2025-10-25T00:00:00+09:00",
+        end: "2025-10-25T23:59:59+09:00"
+      } ]
+    },
+    map_graph: {
+      tree: {
+        幻想乡本土: {
+          东境丘陵带: [ "博丽神社" ],
+          魔法之森带: [ "魔法之森" ],
+          西北山地带: [ "守矢神社" ]
+        }
+      },
+      edges: [ {
+        a: "博丽神社",
+        b: "魔法之森",
+        mode: [ "fly" ]
+      }, {
+        a: "博丽神社",
+        b: "守矢神社",
+        mode: [ "fly" ]
+      } ]
+    },
+    aliases: {
+      博丽神社: [ "博丽" ],
+      魔法之森: [ "魔法森林" ],
+      守矢神社: [ "守矢" ]
+    }
+  },
+  user: {
+    所在地区: "博丽神社"
+  },
+  chars: {
+    reimu: {
+      好感度: 60,
+      所在地区: "博丽神社",
+      routine: [ {
+        when: {
+          byFlag: [ "newDay" ]
+        },
+        action: {
+          to: "博丽神社",
+          do: "打扫神社"
+        }
+      } ]
+    },
+    marisa: {
+      好感度: 20,
+      所在地区: "魔法森林",
+      routine: [ {
+        when: {
+          byFlag: [ "newDay" ]
+        },
+        action: {
+          to: "魔法之森",
+          do: "进行魔法研究"
+        }
+      } ]
+    },
+    sanae: {
+      好感度: 10,
+      affectionStages: [ {
+        threshold: 0,
+        name: "陌生",
+        patienceUnit: "day",
+        visit: {
+          enabled: false
+        }
+      } ],
+      所在地区: "守矢神社",
+      specials: [ {
+        when: {
+          byFestival: "夏日祭"
+        },
+        priority: 10,
+        action: {
+          to: "博丽神社",
+          do: "参加祭典"
+        }
+      } ],
+      routine: [ {
+        when: {
+          byFlag: [ "newDay" ]
+        },
+        action: {
+          to: "守矢神社",
+          do: "进行风祝的修行"
+        }
+      } ]
+    }
+  }
+};
+
+const charTest_S1_R1_Standard = external_default().cloneDeep(baseCharacterData);
+
+const charTest_S2_R2_StandardNextDay = external_default().cloneDeep(baseCharacterData);
+
+charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60;
+
+charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = "博丽神社";
+
+const charTest_S3_VisitProbFail = external_default().cloneDeep(baseCharacterData);
+
+charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
+  threshold: 0,
+  name: "陌生",
+  patienceUnit: "period",
+  visit: {
+    enabled: true,
+    probBase: 0,
+    coolUnit: "day"
+  }
+}, {
+  threshold: 50,
+  name: "熟悉",
+  patienceUnit: "day",
+  visit: {
+    enabled: true,
+    probBase: 1,
+    coolUnit: "day"
+  }
+} ];
+
+const charTest_S4_AllIdle = external_default().cloneDeep(baseCharacterData);
+
+charTest_S4_AllIdle.chars.reimu.routine = [];
+
+charTest_S4_AllIdle.chars.marisa.routine = [];
+
+charTest_S4_AllIdle.chars.sanae.specials = [];
+
+charTest_S4_AllIdle.chars.sanae.routine = [];
+
+const charTest_S5_NoUserLocation = external_default().omit(baseCharacterData, "user");
+
 const baseFestivalStat = {
   config: {
     time: {
@@ -1968,6 +2146,21 @@ function createTestPanel() {
     border: "1px solid #b71c1c",
     background: "#d32f2f",
     color: "#ffebee",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const characterTestConfigs = Object.entries(character_namespaceObject).map(([key, statData]) => ({
+    text: key.replace("charTest_", ""),
+    payload: {
+      statWithoutMeta: statData
+    }
+  }));
+  addTestButtons(panel, "角色决策模块测试", characterTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #283593",
+    background: "#1a237e",
+    color: "#e8eaf6",
     borderRadius: "3px",
     fontSize: "12px"
   });

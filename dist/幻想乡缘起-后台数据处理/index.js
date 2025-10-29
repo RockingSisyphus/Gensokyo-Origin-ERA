@@ -189,6 +189,350 @@ class Logger {
   }
 }
 
+const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
+
+function getAffectionStage(char, globalAffectionStages) {
+  const stages = char.affectionStages || globalAffectionStages;
+  if (!stages || !Array.isArray(stages)) {
+    return null;
+  }
+  const parsedStages = stages.map(stage => typeof stage === "string" ? JSON.parse(stage) : stage);
+  const applicableStages = parsedStages.filter(stage => char.好感度 >= stage.threshold);
+  if (applicableStages.length === 0) {
+    return null;
+  }
+  return external_default().maxBy(applicableStages, "threshold") || null;
+}
+
+function checkConditions(when, runtime) {
+  return false;
+}
+
+function resolveLocation(to, context) {
+  return context.currentLocation;
+}
+
+const CHAR_RUNTIME_CONTEXT_PATH = charId => `chars.${charId}.context`;
+
+const AFFECTION_STAGE_IN_CONTEXT_PATH = charId => `${CHAR_RUNTIME_CONTEXT_PATH(charId)}.affectionStage`;
+
+const VISIT_COOLING_IN_STATE_PATH = charId => `charsState.${charId}.visit.cooling`;
+
+function getChar(stat, charId) {
+  return external_default().get(stat, `chars.${charId}`, null);
+}
+
+function getUserLocation(stat) {
+  return external_default().get(stat, "user.所在地区", null);
+}
+
+function getCharLocation(char) {
+  return char?.所在地区 || null;
+}
+
+function getGlobalAffectionStages(stat) {
+  return external_default().get(stat, "config.affection.affectionStages", []);
+}
+
+function getAffectionStageFromContext(runtime, charId) {
+  return external_default().get(runtime, AFFECTION_STAGE_IN_CONTEXT_PATH(charId), null);
+}
+
+function isVisitCooling(runtime, charId) {
+  return external_default().get(runtime, VISIT_COOLING_IN_STATE_PATH(charId), false);
+}
+
+function setAffectionStageInContext(runtime, charId, stage) {
+  external_default().set(runtime, AFFECTION_STAGE_IN_CONTEXT_PATH(charId), stage);
+}
+
+function setVisitCooling(runtime, charId, value) {
+  external_default().set(runtime, VISIT_COOLING_IN_STATE_PATH(charId), value);
+}
+
+function setCharLocationInStat(stat, charId, location) {
+  external_default().set(stat, `chars.${charId}.所在地区`, location);
+}
+
+function setCharGoalInStat(stat, charId, goal) {
+  external_default().set(stat, `chars.${charId}.当前目标`, goal);
+}
+
+const PREDEFINED_ACTIONS = {
+  VISIT_HERO: {
+    to: "HERO",
+    do: "拜访主角",
+    source: "visit"
+  },
+  STAY_WITH_HERO: {
+    to: "HERO",
+    do: "与主角相伴",
+    source: "companion"
+  }
+};
+
+const ENTRY_KEYS = {
+  PRIORITY: "priority",
+  ACTION: "action",
+  WHEN: "when"
+};
+
+const DEFAULT_VALUES = {
+  UNKNOWN_LOCATION: "UNKNOWN",
+  IDLE_ACTION_SOURCE: "idle",
+  IDLE_ACTION_DO: "待机"
+};
+
+const logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/preprocessor");
+
+function isCooldownResetTriggered(coolUnit, flags) {
+  if (!coolUnit || !flags) return false;
+  switch (coolUnit) {
+   case "period":
+    return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
+
+   case "day":
+    return flags.newDay === true;
+
+   case "week":
+    return flags.newWeek === true;
+
+   case "month":
+    return flags.newMonth === true;
+
+   case "season":
+    return flags.newSeason === true;
+
+   case "year":
+    return flags.newYear === true;
+
+   default:
+    return false;
+  }
+}
+
+function preprocess({runtime, stat}) {
+  const funcName = "preprocess";
+  logger.log(funcName, "开始执行预处理...");
+  try {
+    const newRuntime = external_default().cloneDeep(runtime);
+    const changes = [];
+    const charIds = Object.keys(stat.chars);
+    const globalAffectionStages = getGlobalAffectionStages(stat);
+    for (const charId of charIds) {
+      const char = getChar(stat, charId);
+      if (!char) continue;
+      const affectionStage = getAffectionStage(char, globalAffectionStages);
+      setAffectionStageInContext(newRuntime, charId, affectionStage);
+      if (affectionStage) {
+        logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
+      } else {
+        logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
+        continue;
+      }
+      const coolUnit = external_default().get(affectionStage, "visit.coolUnit");
+      const cooling = isVisitCooling(newRuntime, charId);
+      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
+      if (cooling && triggered) {
+        setVisitCooling(newRuntime, charId, false);
+        logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
+        const change = {
+          module: funcName,
+          path: VISIT_COOLING_IN_STATE_PATH(charId),
+          oldValue: true,
+          newValue: false,
+          reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`
+        };
+        changes.push(change);
+      } else if (cooling) {
+        logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || "无"})。`);
+      }
+    }
+    logger.log(funcName, "预处理执行完毕。");
+    return {
+      runtime: newRuntime,
+      stat,
+      changes
+    };
+  } catch (e) {
+    logger.error(funcName, "执行预处理时发生错误:", e);
+    return {
+      runtime,
+      stat,
+      changes: []
+    };
+  }
+}
+
+const partitioner_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/partitioner");
+
+function partitionCharacters({stat}) {
+  const funcName = "partitionCharacters";
+  partitioner_logger.log(funcName, "开始执行角色分组...");
+  try {
+    const userLocation = getUserLocation(stat);
+    if (!userLocation) {
+      partitioner_logger.warn(funcName, "无法找到主角位置，所有角色将被视为异区。");
+      const allChars = Object.keys(stat.chars || {});
+      partitioner_logger.debug(funcName, `所有角色: [${allChars.join(", ")}]`);
+      return {
+        coLocatedChars: [],
+        remoteChars: allChars
+      };
+    }
+    partitioner_logger.debug(funcName, `主角当前位置: [${userLocation}]`);
+    const charIds = Object.keys(stat.chars || {});
+    const partitions = external_default().partition(charIds, charId => {
+      const char = getChar(stat, charId);
+      const charLocation = getCharLocation(char);
+      partitioner_logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation || "未知"}]`);
+      return charLocation === userLocation;
+    });
+    const coLocatedChars = partitions[0];
+    const remoteChars = partitions[1];
+    partitioner_logger.log(funcName, `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(", ")}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(", ")}]`);
+    return {
+      coLocatedChars,
+      remoteChars
+    };
+  } catch (e) {
+    partitioner_logger.error(funcName, "执行角色分组时发生错误:", e);
+    return {
+      coLocatedChars: [],
+      remoteChars: Object.keys(stat.chars || {})
+    };
+  }
+}
+
+const visit_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/visit-processor");
+
+function isPatienceWindowHit(patienceUnit, flags) {
+  if (!patienceUnit || !flags) return false;
+  switch (patienceUnit) {
+   case "period":
+    return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
+
+   case "day":
+    return flags.newDay === true;
+
+   case "week":
+    return flags.newWeek === true;
+
+   case "month":
+    return flags.newMonth === true;
+
+   case "season":
+    return flags.newSeason === true;
+
+   case "year":
+    return flags.newYear === true;
+
+   default:
+    return false;
+  }
+}
+
+function checkProbability(probBase = 0, probK = 0, affection = 0) {
+  const finalProb = external_default().clamp(probBase + probK * affection, 0, 1);
+  const passed = Math.random() < finalProb;
+  return {
+    passed,
+    finalProb
+  };
+}
+
+function makeVisitDecisions({runtime, stat, remoteChars}) {
+  const funcName = "makeVisitDecisions";
+  const decisions = {};
+  const decidedChars = [];
+  for (const charId of remoteChars) {
+    const affectionStage = getAffectionStageFromContext(runtime, charId);
+    if (!affectionStage) continue;
+    const {patienceUnit, visit: visitConfig} = affectionStage;
+    const char = getChar(stat, charId);
+    const affection = char?.好感度 || 0;
+    const isCooling = isVisitCooling(runtime, charId);
+    const canVisit = visitConfig?.enabled === true && !isCooling;
+    const patienceHit = isPatienceWindowHit(patienceUnit, runtime.clock.flags);
+    if (!canVisit) {
+      visit_processor_logger.debug(funcName, `角色 ${charId} 跳过“来访”决策 (visit.enabled: ${visitConfig?.enabled}, isCooling: ${isCooling})`);
+      continue;
+    }
+    if (!patienceHit) {
+      visit_processor_logger.debug(funcName, `角色 ${charId} 未命中耐心窗口 (patienceUnit: ${patienceUnit})，跳过“来访”决策。`);
+      continue;
+    }
+    const {passed, finalProb} = checkProbability(visitConfig.probBase, visitConfig.probK, affection);
+    if (passed) {
+      decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
+      decidedChars.push(charId);
+      visit_processor_logger.log(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
+    } else {
+      visit_processor_logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
+    }
+  }
+  return {
+    decisions,
+    decidedChars
+  };
+}
+
+const companion_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/companion-processor");
+
+function companion_processor_isPatienceWindowHit(patienceUnit, flags) {
+  if (!patienceUnit || !flags) return false;
+  switch (patienceUnit) {
+   case "period":
+    return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
+
+   case "day":
+    return flags.newDay === true;
+
+   case "week":
+    return flags.newWeek === true;
+
+   case "month":
+    return flags.newMonth === true;
+
+   case "season":
+    return flags.newSeason === true;
+
+   case "year":
+    return flags.newYear === true;
+
+   default:
+    return false;
+  }
+}
+
+function makeCompanionDecisions({runtime, coLocatedChars}) {
+  const funcName = "makeCompanionDecisions";
+  const decisions = {};
+  const decidedChars = [];
+  for (const charId of coLocatedChars) {
+    const affectionStage = getAffectionStageFromContext(runtime, charId);
+    if (!affectionStage) {
+      companion_processor_logger.debug(funcName, `角色 ${charId} 缺少好感度等级信息，跳过“相伴”决策。`);
+      continue;
+    }
+    const {patienceUnit} = affectionStage;
+    const patienceHit = companion_processor_isPatienceWindowHit(patienceUnit, runtime.clock.flags);
+    if (!patienceHit) {
+      decisions[charId] = PREDEFINED_ACTIONS.STAY_WITH_HERO;
+      decidedChars.push(charId);
+      companion_processor_logger.log(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，决定继续与主角相伴。`);
+    } else {
+      companion_processor_logger.log(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);
+    }
+  }
+  return {
+    decisions,
+    decidedChars
+  };
+}
+
 const constants_ERA_VARIABLE_PATH = {
   MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
   FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
@@ -223,6 +567,12 @@ const constants_ERA_VARIABLE_PATH = {
   CONFIG_ROOT: "config"
 };
 
+const RUNTIME_PATH = {
+  CURRENT_FESTIVAL_NAME: "festival.current.name"
+};
+
+const getCurrentFestivalName = runtime => external_default().get(runtime, RUNTIME_PATH.CURRENT_FESTIVAL_NAME, null);
+
 const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
   module,
   path,
@@ -231,7 +581,243 @@ const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
   reason
 });
 
-const logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
+const action_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/action-processor");
+
+function areConditionsMet(entry, {runtime, stat}) {
+  const {when} = entry;
+  if (!when) return true;
+  if (when.byFlag) {
+    if (!when.byFlag.some(flagPath => external_default().get(runtime.clock.flags, flagPath) === true)) {
+      return false;
+    }
+  }
+  if (when.byNow) {
+    if (!external_default().isMatch(runtime.clock.now, when.byNow)) {
+      return false;
+    }
+  }
+  if (when.byMonthDay) {
+    const {month, day} = runtime.clock.now;
+    if (month !== when.byMonthDay.month || day !== when.byMonthDay.day) {
+      return false;
+    }
+  }
+  if (when.byFestival) {
+    const currentFestival = getCurrentFestivalName(runtime);
+    if (when.byFestival === "ANY" && !currentFestival) {
+      return false;
+    }
+    if (external_default().isString(when.byFestival) && when.byFestival !== "ANY" && currentFestival !== when.byFestival) {
+      return false;
+    }
+    if (external_default().isArray(when.byFestival) && currentFestival && !when.byFestival.includes(currentFestival)) {
+      return false;
+    }
+  }
+  return true;
+}
+
+function chooseAction(charId, char, {runtime, stat}) {
+  const funcName = "chooseAction";
+  const specials = char.specials || [];
+  action_processor_logger.debug(funcName, `角色 ${charId}: 开始检查 ${specials.length} 个特殊行动...`);
+  const metSpecials = specials.map((entry, index) => ({
+    ...entry,
+    originalIndex: index
+  })).filter(entry => {
+    const met = areConditionsMet(entry, {
+      runtime,
+      stat
+    });
+    if (met) {
+      action_processor_logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。`);
+    }
+    return met;
+  });
+  if (metSpecials.length > 0) {
+    const highestPrioritySpecial = external_default().maxBy(metSpecials, ENTRY_KEYS.PRIORITY);
+    if (highestPrioritySpecial) {
+      action_processor_logger.debug(funcName, `角色 ${charId}: 选中了优先级最高的特殊行动 [${highestPrioritySpecial.action.do}] (P=${highestPrioritySpecial.priority})。`);
+      return highestPrioritySpecial.action;
+    }
+  }
+  const routine = char.routine || [];
+  action_processor_logger.debug(funcName, `角色 ${charId}: 开始检查 ${routine.length} 个日常行动...`);
+  for (const entry of routine) {
+    if (areConditionsMet(entry, {
+      runtime,
+      stat
+    })) {
+      action_processor_logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。`);
+      return entry.action;
+    }
+  }
+  action_processor_logger.debug(funcName, `角色 ${charId}: 未找到任何满足条件的行动。`);
+  return null;
+}
+
+function makeActionDecisions({runtime, stat, remainingChars}) {
+  const funcName = "makeActionDecisions";
+  const decisions = {};
+  for (const charId of remainingChars) {
+    const char = getChar(stat, charId);
+    if (!char) continue;
+    action_processor_logger.debug(funcName, `开始为角色 ${charId} 选择常规行动...`);
+    const action = chooseAction(charId, char, {
+      runtime,
+      stat
+    });
+    if (action) {
+      if (!action.to) {
+        action.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+      }
+      decisions[charId] = action;
+      action_processor_logger.log(funcName, `为角色 ${charId} 分配了行动 [${action.do}]。`);
+    } else {
+      decisions[charId] = {
+        to: getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION,
+        do: DEFAULT_VALUES.IDLE_ACTION_DO,
+        source: DEFAULT_VALUES.IDLE_ACTION_SOURCE
+      };
+      action_processor_logger.log(funcName, `角色 ${charId} 未命中任何行动，保持待机。`);
+    }
+  }
+  return {
+    decisions
+  };
+}
+
+const decision_makers_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers");
+
+function makeDecisions({runtime, stat, coLocatedChars, remoteChars}) {
+  const funcName = "makeDecisions";
+  decision_makers_logger.log(funcName, "开始为所有角色制定决策...");
+  try {
+    decision_makers_logger.debug(funcName, `开始为 ${remoteChars.length} 个异区角色进行“来访”决策...`);
+    const {decisions: visitDecisions, decidedChars: visitingChars} = makeVisitDecisions({
+      runtime,
+      stat,
+      remoteChars
+    });
+    decision_makers_logger.debug(funcName, `“来访”决策完毕，${visitingChars.length} 人决定来访: [${visitingChars.join(", ")}]`);
+    decision_makers_logger.debug(funcName, `开始为 ${coLocatedChars.length} 个同区角色进行“相伴”决策...`);
+    const {decisions: companionDecisions, decidedChars: stayingChars} = makeCompanionDecisions({
+      runtime,
+      coLocatedChars
+    });
+    decision_makers_logger.debug(funcName, `“相伴”决策完毕，${stayingChars.length} 人决定相伴: [${stayingChars.join(", ")}]`);
+    const allCharIds = external_default().union(coLocatedChars, remoteChars);
+    const decidedCharIds = external_default().union(visitingChars, stayingChars);
+    const remainingChars = external_default().difference(allCharIds, decidedCharIds);
+    decision_makers_logger.debug(funcName, `开始为 ${remainingChars.length} 个剩余角色进行“常规行动”决策: [${remainingChars.join(", ")}]`);
+    const {decisions: actionDecisions} = makeActionDecisions({
+      runtime,
+      stat,
+      remainingChars
+    });
+    decision_makers_logger.debug(funcName, "“常规行动”决策完毕。");
+    const allDecisions = external_default().merge({}, visitDecisions, companionDecisions, actionDecisions);
+    decision_makers_logger.log(funcName, `决策制定完毕。共 ${external_default().size(allDecisions)} 个角色做出了决定。`, allDecisions);
+    return allDecisions;
+  } catch (e) {
+    decision_makers_logger.error(funcName, "执行决策制定时发生错误:", e);
+    return {};
+  }
+}
+
+const aggregator_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/aggregator");
+
+function resolveTargetLocation(to, stat) {
+  if (to === "HERO") {
+    return getUserLocation(stat) || "UNKNOWN";
+  }
+  return to;
+}
+
+function applyDecisions({stat, runtime, decisions}) {
+  const funcName = "applyDecisions";
+  external_default().forEach(decisions, (decision, charId) => {
+    aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
+    const newLocation = resolveTargetLocation(decision.to, stat);
+    setCharLocationInStat(stat, charId, newLocation);
+    setCharGoalInStat(stat, charId, decision.do);
+    aggregator_logger.log(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
+    external_default().set(runtime, `chars.${charId}.decision`, decision);
+    aggregator_logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
+    if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
+      setVisitCooling(runtime, charId, true);
+      aggregator_logger.log(funcName, `[RUNTIME] 角色 ${charId}: 已设置来访冷却。`);
+    }
+  });
+}
+
+function aggregateResults({stat, runtime, decisions}) {
+  const funcName = "aggregateResults";
+  aggregator_logger.log(funcName, "开始聚合角色决策结果...");
+  try {
+    const newStat = external_default().cloneDeep(stat);
+    const newRuntime = external_default().cloneDeep(runtime);
+    applyDecisions({
+      stat: newStat,
+      runtime: newRuntime,
+      decisions
+    });
+    aggregator_logger.log(funcName, "结果聚合完毕。", {
+      finalStat: newStat,
+      finalRuntime: newRuntime
+    });
+    return {
+      stat: newStat,
+      runtime: newRuntime
+    };
+  } catch (e) {
+    aggregator_logger.error(funcName, "执行结果聚合时发生错误:", e);
+    return {
+      stat,
+      runtime
+    };
+  }
+}
+
+const character_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor");
+
+async function processCharacterDecisions({stat, runtime}) {
+  const funcName = "processCharacterDecisions";
+  character_processor_logger.log(funcName, "开始处理角色决策...");
+  try {
+    const processedRuntime = preprocess({
+      runtime,
+      stat
+    });
+    const {coLocatedChars, remoteChars} = partitionCharacters({
+      stat
+    });
+    const decisions = makeDecisions({
+      runtime: processedRuntime,
+      stat,
+      coLocatedChars,
+      remoteChars
+    });
+    const {stat: finalStat, runtime: finalRuntime} = aggregateResults({
+      stat,
+      runtime: processedRuntime,
+      decisions
+    });
+    character_processor_logger.log(funcName, "角色决策处理完毕。");
+    return {
+      stat: finalStat,
+      runtime: finalRuntime
+    };
+  } catch (e) {
+    character_processor_logger.error(funcName, "处理角色决策时发生意外错误:", e);
+    return {
+      stat,
+      runtime
+    };
+  }
+}
+
+const format_logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
 
 function firstVal(x) {
   return Array.isArray(x) ? x.length ? x[0] : "" : x;
@@ -243,7 +829,7 @@ function format_get(obj, path, fallback = "") {
     let cur = obj;
     for (const k of ks) {
       if (!cur || typeof cur !== "object" || !(k in cur)) {
-        logger.debug("get", "未找到键，使用默认值。", {
+        format_logger.debug("get", "未找到键，使用默认值。", {
           路径: String(path),
           缺失键: String(k),
           默认值: fallback
@@ -254,7 +840,7 @@ function format_get(obj, path, fallback = "") {
     }
     const v = firstVal(cur);
     if (v == null) {
-      logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
         路径: String(path),
         默认值: fallback
       });
@@ -262,7 +848,7 @@ function format_get(obj, path, fallback = "") {
     }
     return v;
   } catch (e) {
-    logger.error("get", "异常，使用默认值。", {
+    format_logger.error("get", "异常，使用默认值。", {
       路径: String(path),
       异常: String(e),
       默认值: fallback
@@ -274,7 +860,7 @@ function format_get(obj, path, fallback = "") {
 function format_text(id, raw) {
   const el = document.getElementById(id);
   if (!el) {
-    logger.warn("text", "目标元素不存在，跳过写入。", {
+    format_logger.warn("text", "目标元素不存在，跳过写入。", {
       元素ID: id
     });
     return;
@@ -294,7 +880,7 @@ function getRaw(obj, path, fallback = null) {
     }
     return cur == null ? fallback : cur;
   } catch (e) {
-    logger.error("getRaw", "异常，使用默认值。", {
+    format_logger.error("getRaw", "异常，使用默认值。", {
       路径: String(path),
       异常: String(e),
       默认值: fallback
@@ -444,10 +1030,6 @@ async function sendData({stat, runtime, eraPayload: originalPayload, changes}) {
   }
   data_sender_logger.log(funcName, "数据发送完毕。");
 }
-
-const external_namespaceObject = _;
-
-var external_default = __webpack_require__.n(external_namespaceObject);
 
 const DEFAULT_INCIDENT_CONFIG = {
   cooldownMinutes: 10080,
@@ -832,73 +1414,6 @@ function buildPrompt({runtime, stat}) {
   return finalPrompt;
 }
 
-const affection_level_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/affection-level");
-
-function parseAffectionStages(affectionStages) {
-  if (!Array.isArray(affectionStages)) {
-    return [];
-  }
-  return affectionStages.map(stage => {
-    try {
-      const match = stage.match(/\[(-?\d+),"(.*?)"\]/);
-      if (match) {
-        const [, threshold, name] = match;
-        return [ Number(threshold), name ];
-      }
-      return null;
-    } catch (e) {
-      affection_level_logger.error("parseAffectionStages", `解析好感度阶段时出错: ${stage}`, e);
-      return null;
-    }
-  }).filter(Boolean);
-}
-
-function calculateAffectionLevel(affectionValue, stages) {
-  const sortedStages = stages.sort((a, b) => a[0] - b[0]);
-  let level = sortedStages.length > 0 ? sortedStages[0][1] : "未知";
-  for (const [threshold, name] of sortedStages) {
-    if (affectionValue >= threshold) {
-      level = name;
-    }
-  }
-  return level;
-}
-
-function processAffectionLevel({runtime, stat}) {
-  const funcName = "processAffectionLevel";
-  affection_level_logger.log(funcName, "开始处理好感度等级...");
-  if (runtime.chars) {
-    for (const charId in runtime.chars) {
-      if (Object.prototype.hasOwnProperty.call(runtime.chars, charId)) {
-        (0, external_namespaceObject.unset)(runtime, [ "chars", charId, "好感度等级" ]);
-      }
-    }
-  }
-  const affectionStagesConfig = (0, external_namespaceObject.get)(stat, "config.affection.affectionStages");
-  if (!affectionStagesConfig) {
-    affection_level_logger.warn(funcName, "未找到好感度等级配置，跳过处理。");
-    return runtime;
-  }
-  const affectionStages = parseAffectionStages(affectionStagesConfig);
-  if (affectionStages.length === 0) {
-    affection_level_logger.warn(funcName, "好感度等级配置解析为空，跳过处理。");
-    return runtime;
-  }
-  const characters = (0, external_namespaceObject.get)(stat, "chars", {});
-  for (const charId in characters) {
-    if (Object.prototype.hasOwnProperty.call(characters, charId)) {
-      const affectionValue = (0, external_namespaceObject.get)(stat, [ "chars", charId, "好感度" ]);
-      if (typeof affectionValue === "number") {
-        const affectionLevel = calculateAffectionLevel(affectionValue, affectionStages);
-        (0, external_namespaceObject.set)(runtime, [ "chars", charId, "好感度等级" ], affectionLevel);
-        affection_level_logger.debug(funcName, `角色 ${charId} 的好感度等级计算为: ${affectionLevel}`);
-      }
-    }
-  }
-  affection_level_logger.log(funcName, "好感度等级处理完毕。");
-  return runtime;
-}
-
 const graph_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/runtime-builder/area/graph-builder");
 
 function buildGraph({stat}) {
@@ -1233,6 +1748,7 @@ async function processArea(stat, runtime) {
   const funcName = "processArea";
   area_logger.debug(funcName, "开始处理地区...");
   const output = {
+    graph: {},
     legal_locations: [],
     neighbors: [],
     loadArea: [],
@@ -1245,6 +1761,7 @@ async function processArea(stat, runtime) {
     const {graph, leafNodes} = buildGraph({
       stat
     });
+    output.graph = graph;
     area_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
     output.legal_locations = leafNodes;
     area_logger.debug(funcName, `获取到 ${leafNodes.length} 个合法地区`);
@@ -1579,14 +2096,6 @@ async function buildRuntime({stat, runtime: originalRuntime}) {
     stat
   });
   runtime_builder_logger.log(funcName, "processFestival 处理完成。", {
-    runtime: external_default().cloneDeep(runtime),
-    stat: external_default().cloneDeep(stat)
-  });
-  runtime = processAffectionLevel({
-    runtime,
-    stat
-  });
-  runtime_builder_logger.log(funcName, "processAffectionLevel 处理完成。", {
     runtime: external_default().cloneDeep(runtime),
     stat: external_default().cloneDeep(stat)
   });
@@ -2109,23 +2618,27 @@ $(() => {
     const mixedProcessedRuntime = mixedResult.runtime;
     const mixedChanges = mixedResult.changes;
     const allChanges = statChanges.concat(mixedChanges);
-    const newRuntime = await buildRuntime({
+    const builtRuntime = await buildRuntime({
       stat: mixedProcessedStat,
       runtime: mixedProcessedRuntime
     });
+    const {stat: charProcessedStat, runtime: charProcessedRuntime} = await processCharacterDecisions({
+      stat: mixedProcessedStat,
+      runtime: builtRuntime
+    });
     const prompt = buildPrompt({
-      runtime: newRuntime,
-      stat: mixedProcessedStat
+      runtime: charProcessedRuntime,
+      stat: charProcessedStat
     });
     _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
     await sendData({
-      stat: mixedProcessedStat,
-      runtime: newRuntime,
+      stat: charProcessedStat,
+      runtime: charProcessedRuntime,
       eraPayload: payload,
       changes: allChanges
     });
     _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
-      finalRuntime: newRuntime
+      finalRuntime: charProcessedRuntime
     });
   };
   eventOn("era:writeDone", detail => {

@@ -18,11 +18,13 @@ export async function processArea(stat: any, runtime: any): Promise<object> {
 
   // 遵循“显式覆盖原则”，在函数开头为所有属性设置明确的“空状态”默认值
   const output: {
+    graph: Record<string, Record<string, boolean>>;
     legal_locations: string[];
     neighbors: string[];
     loadArea: string[];
     route: any;
   } = {
+    graph: {},
     legal_locations: [],
     neighbors: [],
     loadArea: [],
@@ -32,6 +34,7 @@ export async function processArea(stat: any, runtime: any): Promise<object> {
   try {
     // 1. 构建图
     const { graph, leafNodes } = buildGraph({ stat });
+    output.graph = graph;
     logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
 
     // 2. 获取所有合法地区

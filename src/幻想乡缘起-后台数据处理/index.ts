@@ -1,3 +1,4 @@
+import { processCharacterDecisions } from './core/character-processor';
 import { sendData } from './core/data-sender';
 import { processMixed } from './core/mixed-processor';
 import { buildPrompt } from './core/prompt-builder';
@@ -40,21 +41,27 @@ $(() => {
     const allChanges = statChanges.concat(mixedChanges);
 
     // 3. Runtime 构建
-    const newRuntime = await buildRuntime({ stat: mixedProcessedStat, runtime: mixedProcessedRuntime });
+    const builtRuntime = await buildRuntime({ stat: mixedProcessedStat, runtime: mixedProcessedRuntime });
+
+    // 3.5. 角色决策处理
+    const { stat: charProcessedStat, runtime: charProcessedRuntime } = await processCharacterDecisions({
+      stat: mixedProcessedStat,
+      runtime: builtRuntime,
+    });
 
     // 4. 提示词构建
-    const prompt = buildPrompt({ runtime: newRuntime, stat: mixedProcessedStat });
+    const prompt = buildPrompt({ runtime: charProcessedRuntime, stat: charProcessedStat });
     logger.log('handleWriteDone', '提示词构建完毕:', prompt);
     // 5. 数据写入/发送
     await sendData({
-      stat: mixedProcessedStat,
-      runtime: newRuntime,
+      stat: charProcessedStat,
+      runtime: charProcessedRuntime,
       eraPayload: payload,
       changes: allChanges,
     });
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
-      finalRuntime: newRuntime,
+      finalRuntime: charProcessedRuntime,
     });
   };
 
