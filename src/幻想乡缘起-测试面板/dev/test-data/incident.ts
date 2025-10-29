@@ -85,7 +85,7 @@ export const incidentTestData = {
       世界: { timeProgress: 200 },
       incidents: {
         红雾异变: {
-          异变进程: '进行中',
+          '异变已结束': false,
           异变细节: '天空中弥漫着不祥的红色雾气。',
           主要地区: ['红魔馆'],
           异变退治者: ['博丽灵梦', '雾雨魔理沙'],

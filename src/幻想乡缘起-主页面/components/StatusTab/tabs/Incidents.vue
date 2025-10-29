@@ -74,7 +74,7 @@ function renderIncidents(state: any) {
 
   items.forEach(({ __name, __data }) => {
     const name = toText(get(__data, '异变名称', __name));
-    const status = toText(get(__data, '异变进程', '未知'));
+    const status = get(__data, '异变已结束') ? '已结束' : '进行中';
     const fields = [
       ['影响', '异变影响'],
       ['退治者', '异变退治者'],

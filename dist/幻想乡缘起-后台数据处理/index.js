@@ -489,14 +489,13 @@ function getCurrentIncident(stat) {
   const allIncidents = external_default().get(stat, "incidents", {});
   for (const name in allIncidents) {
     const incident = allIncidents[name];
-    if (incident && typeof incident === "object" && !Array.isArray(incident) && incident["异变进程"] === "进行中") {
+    if (incident && typeof incident === "object" && !Array.isArray(incident) && !incident["异变已结束"]) {
       return {
         name,
-        status: "进行中",
         detail: String(incident["异变细节"] || ""),
         solver: asArray(incident["异变退治者"]),
         mainLoc: asArray(incident["主要地区"]),
-        isFinished: !!incident["异变已结束"],
+        isFinished: false,
         raw: incident
       };
     }
@@ -573,7 +572,6 @@ function getContinueDecision(stat) {
   return {
     decision: "continue",
     current: currentIncident,
-    solver: currentIncident.solver || [],
     changes: []
   };
 }
@@ -594,7 +592,6 @@ function getStartNewDecision(runtime, stat) {
   processor_logger.log("getStartNewDecision", `开启新异变《${newIncident.name}》，地点:`, newIncident.mainLoc);
   const path = `incidents.${newIncident.name}`;
   const newValue = {
-    异变进程: "进行中",
     异变细节: newIncident.detail,
     主要地区: newIncident.mainLoc,
     异变已结束: false
@@ -637,11 +634,10 @@ function processIncident({runtime, stat}) {
     } else {
       decisionResult = getDailyDecision(runtime, newStat);
     }
-    const {decision, current, solver, spawn, remainingCooldown, changes} = decisionResult;
+    const {decision, current, spawn, remainingCooldown, changes} = decisionResult;
     runtime.incident = {
       decision,
       current,
-      solver,
       spawn,
       remainingCooldown,
       incidentCooldownAnchor: newAnchor,
