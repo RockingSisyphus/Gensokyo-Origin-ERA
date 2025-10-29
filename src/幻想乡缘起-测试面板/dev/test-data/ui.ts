@@ -500,7 +500,7 @@ export const standardData = {
   incidents: {
     红雾异变: {
       异变名称: '红雾异变',
-      '异变已结束': true,
+      异变已结束: true,
       异变退治者: ['博丽灵梦', '雾雨魔理沙'],
     },
   },
