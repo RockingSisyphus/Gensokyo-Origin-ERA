@@ -2,8 +2,7 @@
   <div class="map-component">
     <div class="map-wrapper">
       <div class="map-info" ref="mapInfo">
-        缩放: <span id="zoomLevel">1.0</span>x |
-        坐标: <span id="coords">0, 0</span>
+        缩放: <span id="zoomLevel">1.0</span>x | 坐标: <span id="coords">0, 0</span>
       </div>
 
       <div class="map-container" id="mapContainer">
@@ -22,7 +21,6 @@ onMounted(() => {
   const ctx = canvas.getContext('2d');
   const zoomLevelDisplay = document.getElementById('zoomLevel') as HTMLElement;
   const coordsDisplay = document.getElementById('coords') as HTMLElement;
-
 
   // 示例数据
   const exampleMapSize = {
@@ -316,7 +314,6 @@ onMounted(() => {
     z-index: 10;
   }
 
-
   .map-info {
     position: absolute;
     top: 20px;
@@ -328,9 +325,7 @@ onMounted(() => {
     z-index: 40;
   }
 
-
   @keyframes bounce {
-
     0%,
     20%,
     50%,
