@@ -1,10 +1,9 @@
-import _ from 'lodash';
+import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
-import { getCache, applyCacheToStat } from '../../utils/cache';
-import { preprocess } from './preprocessor';
-import { partitionCharacters } from './partitioner';
-import { makeDecisions } from './decision-makers';
 import { aggregateResults } from './aggregator';
+import { makeDecisions } from './decision-makers';
+import { partitionCharacters } from './partitioner';
+import { preprocess } from './preprocessor';
 
 const logger = new Logger();
 
@@ -24,41 +23,58 @@ export async function processCharacterDecisions({
 }: {
   stat: any;
   runtime: any;
-}): Promise<{ stat: any; runtime: any }> {
+}): Promise<{ stat: any; runtime: any; changes: any[] }> {
   const funcName = 'processCharacterDecisions';
   logger.debug(funcName, '开始处理角色决策...');
 
   try {
+    // 0. 提取缓存
+    const cache = getCache(stat);
+
     // 1. 预处理
-    const { runtime: processedRuntime } = preprocess({ runtime, stat });
+    const {
+      runtime: processedRuntime,
+      cache: preprocessedCache,
+      changes: preprocessChanges,
+    } = preprocess({ runtime, stat, cache });
 
     // 2. 角色分组
     const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
 
     // 3. 决策制定
-    const { companionDecisions, otherDecisions } = makeDecisions({
+    const { companionDecisions, nonCompanionDecisions } = makeDecisions({
       runtime: processedRuntime,
       stat,
+      cache: preprocessedCache,
       coLocatedChars,
       remoteChars,
     });
 
     // 4. 结果聚合
-    const { stat: finalStat, runtime: finalRuntime } = aggregateResults({
+    let {
+      stat: finalStat,
+      runtime: finalRuntime,
+      cache: finalCache,
+      changes: aggregateChanges,
+    } = aggregateResults({
       stat,
       runtime: processedRuntime,
+      cache: preprocessedCache,
       companionDecisions,
-      otherDecisions,
+      nonCompanionDecisions,
     });
 
-    logger.log(funcName, '角色决策处理完毕。');
+    // 5. 将最终的缓存应用回 stat
+    applyCacheToStat(finalStat, finalCache);
+
+    const allChanges = preprocessChanges.concat(aggregateChanges);
 
     logger.debug(funcName, '角色决策处理完毕。');
 
-    return { stat: aggregatedStat, runtime: finalRuntime };
+    return { stat: finalStat, runtime: finalRuntime, changes: allChanges };
   } catch (e) {
     logger.error(funcName, '处理角色决策时发生意外错误:', e);
     // 发生严重错误时，返回原始数据以确保主流程稳定
-    return { stat, runtime };
+    return { stat, runtime, changes: [] };
   }
 }

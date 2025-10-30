@@ -40,7 +40,7 @@ export function partitionCharacters({ stat }: { stat: any }): {
     const coLocatedChars = partitions[0];
     const remoteChars = partitions[1];
 
-    logger.log(
+    logger.debug(
       funcName,
       `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(
         ', ',

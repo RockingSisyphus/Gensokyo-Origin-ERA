@@ -84,8 +84,6 @@ $(() => {
       runtime: currentRuntime,
       cache: getCache(currentStat),
     });
-    // 合并所有 changes
-    const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges);
 
     // 2.8. 时间处理
     const timeResult = await processTime({
@@ -129,6 +127,7 @@ $(() => {
     });
     currentStat = charResult.stat;
     currentRuntime = charResult.runtime;
+    const charChanges = charResult.changes;
     logState('Character Processor', 'stat (cache), runtime', {
       stat: currentStat,
       runtime: currentRuntime,
@@ -140,6 +139,8 @@ $(() => {
     logger.log('handleWriteDone', '提示词构建完毕:', prompt);
 
     // 5. 数据写入/发送
+    // 合并所有 changes
+    const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
     await sendData({
       stat: currentStat,
       runtime: currentRuntime,

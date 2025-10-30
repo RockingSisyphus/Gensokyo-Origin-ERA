@@ -1,6 +1,6 @@
 import { Logger } from '../../../../utils/log';
 import { PREDEFINED_ACTIONS } from '../../constants';
-import { getAffectionStageFromContext } from '../../accessors';
+import { getAffectionStageFromRuntime } from '../../accessors';
 
 const logger = new Logger();
 
@@ -38,7 +38,7 @@ export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: a
   const companionChars: string[] = [];
 
   for (const charId of coLocatedChars) {
-    const affectionStage = getAffectionStageFromContext(runtime, charId);
+    const affectionStage = getAffectionStageFromRuntime(runtime, charId);
     if (!affectionStage) {
       logger.debug(funcName, `角色 ${charId} 缺少好感度等级信息，跳过“相伴”决策。`);
       continue;

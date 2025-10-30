@@ -1,6 +1,11 @@
 import _ from 'lodash';
 import { getCacheValue, setCacheValue } from '../../utils/cache';
-import { AFFECTION_STAGE_IN_CONTEXT_PATH, Character, MODULE_CACHE_ROOT, VISIT_COOLING_PATH } from './constants';
+import {
+  AFFECTION_STAGE_IN_RUNTIME_PATH,
+  Character,
+  MODULE_CACHE_ROOT,
+  VISIT_COOLING_PATH,
+} from './constants';
 
 // --- 读取 (Read) ---
 
@@ -24,9 +29,9 @@ export function getGlobalAffectionStages(stat: any): any[] {
   return _.get(stat, 'config.affection.affectionStages', []);
 }
 
-/** 从 runtime 的上下文中获取已解析的好感度等级 */
-export function getAffectionStageFromContext(runtime: any, charId: string): any | null {
-  return _.get(runtime, AFFECTION_STAGE_IN_CONTEXT_PATH(charId), null);
+/** 从 runtime 中获取已解析的好感度等级 */
+export function getAffectionStageFromRuntime(runtime: any, charId: string): any | null {
+  return _.get(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), null);
 }
 
 /** 从 character-processor 缓存中获取角色的来访冷却状态 */
@@ -38,9 +43,9 @@ export function isVisitCooling(cache: any, charId: string): boolean {
 
 // --- 写入 (Write) ---
 
-/** 将解析出的好感度等级写入 runtime 的上下文 */
-export function setAffectionStageInContext(runtime: any, charId: string, stage: any): void {
-  _.set(runtime, AFFECTION_STAGE_IN_CONTEXT_PATH(charId), stage);
+/** 将解析出的好感度等级写入 runtime */
+export function setAffectionStageInRuntime(runtime: any, charId: string, stage: any): void {
+  _.set(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), stage);
 }
 
 /** 设置角色的来访冷却状态到 character-processor 缓存 */

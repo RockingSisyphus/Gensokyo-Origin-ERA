@@ -1,15 +1,14 @@
 import _ from 'lodash';
 import { ChangeLogEntry } from '../../../utils/constants';
 import { Logger } from '../../../utils/log';
-import { getAffectionStage } from '../utils';
 import {
   getChar,
   getGlobalAffectionStages,
   isVisitCooling,
-  setAffectionStageInContext,
+  setAffectionStageInRuntime,
   setVisitCooling,
 } from '../accessors';
-import { MODULE_CACHE_ROOT, VISIT_COOLING_PATH } from '../constants';
+import { getAffectionStage } from '../utils';
 
 const logger = new Logger();
 
@@ -61,7 +60,7 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
       // 1. 解析好感度等级并存入 runtime
       const affectionStage = getAffectionStage(char, globalAffectionStages);
-      setAffectionStageInContext(newRuntime, charId, affectionStage);
+      setAffectionStageInRuntime(newRuntime, charId, affectionStage);
 
       if (affectionStage) {
         logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
@@ -77,7 +76,7 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
       if (cooling && triggered) {
         setVisitCooling(newCache, charId, false);
-        logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
+        logger.debug(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
         // 注意：冷却状态在 cache 中，不属于 stat 的变更，因此不创建 ChangeLogEntry。
       } else if (cooling) {
         logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || '无'})。`);

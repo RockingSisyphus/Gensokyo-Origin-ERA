@@ -4,12 +4,20 @@ import _ from 'lodash';
 //      路径定义
 // ====================
 
-/** 获取角色在 runtime 中上下文对象的路径 */
-export const CHAR_RUNTIME_CONTEXT_PATH = (charId: string) => `chars.${charId}.context`;
+/** 获取角色在 runtime 中的路径 */
+export const CHAR_RUNTIME_PATH = (charId: string) => `character.chars.${charId}`;
 
-/** 获取角色在 runtime 上下文中好感度等级的路径 */
-export const AFFECTION_STAGE_IN_CONTEXT_PATH = (charId: string) =>
-  `${CHAR_RUNTIME_CONTEXT_PATH(charId)}.affectionStage`;
+/** 获取角色在 runtime 中好感度等级的路径 */
+export const AFFECTION_STAGE_IN_RUNTIME_PATH = (charId: string) =>
+  `${CHAR_RUNTIME_PATH(charId)}.affectionStage`;
+
+/** 获取角色在 runtime 中决策的路径 */
+export const DECISION_IN_RUNTIME_PATH = (charId: string) =>
+  `${CHAR_RUNTIME_PATH(charId)}.decision`;
+
+/** 获取角色在 runtime 中相伴决策的路径 */
+export const COMPANION_DECISION_IN_RUNTIME_PATH = (charId: string) =>
+  `${CHAR_RUNTIME_PATH(charId)}.companionDecision`;
 
 /** character-processor 模块在 cache 中的根路径 */
 export const MODULE_CACHE_ROOT = 'character-processor';

@@ -88,7 +88,8 @@ __webpack_require__.d(character_namespaceObject, {
   charTest_S2_R2_StandardNextDay: () => charTest_S2_R2_StandardNextDay,
   charTest_S3_VisitProbFail: () => charTest_S3_VisitProbFail,
   charTest_S4_AllIdle: () => charTest_S4_AllIdle,
-  charTest_S5_NoUserLocation: () => charTest_S5_NoUserLocation
+  charTest_S5_NoUserLocation: () => charTest_S5_NoUserLocation,
+  charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority
 });
 
 var festival_namespaceObject = {};
@@ -1763,6 +1764,20 @@ const baseCharacterData = {
       守矢神社: [ "守矢" ]
     }
   },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  },
   user: {
     所在地区: "博丽神社"
   },
@@ -1829,7 +1844,7 @@ const baseCharacterData = {
 
 const charTest_S1_R1_Standard = external_default().cloneDeep(baseCharacterData);
 
-external_default().set(charTest_S1_R1_Standard, "cache", {});
+external_default().set(charTest_S1_R1_Standard, "cache.character-processor", {});
 
 const charTest_S2_R2_StandardNextDay = external_default().cloneDeep(baseCharacterData);
 
@@ -1839,9 +1854,11 @@ charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = "博丽神社";
 
 external_default().set(charTest_S2_R2_StandardNextDay, "cache.character-processor.marisa.visit.cooling", true);
 
+charTest_S2_R2_StandardNextDay.cache.time = baseCharacterData.cache.time;
+
 const charTest_S3_VisitProbFail = external_default().cloneDeep(baseCharacterData);
 
-external_default().set(charTest_S3_VisitProbFail, "cache", {});
+external_default().set(charTest_S3_VisitProbFail, "cache.character-processor", {});
 
 charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
   threshold: 0,
@@ -1865,7 +1882,7 @@ charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
 
 const charTest_S4_AllIdle = external_default().cloneDeep(baseCharacterData);
 
-external_default().set(charTest_S4_AllIdle, "cache", {});
+external_default().set(charTest_S4_AllIdle, "cache.character-processor", {});
 
 charTest_S4_AllIdle.chars.reimu.routine = [];
 
@@ -1875,7 +1892,31 @@ charTest_S4_AllIdle.chars.sanae.specials = [];
 
 charTest_S4_AllIdle.chars.sanae.routine = [];
 
-const charTest_S5_NoUserLocation = external_default().omit(baseCharacterData, "user");
+const charTest_S5_NoUserLocation = external_default().omit(external_default().cloneDeep(baseCharacterData), "user");
+
+external_default().set(charTest_S5_NoUserLocation, "cache.character-processor", {});
+
+const charTest_S6_CompanionPriority = external_default().cloneDeep(baseCharacterData);
+
+charTest_S6_CompanionPriority.世界.timeProgress = 120;
+
+charTest_S6_CompanionPriority.chars.reimu.routine = [ {
+  when: {
+    byFlag: [ "newPeriod" ]
+  },
+  action: {
+    to: "博丽神社",
+    do: "打扫神社"
+  }
+} ];
+
+charTest_S6_CompanionPriority.chars.reimu.所在地区 = "博丽神社";
+
+charTest_S6_CompanionPriority.user.所在地区 = "博丽神社";
+
+external_default().set(charTest_S6_CompanionPriority, "cache.character-processor", {});
+
+charTest_S6_CompanionPriority.cache.time = baseCharacterData.cache.time;
 
 const baseFestivalStat = {
   config: {

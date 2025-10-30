@@ -1,32 +1,9 @@
 import _ from 'lodash';
 import { Logger } from '../../../../utils/log';
-import { getAffectionStageFromContext, getChar, isVisitCooling } from '../../accessors';
+import { getAffectionStageFromRuntime, getChar, isVisitCooling, setVisitCooling } from '../../accessors';
 import { PREDEFINED_ACTIONS } from '../../constants';
 
 const logger = new Logger();
-
-/**
- * 检查角色是否命中其“耐心窗口”。
- */
-function isPatienceWindowHit(patienceUnit: string, flags: any): boolean {
-  if (!patienceUnit || !flags) return false;
-  switch (patienceUnit) {
-    case 'period':
-      return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
-    case 'day':
-      return flags.newDay === true;
-    case 'week':
-      return flags.newWeek === true;
-    case 'month':
-      return flags.newMonth === true;
-    case 'season':
-      return flags.newSeason === true;
-    case 'year':
-      return flags.newYear === true;
-    default:
-      return false;
-  }
-}
 
 /**
  * 执行概率检定。
@@ -63,16 +40,15 @@ export function makeVisitDecisions({
   const decidedChars: string[] = [];
 
   for (const charId of remoteChars) {
-    const affectionStage = getAffectionStageFromContext(runtime, charId);
+    const affectionStage = getAffectionStageFromRuntime(runtime, charId);
     if (!affectionStage) continue;
 
-    const { patienceUnit, visit: visitConfig } = affectionStage;
+    const { visit: visitConfig } = affectionStage;
     const char = getChar(stat, charId);
     const affection = char?.好感度 || 0;
 
     const isCooling = isVisitCooling(cache, charId);
     const canVisit = visitConfig?.enabled === true && !isCooling;
-    const patienceHit = isPatienceWindowHit(patienceUnit, runtime.clock.flags);
 
     if (!canVisit) {
       logger.debug(
@@ -82,15 +58,11 @@ export function makeVisitDecisions({
       continue;
     }
 
-    if (!patienceHit) {
-      logger.debug(funcName, `角色 ${charId} 未命中耐心窗口 (patienceUnit: ${patienceUnit})，跳过“来访”决策。`);
-      continue;
-    }
-
     const { passed, finalProb } = checkProbability(visitConfig.probBase, visitConfig.probK, affection);
     if (passed) {
       decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
       decidedChars.push(charId);
+      setVisitCooling(cache, charId, true);
       logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
     } else {
       logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);

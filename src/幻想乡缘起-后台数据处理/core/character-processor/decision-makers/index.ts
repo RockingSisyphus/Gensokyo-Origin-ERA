@@ -30,7 +30,7 @@ export function makeDecisions({
   remoteChars: string[];
 }): {
   companionDecisions: Record<string, any>;
-  otherDecisions: Record<string, any>;
+  nonCompanionDecisions: Record<string, any>;
 } {
   const funcName = 'makeDecisions';
   logger.debug(funcName, '开始为所有角色制定决策...');
@@ -72,22 +72,22 @@ export function makeDecisions({
     logger.debug(funcName, '“相伴”角色常规行动决策完毕。');
 
     // 5. 组合返回结果
-    const otherDecisions = _.merge({}, normalActionDecisions, visitDecisions);
+    const nonCompanionDecisions = _.merge({}, normalActionDecisions, visitDecisions);
 
     logger.debug(
       funcName,
-      `决策制定完毕。${_.size(otherDecisions)} 个“其他角色”的决策将由 aggregator 更新到 stat，${_.size(
+      `决策制定完毕。${_.size(nonCompanionDecisions)} 个“其他角色”的决策将由 aggregator 更新到 stat，${_.size(
         companionActionDecisions,
       )} 个“相伴角色”的决策将由 aggregator 更新到 runtime。`,
     );
 
     return {
       companionDecisions: companionActionDecisions,
-      otherDecisions,
+      nonCompanionDecisions,
     };
   } catch (e) {
     logger.error(funcName, '执行决策制定时发生错误:', e);
     // 发生错误时，返回一个空决策表，以防止流程中断
-    return { companionDecisions: {}, otherDecisions: {} };
+    return { companionDecisions: {}, nonCompanionDecisions: {} };
   }
 }
