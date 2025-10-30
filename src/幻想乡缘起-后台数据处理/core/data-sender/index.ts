@@ -16,7 +16,7 @@ export async function sendData({
   changes: ChangeLogEntry[];
 }) {
   const funcName = 'sendData';
-  logger.log(funcName, '开始发送数据...');
+  logger.debug(funcName, '开始发送数据...');
 
   // 将新的 runtime 对象【完全替换】旧的
   await setRuntimeObject(runtime, { mode: 'replace' });
@@ -30,10 +30,10 @@ export async function sendData({
       statChanges: changes, // 附加 stat 的变更日志
     };
     eventEmit('GSKO:showUI', uiPayload);
-    logger.log(funcName, '已发送 GSKO:showUI 事件', uiPayload);
+    logger.debug(funcName, '已发送 GSKO:showUI 事件', uiPayload);
   } else {
     logger.warn(funcName, 'eventEmit 函数不可用，无法发送 UI 更新事件。');
   }
 
-  logger.log(funcName, '数据发送完毕。');
+  logger.debug(funcName, '数据发送完毕。');
 }

@@ -4,7 +4,7 @@
  */
 
 import _ from 'lodash';
-import { Logger } from '../../../utils/log';
+import { Logger } from '../../utils/log';
 import { dayOfYear, toNumber } from './utils';
 
 const logger = new Logger();
@@ -14,7 +14,7 @@ const logger = new Logger();
  * @param {object} params - 参数对象
  * @param {any} params.runtime - 当前的 runtime 对象，包含时钟信息。
  * @param {any} params.stat - 包含 festivals_list 的 stat 对象。
- * @returns {any} - 更新后的 runtime 对象。
+ * @returns {any} - 包含 festival 数据的对象。
  */
 export function processFestival({ runtime, stat }: { runtime: any; stat: any }): any {
   const funcName = 'processFestival';
@@ -36,8 +36,7 @@ export function processFestival({ runtime, stat }: { runtime: any; stat: any }):
     // 如果没有日期信息或节日列表，则直接写入默认值并返回
     if (!currentMonth || !currentDay || !Array.isArray(festivalList) || festivalList.length === 0) {
       logger.debug(funcName, '日期信息不完整或节日列表为空，写入默认节日信息。');
-      _.set(runtime, 'festival', defaultFestivalInfo);
-      return runtime;
+      return { festival: defaultFestivalInfo };
     }
     logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
 

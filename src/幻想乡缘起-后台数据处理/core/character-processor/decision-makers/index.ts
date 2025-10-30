@@ -19,11 +19,13 @@ const logger = new Logger();
 export function makeDecisions({
   runtime,
   stat,
+  cache,
   coLocatedChars,
   remoteChars,
 }: {
   runtime: any;
   stat: any;
+  cache: any;
   coLocatedChars: string[];
   remoteChars: string[];
 }): {
@@ -31,7 +33,7 @@ export function makeDecisions({
   otherDecisions: Record<string, any>;
 } {
   const funcName = 'makeDecisions';
-  logger.log(funcName, '开始为所有角色制定决策...');
+  logger.debug(funcName, '开始为所有角色制定决策...');
 
   try {
     // 1. 异区角色决策
@@ -39,6 +41,7 @@ export function makeDecisions({
     const { decisions: visitDecisions, decidedChars: visitingChars } = makeVisitDecisions({
       runtime,
       stat,
+      cache,
       remoteChars,
     });
     logger.debug(funcName, `“来访”决策完毕，${visitingChars.length} 人决定来访: [${visitingChars.join(', ')}]`);
@@ -71,7 +74,7 @@ export function makeDecisions({
     // 5. 组合返回结果
     const otherDecisions = _.merge({}, normalActionDecisions, visitDecisions);
 
-    logger.log(
+    logger.debug(
       funcName,
       `决策制定完毕。${_.size(otherDecisions)} 个“其他角色”的决策将由 aggregator 更新到 stat，${_.size(
         companionActionDecisions,

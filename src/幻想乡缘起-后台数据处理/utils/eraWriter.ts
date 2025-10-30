@@ -20,7 +20,7 @@ export function updateEraVariable(path: string, value: any) {
   };
 
   try {
-    logger.log(funcName, `准备发送 era:updateByPath 事件`, eventData);
+    logger.debug(funcName, `准备发送 era:updateByPath 事件`, eventData);
     eventEmit('era:updateByPath', eventData);
   } catch (e) {
     logger.error(funcName, '发送 era:updateByPath 事件时出现异常', e);

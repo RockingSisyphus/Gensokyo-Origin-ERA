@@ -1,13 +1,12 @@
 import _ from 'lodash';
 import { Logger } from '../../../utils/log';
 import {
-  Action,
   getUserLocation,
-  PREDEFINED_ACTIONS,
   setCharGoalInStat,
   setCharLocationInStat,
   setVisitCooling,
-} from '../constants';
+} from '../accessors';
+import { Action, PREDEFINED_ACTIONS } from '../constants';
 
 const logger = new Logger();
 
@@ -32,10 +31,12 @@ function resolveTargetLocation(to: string, stat: any): string {
 function applyOtherDecisions({
   stat,
   runtime,
+  cache,
   otherDecisions,
 }: {
   stat: any;
   runtime: any;
+  cache: any;
   otherDecisions: Record<string, Action>;
 }): void {
   const funcName = 'applyOtherDecisions';
@@ -47,15 +48,15 @@ function applyOtherDecisions({
     const newLocation = resolveTargetLocation(decision.to, stat);
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
-    logger.log(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
+    logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
 
     // 2. 更新 runtime (副作用)
     _.set(runtime, `chars.${charId}.decision`, decision);
     logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
 
     if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
-      setVisitCooling(runtime, charId, true);
-      logger.log(funcName, `[RUNTIME] 角色 ${charId}: 已设置来访冷却。`);
+      setVisitCooling(cache, charId, true);
+      logger.debug(funcName, `[CACHE] 角色 ${charId}: 已设置来访冷却。`);
     }
   });
 }
@@ -72,42 +73,41 @@ function applyOtherDecisions({
 export function aggregateResults({
   stat,
   runtime,
+  cache,
   companionDecisions,
   otherDecisions,
 }: {
   stat: any;
   runtime: any;
+  cache: any;
   companionDecisions: Record<string, Action>;
   otherDecisions: Record<string, Action>;
-}): { stat: any; runtime: any } {
+}): { stat: any; runtime: any; cache: any } {
   const funcName = 'aggregateResults';
-  logger.log(funcName, '开始聚合角色决策结果...');
+  logger.debug(funcName, '开始聚合角色决策结果...');
 
   try {
-    logger.log(funcName, '聚合前（原始）的 stat 和 runtime:', { stat, runtime });
+    logger.debug(funcName, '聚合前（原始）的 stat 和 runtime:', { stat, runtime });
 
     // 1. 将“相伴角色”的决策存入 runtime
     // 这些决策仅用于当轮的逻辑判断，不直接写入 stat
     _.set(runtime, 'companionDecisions', companionDecisions);
-    logger.log(
+    logger.debug(
       funcName,
       `[RUNTIME] 已将 ${_.size(companionDecisions)} 个“相伴角色”的决策存入 runtime.companionDecisions。`,
     );
 
-    // 2. 将“其他角色”的决策应用到 stat
-    // 创建 stat 的副本以安全修改
-    const newStat = _.cloneDeep(stat);
-
-    // 直接修改传入的 runtime 对象，不创建副本，以保留上游模块的修改
-    applyOtherDecisions({ stat: newStat, runtime: runtime, otherDecisions });
+    // 2. 将“其他角色”的决策应用到 stat 和 cache
+    // 直接修改传入的对象，不创建副本，以保留上游模块的修改
+    applyOtherDecisions({ stat, runtime, cache, otherDecisions });
 
     // TODO: 在此添加其他聚合逻辑，如生成 changelog。
 
-    logger.log(funcName, '结果聚合完毕。', { finalStat: newStat, finalRuntime: runtime });
-    return { stat: newStat, runtime: runtime };
+    logger.debug(funcName, '结果聚合完毕。', { finalStat: stat, finalRuntime: runtime, finalCache: cache });
+    return { stat, runtime, cache };
   } catch (e) {
     logger.error(funcName, '执行结果聚合时发生错误:', e);
     // 发生错误时，返回原始数据以防止流程中断
-    return { stat, runtime };
+    return { stat, runtime, cache };
   }
 }

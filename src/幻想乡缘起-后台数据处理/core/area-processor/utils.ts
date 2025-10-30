@@ -1,4 +1,4 @@
-import { Logger } from '../../../utils/log';
+import { Logger } from '../../utils/log';
 
 const logger = new Logger();
 

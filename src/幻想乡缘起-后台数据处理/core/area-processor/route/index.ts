@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Logger } from '../../../../utils/log';
+import { Logger } from '../../../utils/log';
 import { bfs } from '../utils';
 
 const logger = new Logger();
@@ -75,7 +75,7 @@ export function processRoute({
       routes,
     };
 
-    logger.log(funcName, '路线计算完成', routeInfo);
+    logger.debug(funcName, '路线计算完成', routeInfo);
     return routeInfo;
   } catch (error) {
     logger.error(funcName, '处理路线时发生异常', error);

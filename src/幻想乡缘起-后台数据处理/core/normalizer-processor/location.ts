@@ -1,8 +1,8 @@
 import _ from 'lodash';
-import { ChangeLogEntry, createChangeLogEntry } from '../../../utils/constants';
-import { get } from '../../../utils/format';
-import { Logger } from '../../../utils/log';
-import { extractLeafs, getAliasMap, MapGraph } from '../../../utils/map';
+import { ChangeLogEntry, createChangeLogEntry } from '../../utils/constants';
+import { get } from '../../utils/format';
+import { Logger } from '../../utils/log';
+import { extractLeafs, getAliasMap, MapGraph } from '../../utils/map';
 
 const logger = new Logger();
 
@@ -14,7 +14,7 @@ const logger = new Logger();
  */
 export function normalizeLocationData(originalStat: any): { stat: any; changes: ChangeLogEntry[] } {
   const funcName = 'normalizeLocationData';
-  logger.log(funcName, '开始对 stat 对象进行位置合法化处理...');
+  logger.debug(funcName, '开始对 stat 对象进行位置合法化处理...');
 
   // 使用深拷贝创建一个全新的 stat 对象，确保后续操作不污染原始数据
   const stat = _.cloneDeep(originalStat);
@@ -204,7 +204,7 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
         }
       }
     }
-    logger.log(funcName, '位置合法化检查完成。');
+    logger.debug(funcName, '位置合法化检查完成。');
   } catch (e) {
     logger.error(funcName, '执行位置合法化时发生未知异常，将返回原始克隆数据。', e);
   }

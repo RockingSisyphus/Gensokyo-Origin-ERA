@@ -1,25 +1,18 @@
 import _ from 'lodash';
-import { Logger } from '../../../utils/log';
+import { Logger } from '../../utils/log';
 import * as TimeData from './data';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 
 const logger = new Logger();
 
-export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
+export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: any }) {
   const funcName = 'processTime';
-
-  // 预先清理上一轮的计算结果，但保留 clockAck
-  if (runtime.clock) {
-    delete runtime.clock.now;
-    delete runtime.clock.flags;
-  }
 
   try {
     logger.debug(funcName, `开始时间计算，stat=`, stat);
-    logger.debug(funcName, `开始时间计算，runtime=`, runtime);
-    // ---------- 读取上一楼层的 ACK (从传入的 runtime 对象) ----------
-    const prev = _.get(runtime, 'clock.clockAck', null) as any;
-    logger.debug(funcName, `从 runtime 读取上一楼 ACK:`, prev);
+    // ---------- 读取上一楼层的 ACK (从参数传入) ----------
+    const prev = prevClockAck;
+    logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
 
     // ---------- 读取时间源和配置 ----------
     const timeConfig = _.get(stat, 'config.time', {});
@@ -82,12 +75,12 @@ export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
     const periodKey = periodKeys[periodIdx];
     const periodID = dayID * 10 + periodIdx;
 
-    logger.log(
+    logger.debug(
       funcName,
       `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`,
     );
-    logger.log(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
-    logger.log(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
+    logger.debug(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
+    logger.debug(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
 
     // ---------- 变化判定 ----------
     let newDay = false,
@@ -113,12 +106,12 @@ export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
       newDay = newWeek || d;
       newPeriod = newDay || p;
 
-      logger.log(
+      logger.debug(
         funcName,
         `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`,
       );
     } else {
-      logger.log(funcName, '首次或上一楼无 ACK: 不触发 new* (全部 false)');
+      logger.debug(funcName, '首次或上一楼无 ACK: 不触发 new* (全部 false)');
     }
 
     // ---------- 构造返回值 ----------
@@ -180,11 +173,11 @@ export function processTime({ runtime, stat }: { runtime: any; stat: any }) {
       },
     };
 
-    logger.log(funcName, '时间数据处理完成，返回待写入 runtime 的数据。');
+    logger.debug(funcName, '时间数据处理完成，返回待写入 runtime 的数据。');
     return result;
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
-    // 失败时返回一个空的 clock 对象，以覆盖旧数据
-    return { clock: {} };
+    // 失败时返回一个定义好的空结构，以避免类型错误
+    return { clock: { clockAck: null, now: {}, flags: {} } };
   }
 }

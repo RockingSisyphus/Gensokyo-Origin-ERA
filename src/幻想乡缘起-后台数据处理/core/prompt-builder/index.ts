@@ -14,7 +14,7 @@ const logger = new Logger();
  */
 export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): string {
   const funcName = 'buildPrompt';
-  logger.log(funcName, '开始构建提示词...');
+  logger.debug(funcName, '开始构建提示词...');
 
   const prompts: string[] = [];
 
@@ -44,6 +44,6 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
 
   const finalPrompt = prompts.join('\n\n');
 
-  logger.log(funcName, '提示词构建完毕。');
+  logger.debug(funcName, '提示词构建完毕。');
   return finalPrompt;
 }

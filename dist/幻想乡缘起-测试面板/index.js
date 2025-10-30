@@ -807,46 +807,167 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const baseTimeData = {
+const baseConfig = {
   config: {
     time: {
       epochISO: "2025-10-24T06:00:00+09:00"
     }
-  },
+  }
+};
+
+const timeTest_Initial = {
+  ...external_default().cloneDeep(baseConfig),
   世界: {
     timeProgress: 0
   }
 };
 
-const timeTest_Initial = external_default().cloneDeep(baseTimeData);
+const timeTest_NoChange = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: 10
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-const timeTest_NoChange = external_default().cloneDeep(baseTimeData);
+const timeTest_NewPeriod = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: 2 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-timeTest_NoChange.世界.timeProgress = 10;
+const timeTest_NewDay = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: 19 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-const timeTest_NewPeriod = external_default().cloneDeep(baseTimeData);
+const timeTest_NewWeek = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: 3 * 24 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-timeTest_NewPeriod.世界.timeProgress = 2 * 60;
+const timeTest_NewMonth = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: 8 * 24 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-const timeTest_NewDay = external_default().cloneDeep(baseTimeData);
+const timeTest_NewSeason = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: (8 + 30) * 24 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
-timeTest_NewDay.世界.timeProgress = 19 * 60;
-
-const timeTest_NewWeek = external_default().cloneDeep(baseTimeData);
-
-timeTest_NewWeek.世界.timeProgress = 3 * 24 * 60;
-
-const timeTest_NewMonth = external_default().cloneDeep(baseTimeData);
-
-timeTest_NewMonth.世界.timeProgress = 8 * 24 * 60;
-
-const timeTest_NewSeason = external_default().cloneDeep(baseTimeData);
-
-timeTest_NewSeason.世界.timeProgress = (8 + 30) * 24 * 60;
-
-const timeTest_NewYear = external_default().cloneDeep(baseTimeData);
-
-timeTest_NewYear.世界.timeProgress = (8 + 30 + 31) * 24 * 60;
+const timeTest_NewYear = {
+  ...external_default().cloneDeep(baseConfig),
+  世界: {
+    timeProgress: (8 + 30 + 31) * 24 * 60
+  },
+  cache: {
+    time: {
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2
+      }
+    }
+  }
+};
 
 const statWithIllegalLocations = {
   user: {
@@ -1708,13 +1829,19 @@ const baseCharacterData = {
 
 const charTest_S1_R1_Standard = external_default().cloneDeep(baseCharacterData);
 
+external_default().set(charTest_S1_R1_Standard, "cache", {});
+
 const charTest_S2_R2_StandardNextDay = external_default().cloneDeep(baseCharacterData);
 
 charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60;
 
 charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = "博丽神社";
 
+external_default().set(charTest_S2_R2_StandardNextDay, "cache.character-processor.marisa.visit.cooling", true);
+
 const charTest_S3_VisitProbFail = external_default().cloneDeep(baseCharacterData);
+
+external_default().set(charTest_S3_VisitProbFail, "cache", {});
 
 charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
   threshold: 0,
@@ -1737,6 +1864,8 @@ charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
 } ];
 
 const charTest_S4_AllIdle = external_default().cloneDeep(baseCharacterData);
+
+external_default().set(charTest_S4_AllIdle, "cache", {});
 
 charTest_S4_AllIdle.chars.reimu.routine = [];
 
@@ -1849,7 +1978,12 @@ const incidentTestData = {
       世界: {
         timeProgress: 50
       },
-      incidents: {}
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 10
+        }
+      }
     }
   },
   "触发新异变(冷却结束)": {
@@ -1868,7 +2002,12 @@ const incidentTestData = {
       世界: {
         timeProgress: 111
       },
-      incidents: {}
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 10
+        }
+      }
     }
   },
   "触发新异变(强制)": {
@@ -1926,7 +2065,12 @@ const incidentTestData = {
       世界: {
         timeProgress: 15
       },
-      incidents: {}
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 1
+        }
+      }
     }
   }
 };

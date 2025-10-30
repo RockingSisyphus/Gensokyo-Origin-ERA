@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Logger } from '../../../../utils/log';
+import { Logger } from '../../../utils/log';
 
 const logger = new Logger();
 
@@ -31,7 +31,7 @@ export function processNeighbors({
     }
 
     const neighbors = Object.keys(graph[currentUserLocation]);
-    logger.log(funcName, `找到 ${currentUserLocation} 的邻居: ${neighbors.join(', ')}`);
+    logger.debug(funcName, `找到 ${currentUserLocation} 的邻居: ${neighbors.join(', ')}`);
     return neighbors;
   } catch (error) {
     logger.error(funcName, '获取相邻地区时发生异常', error);

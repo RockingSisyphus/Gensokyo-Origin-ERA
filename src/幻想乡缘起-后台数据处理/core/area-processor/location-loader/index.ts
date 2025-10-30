@@ -1,7 +1,7 @@
 import _ from 'lodash';
-import { ERA_VARIABLE_PATH } from '../../../../utils/constants';
-import { Logger } from '../../../../utils/log';
-import { matchMessages } from '../../../../utils/message';
+import { ERA_VARIABLE_PATH } from '../../../utils/constants';
+import { Logger } from '../../../utils/log';
+import { matchMessages } from '../../../utils/message';
 
 const logger = new Logger();
 
@@ -27,7 +27,7 @@ export async function loadLocations({
 
   try {
     if (!legalLocations || legalLocations.length === 0) {
-      logger.log(funcName, '传入的合法地区列表为空，无需加载。');
+      logger.debug(funcName, '传入的合法地区列表为空，无需加载。');
       return [];
     }
 

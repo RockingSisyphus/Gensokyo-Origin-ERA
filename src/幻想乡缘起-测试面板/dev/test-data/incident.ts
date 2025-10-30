@@ -27,6 +27,9 @@ export const incidentTestData = {
       },
       世界: { timeProgress: 50 }, // 50 - 10 < 100
       incidents: {},
+      cache: {
+        incident: { incidentCooldownAnchor: 10 },
+      },
     },
   },
 
@@ -47,6 +50,9 @@ export const incidentTestData = {
       },
       世界: { timeProgress: 111 }, // 111 - 10 > 100
       incidents: {},
+      cache: {
+        incident: { incidentCooldownAnchor: 10 },
+      },
     },
   },
 
@@ -108,8 +114,11 @@ export const incidentTestData = {
           pool: [],
         },
       },
-      世界: { timeProgress: 15 },
+      世界: { timeProgress: 15 }, // 15 - 1 > 10
       incidents: {},
+      cache: {
+        incident: { incidentCooldownAnchor: 1 },
+      },
     },
   },
 };

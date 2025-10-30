@@ -8,8 +8,8 @@ import {
   isVisitCooling,
   setAffectionStageInContext,
   setVisitCooling,
-  VISIT_COOLING_IN_STATE_PATH,
-} from '../constants';
+} from '../accessors';
+import { MODULE_CACHE_ROOT, VISIT_COOLING_PATH } from '../constants';
 
 const logger = new Logger();
 
@@ -39,13 +39,21 @@ function isCooldownResetTriggered(coolUnit: string, flags: any): boolean {
 /**
  * 预处理模块，负责解析好感度等级和重置来访冷却。
  */
-export function preprocess({ runtime, stat }: { runtime: any; stat: any }): {
+export function preprocess({
+  runtime,
+  stat,
+  cache,
+}: {
   runtime: any;
   stat: any;
+  cache: any;
+}): {
+  runtime: any;
+  cache: any;
   changes: ChangeLogEntry[];
 } {
   const funcName = 'preprocess';
-  logger.log(funcName, '开始执行预处理...');
+  logger.debug(funcName, '开始执行预处理...');
 
   try {
     const newRuntime = _.cloneDeep(runtime);
@@ -90,11 +98,11 @@ export function preprocess({ runtime, stat }: { runtime: any; stat: any }): {
       }
     }
 
-    logger.log(funcName, '预处理执行完毕。');
+    logger.debug(funcName, '预处理执行完毕。');
 
     return {
       runtime: newRuntime,
-      stat: stat,
+      cache: cache,
       changes: changes,
     };
   } catch (e) {
@@ -102,7 +110,7 @@ export function preprocess({ runtime, stat }: { runtime: any; stat: any }): {
     // 发生错误时，返回原始数据以防止流程中断
     return {
       runtime: runtime,
-      stat: stat,
+      cache: cache,
       changes: [],
     };
   }

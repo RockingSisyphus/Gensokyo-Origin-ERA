@@ -1,5 +1,6 @@
 import { Logger } from '../../../../utils/log';
-import { getAffectionStageFromContext, PREDEFINED_ACTIONS } from '../../constants';
+import { PREDEFINED_ACTIONS } from '../../constants';
+import { getAffectionStageFromContext } from '../../accessors';
 
 const logger = new Logger();
 
@@ -50,10 +51,10 @@ export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: a
     if (!patienceHit) {
       // companionDecisions[charId] = { ...PREDEFINED_ACTIONS.STAY_WITH_HERO, isCompanion: true }; // 暂时停用
       companionChars.push(charId);
-      logger.log(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，标记为“相伴”。`);
+      logger.debug(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，标记为“相伴”。`);
     } else {
       // 如果命中了耐心窗口，则耐心耗尽，不在此处做决定，交由 action-processor 处理
-      logger.log(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);
+      logger.debug(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);
     }
   }
 

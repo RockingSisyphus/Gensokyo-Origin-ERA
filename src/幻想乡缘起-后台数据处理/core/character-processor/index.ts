@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Logger } from '../../utils/log';
+import { getCache, applyCacheToStat } from '../../utils/cache';
 import { preprocess } from './preprocessor';
 import { partitionCharacters } from './partitioner';
 import { makeDecisions } from './decision-makers';
@@ -25,7 +26,7 @@ export async function processCharacterDecisions({
   runtime: any;
 }): Promise<{ stat: any; runtime: any }> {
   const funcName = 'processCharacterDecisions';
-  logger.log(funcName, '开始处理角色决策...');
+  logger.debug(funcName, '开始处理角色决策...');
 
   try {
     // 1. 预处理
@@ -52,7 +53,9 @@ export async function processCharacterDecisions({
 
     logger.log(funcName, '角色决策处理完毕。');
 
-    return { stat: finalStat, runtime: finalRuntime };
+  logger.debug(funcName, '角色决策处理完毕。');
+
+    return { stat: aggregatedStat, runtime: finalRuntime };
   } catch (e) {
     logger.error(funcName, '处理角色决策时发生意外错误:', e);
     // 发生严重错误时，返回原始数据以确保主流程稳定

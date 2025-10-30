@@ -4,11 +4,11 @@
  */
 
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../../utils/constants';
-import { Logger } from '../../../utils/log';
+import { ChangeLogEntry } from '../../utils/constants';
+import { EditLogOp, getAtomicChangesFromUpdate, getUpdateOps, parseEditLogString } from '../../utils/editLog';
+import { Logger } from '../../utils/log';
 import { FOLD_RATIO, MIN_STEP } from './constants';
 import { isTarget } from './utils';
-import { parseEditLogString, getUpdateOps, getAtomicChangesFromUpdate, EditLogOp } from '../../../utils/editLog';
 
 const logger = new Logger();
 
@@ -116,7 +116,7 @@ export function processAffection({ stat, editLog }: { stat: any; editLog: any })
   }
 
   if (changes.length > 0) {
-    logger.log(funcName, '好感度折算处理完毕。', {
+    logger.debug(funcName, '好感度折算处理完毕。', {
       summary: `共产生 ${changes.length} 条变更。`,
       internalLogs,
     });

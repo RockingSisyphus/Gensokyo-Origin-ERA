@@ -1,14 +1,41 @@
+import _ from 'lodash';
+import { processAffectionDecisions } from './core/affection-processor';
+import { processArea } from './core/area-processor';
 import { processCharacterDecisions } from './core/character-processor';
 import { sendData } from './core/data-sender';
-import { processMixed } from './core/mixed-processor';
+import { processFestival } from './core/festival-processor';
+import { processIncidentDecisions } from './core/incident-processor';
+import { processNormalization } from './core/normalizer-processor';
 import { buildPrompt } from './core/prompt-builder';
-import { buildRuntime } from './core/runtime-builder';
-import { processStat } from './core/stat-processor';
+import { processTime } from './core/time-processor';
+import { getCache } from './utils/cache';
 import { WriteDonePayload } from './utils/era';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
 
 const logger = new Logger();
+
+/**
+ * 辅助函数，用于在控制台清晰地打印当前的核心对象状态。
+ * @param moduleName - 刚刚执行完毕的模块名。
+ * @param modified - 一个描述哪些核心对象被修改的字符串。
+ * @param stat - 当前的 stat 对象。
+ * @param runtime - 当前的 runtime 对象。
+ * @param cache - 当前的 cache 对象。
+ */
+function logState(
+  moduleName: string,
+  modified: string,
+  { stat, runtime, cache }: { stat: any; runtime: any; cache: any },
+) {
+  const title = `[${moduleName}] (修改: ${modified})`;
+  const data = {
+    Stat: _.cloneDeep(stat),
+    Runtime: _.cloneDeep(runtime),
+    Cache: _.cloneDeep(cache),
+  };
+  logger.log('logState', title, data);
+}
 
 // 主程序入口
 $(() => {
@@ -19,49 +46,109 @@ $(() => {
     const { statWithoutMeta, mk, editLogs } = payload;
     logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
 
+    // --- 初始状态 ---
+    let currentStat = _.cloneDeep(statWithoutMeta); // 直接克隆
+    let currentRuntime = getRuntimeObject();
+    logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+
     // 根据当前 mk 获取对应的 editLog
     const currentEditLog = (editLogs as any)?.[mk];
 
-    // 1. Stat 处理
-    let { processedStat, changes: statChanges } = processStat({
-      originalStat: statWithoutMeta,
-      editLog: currentEditLog,
+    // 1. 数据规范化处理
+    const normalizationResult = processNormalization({ originalStat: currentStat });
+    currentStat = normalizationResult.processedStat;
+    const normalizationChanges = normalizationResult.changes;
+    logState('Normalizer Processor', 'stat', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
     });
 
-    // 2. 从 chat 变量域中读取上一楼层的 runtime 对象
-    const prevRuntime = getRuntimeObject();
-    logger.log('handleWriteDone', '读取到上一层runtime域的对象...', prevRuntime);
-    // 2.5. 混合处理（可能同时修改 stat 和 runtime）
-    const mixedResult = processMixed({ runtime: prevRuntime, stat: processedStat });
-    const mixedProcessedStat = mixedResult.stat;
-    const mixedProcessedRuntime = mixedResult.runtime;
-    const mixedChanges = mixedResult.changes;
-    logger.log('handleWriteDone', '完成混合处理的runtime域的对象...', mixedProcessedRuntime);
+    // 1.5. 好感度处理
+    const affectionResult = processAffectionDecisions({ stat: currentStat, editLog: currentEditLog });
+    currentStat = affectionResult.stat;
+    const affectionChanges = affectionResult.changes;
+    logState('Affection Processor', 'stat', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
+    // 2.5. 异变处理
+    const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
+    currentStat = incidentResult.stat;
+    currentRuntime = incidentResult.runtime;
+    const incidentChanges = incidentResult.changes;
+    logState('Incident Processor', 'stat (cache), runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
     // 合并所有 changes
-    const allChanges = statChanges.concat(mixedChanges);
+    const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges);
 
-    // 3. Runtime 构建
-    const builtRuntime = await buildRuntime({ stat: mixedProcessedStat, runtime: mixedProcessedRuntime });
-    logger.log('handleWriteDone', '完成build的runtime域的对象...', mixedProcessedRuntime);
-    // 3.5. 角色决策处理
-    const { stat: charProcessedStat, runtime: charProcessedRuntime } = await processCharacterDecisions({
-      stat: mixedProcessedStat,
-      runtime: builtRuntime,
+    // 2.8. 时间处理
+    const timeResult = await processTime({
+      stat: currentStat,
+      runtime: currentRuntime,
     });
-    logger.log('handleWriteDone', '完成角色决策的runtime域的对象...', mixedProcessedRuntime);
+    currentStat = timeResult.stat;
+    currentRuntime = timeResult.runtime;
+    logState('Time Processor', 'stat (cache), runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
+    // 2.9. 地区处理
+    const areaResult = await processArea({
+      stat: currentStat,
+      runtime: currentRuntime,
+    });
+    currentStat = areaResult.stat;
+    currentRuntime = areaResult.runtime;
+    logState('Area Processor', 'runtime', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+
+    // 3. 节日处理
+    const festivalResult = await processFestival({
+      stat: currentStat,
+      runtime: currentRuntime,
+    });
+    currentStat = festivalResult.stat;
+    currentRuntime = festivalResult.runtime;
+    logState('Festival Processor', 'runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
+    // 3.5. 角色决策处理
+    const charResult = await processCharacterDecisions({
+      stat: currentStat,
+      runtime: currentRuntime,
+    });
+    currentStat = charResult.stat;
+    currentRuntime = charResult.runtime;
+    logState('Character Processor', 'stat (cache), runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
     // 4. 提示词构建
-    const prompt = buildPrompt({ runtime: charProcessedRuntime, stat: charProcessedStat });
+    const prompt = buildPrompt({ runtime: currentRuntime, stat: currentStat });
     logger.log('handleWriteDone', '提示词构建完毕:', prompt);
+
     // 5. 数据写入/发送
     await sendData({
-      stat: charProcessedStat,
-      runtime: charProcessedRuntime,
+      stat: currentStat,
+      runtime: currentRuntime,
       eraPayload: payload,
       changes: allChanges,
     });
 
     logger.log('handleWriteDone', '所有核心模块处理完毕。', {
-      finalRuntime: charProcessedRuntime,
+      finalRuntime: currentRuntime,
     });
   };
 

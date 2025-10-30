@@ -77,6 +77,7 @@ const baseCharacterData = {
 // ==================================================================
 // 预期: reimu(相伴), marisa(来访), sanae(routine)
 export const charTest_S1_R1_Standard = _.cloneDeep(baseCharacterData);
+_.set(charTest_S1_R1_Standard, 'cache', {}); // 初始无缓存
 
 // ==================================================================
 // 场景 2: 标准流程 - 第二天 (承接场景1)
@@ -85,12 +86,15 @@ export const charTest_S1_R1_Standard = _.cloneDeep(baseCharacterData);
 export const charTest_S2_R2_StandardNextDay = _.cloneDeep(baseCharacterData);
 charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60; // 推进一天
 charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = '博丽神社'; // marisa 已到达
+// 模拟 marisa 在前一天来访后进入冷却状态
+_.set(charTest_S2_R2_StandardNextDay, 'cache.character-processor.marisa.visit.cooling', true);
 
 // ==================================================================
 // 场景 3: 边缘情况 - 来访概率失败
 // ==================================================================
 // 预期: marisa 因概率检定失败而不会来访，转而执行 routine
 export const charTest_S3_VisitProbFail = _.cloneDeep(baseCharacterData);
+_.set(charTest_S3_VisitProbFail, 'cache', {}); // 初始无缓存
 // 修改 marisa 的好感度配置，使来访概率为 0
 charTest_S3_VisitProbFail.config.affection.affectionStages = [
   { threshold: 0, name: '陌生', patienceUnit: 'period', visit: { enabled: true, probBase: 0.0, coolUnit: 'day' } },
@@ -102,6 +106,7 @@ charTest_S3_VisitProbFail.config.affection.affectionStages = [
 // ==================================================================
 // 预期: 所有角色都因不满足任何行动条件而待机
 export const charTest_S4_AllIdle = _.cloneDeep(baseCharacterData);
+_.set(charTest_S4_AllIdle, 'cache', {}); // 初始无缓存
 // 通过将 routine 和 specials 设为空数组来确保没有行动会被触发
 charTest_S4_AllIdle.chars.reimu.routine = [];
 charTest_S4_AllIdle.chars.marisa.routine = [];

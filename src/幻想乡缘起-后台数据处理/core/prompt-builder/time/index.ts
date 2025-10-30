@@ -49,7 +49,7 @@ export function buildTimePrompt({ runtime }: { runtime: any }): string | null {
     const line2 = changes.length ? `【上一轮时间变化】${changes.join('，')}。` : '';
 
     const result = line2 ? line1 + '\n' + line2 : line1;
-    logger.log(funcName, '成功构建时间提示词。', { result });
+    logger.debug(funcName, '成功构建时间提示词。', { result });
     return result;
   } catch (err: any) {
     logger.error(funcName, '构建时间提示词失败: ' + (err?.message || String(err)), err);

@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { Logger } from '../../../../utils/log';
-import { getAffectionStageFromContext, isVisitCooling, getChar, PREDEFINED_ACTIONS } from '../../constants';
+import { getAffectionStageFromContext, getChar, isVisitCooling } from '../../accessors';
+import { PREDEFINED_ACTIONS } from '../../constants';
 
 const logger = new Logger();
 
@@ -67,7 +68,7 @@ export function makeVisitDecisions({
     const char = getChar(stat, charId);
     const affection = char?.好感度 || 0;
 
-    const isCooling = isVisitCooling(runtime, charId);
+    const isCooling = isVisitCooling(cache, charId);
     const canVisit = visitConfig?.enabled === true && !isCooling;
     const patienceHit = isPatienceWindowHit(patienceUnit, runtime.clock.flags);
 
@@ -88,7 +89,7 @@ export function makeVisitDecisions({
     if (passed) {
       decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
       decidedChars.push(charId);
-      logger.log(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
+      logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
     } else {
       logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
     }

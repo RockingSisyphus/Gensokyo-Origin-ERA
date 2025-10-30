@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { Logger } from '../../../../utils/log';
-import { getChar, getCharLocation, ENTRY_KEYS, DEFAULT_VALUES, Character, Entry, Action } from '../../constants';
+import { ENTRY_KEYS, DEFAULT_VALUES, Character, Entry, Action } from '../../constants';
+import { getChar, getCharLocation } from '../../accessors';
 import { getCurrentFestivalName } from '../../../../utils/constants';
 
 const logger = new Logger();
@@ -128,10 +129,10 @@ export function makeActionDecisions({
         action.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       }
       decisions[charId] = action;
-      logger.log(funcName, `为角色 ${charId} 分配了行动 [${action.do}]。`);
+      logger.debug(funcName, `为角色 ${charId} 分配了行动 [${action.do}]。`);
     } else {
       // 如果没有命中任何行动，则不为该角色生成决策，让其维持现状
-      logger.log(funcName, `角色 ${charId} 未命中任何行动，本次不作决策。`);
+      logger.debug(funcName, `角色 ${charId} 未命中任何行动，本次不作决策。`);
     }
   }
 

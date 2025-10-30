@@ -1,6 +1,7 @@
 import _ from 'lodash';
-import { ChangeLogEntry, createChangeLogEntry } from '../../../utils/constants';
-import { Logger } from '../../../utils/log';
+import { ChangeLogEntry, createChangeLogEntry } from '../../utils/constants';
+import { Cache, getCacheValue, setCacheValue } from '../../utils/cache';
+import { Logger } from '../../utils/log';
 import { DEFAULT_INCIDENT_CONFIG, Incident } from './constants';
 import { asArray, pick } from './utils';
 
@@ -74,10 +75,13 @@ function spawnRandomIncident(runtime: any, stat: any): Incident {
 /**
  * @description 判断是否应该触发新的异变
  */
-function shouldTriggerNewIncident(runtime: any, stat: any): { trigger: boolean; anchor: number | null } {
+function shouldTriggerNewIncident(
+  stat: any,
+  cache: Cache,
+): { trigger: boolean; anchor: number | null } {
   const { cooldownMinutes, forceTrigger } = getIncidentConfig(stat);
   const timeProgress = _.get(stat, '世界.timeProgress', 0);
-  const anchor = _.get(runtime, 'incident.incidentCooldownAnchor', null);
+  const anchor: number | null = getCacheValue(cache, 'incident.incidentCooldownAnchor', null) ?? null;
 
   if (getCurrentIncident(stat)) {
     return { trigger: false, anchor: null };
@@ -119,7 +123,7 @@ function getContinueDecision(stat: any): {
   const poolEntry = pool.find((item: any) => item.name === currentIncident.name);
   currentIncident.detail = poolEntry?.detail || currentIncident.detail;
 
-  logger.log('getContinueDecision', `推进异变《${currentIncident.name}》，地点:`, currentIncident.mainLoc);
+  logger.debug('getContinueDecision', `推进异变《${currentIncident.name}》，地点:`, currentIncident.mainLoc);
 
   return {
     decision: 'continue',
@@ -151,7 +155,7 @@ function getStartNewDecision(
     newIncident.mainLoc = ['博丽神社'];
   }
 
-  logger.log('getStartNewDecision', `开启新异变《${newIncident.name}》，地点:`, newIncident.mainLoc);
+  logger.debug('getStartNewDecision', `开启新异变《${newIncident.name}》，地点:`, newIncident.mainLoc);
 
   const path = `incidents.${newIncident.name}`;
   const newValue = {
@@ -177,15 +181,19 @@ function getStartNewDecision(
  * @description 处理维持日常的逻辑
  */
 function getDailyDecision(
-  runtime: any,
   stat: any,
+  cache: Cache,
 ): { decision: string; remainingCooldown: number; changes: ChangeLogEntry[] } {
   const { cooldownMinutes } = getIncidentConfig(stat);
   const timeProgress = _.get(stat, '世界.timeProgress', 0);
-  const anchor = _.get(runtime, 'incident.incidentCooldownAnchor', timeProgress);
-  const remainingCooldown = Math.max(0, cooldownMinutes - (timeProgress - anchor));
+  const anchor: number | null = getCacheValue(cache, 'incident.incidentCooldownAnchor', timeProgress) ?? timeProgress;
+  
+  // 如果 anchor 为 null（理论上在 daily 决策时不会发生，但作为安全措施），则剩余冷却时间为全量
+  const remainingCooldown = anchor === null 
+    ? cooldownMinutes
+    : Math.max(0, cooldownMinutes - (timeProgress - anchor));
 
-  logger.log('getDailyDecision', '日常剧情，新异变冷却中。');
+  logger.debug('getDailyDecision', '日常剧情，新异变冷却中。');
 
   return {
     decision: 'daily',
@@ -198,22 +206,25 @@ function getDailyDecision(
  * @description 异变混合处理器主入口
  * @param {any} runtime - 运行时对象
  * @param {any} stat - 状态对象
- * @returns {{ runtime: any; stat: any; changes: ChangeLogEntry[] }} 处理后的运行时、状态和变更日志
+ * @param {Cache} cache - 缓存对象
+ * @returns {{ runtime: any; stat: any; changes: ChangeLogEntry[], cache: Cache }} 处理后的结果
  */
-export function processIncident({ runtime, stat }: { runtime: any; stat: any }): {
+export function processIncident({ runtime, stat, cache }: { runtime: any; stat: any; cache: Cache }): {
   runtime: any;
   stat: any;
   changes: ChangeLogEntry[];
+  cache: Cache;
 } {
   const funcName = 'processIncident';
   logger.debug(funcName, '开始异变处理...');
 
   // 使用深拷贝，确保所有操作都发生在一个独立的副本上
   const newStat = _.cloneDeep(stat);
+  const newCache = _.cloneDeep(cache);
 
   try {
     const currentIncident = getCurrentIncident(newStat);
-    const { trigger: shouldTrigger, anchor: newAnchor } = shouldTriggerNewIncident(runtime, newStat);
+    const { trigger: shouldTrigger, anchor: newAnchor } = shouldTriggerNewIncident(newStat, newCache);
 
     let decisionResult: {
       decision: string;
@@ -228,24 +239,28 @@ export function processIncident({ runtime, stat }: { runtime: any; stat: any }):
     } else if (shouldTrigger) {
       decisionResult = getStartNewDecision(runtime, newStat);
     } else {
-      decisionResult = getDailyDecision(runtime, newStat);
+      decisionResult = getDailyDecision(newStat, newCache);
     }
 
     const { decision, current, spawn, remainingCooldown, changes } = decisionResult;
+
+    // 更新 runtime
     runtime.incident = {
       decision,
       current,
       spawn,
       remainingCooldown,
-      incidentCooldownAnchor: newAnchor,
       isIncidentActive: !!currentIncident,
     };
 
+    // 更新 cache
+    setCacheValue(newCache, 'incident.incidentCooldownAnchor', newAnchor);
+
     logger.debug(funcName, '异变处理完成, runtime.incident=', runtime.incident);
-    return { runtime, stat: newStat, changes };
+    return { runtime, stat: newStat, changes, cache: newCache };
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
     runtime.incident = {};
-    return { runtime, stat, changes: [] }; // 失败时返回原始 stat
+    return { runtime, stat, changes: [], cache }; // 失败时返回原始 stat 和 cache
   }
 }

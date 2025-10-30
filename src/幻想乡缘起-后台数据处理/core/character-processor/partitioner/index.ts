@@ -1,6 +1,6 @@
 import _ from 'lodash';
 import { Logger } from '../../../utils/log';
-import { getChar, getCharLocation, getUserLocation } from '../constants';
+import { getChar, getCharLocation, getUserLocation } from '../accessors';
 
 const logger = new Logger();
 
@@ -12,7 +12,7 @@ export function partitionCharacters({ stat }: { stat: any }): {
   remoteChars: string[];
 } {
   const funcName = 'partitionCharacters';
-  logger.log(funcName, '开始执行角色分组...');
+  logger.debug(funcName, '开始执行角色分组...');
 
   try {
     const userLocation = getUserLocation(stat);
