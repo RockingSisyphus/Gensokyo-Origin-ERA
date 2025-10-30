@@ -16,8 +16,8 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { get } from '../../utils/format';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
+import { get } from '../../utils/format';
 import StyledProgressBar from '../common/StyledProgressBar.vue';
 
 const props = defineProps<{
@@ -38,7 +38,8 @@ const hateThreshold = computed(() =>
 
 const affectionStage = computed(() => {
   if (!props.runtime || !props.character?.name) return '—';
-  return get(props.runtime, `chars.${props.character.name}.好感度等级`, '—');
+  const path = ERA_VARIABLE_PATH.RUNTIME_AFFECTION_STAGE_NAME_PATH(props.character.name);
+  return get(props.runtime, path, '—');
 });
 </script>
 

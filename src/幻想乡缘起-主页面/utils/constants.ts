@@ -122,6 +122,12 @@ export const ERA_VARIABLE_PATH = {
   CHAR_AFFECTION: '好感度',
 
   /**
+   * 角色好感度等级。
+   * 路径: 好感度等级
+   */
+  CHAR_AFFECTION_STAGE: '好感度等级',
+
+  /**
    * 用户数据。
    * 路径: user
    */
@@ -182,6 +188,15 @@ export const ERA_VARIABLE_PATH = {
    * 路径: config
    */
   CONFIG_ROOT: 'config',
+
+  // ==================== Runtime 路径 ====================
+  /**
+   * 获取角色在 runtime 中好感度等级名称的路径。
+   * @param charId 角色 ID
+   * @returns {string} 'character.chars.{charId}.affectionStage.name'
+   */
+  RUNTIME_AFFECTION_STAGE_NAME_PATH: (charId: string) =>
+    `character.chars.${charId}.affectionStage.name`,
 };
 
 /**

@@ -178,15 +178,24 @@ export const charTest_S7_AffectionLevel_Standard = {
       ],
     },
   },
+  user: {
+    所在地区: '博丽神社',
+  },
   chars: {
     博丽灵梦: {
       好感度: 30,
+      所在地区: '博丽神社',
+      居住地区: '博丽神社',
     },
     雾雨魔理沙: {
       好感度: 75,
+      所在地区: '魔法之森',
+      居住地区: '魔法之森',
     },
     十六夜咲夜: {
       好感度: -50,
+      所在地区: '红魔馆',
+      居住地区: '红魔馆',
     },
     无好感度角色: {},
   },
@@ -196,9 +205,13 @@ export const charTest_S7_AffectionLevel_Standard = {
 // 场景 8: 好感度等级 - 缺少配置
 // ==================================================================
 export const charTest_S8_AffectionLevel_MissingConfig = {
+  user: {
+    所在地区: '博丽神社',
+  },
   chars: {
     博丽灵梦: {
       好感度: 30,
+      所在地区: '博丽神社',
     },
   },
 };
@@ -212,9 +225,13 @@ export const charTest_S9_AffectionLevel_EmptyStages = {
       affectionStages: [],
     },
   },
+  user: {
+    所在地区: '博丽神社',
+  },
   chars: {
     博丽灵梦: {
       好感度: 30,
+      所在地区: '博丽神社',
     },
   },
 };
