@@ -195,8 +195,7 @@ export const ERA_VARIABLE_PATH = {
    * @param charId 角色 ID
    * @returns {string} 'character.chars.{charId}.affectionStage.name'
    */
-  RUNTIME_AFFECTION_STAGE_NAME_PATH: (charId: string) =>
-    `character.chars.${charId}.affectionStage.name`,
+  RUNTIME_AFFECTION_STAGE_NAME_PATH: (charId: string) => `character.chars.${charId}.affectionStage.name`,
 };
 
 /**

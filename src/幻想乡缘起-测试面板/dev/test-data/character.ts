@@ -165,7 +165,12 @@ export const charTest_S7_AffectionLevel_Standard = {
   config: {
     affection: {
       affectionStages: [
-        { threshold: -99999, name: '死敌', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
+        {
+          threshold: -99999,
+          name: '死敌',
+          patienceUnit: 'day',
+          visit: { enabled: false, probBase: 0, coolUnit: 'day' },
+        },
         { threshold: -100, name: '憎恨', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
         { threshold: -20, name: '厌恶', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
         { threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: true, probBase: 0.1, coolUnit: 'day' } },
@@ -174,7 +179,12 @@ export const charTest_S7_AffectionLevel_Standard = {
         { threshold: 40, name: '亲近', patienceUnit: 'day', visit: { enabled: true, probBase: 0.5, coolUnit: 'day' } },
         { threshold: 70, name: '亲密', patienceUnit: 'day', visit: { enabled: true, probBase: 0.7, coolUnit: 'day' } },
         { threshold: 100, name: '思慕', patienceUnit: 'day', visit: { enabled: true, probBase: 0.9, coolUnit: 'day' } },
-        { threshold: 99999, name: '不渝', patienceUnit: 'day', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
+        {
+          threshold: 99999,
+          name: '不渝',
+          patienceUnit: 'day',
+          visit: { enabled: true, probBase: 1.0, coolUnit: 'day' },
+        },
       ],
     },
   },

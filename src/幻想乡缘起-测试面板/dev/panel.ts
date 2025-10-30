@@ -153,7 +153,6 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
-
   // --- 节日模块测试 ---
   const festivalTestConfigs: TestButtonConfig[] = Object.entries(festivalTestData).map(([key, statData]) => ({
     text: key.replace('festivalTest_', ''), // 移除前缀以简化按钮文本
