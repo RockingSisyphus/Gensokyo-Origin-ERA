@@ -2,10 +2,7 @@ import _ from 'lodash';
 import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
 import { aggregateResults } from './aggregator';
-import {
-  CO_LOCATED_CHARS_IN_RUNTIME_PATH,
-  REMOTE_CHARS_IN_RUNTIME_PATH,
-} from './constants';
+import { CO_LOCATED_CHARS_IN_RUNTIME_PATH, REMOTE_CHARS_IN_RUNTIME_PATH } from './constants';
 import { makeDecisions } from './decision-makers';
 import { partitionCharacters } from './partitioner';
 import { preprocess } from './preprocessor';
