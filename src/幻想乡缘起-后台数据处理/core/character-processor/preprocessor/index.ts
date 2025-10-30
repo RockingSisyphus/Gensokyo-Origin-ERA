@@ -49,6 +49,7 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
   try {
     const newRuntime = _.cloneDeep(runtime);
+    const newCache = _.cloneDeep(cache);
     const changes: ChangeLogEntry[] = [];
 
     const charIds = Object.keys(stat.chars);
@@ -71,20 +72,13 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
       // 2. 重置来访冷却
       const coolUnit = _.get(affectionStage, 'visit.coolUnit');
-      const cooling = isVisitCooling(newRuntime, charId);
+      const cooling = isVisitCooling(newCache, charId);
       const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
 
       if (cooling && triggered) {
-        setVisitCooling(newRuntime, charId, false);
+        setVisitCooling(newCache, charId, false);
         logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
-        const change: ChangeLogEntry = {
-          module: funcName,
-          path: VISIT_COOLING_IN_STATE_PATH(charId),
-          oldValue: true,
-          newValue: false,
-          reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`,
-        };
-        changes.push(change);
+        // 注意：冷却状态在 cache 中，不属于 stat 的变更，因此不创建 ChangeLogEntry。
       } else if (cooling) {
         logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || '无'})。`);
       }
@@ -94,7 +88,7 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
     return {
       runtime: newRuntime,
-      cache: cache,
+      cache: newCache,
       changes: changes,
     };
   } catch (e) {

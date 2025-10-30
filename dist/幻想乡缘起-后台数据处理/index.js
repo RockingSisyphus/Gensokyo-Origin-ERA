@@ -1088,6 +1088,7 @@ function preprocess({runtime, stat, cache}) {
   preprocessor_logger.debug(funcName, "开始执行预处理...");
   try {
     const newRuntime = external_default().cloneDeep(runtime);
+    const newCache = external_default().cloneDeep(cache);
     const changes = [];
     const charIds = Object.keys(stat.chars);
     const globalAffectionStages = getGlobalAffectionStages(stat);
@@ -1123,7 +1124,7 @@ function preprocess({runtime, stat, cache}) {
     preprocessor_logger.debug(funcName, "预处理执行完毕。");
     return {
       runtime: newRuntime,
-      cache,
+      cache: newCache,
       changes
     };
   } catch (e) {

@@ -47,10 +47,12 @@ function checkProbability(
 export function makeVisitDecisions({
   runtime,
   stat,
+  cache,
   remoteChars,
 }: {
   runtime: any;
   stat: any;
+  cache: any;
   remoteChars: string[];
 }): {
   decisions: Record<string, any>;
