@@ -8,16 +8,13 @@ import _ from 'lodash';
 export const CHAR_RUNTIME_PATH = (charId: string) => `character.chars.${charId}`;
 
 /** 获取角色在 runtime 中好感度等级的路径 */
-export const AFFECTION_STAGE_IN_RUNTIME_PATH = (charId: string) =>
-  `${CHAR_RUNTIME_PATH(charId)}.affectionStage`;
+export const AFFECTION_STAGE_IN_RUNTIME_PATH = (charId: string) => `${CHAR_RUNTIME_PATH(charId)}.affectionStage`;
 
 /** 获取角色在 runtime 中决策的路径 */
-export const DECISION_IN_RUNTIME_PATH = (charId: string) =>
-  `${CHAR_RUNTIME_PATH(charId)}.decision`;
+export const DECISION_IN_RUNTIME_PATH = (charId: string) => `${CHAR_RUNTIME_PATH(charId)}.decision`;
 
 /** 获取角色在 runtime 中相伴决策的路径 */
-export const COMPANION_DECISION_IN_RUNTIME_PATH = (charId: string) =>
-  `${CHAR_RUNTIME_PATH(charId)}.companionDecision`;
+export const COMPANION_DECISION_IN_RUNTIME_PATH = (charId: string) => `${CHAR_RUNTIME_PATH(charId)}.companionDecision`;
 
 /** character-processor 模块在 cache 中的根路径 */
 export const MODULE_CACHE_ROOT = 'character-processor';

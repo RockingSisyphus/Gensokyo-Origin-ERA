@@ -1,12 +1,7 @@
 import _ from 'lodash';
 import { Logger } from '../../../utils/log';
 import { getUserLocation, setCharGoalInStat, setCharLocationInStat, setVisitCooling } from '../accessors';
-import {
-  Action,
-  COMPANION_DECISION_IN_RUNTIME_PATH,
-  DECISION_IN_RUNTIME_PATH,
-  PREDEFINED_ACTIONS,
-} from '../constants';
+import { Action, COMPANION_DECISION_IN_RUNTIME_PATH, DECISION_IN_RUNTIME_PATH, PREDEFINED_ACTIONS } from '../constants';
 
 const logger = new Logger();
 

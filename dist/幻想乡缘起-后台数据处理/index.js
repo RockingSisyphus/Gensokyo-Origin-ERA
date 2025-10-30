@@ -1047,35 +1047,19 @@ function resolveTargetLocation(to, stat) {
   return to;
 }
 
-function preprocess({runtime, stat, cache}) {
-  const funcName = "preprocess";
-  preprocessor_logger.debug(funcName, "开始执行预处理...");
-  try {
-    const newRuntime = external_default().cloneDeep(runtime);
-    const newCache = external_default().cloneDeep(cache);
-    const changes = [];
-    const charIds = Object.keys(stat.chars);
-    const globalAffectionStages = getGlobalAffectionStages(stat);
-    for (const charId of charIds) {
-      const char = getChar(stat, charId);
-      if (!char) continue;
-      const affectionStage = getAffectionStage(char, globalAffectionStages);
-      setAffectionStageInContext(newRuntime, charId, affectionStage);
-      if (affectionStage) {
-        preprocessor_logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
-      } else {
-        preprocessor_logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
-        continue;
-      }
-      const coolUnit = external_default().get(affectionStage, "visit.coolUnit");
-      const cooling = isVisitCooling(newCache, charId);
-      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
-      if (cooling && triggered) {
-        setVisitCooling(newCache, charId, false);
-        preprocessor_logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
-      } else if (cooling) {
-        preprocessor_logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || "无"})。`);
-      }
+function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions}) {
+  const funcName = "applyNonCompanionDecisions";
+  external_default().forEach(nonCompanionDecisions, (decision, charId) => {
+    aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
+    const newLocation = resolveTargetLocation(decision.to, stat);
+    setCharLocationInStat(stat, charId, newLocation);
+    setCharGoalInStat(stat, charId, decision.do);
+    aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
+    external_default().set(runtime, DECISION_IN_RUNTIME_PATH(charId), decision);
+    aggregator_logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
+    if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
+      setVisitCooling(cache, charId, true);
+      aggregator_logger.debug(funcName, `[CACHE] 角色 ${charId}: 已设置来访冷却。`);
     }
   });
 }
