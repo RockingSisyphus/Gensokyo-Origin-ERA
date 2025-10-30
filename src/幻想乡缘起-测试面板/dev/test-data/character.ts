@@ -157,3 +157,64 @@ charTest_S6_CompanionPriority.user.所在地区 = '博丽神社';
 _.set(charTest_S6_CompanionPriority, 'cache.character-processor', {});
 // 确保 clockAck 保持不变，这样 time-processor 才能检测到时间变化
 charTest_S6_CompanionPriority.cache.time = baseCharacterData.cache.time;
+
+// ==================================================================
+// 场景 7: 好感度等级 - 标准
+// ==================================================================
+export const charTest_S7_AffectionLevel_Standard = {
+  config: {
+    affection: {
+      affectionStages: [
+        { threshold: -99999, name: '死敌', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
+        { threshold: -100, name: '憎恨', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
+        { threshold: -20, name: '厌恶', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
+        { threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: true, probBase: 0.1, coolUnit: 'day' } },
+        { threshold: 10, name: '普通', patienceUnit: 'day', visit: { enabled: true, probBase: 0.2, coolUnit: 'day' } },
+        { threshold: 20, name: '熟悉', patienceUnit: 'day', visit: { enabled: true, probBase: 0.3, coolUnit: 'day' } },
+        { threshold: 40, name: '亲近', patienceUnit: 'day', visit: { enabled: true, probBase: 0.5, coolUnit: 'day' } },
+        { threshold: 70, name: '亲密', patienceUnit: 'day', visit: { enabled: true, probBase: 0.7, coolUnit: 'day' } },
+        { threshold: 100, name: '思慕', patienceUnit: 'day', visit: { enabled: true, probBase: 0.9, coolUnit: 'day' } },
+        { threshold: 99999, name: '不渝', patienceUnit: 'day', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
+      ],
+    },
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30,
+    },
+    雾雨魔理沙: {
+      好感度: 75,
+    },
+    十六夜咲夜: {
+      好感度: -50,
+    },
+    无好感度角色: {},
+  },
+};
+
+// ==================================================================
+// 场景 8: 好感度等级 - 缺少配置
+// ==================================================================
+export const charTest_S8_AffectionLevel_MissingConfig = {
+  chars: {
+    博丽灵梦: {
+      好感度: 30,
+    },
+  },
+};
+
+// ==================================================================
+// 场景 9: 好感度等级 - 空配置
+// ==================================================================
+export const charTest_S9_AffectionLevel_EmptyStages = {
+  config: {
+    affection: {
+      affectionStages: [],
+    },
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30,
+    },
+  },
+};

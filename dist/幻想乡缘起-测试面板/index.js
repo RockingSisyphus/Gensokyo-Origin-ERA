@@ -55,16 +55,6 @@ __webpack_require__.d(affection_namespaceObject, {
   smallChange: () => smallChange
 });
 
-var affection_level_namespaceObject = {};
-
-__webpack_require__.r(affection_level_namespaceObject);
-
-__webpack_require__.d(affection_level_namespaceObject, {
-  emptyStages: () => emptyStages,
-  missingConfig: () => missingConfig,
-  standardAffectionLevel: () => standardAffectionLevel
-});
-
 var area_namespaceObject = {};
 
 __webpack_require__.r(area_namespaceObject);
@@ -89,7 +79,10 @@ __webpack_require__.d(character_namespaceObject, {
   charTest_S3_VisitProbFail: () => charTest_S3_VisitProbFail,
   charTest_S4_AllIdle: () => charTest_S4_AllIdle,
   charTest_S5_NoUserLocation: () => charTest_S5_NoUserLocation,
-  charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority
+  charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority,
+  charTest_S7_AffectionLevel_Standard: () => charTest_S7_AffectionLevel_Standard,
+  charTest_S8_AffectionLevel_MissingConfig: () => charTest_S8_AffectionLevel_MissingConfig,
+  charTest_S9_AffectionLevel_EmptyStages: () => charTest_S9_AffectionLevel_EmptyStages
 });
 
 var festival_namespaceObject = {};
@@ -1322,47 +1315,6 @@ const mixedOps = {
   consecutiveProcessingCount: 1
 };
 
-const standardAffectionLevel = {
-  config: {
-    affection: {
-      affectionStages: [ '[-99999,"死敌"]', '[-100,"憎恨"]', '[-20,"厌恶"]', '[0,"陌生"]', '[10,"普通"]', '[20,"熟悉"]', '[40,"亲近"]', '[70,"亲密"]', '[100,"思慕"]', '[99999,"不渝"]' ]
-    }
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30
-    },
-    雾雨魔理沙: {
-      好感度: 75
-    },
-    十六夜咲夜: {
-      好感度: -50
-    },
-    无好感度角色: {}
-  }
-};
-
-const missingConfig = {
-  chars: {
-    博丽灵梦: {
-      好感度: 30
-    }
-  }
-};
-
-const emptyStages = {
-  config: {
-    affection: {
-      affectionStages: []
-    }
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30
-    }
-  }
-};
-
 const worldWithMapGraph = {
   map_graph: {
     tree: {
@@ -1918,6 +1870,137 @@ external_default().set(charTest_S6_CompanionPriority, "cache.character-processor
 
 charTest_S6_CompanionPriority.cache.time = baseCharacterData.cache.time;
 
+const charTest_S7_AffectionLevel_Standard = {
+  config: {
+    affection: {
+      affectionStages: [ {
+        threshold: -99999,
+        name: "死敌",
+        patienceUnit: "day",
+        visit: {
+          enabled: false,
+          probBase: 0,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: -100,
+        name: "憎恨",
+        patienceUnit: "day",
+        visit: {
+          enabled: false,
+          probBase: 0,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: -20,
+        name: "厌恶",
+        patienceUnit: "day",
+        visit: {
+          enabled: false,
+          probBase: 0,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 0,
+        name: "陌生",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .1,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 10,
+        name: "普通",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .2,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 20,
+        name: "熟悉",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .3,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 40,
+        name: "亲近",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .5,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 70,
+        name: "亲密",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .7,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 100,
+        name: "思慕",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: .9,
+          coolUnit: "day"
+        }
+      }, {
+        threshold: 99999,
+        name: "不渝",
+        patienceUnit: "day",
+        visit: {
+          enabled: true,
+          probBase: 1,
+          coolUnit: "day"
+        }
+      } ]
+    }
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    },
+    雾雨魔理沙: {
+      好感度: 75
+    },
+    十六夜咲夜: {
+      好感度: -50
+    },
+    无好感度角色: {}
+  }
+};
+
+const charTest_S8_AffectionLevel_MissingConfig = {
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    }
+  }
+};
+
+const charTest_S9_AffectionLevel_EmptyStages = {
+  config: {
+    affection: {
+      affectionStages: []
+    }
+  },
+  chars: {
+    博丽灵梦: {
+      好感度: 30
+    }
+  }
+};
+
 const baseFestivalStat = {
   config: {
     time: {
@@ -2286,21 +2369,6 @@ function createTestPanel() {
     border: "1px solid #7b1fa2",
     background: "#4a148c",
     color: "#f3e5f5",
-    borderRadius: "3px",
-    fontSize: "12px"
-  });
-  const affectionLevelTestConfigs = Object.entries(affection_level_namespaceObject).map(([key, statData]) => ({
-    text: key,
-    payload: {
-      statWithoutMeta: statData
-    }
-  }));
-  addTestButtons(panel, "好感度等级模块测试", affectionLevelTestConfigs, {
-    cursor: "pointer",
-    padding: "5px 10px",
-    border: "1px solid #c2185b",
-    background: "#880e4f",
-    color: "#fce4ec",
     borderRadius: "3px",
     fontSize: "12px"
   });
