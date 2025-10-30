@@ -1104,19 +1104,11 @@ function preprocess({runtime, stat, cache}) {
         continue;
       }
       const coolUnit = external_default().get(affectionStage, "visit.coolUnit");
-      const cooling = isVisitCooling(newRuntime, charId);
+      const cooling = isVisitCooling(newCache, charId);
       const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
       if (cooling && triggered) {
-        setVisitCooling(newRuntime, charId, false);
+        setVisitCooling(newCache, charId, false);
         preprocessor_logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
-        const change = {
-          module: funcName,
-          path: VISIT_COOLING_IN_STATE_PATH(charId),
-          oldValue: true,
-          newValue: false,
-          reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`
-        };
-        changes.push(change);
       } else if (cooling) {
         preprocessor_logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || "无"})。`);
       }
@@ -1366,7 +1358,7 @@ function checkProbability(probBase = 0, probK = 0, affection = 0) {
   };
 }
 
-function makeVisitDecisions({runtime, stat, remoteChars}) {
+function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
   const funcName = "makeVisitDecisions";
   const decisions = {};
   const decidedChars = [];
