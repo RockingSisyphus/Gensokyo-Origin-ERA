@@ -1,7 +1,10 @@
 <template>
-  <div class="container">
+  <div class="map-component">
     <div class="map-wrapper">
-      <div class="map-info">缩放: <span id="zoomLevel">1.0</span>x | 坐标: <span id="coords">0, 0</span></div>
+      <div class="map-info" ref="mapInfo">
+        缩放: <span id="zoomLevel">1.0</span>x |
+        坐标: <span id="coords">0, 0</span>
+      </div>
 
       <div class="map-container" id="mapContainer">
         <canvas id="mapCanvas"></canvas>
@@ -14,11 +17,12 @@
 <script setup lang="ts">
 onMounted(() => {
   // 获取DOM元素
-  const mapContainer = document.getElementById('mapContainer');
-  const canvas: any = document.getElementById('mapCanvas');
+  const mapContainer = document.getElementById('mapContainer') as HTMLElement;
+  const canvas: any = document.getElementById('mapCanvas') as HTMLElement;
   const ctx = canvas.getContext('2d');
-  const zoomLevelDisplay = document.getElementById('zoomLevel');
-  const coordsDisplay = document.getElementById('coords');
+  const zoomLevelDisplay = document.getElementById('zoomLevel') as HTMLElement;
+  const coordsDisplay = document.getElementById('coords') as HTMLElement;
+
 
   // 示例数据
   const exampleMapSize = {
@@ -273,76 +277,79 @@ onMounted(() => {
 </script>
 
 <style lang="scss">
-.container {
+.map-component {
   width: 800px;
   background: rgba(255, 255, 255, 0.9);
   border-radius: 16px;
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   margin-bottom: 20px;
-}
 
-.map-wrapper {
-  position: relative;
-  width: 100%;
-  height: 600px;
-  overflow: hidden;
-  background: #f0f0f0;
-}
-
-.map-container {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  overflow: hidden;
-  cursor: grab;
-}
-
-#mapCanvas {
-  display: block;
-  background: #7f8c8d;
-  /* 灰色背景 */
-}
-
-.marker {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  /* transition: all 0.3s ease; */
-  z-index: 10;
-}
-
-.map-info {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(255, 255, 255, 0.8);
-  padding: 8px 12px;
-  border-radius: 6px;
-  font-size: 0.9rem;
-  z-index: 40;
-}
-
-@keyframes bounce {
-  0%,
-  20%,
-  50%,
-  80%,
-  100% {
-    transform: translateY(0);
+  .map-wrapper {
+    position: relative;
+    width: 100%;
+    height: 600px;
+    overflow: hidden;
+    background: #f0f0f0;
   }
 
-  40% {
-    transform: translateY(-30px);
+  .map-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    cursor: grab;
   }
 
-  60% {
-    transform: translateY(-15px);
+  #mapCanvas {
+    display: block;
+    background: #7f8c8d;
+    /* 灰色背景 */
   }
-}
 
-.test {
-  animation: bounce 2s infinite;
+  .marker {
+    position: absolute;
+    transform: translate(-50%, -50%);
+    /* transition: all 0.3s ease; */
+    z-index: 10;
+  }
+
+
+  .map-info {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(255, 255, 255, 0.8);
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.9rem;
+    z-index: 40;
+  }
+
+
+  @keyframes bounce {
+
+    0%,
+    20%,
+    50%,
+    80%,
+    100% {
+      transform: translateY(0);
+    }
+
+    40% {
+      transform: translateY(-30px);
+    }
+
+    60% {
+      transform: translateY(-15px);
+    }
+  }
+
+  .test {
+    animation: bounce 2s infinite;
+  }
 }
 </style>
