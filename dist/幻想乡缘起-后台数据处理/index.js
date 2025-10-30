@@ -967,6 +967,12 @@ const DECISION_IN_RUNTIME_PATH = charId => `${CHAR_RUNTIME_PATH(charId)}.decisio
 
 const COMPANION_DECISION_IN_RUNTIME_PATH = charId => `${CHAR_RUNTIME_PATH(charId)}.companionDecision`;
 
+const CHAR_PARTITIONS_IN_RUNTIME_PATH = "character.partitions";
+
+const CO_LOCATED_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.coLocated`;
+
+const REMOTE_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.remote`;
+
 const MODULE_CACHE_ROOT = "character-processor";
 
 const VISIT_COOLING_PATH = charId => `${charId}.visit.cooling`;
@@ -1510,6 +1516,8 @@ async function processCharacterDecisions({stat, runtime}) {
     const {coLocatedChars, remoteChars} = partitionCharacters({
       stat
     });
+    external_default().set(processedRuntime, CO_LOCATED_CHARS_IN_RUNTIME_PATH, coLocatedChars);
+    external_default().set(processedRuntime, REMOTE_CHARS_IN_RUNTIME_PATH, remoteChars);
     const {companionDecisions, nonCompanionDecisions} = makeDecisions({
       runtime: processedRuntime,
       stat,
@@ -1517,7 +1525,7 @@ async function processCharacterDecisions({stat, runtime}) {
       coLocatedChars,
       remoteChars
     });
-    let {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
+    const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
       stat,
       runtime: processedRuntime,
       cache: preprocessedCache,

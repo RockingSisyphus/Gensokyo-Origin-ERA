@@ -1,6 +1,11 @@
+import _ from 'lodash';
 import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
 import { aggregateResults } from './aggregator';
+import {
+  CO_LOCATED_CHARS_IN_RUNTIME_PATH,
+  REMOTE_CHARS_IN_RUNTIME_PATH,
+} from './constants';
 import { makeDecisions } from './decision-makers';
 import { partitionCharacters } from './partitioner';
 import { preprocess } from './preprocessor';
@@ -40,6 +45,8 @@ export async function processCharacterDecisions({
 
     // 2. 角色分组
     const { coLocatedChars, remoteChars } = partitionCharacters({ stat });
+    _.set(processedRuntime, CO_LOCATED_CHARS_IN_RUNTIME_PATH, coLocatedChars);
+    _.set(processedRuntime, REMOTE_CHARS_IN_RUNTIME_PATH, remoteChars);
 
     // 3. 决策制定
     const { companionDecisions, nonCompanionDecisions } = makeDecisions({
@@ -51,7 +58,7 @@ export async function processCharacterDecisions({
     });
 
     // 4. 结果聚合
-    let {
+    const {
       stat: finalStat,
       runtime: finalRuntime,
       cache: finalCache,

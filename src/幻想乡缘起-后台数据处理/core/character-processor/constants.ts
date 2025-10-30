@@ -1,5 +1,3 @@
-import _ from 'lodash';
-
 // ====================
 //      路径定义
 // ====================
@@ -15,6 +13,13 @@ export const DECISION_IN_RUNTIME_PATH = (charId: string) => `${CHAR_RUNTIME_PATH
 
 /** 获取角色在 runtime 中相伴决策的路径 */
 export const COMPANION_DECISION_IN_RUNTIME_PATH = (charId: string) => `${CHAR_RUNTIME_PATH(charId)}.companionDecision`;
+
+/** 角色分区在 runtime 中的路径 */
+export const CHAR_PARTITIONS_IN_RUNTIME_PATH = 'character.partitions';
+/** 同区角色列表在 runtime 中的路径 */
+export const CO_LOCATED_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.coLocated`;
+/** 异区角色列表在 runtime 中的路径 */
+export const REMOTE_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.remote`;
 
 /** character-processor 模块在 cache 中的根路径 */
 export const MODULE_CACHE_ROOT = 'character-processor';
