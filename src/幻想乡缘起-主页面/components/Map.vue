@@ -1,10 +1,7 @@
 <template>
   <div class="container">
     <div class="map-wrapper">
-      <div class="map-info">
-        缩放: <span id="zoomLevel">1.0</span>x |
-        坐标: <span id="coords">0, 0</span>
-      </div>
+      <div class="map-info">缩放: <span id="zoomLevel">1.0</span>x | 坐标: <span id="coords">0, 0</span></div>
 
       <div class="map-container" id="mapContainer">
         <canvas id="mapCanvas"></canvas>
@@ -25,24 +22,24 @@ onMounted(() => {
 
   // 示例数据
   const exampleMapSize = {
-    "width": 800,
-    "height": 600
+    width: 800,
+    height: 600,
   };
 
   const exampleMarkers = [
-    { "x": 100, "y": 100, "ele": "<div class='test'>港口⚓️</div>" },
-    { "x": 300, "y": 150, "ele": "<div>商业区</div>" },
-    { "x": 500, "y": 300, "ele": "<div>市中心</div>" },
-    { "x": 700, "y": 450, "ele": "<div>住宅区</div>" },
-    { "x": 200, "y": 500, "ele": "<div>工业区</div>" }
+    { x: 100, y: 100, ele: "<div class='test'>港口⚓️</div>" },
+    { x: 300, y: 150, ele: '<div>商业区</div>' },
+    { x: 500, y: 300, ele: '<div>市中心</div>' },
+    { x: 700, y: 450, ele: '<div>住宅区</div>' },
+    { x: 200, y: 500, ele: '<div>工业区</div>' },
   ];
 
   const exampleRoads = [
-    { "start": { "x": 100, "y": 100 }, "end": { "x": 300, "y": 150 } },
-    { "start": { "x": 300, "y": 150 }, "end": { "x": 500, "y": 300 } },
-    { "start": { "x": 500, "y": 300 }, "end": { "x": 700, "y": 450 } },
-    { "start": { "x": 700, "y": 450 }, "end": { "x": 200, "y": 500 } },
-    { "start": { "x": 200, "y": 500 }, "end": { "x": 100, "y": 100 } }
+    { start: { x: 100, y: 100 }, end: { x: 300, y: 150 } },
+    { start: { x: 300, y: 150 }, end: { x: 500, y: 300 } },
+    { start: { x: 500, y: 300 }, end: { x: 700, y: 450 } },
+    { start: { x: 700, y: 450 }, end: { x: 200, y: 500 } },
+    { start: { x: 200, y: 500 }, end: { x: 100, y: 100 } },
   ];
 
   // 地图状态
@@ -55,10 +52,8 @@ onMounted(() => {
     lastMouseY: 0,
     mapWidth: 800,
     mapHeight: 600,
-    markers: [] // 存储标记原始数据
+    markers: [], // 存储标记原始数据
   };
-
-
 
   // 生成地图
   function generateMap() {
@@ -89,7 +84,6 @@ onMounted(() => {
 
       // 添加标记
       addMarkers(markers);
-
     } catch (error) {
       alert('数据格式错误，请检查输入数据：' + error.message);
     }
@@ -175,8 +169,8 @@ onMounted(() => {
       const originalY = parseFloat(marker.dataset.originalY);
 
       // 计算变换后的位置
-      const transformedX = (originalX * mapState.zoom) + mapState.offsetX;
-      const transformedY = (originalY * mapState.zoom) + mapState.offsetY;
+      const transformedX = originalX * mapState.zoom + mapState.offsetX;
+      const transformedY = originalY * mapState.zoom + mapState.offsetY;
 
       console.log(transformedX);
 
@@ -210,7 +204,7 @@ onMounted(() => {
   }
 
   // 事件处理：鼠标按下开始拖动
-  mapContainer.addEventListener('mousedown', (e) => {
+  mapContainer.addEventListener('mousedown', e => {
     mapState.isDragging = true;
     mapState.lastMouseX = e.clientX;
     mapState.lastMouseY = e.clientY;
@@ -218,7 +212,7 @@ onMounted(() => {
   });
 
   // 事件处理：鼠标移动拖动地图
-  mapContainer.addEventListener('mousemove', (e) => {
+  mapContainer.addEventListener('mousemove', e => {
     if (mapState.isDragging) {
       const deltaX = e.clientX - mapState.lastMouseX;
       const deltaY = e.clientY - mapState.lastMouseY;
@@ -245,7 +239,7 @@ onMounted(() => {
   });
 
   // 事件处理：鼠标滚轮缩放
-  mapContainer.addEventListener('wheel', (e) => {
+  mapContainer.addEventListener('wheel', e => {
     e.preventDefault();
 
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
@@ -275,10 +269,7 @@ onMounted(() => {
 
   // 初始生成地图
   generateMap();
-
 });
-
-
 </script>
 
 <style lang="scss">
@@ -322,7 +313,6 @@ onMounted(() => {
   z-index: 10;
 }
 
-
 .map-info {
   position: absolute;
   top: 20px;
@@ -334,9 +324,7 @@ onMounted(() => {
   z-index: 40;
 }
 
-
 @keyframes bounce {
-
   0%,
   20%,
   50%,
