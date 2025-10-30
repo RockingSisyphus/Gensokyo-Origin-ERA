@@ -40,12 +40,7 @@ export function getCacheValue<T>(cache: any, path: string, defaultValue?: T): T 
  * @param value The new value.
  * @param mode - 'replace' (默认) 完全替换路径上的值; 'merge' 将新值递归合并到现有值中。
  */
-export function setCacheValue(
-  cache: any,
-  path: string,
-  value: any,
-  mode: 'replace' | 'merge' = 'replace',
-): void {
+export function setCacheValue(cache: any, path: string, value: any, mode: 'replace' | 'merge' = 'replace'): void {
   if (mode === 'merge') {
     const existingValue = _.get(cache, path);
     // 仅当现有值和新值都是纯对象时才合并，否则直接替换

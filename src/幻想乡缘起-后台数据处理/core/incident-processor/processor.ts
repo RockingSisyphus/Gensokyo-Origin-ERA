@@ -75,10 +75,7 @@ function spawnRandomIncident(runtime: any, stat: any): Incident {
 /**
  * @description 判断是否应该触发新的异变
  */
-function shouldTriggerNewIncident(
-  stat: any,
-  cache: Cache,
-): { trigger: boolean; anchor: number | null } {
+function shouldTriggerNewIncident(stat: any, cache: Cache): { trigger: boolean; anchor: number | null } {
   const { cooldownMinutes, forceTrigger } = getIncidentConfig(stat);
   const timeProgress = _.get(stat, '世界.timeProgress', 0);
   const anchor: number | null = getCacheValue(cache, 'incident.incidentCooldownAnchor', null) ?? null;
@@ -187,11 +184,9 @@ function getDailyDecision(
   const { cooldownMinutes } = getIncidentConfig(stat);
   const timeProgress = _.get(stat, '世界.timeProgress', 0);
   const anchor: number | null = getCacheValue(cache, 'incident.incidentCooldownAnchor', timeProgress) ?? timeProgress;
-  
+
   // 如果 anchor 为 null（理论上在 daily 决策时不会发生，但作为安全措施），则剩余冷却时间为全量
-  const remainingCooldown = anchor === null 
-    ? cooldownMinutes
-    : Math.max(0, cooldownMinutes - (timeProgress - anchor));
+  const remainingCooldown = anchor === null ? cooldownMinutes : Math.max(0, cooldownMinutes - (timeProgress - anchor));
 
   logger.debug('getDailyDecision', '日常剧情，新异变冷却中。');
 

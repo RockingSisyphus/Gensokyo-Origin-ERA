@@ -39,15 +39,7 @@ function isCooldownResetTriggered(coolUnit: string, flags: any): boolean {
 /**
  * 预处理模块，负责解析好感度等级和重置来访冷却。
  */
-export function preprocess({
-  runtime,
-  stat,
-  cache,
-}: {
-  runtime: any;
-  stat: any;
-  cache: any;
-}): {
+export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; cache: any }): {
   runtime: any;
   cache: any;
   changes: ChangeLogEntry[];

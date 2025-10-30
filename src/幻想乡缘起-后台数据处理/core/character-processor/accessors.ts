@@ -1,11 +1,6 @@
 import _ from 'lodash';
 import { getCacheValue, setCacheValue } from '../../utils/cache';
-import {
-  AFFECTION_STAGE_IN_CONTEXT_PATH,
-  Character,
-  MODULE_CACHE_ROOT,
-  VISIT_COOLING_PATH,
-} from './constants';
+import { AFFECTION_STAGE_IN_CONTEXT_PATH, Character, MODULE_CACHE_ROOT, VISIT_COOLING_PATH } from './constants';
 
 // --- 读取 (Read) ---
 

@@ -1,11 +1,6 @@
 import _ from 'lodash';
 import { Logger } from '../../../utils/log';
-import {
-  getUserLocation,
-  setCharGoalInStat,
-  setCharLocationInStat,
-  setVisitCooling,
-} from '../accessors';
+import { getUserLocation, setCharGoalInStat, setCharLocationInStat, setVisitCooling } from '../accessors';
 import { Action, PREDEFINED_ACTIONS } from '../constants';
 
 const logger = new Logger();

@@ -8,13 +8,19 @@ const CLOCK_ACK_CACHE_PATH = 'time.clockAck';
 
 /**
  * 时间处理器主函数。
- * 
+ *
  * @param {object} params - 参数对象。
  * @param {any} params.stat - 完整的持久层数据。
  * @param {any} params.runtime - 完整的易失层数据。
  * @returns {Promise<any>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
-export async function processTime({ stat, runtime }: { stat: any; runtime: any }): Promise<{ stat: any; runtime: any }> {
+export async function processTime({
+  stat,
+  runtime,
+}: {
+  stat: any;
+  runtime: any;
+}): Promise<{ stat: any; runtime: any }> {
   const funcName = 'processTime';
   logger.debug(funcName, '开始处理时间...');
 
@@ -35,7 +41,7 @@ export async function processTime({ stat, runtime }: { stat: any; runtime: any }
 
     // 5. 将时间计算结果合并到 runtime
     _.merge(runtime, timeResult);
-    
+
     // 6. 将最终的缓存应用回 stat
     applyCacheToStat(stat, cache);
 

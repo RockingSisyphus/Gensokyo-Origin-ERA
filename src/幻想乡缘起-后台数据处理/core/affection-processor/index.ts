@@ -8,7 +8,7 @@ const logger = new Logger();
 /**
  * 好感度处理器主函数。
  * 这是一个包装器，用于将来可能的扩展，并保持与其他核心模块一致的接口。
- * 
+ *
  * @param {object} params - 参数对象。
  * @param {any} params.stat - 完整的持久层数据。
  * @param {any} params.editLog - 当前消息的 editLog。

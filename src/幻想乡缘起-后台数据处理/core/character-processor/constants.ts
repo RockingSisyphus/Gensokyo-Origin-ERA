@@ -51,7 +51,6 @@ export interface Character {
   specials: Entry[];
 }
 
-
 // ====================
 //      行为常量
 // ====================

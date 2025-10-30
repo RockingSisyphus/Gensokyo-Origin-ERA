@@ -926,6 +926,27 @@ async function processArea({stat, runtime}) {
   };
 }
 
+function getAffectionStage(char, globalAffectionStages) {
+  const stages = char.affectionStages || globalAffectionStages;
+  if (!stages || !Array.isArray(stages)) {
+    return null;
+  }
+  const parsedStages = stages.map(stage => typeof stage === "string" ? JSON.parse(stage) : stage);
+  const applicableStages = parsedStages.filter(stage => char.好感度 >= stage.threshold);
+  if (applicableStages.length === 0) {
+    return null;
+  }
+  return external_default().maxBy(applicableStages, "threshold") || null;
+}
+
+function checkConditions(when, runtime) {
+  return false;
+}
+
+function resolveLocation(to, context) {
+  return context.currentLocation;
+}
+
 const CACHE_ROOT_PATH = "cache";
 
 function getCache(stat) {
@@ -957,27 +978,6 @@ function applyCacheToStat(stat, cache, mode = "replace") {
   } else {
     external_default().set(stat, CACHE_ROOT_PATH, cache);
   }
-}
-
-function getAffectionStage(char, globalAffectionStages) {
-  const stages = char.affectionStages || globalAffectionStages;
-  if (!stages || !Array.isArray(stages)) {
-    return null;
-  }
-  const parsedStages = stages.map(stage => typeof stage === "string" ? JSON.parse(stage) : stage);
-  const applicableStages = parsedStages.filter(stage => char.好感度 >= stage.threshold);
-  if (applicableStages.length === 0) {
-    return null;
-  }
-  return external_default().maxBy(applicableStages, "threshold") || null;
-}
-
-function checkConditions(when, runtime) {
-  return false;
-}
-
-function resolveLocation(to, context) {
-  return context.currentLocation;
 }
 
 const CHAR_RUNTIME_CONTEXT_PATH = charId => `chars.${charId}.context`;
@@ -1089,14 +1089,6 @@ function preprocess({runtime, stat, cache}) {
   try {
     const newRuntime = external_default().cloneDeep(runtime);
     const changes = [];
-    if (!external_default().isObject(stat.chars)) {
-      preprocessor_logger.warn(funcName, "stat.chars 不存在或不是一个对象，跳过预处理。");
-      return {
-        runtime,
-        cache,
-        changes: []
-      };
-    }
     const charIds = Object.keys(stat.chars);
     const globalAffectionStages = getGlobalAffectionStages(stat);
     for (const charId of charIds) {
@@ -1111,14 +1103,14 @@ function preprocess({runtime, stat, cache}) {
         continue;
       }
       const coolUnit = external_default().get(affectionStage, "visit.coolUnit");
-      const cooling = isVisitCooling(cache, charId);
+      const cooling = isVisitCooling(newRuntime, charId);
       const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
       if (cooling && triggered) {
-        setVisitCooling(cache, charId, false);
-        preprocessor_logger.debug(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
+        setVisitCooling(newRuntime, charId, false);
+        preprocessor_logger.log(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
         const change = {
           module: funcName,
-          path: `${MODULE_CACHE_ROOT}.${VISIT_COOLING_PATH(charId)}`,
+          path: VISIT_COOLING_IN_STATE_PATH(charId),
           oldValue: true,
           newValue: false,
           reason: `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`
@@ -1170,7 +1162,7 @@ function partitionCharacters({stat}) {
     });
     const coLocatedChars = partitions[0];
     const remoteChars = partitions[1];
-    partitioner_logger.debug(funcName, `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(", ")}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(", ")}]`);
+    partitioner_logger.log(funcName, `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(", ")}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(", ")}]`);
     return {
       coLocatedChars,
       remoteChars
@@ -1373,7 +1365,7 @@ function checkProbability(probBase = 0, probK = 0, affection = 0) {
   };
 }
 
-function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
+function makeVisitDecisions({runtime, stat, remoteChars}) {
   const funcName = "makeVisitDecisions";
   const decisions = {};
   const decidedChars = [];
@@ -1528,11 +1520,9 @@ async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
   character_processor_logger.debug(funcName, "开始处理角色决策...");
   try {
-    const cache = getCache(stat);
-    const {runtime: processedRuntime, cache: preprocessedCache} = preprocess({
+    const {runtime: processedRuntime} = preprocess({
       runtime,
-      stat,
-      cache
+      stat
     });
     const {coLocatedChars, remoteChars} = partitionCharacters({
       stat
@@ -1540,18 +1530,16 @@ async function processCharacterDecisions({stat, runtime}) {
     const {companionDecisions, otherDecisions} = makeDecisions({
       runtime: processedRuntime,
       stat,
-      cache: preprocessedCache,
       coLocatedChars,
       remoteChars
     });
-    let {stat: aggregatedStat, runtime: finalRuntime, cache: finalCache} = aggregateResults({
+    const {stat: finalStat, runtime: finalRuntime} = aggregateResults({
       stat,
       runtime: processedRuntime,
-      cache: preprocessedCache,
       companionDecisions,
       otherDecisions
     });
-    applyCacheToStat(aggregatedStat, finalCache);
+    character_processor_logger.log(funcName, "角色决策处理完毕。");
     character_processor_logger.debug(funcName, "角色决策处理完毕。");
     return {
       stat: aggregatedStat,

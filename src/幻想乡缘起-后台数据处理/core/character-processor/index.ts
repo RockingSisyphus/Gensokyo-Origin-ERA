@@ -53,7 +53,7 @@ export async function processCharacterDecisions({
 
     logger.log(funcName, '角色决策处理完毕。');
 
-  logger.debug(funcName, '角色决策处理完毕。');
+    logger.debug(funcName, '角色决策处理完毕。');
 
     return { stat: aggregatedStat, runtime: finalRuntime };
   } catch (e) {

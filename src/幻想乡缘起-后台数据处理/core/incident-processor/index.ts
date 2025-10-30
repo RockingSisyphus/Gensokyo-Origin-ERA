@@ -8,13 +8,19 @@ const logger = new Logger();
 
 /**
  * 异变处理器主函数。
- * 
+ *
  * @param {object} params - 参数对象。
  * @param {any} params.stat - 完整的持久层数据。
  * @param {any} params.runtime - 完整的易失层数据。
  * @returns {Promise<any>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
-export async function processIncidentDecisions({ stat, runtime }: { stat: any; runtime: any }): Promise<{ stat: any; runtime: any; changes: ChangeLogEntry[] }> {
+export async function processIncidentDecisions({
+  stat,
+  runtime,
+}: {
+  stat: any;
+  runtime: any;
+}): Promise<{ stat: any; runtime: any; changes: ChangeLogEntry[] }> {
   const funcName = 'processIncidentDecisions';
   logger.debug(funcName, '开始处理异变决策...');
 
@@ -23,7 +29,12 @@ export async function processIncidentDecisions({ stat, runtime }: { stat: any; r
     const cache: Cache = getCache(stat);
 
     // 1. 核心处理
-    const { runtime: finalRuntime, stat: newStat, changes, cache: finalCache } = processIncident({ runtime, stat, cache });
+    const {
+      runtime: finalRuntime,
+      stat: newStat,
+      changes,
+      cache: finalCache,
+    } = processIncident({ runtime, stat, cache });
 
     // 2. 将最终的缓存应用回 stat
     applyCacheToStat(newStat, finalCache);

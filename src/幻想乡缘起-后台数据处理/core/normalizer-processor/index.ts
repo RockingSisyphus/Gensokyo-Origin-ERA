@@ -29,7 +29,7 @@ export function processNormalization({ originalStat }: { originalStat: any }): {
   logger.debug(funcName, 'normalizeLocationData 处理完成。');
 
   // 未来可以加入更多的 normalizer
-  
+
   logger.debug(funcName, '所有数据规范化流程执行完毕。');
   return { processedStat: stat, changes: allChanges };
 }

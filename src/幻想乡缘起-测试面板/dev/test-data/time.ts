@@ -29,7 +29,16 @@ export const timeTest_NoChange = {
   cache: {
     time: {
       // 上一刻是 06:00
-      clockAck: { dayID: 20251024, weekID: 20251020, monthID: 202510, yearID: 2025, periodID: 202510240, periodIdx: 0, seasonID: 20252, seasonIdx: 2 },
+      clockAck: {
+        dayID: 20251024,
+        weekID: 20251020,
+        monthID: 202510,
+        yearID: 2025,
+        periodID: 202510240,
+        periodIdx: 0,
+        seasonID: 20252,
+        seasonIdx: 2,
+      },
     },
   },
 };
