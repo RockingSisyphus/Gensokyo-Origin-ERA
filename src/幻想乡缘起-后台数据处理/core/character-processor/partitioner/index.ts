@@ -1,13 +1,14 @@
 import _ from 'lodash';
+import { Stat } from '../../../schema';
 import { Logger } from '../../../utils/log';
-import { getChar, getCharLocation, getUserLocation } from '../accessors';
+import { getChar, getCharLocation, getChars, getUserLocation } from '../accessors';
 
-const logger = new Logger();
+const logger = new Logger('CharPartitioner');
 
 /**
  * 角色分组模块，根据与主角的相对位置将角色分为“同区”和“异区”。
  */
-export function partitionCharacters({ stat }: { stat: any }): {
+export function partitionCharacters({ stat }: { stat: Stat }): {
   coLocatedChars: string[];
   remoteChars: string[];
 } {
@@ -16,24 +17,18 @@ export function partitionCharacters({ stat }: { stat: any }): {
 
   try {
     const userLocation = getUserLocation(stat);
-    if (!userLocation) {
-      logger.warn(funcName, '无法找到主角位置，所有角色将被视为异区。');
-      const allChars = Object.keys(stat.chars || {});
-      logger.debug(funcName, `所有角色: [${allChars.join(', ')}]`);
-      return {
-        coLocatedChars: [],
-        remoteChars: allChars,
-      };
-    }
-
     logger.debug(funcName, `主角当前位置: [${userLocation}]`);
 
-    const charIds = Object.keys(stat.chars || {});
+    const charIds = Object.keys(getChars(stat));
 
     const partitions = _.partition(charIds, charId => {
       const char = getChar(stat, charId);
+      if (!char) {
+        logger.warn(funcName, `无法找到角色 ${charId} 的数据，将视为异区。`);
+        return false;
+      }
       const charLocation = getCharLocation(char);
-      logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation || '未知'}]`);
+      logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation}]`);
       return charLocation === userLocation;
     });
 
@@ -53,7 +48,7 @@ export function partitionCharacters({ stat }: { stat: any }): {
     // 发生错误时，将所有角色视为异区，以允许后续模块进行基础决策
     return {
       coLocatedChars: [],
-      remoteChars: Object.keys(stat.chars || {}),
+      remoteChars: Object.keys(getChars(stat)),
     };
   }
 }

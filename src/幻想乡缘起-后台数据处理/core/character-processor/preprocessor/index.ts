@@ -1,8 +1,10 @@
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../../utils/constants';
+import { Cache, ChangeLogEntry, Stat, TimeUnit } from '../../../schema';
+import { ClockFlags, Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
 import {
   getChar,
+  getChars,
   getGlobalAffectionStages,
   isVisitCooling,
   setAffectionStageInRuntime,
@@ -10,12 +12,12 @@ import {
 } from '../accessors';
 import { getAffectionStage } from '../utils';
 
-const logger = new Logger();
+const logger = new Logger('CharPreProcessor');
 
 /**
  * 检查给定的冷却单位是否在当前时间拍点被触发。
  */
-function isCooldownResetTriggered(coolUnit: string, flags: any): boolean {
+function isCooldownResetTriggered(coolUnit: TimeUnit | undefined, flags: ClockFlags | undefined): boolean {
   if (!coolUnit || !flags) return false;
   switch (coolUnit) {
     case 'period':
@@ -38,9 +40,9 @@ function isCooldownResetTriggered(coolUnit: string, flags: any): boolean {
 /**
  * 预处理模块，负责解析好感度等级和重置来访冷却。
  */
-export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; cache: any }): {
-  runtime: any;
-  cache: any;
+export function preprocess({ runtime, stat, cache }: { runtime: Runtime; stat: Stat; cache: Cache }): {
+  runtime: Runtime;
+  cache: Cache;
   changes: ChangeLogEntry[];
 } {
   const funcName = 'preprocess';
@@ -51,7 +53,7 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
     const newCache = _.cloneDeep(cache);
     const changes: ChangeLogEntry[] = [];
 
-    const charIds = Object.keys(stat.chars);
+    const charIds = Object.keys(getChars(stat));
     const globalAffectionStages = getGlobalAffectionStages(stat);
 
     for (const charId of charIds) {
@@ -60,9 +62,9 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
 
       // 1. 解析好感度等级并存入 runtime
       const affectionStage = getAffectionStage(char, globalAffectionStages);
-      setAffectionStageInRuntime(newRuntime, charId, affectionStage);
 
       if (affectionStage) {
+        setAffectionStageInRuntime(newRuntime, charId, affectionStage);
         logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
       } else {
         logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
@@ -70,14 +72,13 @@ export function preprocess({ runtime, stat, cache }: { runtime: any; stat: any; 
       }
 
       // 2. 重置来访冷却
-      const coolUnit = _.get(affectionStage, 'visit.coolUnit');
+      const coolUnit = affectionStage.visit?.coolUnit;
       const cooling = isVisitCooling(newCache, charId);
-      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
+      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock?.flags);
 
       if (cooling && triggered) {
         setVisitCooling(newCache, charId, false);
         logger.debug(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
-        // 注意：冷却状态在 cache 中，不属于 stat 的变更，因此不创建 ChangeLogEntry。
       } else if (cooling) {
         logger.debug(funcName, `角色 ${charId} 处于来访冷却中，但未命中重置拍点 (coolUnit: ${coolUnit || '无'})。`);
       }

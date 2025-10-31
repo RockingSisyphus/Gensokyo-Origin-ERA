@@ -1,70 +1,138 @@
-import _ from 'lodash';
-import { getCacheValue, setCacheValue } from '../../utils/cache';
-import { AFFECTION_STAGE_IN_RUNTIME_PATH, Character, MODULE_CACHE_ROOT, VISIT_COOLING_PATH } from './constants';
-
-// --- 读取 (Read) ---
-
-/** 从 stat 中安全地获取角色对象 */
-export function getChar(stat: any, charId: string): Character | null {
-  return _.get(stat, `chars.${charId}`, null);
-}
-
-/** 从 stat 中安全地获取用户位置 */
-export function getUserLocation(stat: any): string | null {
-  return _.get(stat, 'user.所在地区', null);
-}
-
-/** 从角色对象中安全地获取其位置 */
-export function getCharLocation(char: Character | null): string | null {
-  return char?.所在地区 || null;
-}
-
-/** 从 stat 中安全地获取全局好感度等级配置 */
-export function getGlobalAffectionStages(stat: any): any[] {
-  return _.get(stat, 'config.affection.affectionStages', []);
-}
-
-/** 从 runtime 中获取已解析的好感度等级 */
-export function getAffectionStageFromRuntime(runtime: any, charId: string): any | null {
-  return _.get(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), null);
-}
-
-/** 从 character-processor 缓存中获取角色的来访冷却状态 */
-export function isVisitCooling(cache: any, charId: string): boolean {
-  const fullPath = `${MODULE_CACHE_ROOT}.${VISIT_COOLING_PATH(charId)}`;
-  // 确保返回值始终是布尔值
-  return getCacheValue(cache, fullPath, false) || false;
-}
-
-// --- 写入 (Write) ---
-
-/** 将解析出的好感度等级写入 runtime */
-export function setAffectionStageInRuntime(runtime: any, charId: string, stage: any): void {
-  _.set(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), stage);
-}
-
-/** 设置角色的来访冷却状态到 character-processor 缓存 */
-export function setVisitCooling(cache: any, charId: string, value: boolean): void {
-  const fullPath = `${MODULE_CACHE_ROOT}.${VISIT_COOLING_PATH(charId)}`;
-  setCacheValue(cache, fullPath, value);
-}
-
 /**
- * 更新角色在 stat 中的位置。
- * @param stat - The stat object.
- * @param charId - The character's ID.
- * @param location - The new location.
+ * @file 角色处理器 - 数据访问器
+ * @description 集中了所有对 stat, runtime, cache 的读写操作，以确保路径统一和类型安全。
  */
-export function setCharLocationInStat(stat: any, charId: string, location: string): void {
-  _.set(stat, `chars.${charId}.所在地区`, location);
+
+import {
+  Action,
+  AffectionStageWithForget,
+  Cache,
+  Character,
+  CharacterCache,
+  Stat,
+} from '../../schema';
+import { CharacterRuntime, Runtime } from '../../schema/runtime';
+import { z } from 'zod';
+
+// --- Stat Accessors ---
+
+export function getChars(stat: Stat): Stat['chars'] {
+  return stat.chars;
 }
 
-/**
- * 更新角色在 stat 中的当前目标。
- * @param stat - The stat object.
- * @param charId - The character's ID.
- * @param goal - The new goal.
- */
-export function setCharGoalInStat(stat: any, charId: string, goal: string): void {
-  _.set(stat, `chars.${charId}.当前目标`, goal);
+export function getChar(stat: Stat, charId: string): Character | undefined {
+  return stat.chars[charId];
+}
+
+export function getGlobalAffectionStages(stat: Stat): AffectionStageWithForget[] {
+  return stat.config.affection.affectionStages;
+}
+
+export function getUserLocation(stat: Stat): string {
+  // 假定 user 和 所在地区 总是存在
+  return stat.user!.所在地区!;
+}
+
+export function getCharLocation(char: Character): string {
+  // 假定 所在地区 总是存在
+  return char.所在地区!;
+}
+
+export function setCharLocationInStat(stat: Stat, charId: string, location: string): void {
+  stat.chars[charId]!.所在地区 = location;
+}
+
+export function setCharGoalInStat(stat: Stat, charId: string, goal: string): void {
+  stat.chars[charId]!.目标 = goal;
+}
+
+// --- Runtime Accessors ---
+
+function ensureCharacterRuntime(runtime: Runtime, charId: string) {
+  if (!runtime.character) {
+    runtime.character = {
+      chars: {},
+      partitions: { coLocated: [], remote: [] },
+    };
+  }
+  if (!runtime.character.chars[charId]) {
+    runtime.character.chars[charId] = z.object({}).passthrough().parse({});
+  }
+}
+
+export function getCharacterRuntime(runtime: Runtime, charId: string): CharacterRuntime | undefined {
+  return runtime.character?.chars[charId];
+}
+
+export function getAffectionStageFromRuntime(runtime: Runtime, charId: string): AffectionStageWithForget | undefined {
+  return getCharacterRuntime(runtime, charId)?.affectionStage;
+}
+
+export function setAffectionStageInRuntime(
+  runtime: Runtime,
+  charId: string,
+  stage: AffectionStageWithForget,
+): void {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character!.chars[charId]!.affectionStage = stage;
+}
+
+export function getDecisionFromRuntime(runtime: Runtime, charId: string): Action | undefined {
+  return getCharacterRuntime(runtime, charId)?.decision;
+}
+
+export function setDecisionInRuntime(runtime: Runtime, charId: string, decision: Action): void {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character!.chars[charId]!.decision = decision;
+}
+
+export function getCompanionDecisionFromRuntime(runtime: Runtime, charId: string): Action | undefined {
+  return getCharacterRuntime(runtime, charId)?.companionDecision;
+}
+
+export function setCompanionDecisionInRuntime(runtime: Runtime, charId: string, decision: Action): void {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character!.chars[charId]!.companionDecision = decision;
+}
+
+export function getCoLocatedPartition(runtime: Runtime): string[] {
+  return runtime.character?.partitions.coLocated ?? [];
+}
+
+export function setPartitions(runtime: Runtime, partitions: { coLocated: string[]; remote: string[] }): void {
+  if (!runtime.character) {
+    runtime.character = {
+      chars: {},
+      partitions: { coLocated: [], remote: [] },
+    };
+  }
+  runtime.character.partitions = partitions;
+}
+
+// --- Cache Accessors ---
+
+function ensureCharacterCache(cache: Cache, charId: string) {
+  if (!cache.character) {
+    cache.character = {};
+  }
+  if (!cache.character[charId]) {
+    cache.character[charId] = z.object({}).passthrough().parse({});
+  }
+}
+
+export function getCharacterCache(cache: Cache, charId: string): CharacterCache | undefined {
+  return cache.character?.[charId];
+}
+
+export function isVisitCooling(cache: Cache, charId: string): boolean {
+  return getCharacterCache(cache, charId)?.visit?.cooling === true;
+}
+
+export function setVisitCooling(cache: Cache, charId: string, cooling: boolean): void {
+  ensureCharacterCache(cache, charId);
+  const charCache = cache.character![charId]!;
+  if (!charCache.visit) {
+    charCache.visit = {};
+  }
+  charCache.visit.cooling = cooling;
 }

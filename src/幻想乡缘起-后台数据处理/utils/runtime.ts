@@ -1,26 +1,28 @@
 import _ from 'lodash';
+import { Runtime, RuntimeSchema } from '../schema/runtime';
 import { ERA_VARIABLE_PATH } from './constants';
 import { Logger } from './log';
 
 const logger = new Logger();
 
 /**
- * @description 获取一个全新的、空的 runtime 对象。
- * @returns {object} 一个空对象。
+ * @description 获取一个全新的、符合 RuntimeSchema 的 runtime 对象。
+ * @returns {Runtime} 一个经过 Zod 解析的、类型安全的 runtime 对象。
  */
-export function getRuntimeObject(): object {
-  // 始终返回一个新对象，以确保 runtime 的纯粹临时性。
-  return {};
+export function getRuntimeObject(): Runtime {
+  // 通过解析一个空对象，Zod 会根据 schema 创建一个包含所有 optional 字段的默认结构。
+  // 这确保了 runtime 从一开始就具有正确的类型和结构。
+  return RuntimeSchema.parse({});
 }
 
 /**
  * @description 将传入的对象设置为聊天作用域的完整 runtime 对象。
- * @param {object} runtimeObject - 新的 runtime 对象。
+ * @param {Runtime} runtimeObject - 新的 runtime 对象。
  * @param {{ mode: 'merge' | 'replace' }} [options] - 写入模式配置。'replace' (默认) 会完全替换, 'merge' 会合并新旧对象。
  * @returns {Promise<boolean>} 是否设置成功。
  */
 export async function setRuntimeObject(
-  runtimeObject: object,
+  runtimeObject: Runtime,
   options?: { mode: 'merge' | 'replace' },
 ): Promise<boolean> {
   const funcName = 'setRuntimeObject';

@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { Stat } from '../../schema';
+import { Runtime } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { processFestival as processor } from './processor';
 
@@ -8,17 +10,17 @@ const logger = new Logger();
  * 节日处理器主函数。
  *
  * @param {object} params - 参数对象。
- * @param {any} params.stat - 完整的持久层数据。
- * @param {any} params.runtime - 完整的易失层数据。
- * @returns {Promise<{ stat: any; runtime: any }>} - 返回一个包含更新后 stat 和 runtime 的对象。
+ * @param {Stat} params.stat - 完整的持久层数据。
+ * @param {Runtime} params.runtime - 完整的易失层数据。
+ * @returns {Promise<{ stat: Stat; runtime: Runtime }>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
 export async function processFestival({
   stat,
   runtime,
 }: {
-  stat: any;
-  runtime: any;
-}): Promise<{ stat: any; runtime: any }> {
+  stat: Stat;
+  runtime: Runtime;
+}): Promise<{ stat: Stat; runtime: Runtime }> {
   const funcName = 'processFestival';
   logger.debug(funcName, '开始处理节日...');
 

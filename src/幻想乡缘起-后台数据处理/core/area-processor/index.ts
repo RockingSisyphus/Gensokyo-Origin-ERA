@@ -1,4 +1,5 @@
-import _ from 'lodash';
+import { Stat } from '../../schema';
+import { Runtime, RouteInfo } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { buildGraph } from './graph-builder';
 import { loadLocations } from './location-loader';
@@ -9,17 +10,17 @@ const logger = new Logger();
 
 /**
  * @description 地区处理总入口。构建图，提取合法地区，获取邻居，确定加载地区，并计算路线。
- * @param {any} stat - 不含 $meta 的纯净变量对象。
- * @param {any} runtime - 当前的 runtime 对象。
- * @returns {Promise<{ stat: any; runtime: any }>} - 返回一个包含更新后 stat 和 runtime 的对象。
+ * @param {Stat} stat - 不含 $meta 的纯净变量对象。
+ * @param {Runtime} runtime - 当前的 runtime 对象。
+ * @returns {Promise<{ stat: Stat; runtime: Runtime }>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
 export async function processArea({
   stat,
   runtime,
 }: {
-  stat: any;
-  runtime: any;
-}): Promise<{ stat: any; runtime: any }> {
+  stat: Stat;
+  runtime: Runtime;
+}): Promise<{ stat: Stat; runtime: Runtime }> {
   const funcName = 'processArea';
   logger.debug(funcName, '开始处理地区...');
 
@@ -29,7 +30,7 @@ export async function processArea({
     legal_locations: string[];
     neighbors: string[];
     loadArea: string[];
-    route: any;
+    route: RouteInfo;
   } = {
     graph: {},
     legal_locations: [],
@@ -66,7 +67,7 @@ export async function processArea({
   }
 
   // 将计算结果合并到 runtime
-  _.merge(runtime, output);
+  Object.assign(runtime, output);
 
   logger.debug(funcName, '地区处理完成');
   return { stat, runtime };

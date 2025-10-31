@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../utils/constants';
+import { ChangeLogEntry, Stat } from '../../schema';
 import { Logger } from '../../utils/log';
 import { processAffection } from './processor';
 
@@ -10,12 +10,12 @@ const logger = new Logger();
  * 这是一个包装器，用于将来可能的扩展，并保持与其他核心模块一致的接口。
  *
  * @param {object} params - 参数对象。
- * @param {any} params.stat - 完整的持久层数据。
+ * @param {Stat} params.stat - 完整的持久层数据。
  * @param {any} params.editLog - 当前消息的 editLog。
- * @returns {{ stat: any; changes: ChangeLogEntry[] }} - 返回一个包含更新后 stat 和变更日志的对象。
+ * @returns {{ stat: Stat; changes: ChangeLogEntry[] }} - 返回一个包含更新后 stat 和变更日志的对象。
  */
-export function processAffectionDecisions({ stat, editLog }: { stat: any; editLog: any }): {
-  stat: any;
+export function processAffectionDecisions({ stat, editLog }: { stat: Stat; editLog: any }): {
+  stat: Stat;
   changes: ChangeLogEntry[];
 } {
   const funcName = 'processAffectionDecisions';

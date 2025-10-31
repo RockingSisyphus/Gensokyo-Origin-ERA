@@ -1,17 +1,17 @@
+import { TimeUnit } from '../../../../schema';
+import { ClockFlags, Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
-import { PREDEFINED_ACTIONS } from '../../constants';
 import { getAffectionStageFromRuntime } from '../../accessors';
 
-const logger = new Logger();
+const logger = new Logger('CompanionDecisionMaker');
 
 /**
  * 检查角色是否命中其“耐心窗口”。
  */
-function isPatienceWindowHit(patienceUnit: string, flags: any): boolean {
-  if (!patienceUnit || !flags) return false;
+function isPatienceWindowHit(patienceUnit: TimeUnit, flags: ClockFlags): boolean {
   switch (patienceUnit) {
     case 'period':
-      return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
+      return flags.newPeriod === true || Object.values(flags.byPeriod).some(v => v === true);
     case 'day':
       return flags.newDay === true;
     case 'week':
@@ -30,28 +30,26 @@ function isPatienceWindowHit(patienceUnit: string, flags: any): boolean {
 /**
  * 相伴决策处理器。在同区角色中筛选出决定与主角相伴的角色。
  */
-export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: any; coLocatedChars: string[] }): {
+export function makeCompanionDecisions({ runtime, coLocatedChars }: { runtime: Runtime; coLocatedChars: string[] }): {
   companionChars: string[];
 } {
   const funcName = 'makeCompanionDecisions';
-  // const companionDecisions: Record<string, any> = {}; // 暂时停用，目前只需要返回角色列表
   const companionChars: string[] = [];
+  const clockFlags = runtime.clock?.flags;
+
+  if (!clockFlags) {
+    logger.warn(funcName, '无法获取 clock flags，所有同区角色都将视为“相伴”。');
+    return { companionChars: coLocatedChars };
+  }
 
   for (const charId of coLocatedChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
-    if (!affectionStage) {
-      logger.debug(funcName, `角色 ${charId} 缺少好感度等级信息，跳过“相伴”决策。`);
-      continue;
-    }
+    const patienceUnit = affectionStage?.patienceUnit;
 
-    const { patienceUnit } = affectionStage;
-    const patienceHit = isPatienceWindowHit(patienceUnit, runtime.clock.flags);
-
-    // 如果未命中耐心窗口（即耐心未耗尽），则角色决定继续相伴
-    if (!patienceHit) {
-      // companionDecisions[charId] = { ...PREDEFINED_ACTIONS.STAY_WITH_HERO, isCompanion: true }; // 暂时停用
+    // 如果没有耐心单位，或者耐心未耗尽，则角色决定继续相伴
+    if (!patienceUnit || !isPatienceWindowHit(patienceUnit, clockFlags)) {
       companionChars.push(charId);
-      logger.debug(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，标记为“相伴”。`);
+      logger.debug(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit || '无'})，标记为“相伴”。`);
     } else {
       // 如果命中了耐心窗口，则耐心耗尽，不在此处做决定，交由 action-processor 处理
       logger.debug(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);

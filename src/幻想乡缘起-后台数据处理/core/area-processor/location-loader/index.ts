@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { Stat } from '../../../schema';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { Logger } from '../../../utils/log';
 import { matchMessages } from '../../../utils/message';
@@ -8,7 +9,7 @@ const logger = new Logger();
 /**
  * @description 根据合法地区列表、最近消息、用户当前位置和相邻地区，处理并返回需要加载的地区。
  * @param {object} params
- * @param {any} params.stat - The stat object.
+ * @param {Stat} params.stat - The stat object.
  * @param {string[]} params.legalLocations - An array of legal locations.
  * @param {string[]} params.neighbors - An array of neighboring locations.
  * @returns {Promise<string[]>} 需要加载的地区数组。
@@ -18,7 +19,7 @@ export async function loadLocations({
   legalLocations,
   neighbors,
 }: {
-  stat: any;
+  stat: Stat;
   legalLocations: string[];
   neighbors: string[];
 }): Promise<string[]> {
@@ -40,7 +41,7 @@ export async function loadLocations({
     hits = Array.from(new Set(matched));
 
     // 2. 获取用户当前所在地区并加入 HITS
-    const userLoc = String(_.get(stat, 'user.所在地区', '')).trim();
+    const userLoc = stat.user?.所在地区?.trim() ?? '';
     if (userLoc) {
       logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
       if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {

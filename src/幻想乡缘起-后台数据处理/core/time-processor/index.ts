@@ -1,26 +1,27 @@
 import _ from 'lodash';
+import { Stat } from '../../schema';
+import { Runtime } from '../../schema/runtime';
+import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
-import { getCache, applyCacheToStat, setCacheValue, getCacheValue } from '../../utils/cache';
 import { processTime as processor } from './processor';
 
 const logger = new Logger();
-const CLOCK_ACK_CACHE_PATH = 'time.clockAck';
 
 /**
  * 时间处理器主函数。
  *
  * @param {object} params - 参数对象。
- * @param {any} params.stat - 完整的持久层数据。
- * @param {any} params.runtime - 完整的易失层数据。
- * @returns {Promise<any>} - 返回一个包含更新后 stat 和 runtime 的对象。
+ * @param {Stat} params.stat - 完整的持久层数据。
+ * @param {Runtime} params.runtime - 完整的易失层数据。
+ * @returns {Promise<{ stat: Stat; runtime: Runtime }>} - 返回一个包含更新后 stat 和 runtime 的对象。
  */
 export async function processTime({
   stat,
   runtime,
 }: {
-  stat: any;
-  runtime: any;
-}): Promise<{ stat: any; runtime: any }> {
+  stat: Stat;
+  runtime: Runtime;
+}): Promise<{ stat: Stat; runtime: Runtime }> {
   const funcName = 'processTime';
   logger.debug(funcName, '开始处理时间...');
 
@@ -28,19 +29,24 @@ export async function processTime({
     // 1. 提取缓存
     const cache = getCache(stat);
 
-    // 2. 从缓存中读取上一轮的 clockAck
-    const prevClockAck = getCacheValue(cache, CLOCK_ACK_CACHE_PATH, null);
+    // 2. 从缓存中直接读取上一轮的 clockAck
+    const prevClockAck = cache.time?.clockAck ?? null;
 
     // 3. 调用核心处理器
     const timeResult = processor({ stat, prevClockAck });
 
     // 4. 将新的 clockAck 写入缓存
-    if (timeResult.clock.clockAck) {
-      setCacheValue(cache, CLOCK_ACK_CACHE_PATH, timeResult.clock.clockAck);
+    if (timeResult.newClockAck) {
+      // 使用新对象替换旧的 cache.time，以保证结构的原子性和类型安全
+      // 如果 cache.time 已有其他属性，此操作会保留它们
+      cache.time = {
+        ...cache.time,
+        clockAck: timeResult.newClockAck,
+      };
     }
 
     // 5. 将时间计算结果合并到 runtime
-    _.merge(runtime, timeResult);
+    _.merge(runtime, { clock: timeResult.clock });
 
     // 6. 将最终的缓存应用回 stat
     applyCacheToStat(stat, cache);

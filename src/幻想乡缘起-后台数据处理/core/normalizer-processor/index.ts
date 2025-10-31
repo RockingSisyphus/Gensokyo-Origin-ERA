@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../utils/constants';
+import { ChangeLogEntry, Stat } from '../../schema';
 import { Logger } from '../../utils/log';
 import { normalizeLocationData } from './location';
 
@@ -8,11 +8,11 @@ const logger = new Logger();
 /**
  * @description 数据规范化处理器的主入口函数。
  *              它会按顺序调用所有数据规范化模块。
- * @param {any} originalStat - 原始的、未经修改的 `statWithoutMeta` 对象。
- * @returns {{processedStat: any, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和所有变更日志的对象。
+ * @param {Stat} originalStat - 原始的、经过 Zod 验证的 stat 对象。
+ * @returns {{processedStat: Stat, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和所有变更日志的对象。
  */
-export function processNormalization({ originalStat }: { originalStat: any }): {
-  processedStat: any;
+export function processNormalization({ originalStat }: { originalStat: Stat }): {
+  processedStat: Stat;
   changes: ChangeLogEntry[];
 } {
   const funcName = 'processNormalization';

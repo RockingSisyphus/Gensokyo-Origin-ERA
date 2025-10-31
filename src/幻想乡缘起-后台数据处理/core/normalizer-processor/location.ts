@@ -1,18 +1,18 @@
 import _ from 'lodash';
-import { ChangeLogEntry, createChangeLogEntry } from '../../utils/constants';
-import { get } from '../../utils/format';
+import { ChangeLogEntry, Stat } from '../../schema';
+import { createChangeLogEntry } from '../../utils/changeLog';
 import { Logger } from '../../utils/log';
-import { extractLeafs, getAliasMap, MapGraph } from '../../utils/map';
+import { extractLeafs, getAliasMap } from '../../utils/map';
 
 const logger = new Logger();
 
 /**
  * @description 对传入的 stat 对象进行深拷贝，并标准化其中所有用户和角色的地区信息。
  *              此函数为纯函数，不修改输入对象，而是返回一个全新的、修正后的 stat 对象。
- * @param {any} originalStat - 原始的、未经修改的 `statWithoutMeta` 对象。
- * @returns {{stat: any, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和变更日志的对象。
+ * @param {Stat} originalStat - 原始的、经过 Zod 验证的 stat 对象。
+ * @returns {{stat: Stat, changes: ChangeLogEntry[]}} 一个包含处理后 stat 和变更日志的对象。
  */
-export function normalizeLocationData(originalStat: any): { stat: any; changes: ChangeLogEntry[] } {
+export function normalizeLocationData(originalStat: Stat): { stat: Stat; changes: ChangeLogEntry[] } {
   const funcName = 'normalizeLocationData';
   logger.debug(funcName, '开始对 stat 对象进行位置合法化处理...');
 
@@ -21,16 +21,17 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
   const changes: ChangeLogEntry[] = [];
 
   try {
-    const mapGraph: MapGraph | null = get(stat, 'world.map_graph', null);
-    if (!mapGraph || typeof mapGraph !== 'object' || !mapGraph.tree) {
+    // 确保 world 和 map_graph 存在
+    if (!stat.world || !stat.world.map_graph || !stat.world.map_graph.tree) {
       logger.warn(funcName, '未找到有效的 world.map_graph，跳过位置合法化。');
       return { stat, changes }; // 返回原始的克隆对象和空变更数组
     }
+    const { map_graph } = stat.world;
 
     // 从地图图谱中提取所需信息
-    const legalLocations = new Set<string>(extractLeafs(mapGraph));
-    const aliasMap = getAliasMap(mapGraph);
-    const fallbackLocation = get(stat, 'world.fallbackPlace', '博丽神社');
+    const legalLocations = new Set<string>(extractLeafs(map_graph));
+    const aliasMap = getAliasMap(map_graph);
+    const fallbackLocation = stat.world.fallbackPlace;
 
     /**
      * 内部工具函数，用于标准化单个地区名称。
@@ -38,68 +39,56 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
      * @param defaultLocation - 当无法标准化时的回退地点。
      * @returns {{isOk: boolean, fixedLocation: string}} 标准化结果。
      */
-    const normalize = (rawLocation: any, defaultLocation: string) => {
-      const locationString = String(Array.isArray(rawLocation) ? (rawLocation[0] ?? '') : (rawLocation ?? '')).trim();
+    const normalize = (
+      rawLocation: string | string[] | null | undefined,
+      defaultLocation: string,
+    ): { isOk: boolean; fixedLocation: string } => {
+      const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] || '' : rawLocation || '').trim();
 
-      // 如果地点为空，则视为不合法
       if (!locationString) {
         return { isOk: false, fixedLocation: defaultLocation };
       }
-      // 如果地点本身就是合法的
       if (legalLocations.has(locationString)) {
         return { isOk: true, fixedLocation: locationString };
       }
-      // 检查地点是否为别名
       const standardName = aliasMap?.[locationString];
       if (standardName && legalLocations.has(standardName)) {
         return { isOk: true, fixedLocation: standardName };
       }
-      // 若以上都不满足，则视为不合法
       return { isOk: false, fixedLocation: defaultLocation };
     };
 
-    // --- 路径常量，增加代码可读性 ---
-    const USER_HOME_PATH = 'user.居住地区';
-    const USER_LOCATION_PATH = 'user.所在地区';
-    const CHARS_PATH = 'chars';
-    const CHAR_HOME_KEY = '居住地区';
-    const CHAR_LOCATION_KEY = '所在地区';
-    // ---
-
     // 1. 合法化【用户】的地区
-    let userHome = get(stat, USER_HOME_PATH, undefined);
-    let userLocation = get(stat, USER_LOCATION_PATH, undefined);
+    let userHome = stat.user.居住地区;
+    let userLocation = stat.user.所在地区;
 
     // 首先处理缺失值
-    if (_.isNil(userHome)) {
-      const oldValue = _.get(stat, USER_HOME_PATH);
+    if (userHome == null) {
+      const oldValue = userHome;
       userHome = fallbackLocation;
-      _.set(stat, USER_HOME_PATH, userHome);
-      changes.push(createChangeLogEntry(funcName, USER_HOME_PATH, oldValue, userHome, '补全用户缺失的居住地区'));
+      stat.user.居住地区 = userHome;
+      changes.push(createChangeLogEntry(funcName, 'user.居住地区', oldValue, userHome, '补全用户缺失的居住地区'));
       logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
     }
-    if (_.isNil(userLocation)) {
-      const oldValue = _.get(stat, USER_LOCATION_PATH);
+    if (userLocation == null) {
+      const oldValue = userLocation;
       userLocation = userHome; // 缺失时，所在地区默认与居住地区相同
-      _.set(stat, USER_LOCATION_PATH, userLocation);
-      changes.push(
-        createChangeLogEntry(funcName, USER_LOCATION_PATH, oldValue, userLocation, '补全用户缺失的所在地区'),
-      );
+      stat.user.所在地区 = userLocation;
+      changes.push(createChangeLogEntry(funcName, 'user.所在地区', oldValue, userLocation, '补全用户缺失的所在地区'));
       logger.debug(funcName, `补全用户缺失的所在地区 -> "${userLocation}"`);
     }
 
     const userHomeNormalization = normalize(userHome, fallbackLocation);
-    // 用户的“所在地区”回退时，应优先使用其合法的“居住地区”
     const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
     const userLocationNormalization = normalize(userLocation, userLocationFallback);
 
     if (!userHomeNormalization.isOk || userHomeNormalization.fixedLocation !== userHome) {
-      const oldValue = _.get(stat, USER_HOME_PATH);
-      _.set(stat, USER_HOME_PATH, userHomeNormalization.fixedLocation);
+      const oldValue = stat.user.居住地区;
+      stat.user.居住地区 = userHomeNormalization.fixedLocation;
       changes.push(
         createChangeLogEntry(
           funcName,
-          USER_HOME_PATH,
+          'user.居住地区',
           oldValue,
           userHomeNormalization.fixedLocation,
           '修正用户居住地区',
@@ -108,12 +97,12 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
       logger.debug(funcName, `修正用户居住地区: "${userHome}" -> "${userHomeNormalization.fixedLocation}"`);
     }
     if (!userLocationNormalization.isOk || userLocationNormalization.fixedLocation !== userLocation) {
-      const oldValue = _.get(stat, USER_LOCATION_PATH);
-      _.set(stat, USER_LOCATION_PATH, userLocationNormalization.fixedLocation);
+      const oldValue = stat.user.所在地区;
+      stat.user.所在地区 = userLocationNormalization.fixedLocation;
       changes.push(
         createChangeLogEntry(
           funcName,
-          USER_LOCATION_PATH,
+          'user.所在地区',
           oldValue,
           userLocationNormalization.fixedLocation,
           '修正用户所在地区',
@@ -123,39 +112,44 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
     }
 
     // 2. 合法化【所有角色】的地区
-    let charactersData: any = get(stat, CHARS_PATH, null);
-    if (typeof charactersData === 'string') {
-      // 兼容 chars 为 JSON 字符串的情况
-      try {
-        charactersData = JSON.parse(charactersData);
-      } catch {
-        charactersData = null;
-      }
-    }
+    for (const charName in stat.chars) {
+      // 使用 hasOwnProperty 确保我们只处理自己的属性
+      if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
+        const charObject = stat.chars[charName];
+        // 跳过元数据或无效数据
+        if (charName.startsWith('$') || !charObject) continue;
 
-    if (charactersData && typeof charactersData === 'object') {
-      for (const [charName, charObject] of Object.entries<any>(charactersData)) {
-        if (String(charName).startsWith('$') || !charObject || typeof charObject !== 'object') continue;
-
-        let charHome = charObject[CHAR_HOME_KEY];
-        let charLocation = charObject[CHAR_LOCATION_KEY];
+        let charHome = charObject.居住地区;
+        let charLocation = charObject.所在地区;
 
         // 首先处理缺失值
-        if (_.isNil(charHome)) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`;
-          const oldValue = _.get(stat, path);
+        if (charHome == null) {
+          const oldValue = charHome;
           charHome = fallbackLocation;
-          _.set(stat, path, charHome);
-          changes.push(createChangeLogEntry(funcName, path, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`));
+          charObject.居住地区 = charHome;
+          changes.push(
+            createChangeLogEntry(
+              funcName,
+              `chars.${charName}.居住地区`,
+              oldValue,
+              charHome,
+              `补全角色[${charName}]缺失的居住地区`,
+            ),
+          );
           logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
         }
-        if (_.isNil(charLocation)) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`;
-          const oldValue = _.get(stat, path);
+        if (charLocation == null) {
+          const oldValue = charLocation;
           charLocation = charHome;
-          _.set(stat, path, charLocation);
+          charObject.所在地区 = charLocation;
           changes.push(
-            createChangeLogEntry(funcName, path, oldValue, charLocation, `补全角色[${charName}]缺失的所在地区`),
+            createChangeLogEntry(
+              funcName,
+              `chars.${charName}.所在地区`,
+              oldValue,
+              charLocation,
+              `补全角色[${charName}]缺失的所在地区`,
+            ),
           );
           logger.debug(funcName, `补全角色[${charName}]缺失的所在地区 -> "${charLocation}"`);
         }
@@ -167,13 +161,12 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
         const charLocationNormalization = normalize(charLocation, charLocationFallback);
 
         if (!charHomeNormalization.isOk || charHomeNormalization.fixedLocation !== charHome) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`;
-          const oldValue = _.get(stat, path);
-          _.set(stat, path, charHomeNormalization.fixedLocation);
+          const oldValue = charObject.居住地区;
+          charObject.居住地区 = charHomeNormalization.fixedLocation;
           changes.push(
             createChangeLogEntry(
               funcName,
-              path,
+              `chars.${charName}.居住地区`,
               oldValue,
               charHomeNormalization.fixedLocation,
               `修正角色[${charName}]居住地区`,
@@ -185,13 +178,12 @@ export function normalizeLocationData(originalStat: any): { stat: any; changes: 
           );
         }
         if (!charLocationNormalization.isOk || charLocationNormalization.fixedLocation !== charLocation) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`;
-          const oldValue = _.get(stat, path);
-          _.set(stat, path, charLocationNormalization.fixedLocation);
+          const oldValue = charObject.所在地区;
+          charObject.所在地区 = charLocationNormalization.fixedLocation;
           changes.push(
             createChangeLogEntry(
               funcName,
-              path,
+              `chars.${charName}.所在地区`,
               oldValue,
               charLocationNormalization.fixedLocation,
               `修正角色[${charName}]所在地区`,

@@ -31,35 +31,7 @@ export const VISIT_COOLING_PATH = (charId: string) => `${charId}.visit.cooling`;
 //      类型定义 (Types)
 // ====================
 
-export interface Action {
-  to: string;
-  do: string;
-  source?: string;
-}
-
-export interface When {
-  byFlag?: string[];
-  byNow?: object;
-  byMonthDay?: { month: number; day: number };
-  byFestival?: 'ANY' | string | string[];
-}
-
-export interface Entry {
-  when?: When;
-  action: Action;
-  priority?: number;
-  usesRemaining?: number | null;
-}
-
-export interface Character {
-  所在地区: string;
-  居住地区: string;
-  当前目标: string;
-  好感度: number;
-  affectionStages?: any[];
-  routine: Entry[];
-  specials: Entry[];
-}
+// All type definitions are now in schema.ts
 
 // ====================
 //      行为常量

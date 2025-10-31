@@ -4,7 +4,8 @@
  */
 
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../utils/constants';
+import { ChangeLogEntry, Stat } from '../../schema';
+import { createChangeLogEntry } from '../../utils/changeLog';
 import { EditLogOp, getAtomicChangesFromUpdate, getUpdateOps, parseEditLogString } from '../../utils/editLog';
 import { Logger } from '../../utils/log';
 import { FOLD_RATIO, MIN_STEP } from './constants';
@@ -16,10 +17,10 @@ const logger = new Logger();
  * 处理好感度变化，将大的跳变折算为平滑的步进。
  * @param stat - 当前的 stat 对象副本。
  * @param editLog - 当前 mk 对应的 editLog (可以是 JSON 字符串或对象)。
- * @returns {{ stat: any; changes: ChangeLogEntry[] }} - 处理后的 stat 对象和变更日志。
+ * @returns {{ stat: Stat; changes: ChangeLogEntry[] }} - 处理后的 stat 对象和变更日志。
  */
-export function processAffection({ stat, editLog }: { stat: any; editLog: any }): {
-  stat: any;
+export function processAffection({ stat, editLog }: { stat: Stat; editLog: any }): {
+  stat: Stat;
   changes: ChangeLogEntry[];
 } {
   const funcName = 'processAffection';
@@ -59,8 +60,21 @@ export function processAffection({ stat, editLog }: { stat: any; editLog: any })
           continue;
         }
 
+        // 从路径中解析角色 ID
+        const charId = path.split('.')[1];
+        if (!charId) {
+          continue;
+        }
+
+        // 类型安全地访问角色
+        const character = stat.chars[charId];
+        if (!character) {
+          internalLogs.push({ msg: '角色未在 stat.chars 中找到', path, charId });
+          continue;
+        }
+
         const hasOld = !(oldVal === null || oldVal === undefined);
-        const oldValueNum = hasOld ? Number(oldVal) : 0;
+        const oldValueNum = hasOld ? Number(oldVal) : character.好感度;
         const newValueNum = Number(newVal);
 
         if (!Number.isFinite(oldValueNum) || !Number.isFinite(newValueNum)) {
@@ -95,16 +109,16 @@ export function processAffection({ stat, editLog }: { stat: any; editLog: any })
         internalLogs.push({ msg: '折算计算结果', FOLD_RATIO, step, foldedDelta, foldedNewValue });
 
         // 直接修改 stat 对象
-        _.set(stat, path, foldedNewValue);
+        character.好感度 = foldedNewValue;
 
         // 记录变更
-        const changeEntry: ChangeLogEntry = {
-          module: 'affection-processor',
+        const changeEntry = createChangeLogEntry(
+          'affection-processor',
           path,
-          oldValue: oldValueNum,
-          newValue: foldedNewValue,
-          reason: `好感度折算：原始变化量 ${delta} 被折算为 ${foldedDelta}`,
-        };
+          oldValueNum,
+          foldedNewValue,
+          `好感度折算：原始变化量 ${delta} 被折算为 ${foldedDelta}`,
+        );
         changes.push(changeEntry);
 
         internalLogs.push({ msg: '折算写入完成', changeEntry });

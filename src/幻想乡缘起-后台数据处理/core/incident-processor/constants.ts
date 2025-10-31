@@ -58,18 +58,6 @@
  */
 
 /**
- * @description 异变对象接口
- */
-export interface Incident {
-  name: string;
-  detail: string;
-  mainLoc: string[];
-  solver?: string[];
-  isFinished?: boolean;
-  raw?: any; // 用于存储原始对象
-}
-
-/**
  * @description 默认异变配置
  */
 export const DEFAULT_INCIDENT_CONFIG = {

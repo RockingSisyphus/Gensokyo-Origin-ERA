@@ -1,6 +1,8 @@
 import _ from 'lodash';
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
+import { processCharacterLog } from './core/character-log-processor';
+import { HISTORY_LENGTH } from './core/character-log-processor/constants';
 import { processCharacterDecisions } from './core/character-processor';
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
@@ -8,8 +10,12 @@ import { processIncidentDecisions } from './core/incident-processor';
 import { processNormalization } from './core/normalizer-processor';
 import { buildPrompt } from './core/prompt-builder';
 import { processTime } from './core/time-processor';
+import { QueryResultItem, WriteDonePayload } from './events/constants';
+import { getSnapshotsBetweenMIds } from './events/emitter';
+import { onWriteDone } from './events/receiver';
+import { StatSchema, Stat } from './schema';
+import { Runtime } from './schema/runtime';
 import { getCache } from './utils/cache';
-import { WriteDonePayload } from './utils/era';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
 
@@ -26,7 +32,7 @@ const logger = new Logger();
 function logState(
   moduleName: string,
   modified: string,
-  { stat, runtime, cache }: { stat: any; runtime: any; cache: any },
+  { stat, runtime, cache }: { stat: Stat; runtime: Runtime; cache: any },
 ) {
   const title = `[${moduleName}] (修改: ${modified})`;
   const data = {
@@ -43,12 +49,23 @@ $(() => {
 
   // 定义核心数据处理函数
   const handleWriteDone = async (payload: WriteDonePayload) => {
-    const { statWithoutMeta, mk, editLogs } = payload;
-    logger.log('handleWriteDone', '开始处理数据...', statWithoutMeta);
+    const { statWithoutMeta, mk, editLogs, message_id } = payload;
+    logger.log('handleWriteDone', '接收到原始 stat 数据', statWithoutMeta);
+
+    // 使用 Zod 解析和验证 stat
+    const parseResult = StatSchema.safeParse(statWithoutMeta);
+    if (!parseResult.success) {
+      logger.error('handleWriteDone', 'Stat 数据结构验证失败', {
+        error: parseResult.error.format(),
+        originalStat: statWithoutMeta,
+      });
+      return; // 中止执行
+    }
 
     // --- 初始状态 ---
-    let currentStat = _.cloneDeep(statWithoutMeta); // 直接克隆
-    let currentRuntime = getRuntimeObject();
+    // 从这里开始，currentStat 就是经过验证和类型推断的
+    let currentStat: Stat = parseResult.data;
+    let currentRuntime: Runtime = getRuntimeObject();
     logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
 
     // 根据当前 mk 获取对应的 editLog
@@ -74,18 +91,7 @@ $(() => {
       cache: getCache(currentStat),
     });
 
-    // 2.5. 异变处理
-    const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
-    currentStat = incidentResult.stat;
-    currentRuntime = incidentResult.runtime;
-    const incidentChanges = incidentResult.changes;
-    logState('Incident Processor', 'stat (cache), runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
-
-    // 2.8. 时间处理
+    // 2.5. 时间处理
     const timeResult = await processTime({
       stat: currentStat,
       runtime: currentRuntime,
@@ -93,6 +99,32 @@ $(() => {
     currentStat = timeResult.stat;
     currentRuntime = timeResult.runtime;
     logState('Time Processor', 'stat (cache), runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
+    // 2.8. 角色日志处理
+    const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
+    const snapshotPayload = await getSnapshotsBetweenMIds({
+      startId,
+      endId: message_id,
+    });
+    const snapshots = (snapshotPayload.result as QueryResultItem[]) || [];
+    const charLogResult = processCharacterLog({ runtime: currentRuntime, snapshots, stat: currentStat });
+    currentRuntime = charLogResult.runtime;
+    logState('Character Log Processor', 'runtime', {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat),
+    });
+
+    // 2.8. 异变处理
+    const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
+    currentStat = incidentResult.stat;
+    currentRuntime = incidentResult.runtime;
+    const incidentChanges = incidentResult.changes;
+    logState('Incident Processor', 'stat (cache), runtime', {
       stat: currentStat,
       runtime: currentRuntime,
       cache: getCache(currentStat),
@@ -153,11 +185,14 @@ $(() => {
     });
   };
 
-  // 监听真实的 ERA 数据写入完成事件
-  eventOn('era:writeDone', (detail: WriteDonePayload) => {
-    logger.log('main', '接收到真实的 era:writeDone 事件');
-    handleWriteDone(detail);
-  });
+  // 监听 ERA 数据写入完成事件，并忽略由 API 写入触发的事件
+  onWriteDone(
+    (detail: WriteDonePayload) => {
+      logger.log('main', '接收到 era:writeDone 事件');
+      handleWriteDone(detail);
+    },
+    { ignoreApiWrite: true },
+  );
 
   // 监听来自 dev ael 的伪造数据写入事件，用于测试
   eventOn('dev:fakeWriteDone', (detail: WriteDonePayload) => {

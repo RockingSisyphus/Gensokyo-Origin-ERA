@@ -1,9 +1,18 @@
 import _ from 'lodash';
+import { Action, Cache, ChangeLogEntry, Stat } from '../../../schema';
+import { Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
-import { getUserLocation, setCharGoalInStat, setCharLocationInStat, setVisitCooling } from '../accessors';
-import { Action, COMPANION_DECISION_IN_RUNTIME_PATH, DECISION_IN_RUNTIME_PATH, PREDEFINED_ACTIONS } from '../constants';
+import {
+  getUserLocation,
+  setCharGoalInStat,
+  setCharLocationInStat,
+  setCompanionDecisionInRuntime,
+  setDecisionInRuntime,
+  setVisitCooling,
+} from '../accessors';
+import { PREDEFINED_ACTIONS } from '../constants';
 
-const logger = new Logger();
+const logger = new Logger('Aggregator');
 
 /**
  * 解析决策中的目标地点。
@@ -11,9 +20,9 @@ const logger = new Logger();
  * @param stat - The stat object.
  * @returns 解析后的实际地点名称。
  */
-function resolveTargetLocation(to: string, stat: any): string {
-  if (to === 'HERO') {
-    return getUserLocation(stat) || 'UNKNOWN';
+function resolveTargetLocation(to: string | undefined, stat: Stat): string {
+  if (!to || to === 'HERO') {
+    return getUserLocation(stat);
   }
   // TODO: 实现 FIXED, NEIGHBOR, FROM, ANY 等更复杂的地点解析逻辑
   return to;
@@ -29,9 +38,9 @@ function applyNonCompanionDecisions({
   cache,
   nonCompanionDecisions,
 }: {
-  stat: any;
-  runtime: any;
-  cache: any;
+  stat: Stat;
+  runtime: Runtime;
+  cache: Cache;
   nonCompanionDecisions: Record<string, Action>;
 }): void {
   const funcName = 'applyNonCompanionDecisions';
@@ -46,7 +55,7 @@ function applyNonCompanionDecisions({
     logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
 
     // 2. 更新 runtime (副作用)
-    _.set(runtime, DECISION_IN_RUNTIME_PATH(charId), decision);
+    setDecisionInRuntime(runtime, charId, decision);
     logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
 
     if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
@@ -64,14 +73,14 @@ function applyCompanionDecisions({
   runtime,
   companionDecisions,
 }: {
-  runtime: any;
+  runtime: Runtime;
   companionDecisions: Record<string, Action>;
 }): void {
   const funcName = 'applyCompanionDecisions';
 
   _.forEach(companionDecisions, (decision, charId) => {
     logger.debug(funcName, `开始应用角色 ${charId} 的相伴决策: [${decision.do}]`);
-    _.set(runtime, COMPANION_DECISION_IN_RUNTIME_PATH(charId), decision);
+    setCompanionDecisionInRuntime(runtime, charId, decision);
     logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录相伴决策。`);
   });
 }
@@ -92,29 +101,31 @@ export function aggregateResults({
   companionDecisions,
   nonCompanionDecisions,
 }: {
-  stat: any;
-  runtime: any;
-  cache: any;
+  stat: Stat;
+  runtime: Runtime;
+  cache: Cache;
   companionDecisions: Record<string, Action>;
   nonCompanionDecisions: Record<string, Action>;
-}): { stat: any; runtime: any; cache: any; changes: any[] } {
+}): { stat: Stat; runtime: Runtime; cache: Cache; changes: ChangeLogEntry[] } {
   const funcName = 'aggregateResults';
   logger.debug(funcName, '开始聚合角色决策结果...');
-  const changes: any[] = [];
+
+  const newStat = _.cloneDeep(stat);
+  const newRuntime = _.cloneDeep(runtime);
+  const newCache = _.cloneDeep(cache);
+  const changes: ChangeLogEntry[] = [];
 
   try {
-    logger.debug(funcName, '聚合前（原始）的 stat 和 runtime:', { stat, runtime });
-
     // 1. 应用“相伴角色”的决策
-    applyCompanionDecisions({ runtime, companionDecisions });
+    applyCompanionDecisions({ runtime: newRuntime, companionDecisions });
 
     // 2. 应用“非同伴角色”的决策
-    applyNonCompanionDecisions({ stat, runtime, cache, nonCompanionDecisions });
+    applyNonCompanionDecisions({ stat: newStat, runtime: newRuntime, cache: newCache, nonCompanionDecisions });
 
     // TODO: 在此添加其他聚合逻辑，如生成 changelog。
 
-    logger.debug(funcName, '结果聚合完毕。', { finalStat: stat, finalRuntime: runtime, finalCache: cache });
-    return { stat, runtime, cache, changes };
+    logger.debug(funcName, '结果聚合完毕。');
+    return { stat: newStat, runtime: newRuntime, cache: newCache, changes };
   } catch (e) {
     logger.error(funcName, '执行结果聚合时发生错误:', e);
     // 发生错误时，返回原始数据以防止流程中断

@@ -193,6 +193,196 @@ class Logger {
   }
 }
 
+const external_z_namespaceObject = z;
+
+const ForgettingRuleSchema = external_z_namespaceObject.z.object({
+  triggerFlag: external_z_namespaceObject.z.string(),
+  decrease: external_z_namespaceObject.z.number()
+});
+
+const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+
+const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
+  threshold: external_z_namespaceObject.z.number(),
+  name: external_z_namespaceObject.z.string(),
+  patienceUnit: TimeUnitSchema.optional(),
+  visit: external_z_namespaceObject.z.object({
+    enabled: external_z_namespaceObject.z.boolean().optional(),
+    probBase: external_z_namespaceObject.z.number().optional(),
+    probK: external_z_namespaceObject.z.number().optional(),
+    coolUnit: TimeUnitSchema.optional()
+  }).optional(),
+  forgettingSpeed: external_z_namespaceObject.z.array(ForgettingRuleSchema).optional()
+}).passthrough();
+
+const CharacterForgettingInfoSchema = external_z_namespaceObject.z.object({
+  id: external_z_namespaceObject.z.string(),
+  name: external_z_namespaceObject.z.string(),
+  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema)
+});
+
+const ChangeLogEntrySchema = external_z_namespaceObject.z.object({
+  module: external_z_namespaceObject.z.string(),
+  path: external_z_namespaceObject.z.string(),
+  oldValue: external_z_namespaceObject.z.any(),
+  newValue: external_z_namespaceObject.z.any(),
+  reason: external_z_namespaceObject.z.string()
+});
+
+const ClockAckSchema = external_z_namespaceObject.z.object({
+  dayID: external_z_namespaceObject.z.number(),
+  weekID: external_z_namespaceObject.z.number(),
+  monthID: external_z_namespaceObject.z.number(),
+  yearID: external_z_namespaceObject.z.number(),
+  periodID: external_z_namespaceObject.z.number(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  seasonID: external_z_namespaceObject.z.number(),
+  seasonIdx: external_z_namespaceObject.z.number()
+});
+
+const IncidentDetailSchema = external_z_namespaceObject.z.object({
+  异变细节: external_z_namespaceObject.z.string(),
+  主要地区: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  异变退治者: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional(),
+  异变已结束: external_z_namespaceObject.z.boolean()
+});
+
+const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  month: external_z_namespaceObject.z.number(),
+  start_day: external_z_namespaceObject.z.number(),
+  end_day: external_z_namespaceObject.z.number(),
+  host: external_z_namespaceObject.z.string().optional(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
+});
+
+const CharacterCacheSchema = external_z_namespaceObject.z.object({
+  visit: external_z_namespaceObject.z.object({
+    cooling: external_z_namespaceObject.z.boolean().optional()
+  }).optional()
+});
+
+const ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const EntrySchema = external_z_namespaceObject.z.object({
+  when: external_z_namespaceObject.z.any(),
+  action: ActionSchema,
+  priority: external_z_namespaceObject.z.number().optional()
+});
+
+const CharacterSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  好感度: external_z_namespaceObject.z.number(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable(),
+  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema).default([]),
+  specials: external_z_namespaceObject.z.array(EntrySchema).default([]),
+  routine: external_z_namespaceObject.z.array(EntrySchema).default([]),
+  目标: external_z_namespaceObject.z.string().optional()
+});
+
+const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
+
+const UserSchema = external_z_namespaceObject.z.object({
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable()
+});
+
+const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
+
+const MapGraphSchema = external_z_namespaceObject.z.object({
+  tree: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.any()),
+  edges: external_z_namespaceObject.z.array(external_z_namespaceObject.z.object({
+    a: external_z_namespaceObject.z.string(),
+    b: external_z_namespaceObject.z.string()
+  })).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.string()).optional()
+});
+
+const WorldSchema = external_z_namespaceObject.z.object({
+  map_graph: MapGraphSchema.optional(),
+  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
+}).passthrough();
+
+const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  detail: external_z_namespaceObject.z.string(),
+  mainLoc: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ])
+});
+
+const IncidentConfigSchema = external_z_namespaceObject.z.object({
+  cooldownMinutes: external_z_namespaceObject.z.number(),
+  forceTrigger: external_z_namespaceObject.z.boolean(),
+  isRandomPool: external_z_namespaceObject.z.boolean(),
+  pool: external_z_namespaceObject.z.array(IncidentPoolItemSchema),
+  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+});
+
+const TimeConfigSchema = external_z_namespaceObject.z.object({
+  epochISO: external_z_namespaceObject.z.string(),
+  periodNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  periodKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  seasonNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  seasonKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  weekNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+});
+
+const ConfigSchema = external_z_namespaceObject.z.object({
+  affection: external_z_namespaceObject.z.object({
+    affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema)
+  }),
+  time: TimeConfigSchema,
+  incident: IncidentConfigSchema.optional()
+}).passthrough();
+
+const IncidentCacheSchema = external_z_namespaceObject.z.object({
+  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable()
+});
+
+const CacheSchema = external_z_namespaceObject.z.object({
+  time: external_z_namespaceObject.z.object({
+    clockAck: ClockAckSchema
+  }).optional(),
+  incident: IncidentCacheSchema.optional(),
+  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).default({})
+});
+
+const 世界Schema = external_z_namespaceObject.z.object({
+  timeProgress: external_z_namespaceObject.z.number()
+}).passthrough();
+
+const StatSchema = external_z_namespaceObject.z.object({
+  config: ConfigSchema,
+  chars: CharsSchema,
+  user: UserSchema,
+  world: WorldSchema.optional(),
+  世界: 世界Schema,
+  cache: CacheSchema.default({
+    character: {},
+    incident: {
+      incidentCooldownAnchor: null
+    }
+  }),
+  incidents: IncidentsSchema.default({}),
+  festivals_list: external_z_namespaceObject.z.array(FestivalDefinitionSchema).default([])
+});
+
+const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
+  const entry = {
+    module,
+    path,
+    oldValue,
+    newValue,
+    reason
+  };
+  return ChangeLogEntrySchema.parse(entry);
+};
+
 const logger = new Logger("幻想乡缘起-后台数据处理/utils/editLog");
 
 function parseEditLogString(logString) {
@@ -391,8 +581,21 @@ function processAffection({stat, editLog}) {
         if (!isTarget(path)) {
           continue;
         }
+        const charId = path.split(".")[1];
+        if (!charId) {
+          continue;
+        }
+        const character = stat.chars[charId];
+        if (!character) {
+          internalLogs.push({
+            msg: "角色未在 stat.chars 中找到",
+            path,
+            charId
+          });
+          continue;
+        }
         const hasOld = !(oldVal === null || oldVal === undefined);
-        const oldValueNum = hasOld ? Number(oldVal) : 0;
+        const oldValueNum = hasOld ? Number(oldVal) : character.好感度;
         const newValueNum = Number(newVal);
         if (!Number.isFinite(oldValueNum) || !Number.isFinite(newValueNum)) {
           internalLogs.push({
@@ -438,14 +641,8 @@ function processAffection({stat, editLog}) {
           foldedDelta,
           foldedNewValue
         });
-        external_default().set(stat, path, foldedNewValue);
-        const changeEntry = {
-          module: "affection-processor",
-          path,
-          oldValue: oldValueNum,
-          newValue: foldedNewValue,
-          reason: `好感度折算：原始变化量 ${delta} 被折算为 ${foldedDelta}`
-        };
+        character.好感度 = foldedNewValue;
+        const changeEntry = createChangeLogEntry("affection-processor", path, oldValueNum, foldedNewValue, `好感度折算：原始变化量 ${delta} 被折算为 ${foldedDelta}`);
         changes.push(changeEntry);
         internalLogs.push({
           msg: "折算写入完成",
@@ -503,7 +700,7 @@ function buildGraph({stat}) {
   const graph = {};
   const leafNodes = [];
   try {
-    const mapData = external_default().get(stat, "world.map_graph");
+    const mapData = stat.world?.map_graph;
     if (!mapData) {
       graph_builder_logger.warn(funcName, "stat.world.map_graph 为空或不存在。");
       return {
@@ -540,7 +737,7 @@ function buildGraph({stat}) {
         graph[node] = {};
       }
     });
-    const edges = external_default().get(mapData, "edges", []);
+    const edges = mapData.edges ?? [];
     graph_builder_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
     if (Array.isArray(edges)) {
       edges.forEach(edge => {
@@ -559,6 +756,8 @@ function buildGraph({stat}) {
     leafNodes
   };
 }
+
+const DEFAULT_LOCATION = "博丽神社";
 
 const ERA_VARIABLE_PATH = {
   MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
@@ -597,16 +796,6 @@ const ERA_VARIABLE_PATH = {
 const RUNTIME_PATH = {
   CURRENT_FESTIVAL_NAME: "festival.current.name"
 };
-
-const getCurrentFestivalName = runtime => external_default().get(runtime, RUNTIME_PATH.CURRENT_FESTIVAL_NAME, null);
-
-const createChangeLogEntry = (module, path, oldValue, newValue, reason) => ({
-  module,
-  path,
-  oldValue,
-  newValue,
-  reason
-});
 
 const log = new Logger("幻想乡缘起-后台数据处理/utils/message");
 
@@ -722,7 +911,7 @@ async function loadLocations({stat, legalLocations, neighbors}) {
       tag: ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
     });
     hits = Array.from(new Set(matched));
-    const userLoc = String(external_default().get(stat, "user.所在地区", "")).trim();
+    const userLoc = stat.user?.所在地区?.trim() ?? "";
     if (userLoc) {
       location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
       if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
@@ -755,7 +944,7 @@ const neighbor_loader_logger = new Logger("幻想乡缘起-后台数据处理/co
 function processNeighbors({stat, graph}) {
   const funcName = "processNeighbors";
   try {
-    const currentUserLocation = external_default().get(stat, "user.所在地区", "");
+    const currentUserLocation = stat.user?.所在地区 ?? "";
     if (!currentUserLocation) {
       neighbor_loader_logger.debug(funcName, "用户当前位置未知，无法获取邻居。");
       return [];
@@ -825,7 +1014,7 @@ function processRoute({stat, runtime, graph}) {
     routes: []
   };
   try {
-    const currentUserLocation = external_default().get(stat, "user.所在地区", "博丽神社");
+    const currentUserLocation = stat.user?.所在地区 ?? DEFAULT_LOCATION;
     route_logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
     if (external_default().isEmpty(graph)) {
       route_logger.warn(funcName, "图为空，无法计算路线。");
@@ -834,7 +1023,7 @@ function processRoute({stat, runtime, graph}) {
     route_logger.debug(funcName, "图已接收", {
       nodes: Object.keys(graph).length
     });
-    const candidates = external_default().cloneDeep(external_default().get(runtime, "loadArea", []));
+    const candidates = external_default().cloneDeep(runtime.loadArea ?? []);
     route_logger.debug(funcName, `路线计算候选地点: ${candidates.join(", ")}`);
     if (candidates.length === 0) {
       route_logger.debug(funcName, "没有候选地点，无需计算路线。");
@@ -918,7 +1107,7 @@ async function processArea({stat, runtime}) {
   } catch (e) {
     area_processor_logger.error(funcName, "处理地区时发生异常", e);
   }
-  external_default().merge(runtime, output);
+  Object.assign(runtime, output);
   area_processor_logger.debug(funcName, "地区处理完成");
   return {
     stat,
@@ -926,37 +1115,178 @@ async function processArea({stat, runtime}) {
   };
 }
 
-const CACHE_ROOT_PATH = "cache";
+function getCharAffectionStages(stat, charId) {
+  const character = stat.chars[charId];
+  if (character && character.affectionStages) {
+    return character.affectionStages;
+  }
+  return stat.config.affection.affectionStages;
+}
+
+function processCharacterForgetting({stat}) {
+  const results = [];
+  for (const charId in stat.chars) {
+    const character = stat.chars[charId];
+    if (!character) continue;
+    const affectionStages = getCharAffectionStages(stat, charId);
+    const forgettingInfo = {
+      id: charId,
+      name: character.name,
+      affectionStages
+    };
+    results.push(forgettingInfo);
+  }
+  return results;
+}
+
+const character_log_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-log-processor");
+
+function processCharacterLog({runtime, snapshots, stat}) {
+  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
+    snapshotCount: snapshots.length
+  });
+  const forgettingInfo = processCharacterForgetting({
+    stat
+  });
+  const characterLog = {
+    forgettingInfo
+  };
+  const newRuntime = {
+    ...runtime,
+    characterLog
+  };
+  return {
+    runtime: newRuntime
+  };
+}
+
+const HISTORY_LENGTH = 20;
 
 function getCache(stat) {
-  return external_default().get(stat, CACHE_ROOT_PATH, {});
+  const cache = CacheSchema.parse(stat.cache ?? {});
+  stat.cache = cache;
+  return cache;
 }
 
-function getCacheValue(cache, path, defaultValue) {
-  return external_default().get(cache, path, defaultValue);
+function applyCacheToStat(stat, cache) {
+  stat.cache = cache;
 }
 
-function setCacheValue(cache, path, value, mode = "replace") {
-  if (mode === "merge") {
-    const existingValue = external_default().get(cache, path);
-    if (external_default().isPlainObject(existingValue) && external_default().isPlainObject(value)) {
-      external_default().merge(existingValue, value);
-    } else {
-      external_default().set(cache, path, value);
-    }
-  } else {
-    external_default().set(cache, path, value);
+function getChars(stat) {
+  return stat.chars;
+}
+
+function getChar(stat, charId) {
+  return stat.chars[charId];
+}
+
+function getGlobalAffectionStages(stat) {
+  return stat.config.affection.affectionStages;
+}
+
+function getUserLocation(stat) {
+  return stat.user.所在地区;
+}
+
+function getCharLocation(char) {
+  return char.所在地区;
+}
+
+function setCharLocationInStat(stat, charId, location) {
+  stat.chars[charId].所在地区 = location;
+}
+
+function setCharGoalInStat(stat, charId, goal) {
+  stat.chars[charId].目标 = goal;
+}
+
+function ensureCharacterRuntime(runtime, charId) {
+  if (!runtime.character) {
+    runtime.character = {
+      chars: {},
+      partitions: {
+        coLocated: [],
+        remote: []
+      }
+    };
+  }
+  if (!runtime.character.chars[charId]) {
+    runtime.character.chars[charId] = external_z_namespaceObject.z.object({}).passthrough().parse({});
   }
 }
 
-function applyCacheToStat(stat, cache, mode = "replace") {
-  if (mode === "merge") {
-    const existingCache = external_default().get(stat, CACHE_ROOT_PATH, {});
-    external_default().merge(existingCache, cache);
-    external_default().set(stat, CACHE_ROOT_PATH, existingCache);
-  } else {
-    external_default().set(stat, CACHE_ROOT_PATH, cache);
+function getCharacterRuntime(runtime, charId) {
+  return runtime.character?.chars[charId];
+}
+
+function getAffectionStageFromRuntime(runtime, charId) {
+  return getCharacterRuntime(runtime, charId)?.affectionStage;
+}
+
+function setAffectionStageInRuntime(runtime, charId, stage) {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character.chars[charId].affectionStage = stage;
+}
+
+function getDecisionFromRuntime(runtime, charId) {
+  return getCharacterRuntime(runtime, charId)?.decision;
+}
+
+function setDecisionInRuntime(runtime, charId, decision) {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character.chars[charId].decision = decision;
+}
+
+function getCompanionDecisionFromRuntime(runtime, charId) {
+  return getCharacterRuntime(runtime, charId)?.companionDecision;
+}
+
+function setCompanionDecisionInRuntime(runtime, charId, decision) {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character.chars[charId].companionDecision = decision;
+}
+
+function getCoLocatedPartition(runtime) {
+  return runtime.character?.partitions.coLocated ?? [];
+}
+
+function setPartitions(runtime, partitions) {
+  if (!runtime.character) {
+    runtime.character = {
+      chars: {},
+      partitions: {
+        coLocated: [],
+        remote: []
+      }
+    };
   }
+  runtime.character.partitions = partitions;
+}
+
+function ensureCharacterCache(cache, charId) {
+  if (!cache.character) {
+    cache.character = {};
+  }
+  if (!cache.character[charId]) {
+    cache.character[charId] = external_z_namespaceObject.z.object({}).passthrough().parse({});
+  }
+}
+
+function getCharacterCache(cache, charId) {
+  return cache.character?.[charId];
+}
+
+function isVisitCooling(cache, charId) {
+  return getCharacterCache(cache, charId)?.visit?.cooling === true;
+}
+
+function setVisitCooling(cache, charId, cooling) {
+  ensureCharacterCache(cache, charId);
+  const charCache = cache.character[charId];
+  if (!charCache.visit) {
+    charCache.visit = {};
+  }
+  charCache.visit.cooling = cooling;
 }
 
 const CHAR_RUNTIME_PATH = charId => `character.chars.${charId}`;
@@ -969,9 +1299,9 @@ const COMPANION_DECISION_IN_RUNTIME_PATH = charId => `${CHAR_RUNTIME_PATH(charId
 
 const CHAR_PARTITIONS_IN_RUNTIME_PATH = "character.partitions";
 
-const CO_LOCATED_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.coLocated`;
+const CO_LOCATED_CHARS_IN_RUNTIME_PATH = null && `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.coLocated`;
 
-const REMOTE_CHARS_IN_RUNTIME_PATH = `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.remote`;
+const REMOTE_CHARS_IN_RUNTIME_PATH = null && `${CHAR_PARTITIONS_IN_RUNTIME_PATH}.remote`;
 
 const MODULE_CACHE_ROOT = "character-processor";
 
@@ -1002,53 +1332,11 @@ const DEFAULT_VALUES = {
   IDLE_ACTION_DO: "待机"
 };
 
-function getChar(stat, charId) {
-  return external_default().get(stat, `chars.${charId}`, null);
-}
-
-function getUserLocation(stat) {
-  return external_default().get(stat, "user.所在地区", null);
-}
-
-function getCharLocation(char) {
-  return char?.所在地区 || null;
-}
-
-function getGlobalAffectionStages(stat) {
-  return external_default().get(stat, "config.affection.affectionStages", []);
-}
-
-function getAffectionStageFromRuntime(runtime, charId) {
-  return external_default().get(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), null);
-}
-
-function isVisitCooling(cache, charId) {
-  const fullPath = `${MODULE_CACHE_ROOT}.${VISIT_COOLING_PATH(charId)}`;
-  return getCacheValue(cache, fullPath, false) || false;
-}
-
-function setAffectionStageInRuntime(runtime, charId, stage) {
-  external_default().set(runtime, AFFECTION_STAGE_IN_RUNTIME_PATH(charId), stage);
-}
-
-function setVisitCooling(cache, charId, value) {
-  const fullPath = `${MODULE_CACHE_ROOT}.${VISIT_COOLING_PATH(charId)}`;
-  setCacheValue(cache, fullPath, value);
-}
-
-function setCharLocationInStat(stat, charId, location) {
-  external_default().set(stat, `chars.${charId}.所在地区`, location);
-}
-
-function setCharGoalInStat(stat, charId, goal) {
-  external_default().set(stat, `chars.${charId}.当前目标`, goal);
-}
-
-const aggregator_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/aggregator");
+const aggregator_logger = new Logger("Aggregator");
 
 function resolveTargetLocation(to, stat) {
-  if (to === "HERO") {
-    return getUserLocation(stat) || "UNKNOWN";
+  if (!to || to === "HERO") {
+    return getUserLocation(stat);
   }
   return to;
 }
@@ -1061,7 +1349,7 @@ function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
     aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
-    external_default().set(runtime, DECISION_IN_RUNTIME_PATH(charId), decision);
+    setDecisionInRuntime(runtime, charId, decision);
     aggregator_logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
     if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
       setVisitCooling(cache, charId, true);
@@ -1074,7 +1362,7 @@ function applyCompanionDecisions({runtime, companionDecisions}) {
   const funcName = "applyCompanionDecisions";
   external_default().forEach(companionDecisions, (decision, charId) => {
     aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的相伴决策: [${decision.do}]`);
-    external_default().set(runtime, COMPANION_DECISION_IN_RUNTIME_PATH(charId), decision);
+    setCompanionDecisionInRuntime(runtime, charId, decision);
     aggregator_logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录相伴决策。`);
   });
 }
@@ -1082,31 +1370,26 @@ function applyCompanionDecisions({runtime, companionDecisions}) {
 function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanionDecisions}) {
   const funcName = "aggregateResults";
   aggregator_logger.debug(funcName, "开始聚合角色决策结果...");
+  const newStat = external_default().cloneDeep(stat);
+  const newRuntime = external_default().cloneDeep(runtime);
+  const newCache = external_default().cloneDeep(cache);
   const changes = [];
   try {
-    aggregator_logger.debug(funcName, "聚合前（原始）的 stat 和 runtime:", {
-      stat,
-      runtime
-    });
     applyCompanionDecisions({
-      runtime,
+      runtime: newRuntime,
       companionDecisions
     });
     applyNonCompanionDecisions({
-      stat,
-      runtime,
-      cache,
+      stat: newStat,
+      runtime: newRuntime,
+      cache: newCache,
       nonCompanionDecisions
     });
-    aggregator_logger.debug(funcName, "结果聚合完毕。", {
-      finalStat: stat,
-      finalRuntime: runtime,
-      finalCache: cache
-    });
+    aggregator_logger.debug(funcName, "结果聚合完毕。");
     return {
-      stat,
-      runtime,
-      cache,
+      stat: newStat,
+      runtime: newRuntime,
+      cache: newCache,
       changes
     };
   } catch (e) {
@@ -1120,29 +1403,31 @@ function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanio
   }
 }
 
-const action_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/action-processor");
+const action_processor_logger = new Logger("ActionDecisionMaker");
 
-function areConditionsMet(entry, {runtime, stat}) {
+function areConditionsMet(entry, {runtime}) {
   const {when} = entry;
   if (!when) return true;
+  const clock = runtime.clock;
+  if (!clock) return false;
   if (when.byFlag) {
-    if (!when.byFlag.some(flagPath => external_default().get(runtime.clock.flags, flagPath) === true)) {
+    if (!when.byFlag.some(flagPath => external_default().get(clock.flags, flagPath) === true)) {
       return false;
     }
   }
   if (when.byNow) {
-    if (!external_default().isMatch(runtime.clock.now, when.byNow)) {
+    if (!external_default().isMatch(clock.now, when.byNow)) {
       return false;
     }
   }
   if (when.byMonthDay) {
-    const {month, day} = runtime.clock.now;
+    const {month, day} = clock.now;
     if (month !== when.byMonthDay.month || day !== when.byMonthDay.day) {
       return false;
     }
   }
   if (when.byFestival) {
-    const currentFestival = getCurrentFestivalName(runtime);
+    const currentFestival = runtime.festival?.current?.name;
     if (when.byFestival === "ANY" && !currentFestival) {
       return false;
     }
@@ -1165,8 +1450,7 @@ function chooseAction(charId, char, {runtime, stat}) {
     originalIndex: index
   })).filter(entry => {
     const met = areConditionsMet(entry, {
-      runtime,
-      stat
+      runtime
     });
     if (met) {
       action_processor_logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。`);
@@ -1184,8 +1468,7 @@ function chooseAction(charId, char, {runtime, stat}) {
   action_processor_logger.debug(funcName, `角色 ${charId}: 开始检查 ${routine.length} 个日常行动...`);
   for (const entry of routine) {
     if (areConditionsMet(entry, {
-      runtime,
-      stat
+      runtime
     })) {
       action_processor_logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。`);
       return entry.action;
@@ -1207,11 +1490,14 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
       stat
     });
     if (action) {
-      if (!action.to) {
-        action.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+      const finalAction = {
+        ...action
+      };
+      if (!finalAction.to) {
+        finalAction.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       }
-      decisions[charId] = action;
-      action_processor_logger.debug(funcName, `为角色 ${charId} 分配了行动 [${action.do}]。`);
+      decisions[charId] = finalAction;
+      action_processor_logger.debug(funcName, `为角色 ${charId} 分配了行动 [${finalAction.do}]。`);
     } else {
       action_processor_logger.debug(funcName, `角色 ${charId} 未命中任何行动，本次不作决策。`);
     }
@@ -1221,13 +1507,12 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
   };
 }
 
-const companion_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/companion-processor");
+const companion_processor_logger = new Logger("CompanionDecisionMaker");
 
 function isPatienceWindowHit(patienceUnit, flags) {
-  if (!patienceUnit || !flags) return false;
   switch (patienceUnit) {
    case "period":
-    return flags.newPeriod === true || Object.values(flags.byPeriod || {}).some(v => v === true);
+    return flags.newPeriod === true || Object.values(flags.byPeriod).some(v => v === true);
 
    case "day":
     return flags.newDay === true;
@@ -1252,17 +1537,19 @@ function isPatienceWindowHit(patienceUnit, flags) {
 function makeCompanionDecisions({runtime, coLocatedChars}) {
   const funcName = "makeCompanionDecisions";
   const companionChars = [];
+  const clockFlags = runtime.clock?.flags;
+  if (!clockFlags) {
+    companion_processor_logger.warn(funcName, "无法获取 clock flags，所有同区角色都将视为“相伴”。");
+    return {
+      companionChars: coLocatedChars
+    };
+  }
   for (const charId of coLocatedChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
-    if (!affectionStage) {
-      companion_processor_logger.debug(funcName, `角色 ${charId} 缺少好感度等级信息，跳过“相伴”决策。`);
-      continue;
-    }
-    const {patienceUnit} = affectionStage;
-    const patienceHit = isPatienceWindowHit(patienceUnit, runtime.clock.flags);
-    if (!patienceHit) {
+    const patienceUnit = affectionStage?.patienceUnit;
+    if (!patienceUnit || !isPatienceWindowHit(patienceUnit, clockFlags)) {
       companionChars.push(charId);
-      companion_processor_logger.debug(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit})，标记为“相伴”。`);
+      companion_processor_logger.debug(funcName, `角色 ${charId} 的耐心未耗尽 (patienceUnit: ${patienceUnit || "无"})，标记为“相伴”。`);
     } else {
       companion_processor_logger.debug(funcName, `角色 ${charId} 的耐心已在 ${patienceUnit} 耗尽，将由后续模块决定其新行动。`);
     }
@@ -1272,7 +1559,7 @@ function makeCompanionDecisions({runtime, coLocatedChars}) {
   };
 }
 
-const visit_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers/visit-processor");
+const visit_processor_logger = new Logger("VisitDecisionMaker");
 
 function checkProbability(probBase = 0, probK = 0, affection = 0) {
   const finalProb = external_default().clamp(probBase + probK * affection, 0, 1);
@@ -1287,23 +1574,23 @@ function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
   const funcName = "makeVisitDecisions";
   const decisions = {};
   const decidedChars = [];
+  const newCache = external_default().cloneDeep(cache);
   for (const charId of remoteChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
-    if (!affectionStage) continue;
-    const {visit: visitConfig} = affectionStage;
+    if (!affectionStage?.visit?.enabled) continue;
     const char = getChar(stat, charId);
-    const affection = char?.好感度 || 0;
-    const isCooling = isVisitCooling(cache, charId);
-    const canVisit = visitConfig?.enabled === true && !isCooling;
-    if (!canVisit) {
-      visit_processor_logger.debug(funcName, `角色 ${charId} 跳过“来访”决策 (visit.enabled: ${visitConfig?.enabled}, isCooling: ${isCooling})`);
+    if (!char) continue;
+    const isCooling = isVisitCooling(newCache, charId);
+    if (isCooling) {
+      visit_processor_logger.debug(funcName, `角色 ${charId} 处于来访冷却中，跳过决策。`);
       continue;
     }
-    const {passed, finalProb} = checkProbability(visitConfig.probBase, visitConfig.probK, affection);
+    const {probBase = 0, probK = 0} = affectionStage.visit;
+    const {passed, finalProb} = checkProbability(probBase, probK, char.好感度);
     if (passed) {
       decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
       decidedChars.push(charId);
-      setVisitCooling(cache, charId, true);
+      setVisitCooling(newCache, charId, true);
       visit_processor_logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
     } else {
       visit_processor_logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
@@ -1311,7 +1598,8 @@ function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
   }
   return {
     decisions,
-    decidedChars
+    decidedChars,
+    newCache
   };
 }
 
@@ -1322,7 +1610,7 @@ function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
   decision_makers_logger.debug(funcName, "开始为所有角色制定决策...");
   try {
     decision_makers_logger.debug(funcName, `开始为 ${remoteChars.length} 个异区角色进行“来访”决策...`);
-    const {decisions: visitDecisions, decidedChars: visitingChars} = makeVisitDecisions({
+    const {decisions: visitDecisions, decidedChars: visitingChars, newCache} = makeVisitDecisions({
       runtime,
       stat,
       cache,
@@ -1355,39 +1643,36 @@ function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
     decision_makers_logger.debug(funcName, `决策制定完毕。${external_default().size(nonCompanionDecisions)} 个“其他角色”的决策将由 aggregator 更新到 stat，${external_default().size(companionActionDecisions)} 个“相伴角色”的决策将由 aggregator 更新到 runtime。`);
     return {
       companionDecisions: companionActionDecisions,
-      nonCompanionDecisions
+      nonCompanionDecisions,
+      newCache
     };
   } catch (e) {
     decision_makers_logger.error(funcName, "执行决策制定时发生错误:", e);
     return {
       companionDecisions: {},
-      nonCompanionDecisions: {}
+      nonCompanionDecisions: {},
+      newCache: cache
     };
   }
 }
 
-const partitioner_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/partitioner");
+const partitioner_logger = new Logger("CharPartitioner");
 
 function partitionCharacters({stat}) {
   const funcName = "partitionCharacters";
   partitioner_logger.debug(funcName, "开始执行角色分组...");
   try {
     const userLocation = getUserLocation(stat);
-    if (!userLocation) {
-      partitioner_logger.warn(funcName, "无法找到主角位置，所有角色将被视为异区。");
-      const allChars = Object.keys(stat.chars || {});
-      partitioner_logger.debug(funcName, `所有角色: [${allChars.join(", ")}]`);
-      return {
-        coLocatedChars: [],
-        remoteChars: allChars
-      };
-    }
     partitioner_logger.debug(funcName, `主角当前位置: [${userLocation}]`);
-    const charIds = Object.keys(stat.chars || {});
+    const charIds = Object.keys(getChars(stat));
     const partitions = external_default().partition(charIds, charId => {
       const char = getChar(stat, charId);
+      if (!char) {
+        partitioner_logger.warn(funcName, `无法找到角色 ${charId} 的数据，将视为异区。`);
+        return false;
+      }
       const charLocation = getCharLocation(char);
-      partitioner_logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation || "未知"}]`);
+      partitioner_logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation}]`);
       return charLocation === userLocation;
     });
     const coLocatedChars = partitions[0];
@@ -1401,7 +1686,7 @@ function partitionCharacters({stat}) {
     partitioner_logger.error(funcName, "执行角色分组时发生错误:", e);
     return {
       coLocatedChars: [],
-      remoteChars: Object.keys(stat.chars || {})
+      remoteChars: Object.keys(getChars(stat))
     };
   }
 }
@@ -1419,15 +1704,7 @@ function getAffectionStage(char, globalAffectionStages) {
   return external_default().maxBy(applicableStages, "threshold") || null;
 }
 
-function checkConditions(when, runtime) {
-  return false;
-}
-
-function resolveLocation(to, context) {
-  return context.currentLocation;
-}
-
-const preprocessor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/preprocessor");
+const preprocessor_logger = new Logger("CharPreProcessor");
 
 function isCooldownResetTriggered(coolUnit, flags) {
   if (!coolUnit || !flags) return false;
@@ -1462,22 +1739,22 @@ function preprocess({runtime, stat, cache}) {
     const newRuntime = external_default().cloneDeep(runtime);
     const newCache = external_default().cloneDeep(cache);
     const changes = [];
-    const charIds = Object.keys(stat.chars);
+    const charIds = Object.keys(getChars(stat));
     const globalAffectionStages = getGlobalAffectionStages(stat);
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
       const affectionStage = getAffectionStage(char, globalAffectionStages);
-      setAffectionStageInRuntime(newRuntime, charId, affectionStage);
       if (affectionStage) {
+        setAffectionStageInRuntime(newRuntime, charId, affectionStage);
         preprocessor_logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
       } else {
         preprocessor_logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 未解析到任何好感度等级。`);
         continue;
       }
-      const coolUnit = external_default().get(affectionStage, "visit.coolUnit");
+      const coolUnit = affectionStage.visit?.coolUnit;
       const cooling = isVisitCooling(newCache, charId);
-      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock.flags);
+      const triggered = isCooldownResetTriggered(coolUnit, newRuntime.clock?.flags);
       if (cooling && triggered) {
         setVisitCooling(newCache, charId, false);
         preprocessor_logger.debug(funcName, `角色 ${charId} 的来访冷却已在 ${coolUnit} 拍点重置。`);
@@ -1507,38 +1784,41 @@ async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
   character_processor_logger.debug(funcName, "开始处理角色决策...");
   try {
-    const cache = getCache(stat);
-    const {runtime: processedRuntime, cache: preprocessedCache, changes: preprocessChanges} = preprocess({
-      runtime,
-      stat,
+    const newStat = external_default().cloneDeep(stat);
+    const newRuntime = external_default().cloneDeep(runtime);
+    const cache = getCache(newStat);
+    preprocess({
+      runtime: newRuntime,
+      stat: newStat,
       cache
     });
     const {coLocatedChars, remoteChars} = partitionCharacters({
-      stat
+      stat: newStat
     });
-    external_default().set(processedRuntime, CO_LOCATED_CHARS_IN_RUNTIME_PATH, coLocatedChars);
-    external_default().set(processedRuntime, REMOTE_CHARS_IN_RUNTIME_PATH, remoteChars);
-    const {companionDecisions, nonCompanionDecisions} = makeDecisions({
-      runtime: processedRuntime,
-      stat,
-      cache: preprocessedCache,
+    setPartitions(newRuntime, {
+      coLocated: coLocatedChars,
+      remote: remoteChars
+    });
+    const {companionDecisions, nonCompanionDecisions, newCache: decidedCache} = makeDecisions({
+      runtime: newRuntime,
+      stat: newStat,
+      cache,
       coLocatedChars,
       remoteChars
     });
     const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
-      stat,
-      runtime: processedRuntime,
-      cache: preprocessedCache,
+      stat: newStat,
+      runtime: newRuntime,
+      cache: decidedCache,
       companionDecisions,
       nonCompanionDecisions
     });
     applyCacheToStat(finalStat, finalCache);
-    const allChanges = preprocessChanges.concat(aggregateChanges);
     character_processor_logger.debug(funcName, "角色决策处理完毕。");
     return {
       stat: finalStat,
       runtime: finalRuntime,
-      changes: allChanges
+      changes: aggregateChanges
     };
   } catch (e) {
     character_processor_logger.error(funcName, "处理角色决策时发生意外错误:", e);
@@ -1550,10 +1830,238 @@ async function processCharacterDecisions({stat, runtime}) {
   }
 }
 
+const runtime_TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+
+const runtime_ForgettingRuleSchema = external_z_namespaceObject.z.object({
+  triggerFlag: external_z_namespaceObject.z.string(),
+  decrease: external_z_namespaceObject.z.number()
+});
+
+const runtime_AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
+  threshold: external_z_namespaceObject.z.number(),
+  name: external_z_namespaceObject.z.string(),
+  patienceUnit: runtime_TimeUnitSchema.optional(),
+  visit: external_z_namespaceObject.z.object({
+    enabled: external_z_namespaceObject.z.boolean().optional(),
+    probBase: external_z_namespaceObject.z.number().optional(),
+    probK: external_z_namespaceObject.z.number().optional(),
+    coolUnit: runtime_TimeUnitSchema.optional()
+  }).optional(),
+  forgettingSpeed: external_z_namespaceObject.z.array(runtime_ForgettingRuleSchema).optional()
+}).passthrough();
+
+const runtime_CharacterForgettingInfoSchema = external_z_namespaceObject.z.object({
+  id: external_z_namespaceObject.z.string(),
+  name: external_z_namespaceObject.z.string(),
+  affectionStages: external_z_namespaceObject.z.array(runtime_AffectionStageWithForgetSchema)
+});
+
+const runtime_ClockAckSchema = external_z_namespaceObject.z.object({
+  dayID: external_z_namespaceObject.z.number(),
+  weekID: external_z_namespaceObject.z.number(),
+  monthID: external_z_namespaceObject.z.number(),
+  yearID: external_z_namespaceObject.z.number(),
+  periodID: external_z_namespaceObject.z.number(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  seasonID: external_z_namespaceObject.z.number(),
+  seasonIdx: external_z_namespaceObject.z.number()
+});
+
+const runtime_IncidentDetailSchema = external_z_namespaceObject.z.object({
+  异变细节: external_z_namespaceObject.z.string(),
+  主要地区: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  异变退治者: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional(),
+  异变已结束: external_z_namespaceObject.z.boolean()
+});
+
+const runtime_ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const NowSchema = external_z_namespaceObject.z.object({
+  iso: external_z_namespaceObject.z.string(),
+  year: external_z_namespaceObject.z.number(),
+  month: external_z_namespaceObject.z.number(),
+  day: external_z_namespaceObject.z.number(),
+  weekdayIndex: external_z_namespaceObject.z.number(),
+  weekdayName: external_z_namespaceObject.z.string(),
+  periodName: external_z_namespaceObject.z.string(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  minutesSinceMidnight: external_z_namespaceObject.z.number(),
+  seasonName: external_z_namespaceObject.z.string(),
+  seasonIdx: external_z_namespaceObject.z.number(),
+  hour: external_z_namespaceObject.z.number(),
+  minute: external_z_namespaceObject.z.number(),
+  hm: external_z_namespaceObject.z.string()
+});
+
+const ClockFlagsSchema = external_z_namespaceObject.z.object({
+  newPeriod: external_z_namespaceObject.z.boolean(),
+  byPeriod: external_z_namespaceObject.z.object({
+    newDawn: external_z_namespaceObject.z.boolean(),
+    newMorning: external_z_namespaceObject.z.boolean(),
+    newNoon: external_z_namespaceObject.z.boolean(),
+    newAfternoon: external_z_namespaceObject.z.boolean(),
+    newDusk: external_z_namespaceObject.z.boolean(),
+    newNight: external_z_namespaceObject.z.boolean(),
+    newFirstHalfNight: external_z_namespaceObject.z.boolean(),
+    newSecondHalfNight: external_z_namespaceObject.z.boolean()
+  }),
+  newDay: external_z_namespaceObject.z.boolean(),
+  newWeek: external_z_namespaceObject.z.boolean(),
+  newMonth: external_z_namespaceObject.z.boolean(),
+  newSeason: external_z_namespaceObject.z.boolean(),
+  bySeason: external_z_namespaceObject.z.object({
+    newSpring: external_z_namespaceObject.z.boolean(),
+    newSummer: external_z_namespaceObject.z.boolean(),
+    newAutumn: external_z_namespaceObject.z.boolean(),
+    newWinter: external_z_namespaceObject.z.boolean()
+  }),
+  newYear: external_z_namespaceObject.z.boolean()
+});
+
+const ClockSchema = external_z_namespaceObject.z.object({
+  now: NowSchema,
+  flags: ClockFlagsSchema
+});
+
+const TimeProcessorResultSchema = external_z_namespaceObject.z.object({
+  clock: ClockSchema,
+  newClockAck: runtime_ClockAckSchema.nullable()
+});
+
+const EMPTY_NOW = {
+  iso: "",
+  year: 0,
+  month: 0,
+  day: 0,
+  weekdayIndex: 0,
+  weekdayName: "",
+  periodName: "",
+  periodIdx: 0,
+  minutesSinceMidnight: 0,
+  seasonName: "",
+  seasonIdx: 0,
+  hour: 0,
+  minute: 0,
+  hm: ""
+};
+
+const EMPTY_FLAGS = {
+  newPeriod: false,
+  byPeriod: {
+    newDawn: false,
+    newMorning: false,
+    newNoon: false,
+    newAfternoon: false,
+    newDusk: false,
+    newNight: false,
+    newFirstHalfNight: false,
+    newSecondHalfNight: false
+  },
+  newDay: false,
+  newWeek: false,
+  newMonth: false,
+  newSeason: false,
+  bySeason: {
+    newSpring: false,
+    newSummer: false,
+    newAutumn: false,
+    newWinter: false
+  },
+  newYear: false
+};
+
+const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  detail: external_z_namespaceObject.z.string(),
+  solver: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  mainLoc: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  isFinished: external_z_namespaceObject.z.boolean(),
+  raw: runtime_IncidentDetailSchema
+});
+
+const IncidentSchema = external_z_namespaceObject.z.object({
+  decision: external_z_namespaceObject.z.enum([ "continue", "start_new", "daily" ]),
+  current: IncidentRuntimeInfoSchema.optional(),
+  spawn: IncidentRuntimeInfoSchema.optional(),
+  remainingCooldown: external_z_namespaceObject.z.number().optional(),
+  isIncidentActive: external_z_namespaceObject.z.boolean()
+});
+
+const CurrentFestivalInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  host: external_z_namespaceObject.z.string(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  month: external_z_namespaceObject.z.number(),
+  start_day: external_z_namespaceObject.z.number(),
+  end_day: external_z_namespaceObject.z.number()
+});
+
+const NextFestivalInfoSchema = CurrentFestivalInfoSchema.extend({
+  days_until: external_z_namespaceObject.z.number()
+});
+
+const FestivalSchema = external_z_namespaceObject.z.object({
+  ongoing: external_z_namespaceObject.z.boolean(),
+  upcoming: external_z_namespaceObject.z.boolean(),
+  current: CurrentFestivalInfoSchema.nullable(),
+  next: NextFestivalInfoSchema.nullable()
+});
+
+const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
+  affectionStage: runtime_AffectionStageWithForgetSchema.optional(),
+  decision: runtime_ActionSchema.optional(),
+  companionDecision: runtime_ActionSchema.optional()
+});
+
+const CharacterLogSchema = external_z_namespaceObject.z.object({
+  forgettingInfo: external_z_namespaceObject.z.array(runtime_CharacterForgettingInfoSchema)
+}).passthrough();
+
+const BfsPathSchema = external_z_namespaceObject.z.object({
+  hops: external_z_namespaceObject.z.number(),
+  steps: external_z_namespaceObject.z.array(external_z_namespaceObject.z.object({
+    from: external_z_namespaceObject.z.string(),
+    to: external_z_namespaceObject.z.string()
+  }))
+});
+
+const RouteSchema = external_z_namespaceObject.z.object({
+  destination: external_z_namespaceObject.z.string(),
+  path: BfsPathSchema
+});
+
+const RouteInfoSchema = external_z_namespaceObject.z.object({
+  candidates: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  routes: external_z_namespaceObject.z.array(RouteSchema)
+});
+
+const RuntimeSchema = external_z_namespaceObject.z.object({
+  incident: IncidentSchema.optional(),
+  clock: ClockSchema,
+  graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())).optional(),
+  legal_locations: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
+  neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
+  loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
+  route: RouteInfoSchema.optional(),
+  festival: FestivalSchema,
+  character: external_z_namespaceObject.z.object({
+    chars: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterRuntimeSchema),
+    partitions: external_z_namespaceObject.z.object({
+      coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+      remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+    })
+  }),
+  characterLog: CharacterLogSchema.optional()
+});
+
 const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
 
 function getRuntimeObject() {
-  return {};
+  return RuntimeSchema.parse({});
 }
 
 async function setRuntimeObject(runtimeObject, options) {
@@ -1638,22 +2146,21 @@ function processFestival({runtime, stat}) {
     next: null
   };
   try {
-    const currentMonth = external_default().get(runtime, "clock.now.month");
-    const currentDay = external_default().get(runtime, "clock.now.day");
-    const festivalList = external_default().get(stat, "festivals_list", []);
-    if (!currentMonth || !currentDay || !Array.isArray(festivalList) || festivalList.length === 0) {
-      festival_processor_processor_logger.debug(funcName, "日期信息不完整或节日列表为空，写入默认节日信息。");
+    const {month: currentMonth, day: currentDay} = runtime.clock.now;
+    const {festivals_list: festivalList} = stat;
+    if (festivalList.length === 0) {
+      festival_processor_processor_logger.debug(funcName, "节日列表为空，写入默认节日信息。");
       return {
         festival: defaultFestivalInfo
       };
     }
     festival_processor_processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
-    const todayFest = festivalList.find(fest => toNumber(fest.month) === currentMonth && toNumber(fest.start_day) <= currentDay && currentDay <= toNumber(fest.end_day)) || null;
+    const todayFest = festivalList.find(fest => fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day) || null;
     const todayDayOfYear = dayOfYear(currentMonth, currentDay);
     let nextFest = null;
     let minDayGap = Infinity;
     for (const fest of festivalList) {
-      const startDayOfYear = dayOfYear(toNumber(fest.month), toNumber(fest.start_day));
+      const startDayOfYear = dayOfYear(fest.month, fest.start_day);
       const rawGap = startDayOfYear - todayDayOfYear;
       const normalizedGap = (rawGap % 365 + 365) % 365;
       if (normalizedGap === 0) {
@@ -1669,19 +2176,19 @@ function processFestival({runtime, stat}) {
       upcoming: !!(nextFest && minDayGap <= 3),
       current: todayFest ? {
         name: todayFest.name,
-        host: todayFest["主办地"],
-        customs: Array.isArray(todayFest.customs) ? todayFest.customs.slice(0, 6) : [],
-        month: toNumber(todayFest.month),
-        start_day: toNumber(todayFest.start_day),
-        end_day: toNumber(todayFest.end_day)
+        host: todayFest.host ?? "",
+        customs: todayFest.customs?.slice(0, 6) ?? [],
+        month: todayFest.month,
+        start_day: todayFest.start_day,
+        end_day: todayFest.end_day
       } : null,
       next: nextFest && minDayGap <= 3 ? {
         name: nextFest.name,
-        host: nextFest["主办地"],
-        customs: Array.isArray(nextFest.customs) ? nextFest.customs.slice(0, 6) : [],
-        month: toNumber(nextFest.month),
-        start_day: toNumber(nextFest.start_day),
-        end_day: toNumber(nextFest.end_day),
+        host: nextFest.host ?? "",
+        customs: nextFest.customs?.slice(0, 6) ?? [],
+        month: nextFest.month,
+        start_day: nextFest.start_day,
+        end_day: nextFest.end_day,
         days_until: minDayGap
       } : null
     };
@@ -1736,6 +2243,40 @@ const DEFAULT_RANDOM_CORE = DEFAULT_INCIDENT_CONFIG.randomCore;
 
 const DEFAULT_RANDOM_TYPE = DEFAULT_INCIDENT_CONFIG.randomType;
 
+function getIncidentConfig(stat) {
+  const userConfig = stat.config?.incident ?? {};
+  return {
+    ...DEFAULT_INCIDENT_CONFIG,
+    ...userConfig
+  };
+}
+
+function getIncidents(stat) {
+  return stat.incidents ?? {};
+}
+
+function setIncidents(stat, incidents) {
+  stat.incidents = incidents;
+}
+
+function getTimeProgress(stat) {
+  return stat.世界?.timeProgress ?? 0;
+}
+
+function getLegalLocations(runtime) {
+  return runtime.legal_locations ?? [ "博丽神社" ];
+}
+
+function getIncidentCache(cache) {
+  return cache.incident ?? {
+    incidentCooldownAnchor: null
+  };
+}
+
+function setIncidentCache(cache, incidentCache) {
+  cache.incident = incidentCache;
+}
+
 const strip = inputString => {
   try {
     const match = String(inputString || "").match(/^\s*```(?:json)?\s*([\s\S]*?)\s*```/i);
@@ -1751,24 +2292,16 @@ const pick = array => Array.isArray(array) && array.length ? array[Math.floor(Ma
 
 const incident_processor_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/incident-processor/processor");
 
-function getIncidentConfig(stat) {
-  const userConfig = external_default().get(stat, "config.incident", {});
-  return {
-    ...DEFAULT_INCIDENT_CONFIG,
-    ...userConfig
-  };
-}
-
 function getCurrentIncident(stat) {
-  const allIncidents = external_default().get(stat, "incidents", {});
+  const allIncidents = getIncidents(stat);
   for (const name in allIncidents) {
     const incident = allIncidents[name];
-    if (incident && typeof incident === "object" && !Array.isArray(incident) && !incident["异变已结束"]) {
+    if (incident && !incident.异变已结束) {
       return {
         name,
-        detail: String(incident["异变细节"] || ""),
-        solver: asArray(incident["异变退治者"]),
-        mainLoc: asArray(incident["主要地区"]),
+        detail: incident.异变细节,
+        solver: asArray(incident.异变退治者),
+        mainLoc: incident.主要地区,
         isFinished: false,
         raw: incident
       };
@@ -1777,33 +2310,52 @@ function getCurrentIncident(stat) {
   return null;
 }
 
-function getAvailableIncidents(stat) {
-  const {pool} = getIncidentConfig(stat);
-  const allIncidents = external_default().get(stat, "incidents", {});
+function getAvailableIncidents(stat, config) {
+  const {pool} = config;
+  const allIncidents = getIncidents(stat);
   const existingNames = new Set(Object.keys(allIncidents));
-  return pool.map(item => ({
-    name: String(item?.name || "").trim(),
-    detail: String(item?.detail || "").trim(),
-    mainLoc: asArray(item?.mainLoc)
-  })).filter(item => item.name && !existingNames.has(item.name));
+  return pool.map(item => {
+    const detail = {
+      异变细节: item.detail,
+      主要地区: asArray(item.mainLoc),
+      异变已结束: false
+    };
+    return {
+      name: item.name,
+      detail: detail.异变细节,
+      mainLoc: detail.主要地区,
+      solver: [],
+      isFinished: false,
+      raw: detail
+    };
+  }).filter(item => item.name && !existingNames.has(item.name));
 }
 
-function spawnRandomIncident(runtime, stat) {
-  const {randomCore, randomType} = getIncidentConfig(stat);
-  const legalLocations = external_default().get(runtime, "legal_locations", [ "博丽神社" ]);
+function spawnRandomIncident(runtime, config) {
+  const {randomCore, randomType} = config;
+  const legalLocations = getLegalLocations(runtime);
   const baseLocation = pick(legalLocations) || "博丽神社";
   const newIncidentName = `${baseLocation}${pick(randomCore)}${pick(randomType)}异变`;
+  const detail = {
+    异变细节: "",
+    主要地区: [ baseLocation ],
+    异变已结束: false
+  };
   return {
     name: newIncidentName,
-    detail: "",
-    mainLoc: [ baseLocation ]
+    detail: detail.异变细节,
+    mainLoc: detail.主要地区,
+    solver: [],
+    isFinished: false,
+    raw: detail
   };
 }
 
-function shouldTriggerNewIncident(stat, cache) {
-  const {cooldownMinutes, forceTrigger} = getIncidentConfig(stat);
-  const timeProgress = external_default().get(stat, "世界.timeProgress", 0);
-  const anchor = getCacheValue(cache, "incident.incidentCooldownAnchor", null) ?? null;
+function shouldTriggerNewIncident(stat, cache, config) {
+  const {cooldownMinutes, forceTrigger} = config;
+  const timeProgress = getTimeProgress(stat);
+  const incidentCache = getIncidentCache(cache);
+  const anchor = incidentCache.incidentCooldownAnchor;
   if (getCurrentIncident(stat)) {
     return {
       trigger: false,
@@ -1837,9 +2389,9 @@ function shouldTriggerNewIncident(stat, cache) {
   }
 }
 
-function getContinueDecision(stat) {
+function getContinueDecision(stat, config) {
   const currentIncident = getCurrentIncident(stat);
-  const {pool} = getIncidentConfig(stat);
+  const {pool} = config;
   const poolEntry = pool.find(item => item.name === currentIncident.name);
   currentIncident.detail = poolEntry?.detail || currentIncident.detail;
   incident_processor_processor_logger.debug("getContinueDecision", `推进异变《${currentIncident.name}》，地点:`, currentIncident.mainLoc);
@@ -1850,15 +2402,15 @@ function getContinueDecision(stat) {
   };
 }
 
-function getStartNewDecision(runtime, stat) {
-  const {isRandomPool} = getIncidentConfig(stat);
-  const availablePool = getAvailableIncidents(stat);
+function getStartNewDecision(runtime, stat, config) {
+  const {isRandomPool} = config;
+  const availablePool = getAvailableIncidents(stat, config);
   let newIncident;
   const nextFromPool = isRandomPool ? pick(availablePool) : availablePool[0];
   if (nextFromPool) {
     newIncident = nextFromPool;
   } else {
-    newIncident = spawnRandomIncident(runtime, stat);
+    newIncident = spawnRandomIncident(runtime, config);
   }
   if (newIncident.mainLoc.length === 0) {
     newIncident.mainLoc = [ "博丽神社" ];
@@ -1870,8 +2422,11 @@ function getStartNewDecision(runtime, stat) {
     主要地区: newIncident.mainLoc,
     异变已结束: false
   };
-  const oldValue = external_default().get(stat, path);
-  external_default().set(stat, path, newValue);
+  const oldValue = getIncidents(stat)[newIncident.name];
+  setIncidents(stat, {
+    ...getIncidents(stat),
+    [newIncident.name]: newValue
+  });
   const change = createChangeLogEntry("incident-processor", path, oldValue, newValue, `冷却结束，触发新异变`);
   return {
     decision: "start_new",
@@ -1880,10 +2435,11 @@ function getStartNewDecision(runtime, stat) {
   };
 }
 
-function getDailyDecision(stat, cache) {
-  const {cooldownMinutes} = getIncidentConfig(stat);
-  const timeProgress = external_default().get(stat, "世界.timeProgress", 0);
-  const anchor = getCacheValue(cache, "incident.incidentCooldownAnchor", timeProgress) ?? timeProgress;
+function getDailyDecision(stat, cache, config) {
+  const {cooldownMinutes} = config;
+  const timeProgress = getTimeProgress(stat);
+  const incidentCache = getIncidentCache(cache);
+  const anchor = incidentCache.incidentCooldownAnchor ?? timeProgress;
   const remainingCooldown = anchor === null ? cooldownMinutes : Math.max(0, cooldownMinutes - (timeProgress - anchor));
   incident_processor_processor_logger.debug("getDailyDecision", "日常剧情，新异变冷却中。");
   return {
@@ -1898,16 +2454,17 @@ function processIncident({runtime, stat, cache}) {
   incident_processor_processor_logger.debug(funcName, "开始异变处理...");
   const newStat = external_default().cloneDeep(stat);
   const newCache = external_default().cloneDeep(cache);
+  const config = getIncidentConfig(newStat);
   try {
     const currentIncident = getCurrentIncident(newStat);
-    const {trigger: shouldTrigger, anchor: newAnchor} = shouldTriggerNewIncident(newStat, newCache);
+    const {trigger: shouldTrigger, anchor: newAnchor} = shouldTriggerNewIncident(newStat, newCache, config);
     let decisionResult;
     if (currentIncident) {
-      decisionResult = getContinueDecision(newStat);
+      decisionResult = getContinueDecision(newStat, config);
     } else if (shouldTrigger) {
-      decisionResult = getStartNewDecision(runtime, newStat);
+      decisionResult = getStartNewDecision(runtime, newStat, config);
     } else {
-      decisionResult = getDailyDecision(newStat, newCache);
+      decisionResult = getDailyDecision(newStat, newCache, config);
     }
     const {decision, current, spawn, remainingCooldown, changes} = decisionResult;
     runtime.incident = {
@@ -1917,7 +2474,9 @@ function processIncident({runtime, stat, cache}) {
       remainingCooldown,
       isIncidentActive: !!currentIncident
     };
-    setCacheValue(newCache, "incident.incidentCooldownAnchor", newAnchor);
+    setIncidentCache(newCache, {
+      incidentCooldownAnchor: newAnchor
+    });
     incident_processor_processor_logger.debug(funcName, "异变处理完成, runtime.incident=", runtime.incident);
     return {
       runtime,
@@ -1927,7 +2486,11 @@ function processIncident({runtime, stat, cache}) {
     };
   } catch (err) {
     incident_processor_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
-    runtime.incident = {};
+    runtime.incident = {
+      decision: "daily",
+      isIncidentActive: false,
+      remainingCooldown: 0
+    };
     return {
       runtime,
       stat,
@@ -1964,93 +2527,6 @@ async function processIncidentDecisions({stat, runtime}) {
       changes: []
     };
   }
-}
-
-const format_logger = new Logger("幻想乡缘起-后台数据处理/utils/format");
-
-function firstVal(x) {
-  return Array.isArray(x) ? x.length ? x[0] : "" : x;
-}
-
-function get(obj, path, fallback = "") {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        format_logger.debug("get", "未找到键，使用默认值。", {
-          路径: String(path),
-          缺失键: String(k),
-          默认值: fallback
-        });
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    const v = firstVal(cur);
-    if (v == null) {
-      format_logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
-        路径: String(path),
-        默认值: fallback
-      });
-      return fallback;
-    }
-    return v;
-  } catch (e) {
-    format_logger.error("get", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function format_text(id, raw) {
-  const el = document.getElementById(id);
-  if (!el) {
-    format_logger.warn("text", "目标元素不存在，跳过写入。", {
-      元素ID: id
-    });
-    return;
-  }
-  el.textContent = toText(raw);
-}
-
-function getRaw(obj, path, fallback = null) {
-  try {
-    const ks = Array.isArray(path) ? path : String(path).split(".");
-    let cur = obj;
-    for (const k of ks) {
-      if (!cur || typeof cur !== "object" || !(k in cur)) {
-        return fallback;
-      }
-      cur = cur[k];
-    }
-    return cur == null ? fallback : cur;
-  } catch (e) {
-    format_logger.error("getRaw", "异常，使用默认值。", {
-      路径: String(path),
-      异常: String(e),
-      默认值: fallback
-    });
-    return fallback;
-  }
-}
-
-function toText(v) {
-  if (v == null || v === "") return "—";
-  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
-  if (typeof v === "object") return JSON.stringify(v);
-  return String(v);
-}
-
-function getStr(obj, path, fallback = "") {
-  const rawValue = getRaw(obj, path, null);
-  if (rawValue === null) {
-    return toText(fallback);
-  }
-  return toText(rawValue);
 }
 
 function getAliasMap(mapGraph) {
@@ -2103,19 +2579,19 @@ function normalizeLocationData(originalStat) {
   const stat = external_default().cloneDeep(originalStat);
   const changes = [];
   try {
-    const mapGraph = get(stat, "world.map_graph", null);
-    if (!mapGraph || typeof mapGraph !== "object" || !mapGraph.tree) {
+    if (!stat.world || !stat.world.map_graph || !stat.world.map_graph.tree) {
       location_logger.warn(funcName, "未找到有效的 world.map_graph，跳过位置合法化。");
       return {
         stat,
         changes
       };
     }
-    const legalLocations = new Set(extractLeafs(mapGraph));
-    const aliasMap = getAliasMap(mapGraph);
-    const fallbackLocation = get(stat, "world.fallbackPlace", "博丽神社");
+    const {map_graph} = stat.world;
+    const legalLocations = new Set(extractLeafs(map_graph));
+    const aliasMap = getAliasMap(map_graph);
+    const fallbackLocation = stat.world.fallbackPlace;
     const normalize = (rawLocation, defaultLocation) => {
-      const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] ?? "" : rawLocation ?? "").trim();
+      const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] || "" : rawLocation || "").trim();
       if (!locationString) {
         return {
           isOk: false,
@@ -2140,86 +2616,70 @@ function normalizeLocationData(originalStat) {
         fixedLocation: defaultLocation
       };
     };
-    const USER_HOME_PATH = "user.居住地区";
-    const USER_LOCATION_PATH = "user.所在地区";
-    const CHARS_PATH = "chars";
-    const CHAR_HOME_KEY = "居住地区";
-    const CHAR_LOCATION_KEY = "所在地区";
-    let userHome = get(stat, USER_HOME_PATH, undefined);
-    let userLocation = get(stat, USER_LOCATION_PATH, undefined);
-    if (external_default().isNil(userHome)) {
-      const oldValue = external_default().get(stat, USER_HOME_PATH);
+    let userHome = stat.user.居住地区;
+    let userLocation = stat.user.所在地区;
+    if (userHome == null) {
+      const oldValue = userHome;
       userHome = fallbackLocation;
-      external_default().set(stat, USER_HOME_PATH, userHome);
-      changes.push(createChangeLogEntry(funcName, USER_HOME_PATH, oldValue, userHome, "补全用户缺失的居住地区"));
+      stat.user.居住地区 = userHome;
+      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHome, "补全用户缺失的居住地区"));
       location_logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
     }
-    if (external_default().isNil(userLocation)) {
-      const oldValue = external_default().get(stat, USER_LOCATION_PATH);
+    if (userLocation == null) {
+      const oldValue = userLocation;
       userLocation = userHome;
-      external_default().set(stat, USER_LOCATION_PATH, userLocation);
-      changes.push(createChangeLogEntry(funcName, USER_LOCATION_PATH, oldValue, userLocation, "补全用户缺失的所在地区"));
+      stat.user.所在地区 = userLocation;
+      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocation, "补全用户缺失的所在地区"));
       location_logger.debug(funcName, `补全用户缺失的所在地区 -> "${userLocation}"`);
     }
     const userHomeNormalization = normalize(userHome, fallbackLocation);
     const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
     const userLocationNormalization = normalize(userLocation, userLocationFallback);
     if (!userHomeNormalization.isOk || userHomeNormalization.fixedLocation !== userHome) {
-      const oldValue = external_default().get(stat, USER_HOME_PATH);
-      external_default().set(stat, USER_HOME_PATH, userHomeNormalization.fixedLocation);
-      changes.push(createChangeLogEntry(funcName, USER_HOME_PATH, oldValue, userHomeNormalization.fixedLocation, "修正用户居住地区"));
+      const oldValue = stat.user.居住地区;
+      stat.user.居住地区 = userHomeNormalization.fixedLocation;
+      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHomeNormalization.fixedLocation, "修正用户居住地区"));
       location_logger.debug(funcName, `修正用户居住地区: "${userHome}" -> "${userHomeNormalization.fixedLocation}"`);
     }
     if (!userLocationNormalization.isOk || userLocationNormalization.fixedLocation !== userLocation) {
-      const oldValue = external_default().get(stat, USER_LOCATION_PATH);
-      external_default().set(stat, USER_LOCATION_PATH, userLocationNormalization.fixedLocation);
-      changes.push(createChangeLogEntry(funcName, USER_LOCATION_PATH, oldValue, userLocationNormalization.fixedLocation, "修正用户所在地区"));
+      const oldValue = stat.user.所在地区;
+      stat.user.所在地区 = userLocationNormalization.fixedLocation;
+      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocationNormalization.fixedLocation, "修正用户所在地区"));
       location_logger.debug(funcName, `修正用户所在地区: "${userLocation}" -> "${userLocationNormalization.fixedLocation}"`);
     }
-    let charactersData = get(stat, CHARS_PATH, null);
-    if (typeof charactersData === "string") {
-      try {
-        charactersData = JSON.parse(charactersData);
-      } catch {
-        charactersData = null;
-      }
-    }
-    if (charactersData && typeof charactersData === "object") {
-      for (const [charName, charObject] of Object.entries(charactersData)) {
-        if (String(charName).startsWith("$") || !charObject || typeof charObject !== "object") continue;
-        let charHome = charObject[CHAR_HOME_KEY];
-        let charLocation = charObject[CHAR_LOCATION_KEY];
-        if (external_default().isNil(charHome)) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`;
-          const oldValue = external_default().get(stat, path);
+    for (const charName in stat.chars) {
+      if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
+        const charObject = stat.chars[charName];
+        if (charName.startsWith("$") || !charObject) continue;
+        let charHome = charObject.居住地区;
+        let charLocation = charObject.所在地区;
+        if (charHome == null) {
+          const oldValue = charHome;
           charHome = fallbackLocation;
-          external_default().set(stat, path, charHome);
-          changes.push(createChangeLogEntry(funcName, path, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`));
+          charObject.居住地区 = charHome;
+          changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`));
           location_logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
         }
-        if (external_default().isNil(charLocation)) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`;
-          const oldValue = external_default().get(stat, path);
+        if (charLocation == null) {
+          const oldValue = charLocation;
           charLocation = charHome;
-          external_default().set(stat, path, charLocation);
-          changes.push(createChangeLogEntry(funcName, path, oldValue, charLocation, `补全角色[${charName}]缺失的所在地区`));
+          charObject.所在地区 = charLocation;
+          changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocation, `补全角色[${charName}]缺失的所在地区`));
           location_logger.debug(funcName, `补全角色[${charName}]缺失的所在地区 -> "${charLocation}"`);
         }
         const charHomeNormalization = normalize(charHome, fallbackLocation);
         const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
         const charLocationNormalization = normalize(charLocation, charLocationFallback);
         if (!charHomeNormalization.isOk || charHomeNormalization.fixedLocation !== charHome) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_HOME_KEY}`;
-          const oldValue = external_default().get(stat, path);
-          external_default().set(stat, path, charHomeNormalization.fixedLocation);
-          changes.push(createChangeLogEntry(funcName, path, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
+          const oldValue = charObject.居住地区;
+          charObject.居住地区 = charHomeNormalization.fixedLocation;
+          changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
           location_logger.debug(funcName, `修正角色[${charName}]居住地区: "${charHome}" -> "${charHomeNormalization.fixedLocation}"`);
         }
         if (!charLocationNormalization.isOk || charLocationNormalization.fixedLocation !== charLocation) {
-          const path = `${CHARS_PATH}.${charName}.${CHAR_LOCATION_KEY}`;
-          const oldValue = external_default().get(stat, path);
-          external_default().set(stat, path, charLocationNormalization.fixedLocation);
-          changes.push(createChangeLogEntry(funcName, path, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]所在地区`));
+          const oldValue = charObject.所在地区;
+          charObject.所在地区 = charLocationNormalization.fixedLocation;
+          changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]所在地区`));
           location_logger.debug(funcName, `修正角色[${charName}]所在地区: "${charLocation}" -> "${charLocationNormalization.fixedLocation}"`);
         }
       }
@@ -2401,18 +2861,6 @@ function buildPrompt({runtime, stat}) {
   return finalPrompt;
 }
 
-const PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
-
-const PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
-
-const SEASON_NAMES = [ "春", "夏", "秋", "冬" ];
-
-const SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
-
-const WEEK_NAMES = [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ];
-
-const EPOCH_ISO = "2025-10-24T06:00:00+09:00";
-
 const PAD2 = n => n < 10 ? "0" + n : "" + n;
 
 const ymdID = d => d.getUTCFullYear() * 1e4 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
@@ -2451,17 +2899,12 @@ const time_processor_processor_logger = new Logger("幻想乡缘起-后台数据
 function processTime({stat, prevClockAck}) {
   const funcName = "processTime";
   try {
-    time_processor_processor_logger.debug(funcName, `开始时间计算，stat=`, stat);
+    time_processor_processor_logger.debug(funcName, `开始时间计算...`);
     const prev = prevClockAck;
     time_processor_processor_logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
-    const timeConfig = external_default().get(stat, "config.time", {});
-    const epochISO = external_default().get(timeConfig, "epochISO", EPOCH_ISO);
-    const periodNames = external_default().get(timeConfig, "periodNames", PERIOD_NAMES);
-    const periodKeys = external_default().get(timeConfig, "periodKeys", PERIOD_KEYS);
-    const seasonNames = external_default().get(timeConfig, "seasonNames", SEASON_NAMES);
-    const seasonKeys = external_default().get(timeConfig, "seasonKeys", SEASON_KEYS);
-    const weekNames = external_default().get(timeConfig, "weekNames", WEEK_NAMES);
-    const tpMin = external_default().get(stat, "世界.timeProgress", 0);
+    const timeConfig = stat.config.time;
+    const {epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames} = timeConfig;
+    const tpMin = stat.世界.timeProgress;
     time_processor_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
     const weekStartsOn = 1;
     const epochMS = Date.parse(epochISO);
@@ -2502,7 +2945,7 @@ function processTime({stat, prevClockAck}) {
     time_processor_processor_logger.debug(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
     time_processor_processor_logger.debug(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
     let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
-    if (prev && typeof prev === "object") {
+    if (prev) {
       const d = prev.dayID !== dayID;
       const w = prev.weekID !== weekID;
       const m = prev.monthID !== monthID;
@@ -2519,7 +2962,7 @@ function processTime({stat, prevClockAck}) {
     } else {
       time_processor_processor_logger.debug(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
     }
-    const clockAck = {
+    const newClockAck = {
       dayID,
       weekID,
       monthID,
@@ -2545,40 +2988,38 @@ function processTime({stat, prevClockAck}) {
       minute: minutesSinceMidnight % 60,
       hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ":" + PAD2(minutesSinceMidnight % 60)
     };
-    const periodFlags = {
-      newDawn: false,
-      newMorning: false,
-      newNoon: false,
-      newAfternoon: false,
-      newDusk: false,
-      newNight: false,
-      newFirstHalfNight: false,
-      newSecondHalfNight: false
+    const byPeriod = {
+      newDawn: newPeriod && periodKey === "newDawn",
+      newMorning: newPeriod && periodKey === "newMorning",
+      newNoon: newPeriod && periodKey === "newNoon",
+      newAfternoon: newPeriod && periodKey === "newAfternoon",
+      newDusk: newPeriod && periodKey === "newDusk",
+      newNight: newPeriod && periodKey === "newNight",
+      newFirstHalfNight: newPeriod && periodKey === "newFirstHalfNight",
+      newSecondHalfNight: newPeriod && periodKey === "newSecondHalfNight"
     };
-    if (newPeriod) periodFlags[periodKey] = true;
-    const seasonFlags = {
-      newSpring: false,
-      newSummer: false,
-      newAutumn: false,
-      newWinter: false
+    const bySeason = {
+      newSpring: newSeason && seasonKeys[seasonIdx] === "newSpring",
+      newSummer: newSeason && seasonKeys[seasonIdx] === "newSummer",
+      newAutumn: newSeason && seasonKeys[seasonIdx] === "newAutumn",
+      newWinter: newSeason && seasonKeys[seasonIdx] === "newWinter"
     };
-    if (newSeason) seasonFlags[seasonKeys[seasonIdx]] = true;
     const flags = {
       newPeriod,
-      byPeriod: periodFlags,
+      byPeriod,
       newDay,
       newWeek,
       newMonth,
       newSeason,
-      bySeason: seasonFlags,
+      bySeason,
       newYear
     };
     const result = {
       clock: {
-        clockAck,
         now,
         flags
-      }
+      },
+      newClockAck
     };
     time_processor_processor_logger.debug(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
     return result;
@@ -2586,32 +3027,35 @@ function processTime({stat, prevClockAck}) {
     time_processor_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
     return {
       clock: {
-        clockAck: null,
-        now: {},
-        flags: {}
-      }
+        now: EMPTY_NOW,
+        flags: EMPTY_FLAGS
+      },
+      newClockAck: null
     };
   }
 }
 
 const time_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/time-processor");
 
-const CLOCK_ACK_CACHE_PATH = "time.clockAck";
-
 async function time_processor_processTime({stat, runtime}) {
   const funcName = "processTime";
   time_processor_logger.debug(funcName, "开始处理时间...");
   try {
     const cache = getCache(stat);
-    const prevClockAck = getCacheValue(cache, CLOCK_ACK_CACHE_PATH, null);
+    const prevClockAck = cache.time?.clockAck ?? null;
     const timeResult = processTime({
       stat,
       prevClockAck
     });
-    if (timeResult.clock.clockAck) {
-      setCacheValue(cache, CLOCK_ACK_CACHE_PATH, timeResult.clock.clockAck);
+    if (timeResult.newClockAck) {
+      cache.time = {
+        ...cache.time,
+        clockAck: timeResult.newClockAck
+      };
     }
-    external_default().merge(runtime, timeResult);
+    external_default().merge(runtime, {
+      clock: timeResult.clock
+    });
     applyCacheToStat(stat, cache);
     time_processor_logger.debug(funcName, "时间处理完毕。");
     return {
@@ -2625,6 +3069,151 @@ async function time_processor_processTime({stat, runtime}) {
       runtime
     };
   }
+}
+
+const constants_ERA_EVENT_NAMES = {
+  INSERT_BY_OBJECT: "era:insertByObject",
+  UPDATE_BY_OBJECT: "era:updateByObject",
+  INSERT_BY_PATH: "era:insertByPath",
+  UPDATE_BY_PATH: "era:updateByPath",
+  DELETE_BY_OBJECT: "era:deleteByObject",
+  DELETE_BY_PATH: "era:deleteByPath",
+  GET_CURRENT_VARS: "era:getCurrentVars",
+  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
+  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
+  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
+  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
+  REQUEST_WRITE_DONE: "era:requestWriteDone"
+};
+
+const constants_ERA_BROADCAST_EVENT_NAMES = {
+  WRITE_DONE: "era:writeDone",
+  QUERY_RESULT: "era:queryResult"
+};
+
+function emitAndListen({emitEventName, emitPayload, listenEventName, filter}) {
+  return new Promise(resolve => {
+    const listener = detail => {
+      if (filter(detail)) {
+        eventRemoveListener(listenEventName, listener);
+        resolve(detail);
+      }
+    };
+    eventOn(listenEventName, listener);
+    eventEmit(emitEventName, emitPayload);
+  });
+}
+
+const WRITE_EVENT_MAP = {
+  insertByObject: constants_ERA_EVENT_NAMES.INSERT_BY_OBJECT,
+  updateByObject: constants_ERA_EVENT_NAMES.UPDATE_BY_OBJECT,
+  insertByPath: constants_ERA_EVENT_NAMES.INSERT_BY_PATH,
+  updateByPath: constants_ERA_EVENT_NAMES.UPDATE_BY_PATH,
+  deleteByObject: constants_ERA_EVENT_NAMES.DELETE_BY_OBJECT,
+  deleteByPath: constants_ERA_EVENT_NAMES.DELETE_BY_PATH
+};
+
+async function performWrite(operation, payload, waitForResponse = false) {
+  const eventName = WRITE_EVENT_MAP[operation];
+  if (waitForResponse) {
+    return emitAndListen({
+      emitEventName: eventName,
+      emitPayload: payload,
+      listenEventName: ERA_BROADCAST_EVENT_NAMES.WRITE_DONE,
+      filter: p => p.actions.apiWrite
+    });
+  } else {
+    eventEmit(eventName, payload);
+    return Promise.resolve();
+  }
+}
+
+function insertByObject(payload, waitForResponse) {
+  return performWrite("insertByObject", payload, waitForResponse);
+}
+
+function updateByObject(payload, waitForResponse) {
+  return performWrite("updateByObject", payload, waitForResponse);
+}
+
+function insertByPath(payload, waitForResponse) {
+  return performWrite("insertByPath", payload, waitForResponse);
+}
+
+function updateByPath(payload, waitForResponse) {
+  return performWrite("updateByPath", payload, waitForResponse);
+}
+
+function deleteByObject(payload, waitForResponse) {
+  return performWrite("deleteByObject", payload, waitForResponse);
+}
+
+function deleteByPath(payload, waitForResponse) {
+  return performWrite("deleteByPath", payload, waitForResponse);
+}
+
+const QUERY_EVENT_MAP = {
+  getCurrentVars: constants_ERA_EVENT_NAMES.GET_CURRENT_VARS,
+  getSnapshotAtMk: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MK,
+  getSnapshotsBetweenMks: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MKS,
+  getSnapshotAtMId: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MID,
+  getSnapshotsBetweenMIds: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MIDS
+};
+
+function performQuery(operation, payload) {
+  const eventName = QUERY_EVENT_MAP[operation];
+  const queryType = operation;
+  return emitAndListen({
+    emitEventName: eventName,
+    emitPayload: payload,
+    listenEventName: constants_ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT,
+    filter: p => p.queryType === queryType && external_default().isEqual(p.request, payload)
+  });
+}
+
+function getCurrentVars() {
+  return performQuery("getCurrentVars", {});
+}
+
+function getSnapshotAtMk(payload) {
+  return performQuery("getSnapshotAtMk", payload);
+}
+
+function getSnapshotsBetweenMks(payload) {
+  return performQuery("getSnapshotsBetweenMks", payload);
+}
+
+function getSnapshotAtMId(payload) {
+  return performQuery("getSnapshotAtMId", payload);
+}
+
+function getSnapshotsBetweenMIds(payload) {
+  return performQuery("getSnapshotsBetweenMIds", payload);
+}
+
+function requestWriteDone() {
+  eventEmit(ERA_EVENT_NAMES.REQUEST_WRITE_DONE, {});
+}
+
+function onWriteDone(listener, options = {}) {
+  const {ignoreApiWrite = false} = options;
+  const wrappedListener = payload => {
+    if (ignoreApiWrite && payload.actions.apiWrite) {
+      return;
+    }
+    listener(payload);
+  };
+  eventOn(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
+  return () => {
+    eventRemoveListener(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
+  };
+}
+
+function onQueryResult(listener) {
+  eventOn(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
+  return () => {
+    eventRemoveListener(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
+  };
 }
 
 const _logger = new Logger("幻想乡缘起-后台数据处理");
@@ -2642,9 +3231,17 @@ function logState(moduleName, modified, {stat, runtime, cache}) {
 $(() => {
   _logger.log("main", "后台数据处理脚本加载");
   const handleWriteDone = async payload => {
-    const {statWithoutMeta, mk, editLogs} = payload;
-    _logger.log("handleWriteDone", "开始处理数据...", statWithoutMeta);
-    let currentStat = external_default().cloneDeep(statWithoutMeta);
+    const {statWithoutMeta, mk, editLogs, message_id} = payload;
+    _logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
+    const parseResult = StatSchema.safeParse(statWithoutMeta);
+    if (!parseResult.success) {
+      _logger.error("handleWriteDone", "Stat 数据结构验证失败", {
+        error: parseResult.error.format(),
+        originalStat: statWithoutMeta
+      });
+      return;
+    }
+    let currentStat = parseResult.data;
     let currentRuntime = getRuntimeObject();
     logState("初始状态", "无", {
       stat: currentStat,
@@ -2673,6 +3270,34 @@ $(() => {
       runtime: currentRuntime,
       cache: getCache(currentStat)
     });
+    const timeResult = await time_processor_processTime({
+      stat: currentStat,
+      runtime: currentRuntime
+    });
+    currentStat = timeResult.stat;
+    currentRuntime = timeResult.runtime;
+    logState("Time Processor", "stat (cache), runtime", {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat)
+    });
+    const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
+    const snapshotPayload = await getSnapshotsBetweenMIds({
+      startId,
+      endId: message_id
+    });
+    const snapshots = snapshotPayload.result || [];
+    const charLogResult = processCharacterLog({
+      runtime: currentRuntime,
+      snapshots,
+      stat: currentStat
+    });
+    currentRuntime = charLogResult.runtime;
+    logState("Character Log Processor", "runtime", {
+      stat: currentStat,
+      runtime: currentRuntime,
+      cache: getCache(currentStat)
+    });
     const incidentResult = await processIncidentDecisions({
       runtime: currentRuntime,
       stat: currentStat
@@ -2681,17 +3306,6 @@ $(() => {
     currentRuntime = incidentResult.runtime;
     const incidentChanges = incidentResult.changes;
     logState("Incident Processor", "stat (cache), runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const timeResult = await time_processor_processTime({
-      stat: currentStat,
-      runtime: currentRuntime
-    });
-    currentStat = timeResult.stat;
-    currentRuntime = timeResult.runtime;
-    logState("Time Processor", "stat (cache), runtime", {
       stat: currentStat,
       runtime: currentRuntime,
       cache: getCache(currentStat)
@@ -2746,9 +3360,11 @@ $(() => {
       finalRuntime: currentRuntime
     });
   };
-  eventOn("era:writeDone", detail => {
-    _logger.log("main", "接收到真实的 era:writeDone 事件");
+  onWriteDone(detail => {
+    _logger.log("main", "接收到 era:writeDone 事件");
     handleWriteDone(detail);
+  }, {
+    ignoreApiWrite: true
   });
   eventOn("dev:fakeWriteDone", detail => {
     _logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");

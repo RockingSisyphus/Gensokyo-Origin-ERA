@@ -1,11 +1,4 @@
-/**
- * @description 地图图谱（map_graph）的数据结构。
- */
-export type MapGraph = {
-  tree: object;
-  edges: Array<{ a: string; b: string; mode: string[] }>;
-  aliases: Record<string, string | string[]>;
-};
+import { MapGraph } from '../schema';
 
 /**
  * @description 从地图图谱的 `aliases` 字段中提取并构建一个别名到标准名称的映射表。

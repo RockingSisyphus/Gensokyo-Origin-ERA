@@ -25,37 +25,3 @@ export function getAffectionStage(char: any, globalAffectionStages: any[]): any 
   // 从适用的等级中，找到 threshold 最高的那一个
   return _.maxBy(applicableStages, 'threshold') || null;
 }
-
-/**
- * 检查一个行为条目（`Entry`）的 `when` 条件是否被满足。
- * @param when - `when` 条件对象。
- * @param runtime - 完整的 `runtime` 对象，用于检查 `clock` 和 `festival`。
- * @returns 如果所有条件都满足，则返回 `true`，否则返回 `false`。
- */
-export function checkConditions(when: any, runtime: any): boolean {
-  // TODO: 实现完整的条件检查逻辑
-  // 1. byFlag
-  // 2. byNow
-  // 3. byMonthDay
-  // 4. byFestival
-  return false;
-}
-
-/**
- * 解析 `action.to` 语法，返回一个具体的地点名称。
- * @param to - `action.to` 字符串。
- * @param context - 上下文对象，包含 `userLocation` 和 `graph` 等信息。
- * @returns 解析后的具体地点名称。
- */
-export function resolveLocation(
-  to: string,
-  context: { userLocation: string; graph: any; currentLocation: string },
-): string {
-  // TODO: 实现完整的地点解析逻辑
-  // 1. HERO
-  // 2. FIXED:地点名
-  // 3. NEIGHBOR
-  // 4. FROM:地点1|地点2|...
-  // 5. ANY
-  return context.currentLocation;
-}

@@ -1,29 +1,36 @@
-import _ from 'lodash';
+import { ClockAck, Stat } from '../../schema';
+import {
+  ClockFlags,
+  EMPTY_FLAGS,
+  EMPTY_NOW,
+  NowSchema,
+  TimeProcessorResult,
+} from '../../schema/runtime';
 import { Logger } from '../../utils/log';
-import * as TimeData from './data';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
+import { z } from 'zod';
 
 const logger = new Logger();
 
-export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: any }) {
+interface ProcessTimeParams {
+  stat: Stat;
+  prevClockAck: ClockAck | null;
+}
+
+export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProcessorResult {
   const funcName = 'processTime';
 
   try {
-    logger.debug(funcName, `开始时间计算，stat=`, stat);
+    logger.debug(funcName, `开始时间计算...`);
     // ---------- 读取上一楼层的 ACK (从参数传入) ----------
     const prev = prevClockAck;
     logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
 
     // ---------- 读取时间源和配置 ----------
-    const timeConfig = _.get(stat, 'config.time', {});
-    const epochISO = _.get(timeConfig, 'epochISO', TimeData.EPOCH_ISO);
-    const periodNames = _.get(timeConfig, 'periodNames', TimeData.PERIOD_NAMES);
-    const periodKeys = _.get(timeConfig, 'periodKeys', TimeData.PERIOD_KEYS);
-    const seasonNames = _.get(timeConfig, 'seasonNames', TimeData.SEASON_NAMES);
-    const seasonKeys = _.get(timeConfig, 'seasonKeys', TimeData.SEASON_KEYS);
-    const weekNames = _.get(timeConfig, 'weekNames', TimeData.WEEK_NAMES);
+    const timeConfig = stat.config.time;
+    const { epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames } = timeConfig;
 
-    const tpMin = _.get(stat, '世界.timeProgress', 0);
+    const tpMin = stat.世界.timeProgress;
     logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
 
     const weekStartsOn = 1; // 周一
@@ -90,7 +97,7 @@ export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: a
       newPeriod = false,
       newSeason = false;
 
-    if (prev && typeof prev === 'object') {
+    if (prev) {
       const d = prev.dayID !== dayID;
       const w = prev.weekID !== weekID;
       const m = prev.monthID !== monthID;
@@ -115,9 +122,9 @@ export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: a
     }
 
     // ---------- 构造返回值 ----------
-    const clockAck = { dayID, weekID, monthID, yearID, periodID, periodIdx, seasonID, seasonIdx };
+    const newClockAck: ClockAck = { dayID, weekID, monthID, yearID, periodID, periodIdx, seasonID, seasonIdx };
 
-    const now = {
+    const now: z.infer<typeof NowSchema> = {
       iso,
       year,
       month,
@@ -134,43 +141,42 @@ export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: a
       hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ':' + PAD2(minutesSinceMidnight % 60),
     };
 
-    const periodFlags = {
-      newDawn: false,
-      newMorning: false,
-      newNoon: false,
-      newAfternoon: false,
-      newDusk: false,
-      newNight: false,
-      newFirstHalfNight: false,
-      newSecondHalfNight: false,
+    const byPeriod = {
+      newDawn: newPeriod && periodKey === 'newDawn',
+      newMorning: newPeriod && periodKey === 'newMorning',
+      newNoon: newPeriod && periodKey === 'newNoon',
+      newAfternoon: newPeriod && periodKey === 'newAfternoon',
+      newDusk: newPeriod && periodKey === 'newDusk',
+      newNight: newPeriod && periodKey === 'newNight',
+      newFirstHalfNight: newPeriod && periodKey === 'newFirstHalfNight',
+      newSecondHalfNight: newPeriod && periodKey === 'newSecondHalfNight',
     };
-    if (newPeriod) (periodFlags as any)[periodKey] = true;
 
-    const seasonFlags = {
-      newSpring: false,
-      newSummer: false,
-      newAutumn: false,
-      newWinter: false,
+    const bySeason = {
+      newSpring: newSeason && seasonKeys[seasonIdx] === 'newSpring',
+      newSummer: newSeason && seasonKeys[seasonIdx] === 'newSummer',
+      newAutumn: newSeason && seasonKeys[seasonIdx] === 'newAutumn',
+      newWinter: newSeason && seasonKeys[seasonIdx] === 'newWinter',
     };
-    if (newSeason) (seasonFlags as any)[seasonKeys[seasonIdx]] = true;
 
-    const flags = {
+    const flags: ClockFlags = {
       newPeriod,
-      byPeriod: periodFlags,
+      byPeriod,
       newDay,
       newWeek,
       newMonth,
       newSeason,
-      bySeason: seasonFlags,
+      bySeason,
       newYear,
     };
 
-    const result = {
+    const result: TimeProcessorResult = {
       clock: {
-        clockAck,
         now,
         flags,
       },
+      // 将 clockAck 单独返回，以便上层写入 cache
+      newClockAck,
     };
 
     logger.debug(funcName, '时间数据处理完成，返回待写入 runtime 的数据。');
@@ -178,6 +184,6 @@ export function processTime({ stat, prevClockAck }: { stat: any; prevClockAck: a
   } catch (err: any) {
     logger.error(funcName, '运行失败: ' + (err?.message || String(err)), err);
     // 失败时返回一个定义好的空结构，以避免类型错误
-    return { clock: { clockAck: null, now: {}, flags: {} } };
+    return { clock: { now: EMPTY_NOW, flags: EMPTY_FLAGS }, newClockAck: null };
   }
 }

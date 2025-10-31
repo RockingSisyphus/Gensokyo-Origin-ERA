@@ -1,14 +1,15 @@
 import _ from 'lodash';
+import { Stat } from '../../../schema';
 import { Logger } from '../../../utils/log';
 
 const logger = new Logger();
 
 /**
  * @description 从 stat 对象构建无向图
- * @param {any} stat - 包含 map_graph 的 stat 对象
+ * @param {Stat} stat - 包含 map_graph 的 stat 对象
  * @returns {{ graph: Record<string, Record<string, boolean>>, leafNodes: string[] }} - 返回图和叶子节点列表
  */
-export function buildGraph({ stat }: { stat: any }): {
+export function buildGraph({ stat }: { stat: Stat }): {
   graph: Record<string, Record<string, boolean>>;
   leafNodes: string[];
 } {
@@ -17,7 +18,7 @@ export function buildGraph({ stat }: { stat: any }): {
   const leafNodes: string[] = [];
 
   try {
-    const mapData = _.get(stat, 'world.map_graph');
+    const mapData = stat.world?.map_graph;
     if (!mapData) {
       logger.warn(funcName, 'stat.world.map_graph 为空或不存在。');
       return { graph, leafNodes };
@@ -57,11 +58,11 @@ export function buildGraph({ stat }: { stat: any }): {
       }
     });
 
-    const edges = _.get(mapData, 'edges', []);
+    const edges = mapData.edges ?? [];
     logger.debug(funcName, '从 mapData 中提取的 edges:', edges);
 
     if (Array.isArray(edges)) {
-      edges.forEach((edge: any) => {
+      edges.forEach((edge) => {
         if (edge && edge.a && edge.b) {
           //logger.debug(funcName, `正在添加边: ${edge.a} <-> ${edge.b}`);
           addEdge(edge.a, edge.b);

@@ -1,35 +1,39 @@
 import _ from 'lodash';
+import { Action, Character, Entry, Stat } from '../../../../schema';
+import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
-import { ENTRY_KEYS, DEFAULT_VALUES, Character, Entry, Action } from '../../constants';
 import { getChar, getCharLocation } from '../../accessors';
-import { getCurrentFestivalName } from '../../../../utils/constants';
+import { DEFAULT_VALUES, ENTRY_KEYS } from '../../constants';
 
-const logger = new Logger();
+const logger = new Logger('ActionDecisionMaker');
 
 /**
  * 检查一个行为条目（Entry）的 `when` 条件是否满足。
  */
-function areConditionsMet(entry: Entry, { runtime, stat }: { runtime: any; stat: any }): boolean {
+function areConditionsMet(entry: Entry, { runtime }: { runtime: Runtime }): boolean {
   const { when } = entry;
   if (!when) return true; // 如果没有 when 条件，则始终满足
 
+  const clock = runtime.clock;
+  if (!clock) return false;
+
   // 检查 byFlag
   if (when.byFlag) {
-    if (!when.byFlag.some((flagPath: string) => _.get(runtime.clock.flags, flagPath) === true)) {
+    if (!when.byFlag.some((flagPath: string) => _.get(clock.flags, flagPath) === true)) {
       return false;
     }
   }
 
   // 检查 byNow
   if (when.byNow) {
-    if (!_.isMatch(runtime.clock.now, when.byNow)) {
+    if (!_.isMatch(clock.now, when.byNow)) {
       return false;
     }
   }
 
   // 检查 byMonthDay
   if (when.byMonthDay) {
-    const { month, day } = runtime.clock.now;
+    const { month, day } = clock.now;
     if (month !== when.byMonthDay.month || day !== when.byMonthDay.day) {
       return false;
     }
@@ -37,7 +41,7 @@ function areConditionsMet(entry: Entry, { runtime, stat }: { runtime: any; stat:
 
   // 检查 byFestival
   if (when.byFestival) {
-    const currentFestival = getCurrentFestivalName(runtime);
+    const currentFestival = runtime.festival?.current?.name;
     if (when.byFestival === 'ANY' && !currentFestival) {
       return false;
     }
@@ -56,7 +60,11 @@ function areConditionsMet(entry: Entry, { runtime, stat }: { runtime: any; stat:
  * 从角色的行动列表中选择一个行动。
  * 优先级: specials > routine
  */
-function chooseAction(charId: string, char: Character, { runtime, stat }: { runtime: any; stat: any }): Action | null {
+function chooseAction(
+  charId: string,
+  char: Character,
+  { runtime, stat }: { runtime: Runtime; stat: Stat },
+): Action | null {
   const funcName = 'chooseAction';
 
   // 1. 检查特殊行动 (specials)
@@ -65,7 +73,7 @@ function chooseAction(charId: string, char: Character, { runtime, stat }: { runt
   const metSpecials = specials
     .map((entry, index) => ({ ...entry, originalIndex: index }))
     .filter(entry => {
-      const met = areConditionsMet(entry, { runtime, stat });
+      const met = areConditionsMet(entry, { runtime });
       if (met) {
         logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。`);
       }
@@ -88,7 +96,7 @@ function chooseAction(charId: string, char: Character, { runtime, stat }: { runt
   const routine = char.routine || [];
   logger.debug(funcName, `角色 ${charId}: 开始检查 ${routine.length} 个日常行动...`);
   for (const entry of routine) {
-    if (areConditionsMet(entry, { runtime, stat })) {
+    if (areConditionsMet(entry, { runtime })) {
       logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。`);
       return entry.action;
     }
@@ -107,14 +115,14 @@ export function makeActionDecisions({
   stat,
   remainingChars,
 }: {
-  runtime: any;
-  stat: any;
+  runtime: Runtime;
+  stat: Stat;
   remainingChars: string[];
 }): {
-  decisions: Record<string, any>;
+  decisions: Record<string, Action>;
 } {
   const funcName = 'makeActionDecisions';
-  const decisions: Record<string, any> = {};
+  const decisions: Record<string, Action> = {};
 
   for (const charId of remainingChars) {
     const char = getChar(stat, charId);
@@ -124,12 +132,13 @@ export function makeActionDecisions({
     const action = chooseAction(charId, char, { runtime, stat });
 
     if (action) {
+      const finalAction = { ...action };
       // 如果行动没有指定目的地，则默认为角色当前所在地
-      if (!action.to) {
-        action.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+      if (!finalAction.to) {
+        finalAction.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       }
-      decisions[charId] = action;
-      logger.debug(funcName, `为角色 ${charId} 分配了行动 [${action.do}]。`);
+      decisions[charId] = finalAction;
+      logger.debug(funcName, `为角色 ${charId} 分配了行动 [${finalAction.do}]。`);
     } else {
       // 如果没有命中任何行动，则不为该角色生成决策，让其维持现状
       logger.debug(funcName, `角色 ${charId} 未命中任何行动，本次不作决策。`);

@@ -1,4 +1,6 @@
 import _ from 'lodash';
+import { Action, Cache, Stat } from '../../../schema';
+import { Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
 import { makeActionDecisions } from './action-processor';
 import { makeCompanionDecisions } from './companion-processor';
@@ -23,14 +25,15 @@ export function makeDecisions({
   coLocatedChars,
   remoteChars,
 }: {
-  runtime: any;
-  stat: any;
-  cache: any;
+  runtime: Runtime;
+  stat: Stat;
+  cache: Cache;
   coLocatedChars: string[];
   remoteChars: string[];
 }): {
-  companionDecisions: Record<string, any>;
-  nonCompanionDecisions: Record<string, any>;
+  companionDecisions: Record<string, Action>;
+  nonCompanionDecisions: Record<string, Action>;
+  newCache: Cache;
 } {
   const funcName = 'makeDecisions';
   logger.debug(funcName, '开始为所有角色制定决策...');
@@ -38,7 +41,11 @@ export function makeDecisions({
   try {
     // 1. 异区角色决策
     logger.debug(funcName, `开始为 ${remoteChars.length} 个异区角色进行“来访”决策...`);
-    const { decisions: visitDecisions, decidedChars: visitingChars } = makeVisitDecisions({
+    const {
+      decisions: visitDecisions,
+      decidedChars: visitingChars,
+      newCache,
+    } = makeVisitDecisions({
       runtime,
       stat,
       cache,
@@ -84,10 +91,11 @@ export function makeDecisions({
     return {
       companionDecisions: companionActionDecisions,
       nonCompanionDecisions,
+      newCache,
     };
   } catch (e) {
     logger.error(funcName, '执行决策制定时发生错误:', e);
     // 发生错误时，返回一个空决策表，以防止流程中断
-    return { companionDecisions: {}, nonCompanionDecisions: {} };
+    return { companionDecisions: {}, nonCompanionDecisions: {}, newCache: cache };
   }
 }

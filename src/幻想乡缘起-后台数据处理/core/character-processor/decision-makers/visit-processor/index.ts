@@ -1,9 +1,11 @@
 import _ from 'lodash';
+import { Action, Cache, Stat } from '../../../../schema';
+import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromRuntime, getChar, isVisitCooling, setVisitCooling } from '../../accessors';
 import { PREDEFINED_ACTIONS } from '../../constants';
 
-const logger = new Logger();
+const logger = new Logger('VisitDecisionMaker');
 
 /**
  * 执行概率检定。
@@ -27,47 +29,45 @@ export function makeVisitDecisions({
   cache,
   remoteChars,
 }: {
-  runtime: any;
-  stat: any;
-  cache: any;
+  runtime: Runtime;
+  stat: Stat;
+  cache: Cache;
   remoteChars: string[];
 }): {
-  decisions: Record<string, any>;
+  decisions: Record<string, Action>;
   decidedChars: string[];
+  newCache: Cache;
 } {
   const funcName = 'makeVisitDecisions';
-  const decisions: Record<string, any> = {};
+  const decisions: Record<string, Action> = {};
   const decidedChars: string[] = [];
+  const newCache = _.cloneDeep(cache);
 
   for (const charId of remoteChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
-    if (!affectionStage) continue;
+    if (!affectionStage?.visit?.enabled) continue;
 
-    const { visit: visitConfig } = affectionStage;
     const char = getChar(stat, charId);
-    const affection = char?.好感度 || 0;
+    if (!char) continue;
 
-    const isCooling = isVisitCooling(cache, charId);
-    const canVisit = visitConfig?.enabled === true && !isCooling;
-
-    if (!canVisit) {
-      logger.debug(
-        funcName,
-        `角色 ${charId} 跳过“来访”决策 (visit.enabled: ${visitConfig?.enabled}, isCooling: ${isCooling})`,
-      );
+    const isCooling = isVisitCooling(newCache, charId);
+    if (isCooling) {
+      logger.debug(funcName, `角色 ${charId} 处于来访冷却中，跳过决策。`);
       continue;
     }
 
-    const { passed, finalProb } = checkProbability(visitConfig.probBase, visitConfig.probK, affection);
+    const { probBase = 0, probK = 0 } = affectionStage.visit;
+    const { passed, finalProb } = checkProbability(probBase, probK, char.好感度);
+
     if (passed) {
       decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
       decidedChars.push(charId);
-      setVisitCooling(cache, charId, true);
+      setVisitCooling(newCache, charId, true);
       logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
     } else {
       logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
     }
   }
 
-  return { decisions, decidedChars };
+  return { decisions, decidedChars, newCache };
 }

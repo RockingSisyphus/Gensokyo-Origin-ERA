@@ -1,4 +1,7 @@
-import _ from 'lodash';
+/**
+ * @description 默认地点
+ */
+export const DEFAULT_LOCATION = '博丽神社';
 
 /**
  * @description ERA 变量路径常量，用于统一管理通过 era:event 更新的变量路径。
@@ -205,53 +208,3 @@ export const RUNTIME_PATH = {
 };
 
 // ==================== RUNTIME 数据访问器 ====================
-
-/**
- * 从 runtime 中获取当前节日名称。
- * @param runtime - The runtime object.
- * @returns {string | null} The name of the current festival or null.
- */
-export const getCurrentFestivalName = (runtime: any): string | null => {
-  return _.get(runtime, RUNTIME_PATH.CURRENT_FESTIVAL_NAME, null);
-};
-
-// ==================== 数据处理与日志 ====================
-
-/**
- * @description 描述一次数据变更的日志条目。
- */
-export interface ChangeLogEntry {
-  /** 触发变更的模块名 */
-  module: string;
-  /** 被修改的数据路径 */
-  path: string;
-  /** 修改前的值 */
-  oldValue: any;
-  /** 修改后的值 */
-  newValue: any;
-  /** 变更原因的简短描述 */
-  reason: string;
-}
-
-/**
- * @description 创建一个标准格式的变更日志条目。
- * @param {string} module - 触发变更的模块名。
- * @param {string} path - 被修改的数据路径。
- * @param {any} oldValue - 修改前的值。
- * @param {any} newValue - 修改后的值。
- * @param {string} reason - 变更原因的简短描述。
- * @returns {ChangeLogEntry} 一个格式化的日志条目对象。
- */
-export const createChangeLogEntry = (
-  module: string,
-  path: string,
-  oldValue: any,
-  newValue: any,
-  reason: string,
-): ChangeLogEntry => ({
-  module,
-  path,
-  oldValue,
-  newValue,
-  reason,
-});
