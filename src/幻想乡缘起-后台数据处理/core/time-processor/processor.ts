@@ -1,11 +1,5 @@
 import { ClockAck, Stat } from '../../schema';
-import {
-  ClockFlags,
-  EMPTY_FLAGS,
-  EMPTY_NOW,
-  NowSchema,
-  TimeProcessorResult,
-} from '../../schema/runtime';
+import { ClockFlags, EMPTY_FLAGS, EMPTY_NOW, NowSchema, TimeProcessorResult } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 import { z } from 'zod';

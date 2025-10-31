@@ -29,7 +29,7 @@ function emitAndListen<T>({
   listenEventName: string;
   filter: (responsePayload: T) => boolean;
 }): Promise<T> {
-  return new Promise((resolve) => {
+  return new Promise(resolve => {
     const listener = (detail: T) => {
       if (filter(detail)) {
         // 根据 event.d.ts 的定义，使用 eventRemoveListener 来移除监听器

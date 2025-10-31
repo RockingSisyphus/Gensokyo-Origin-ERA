@@ -3,11 +3,7 @@
  * @description 封装了用于监听 ERA 框架广播事件的函数。
  */
 
-import {
-  ERA_BROADCAST_EVENT_NAMES,
-  QueryResultPayload,
-  WriteDonePayload,
-} from './constants';
+import { ERA_BROADCAST_EVENT_NAMES, QueryResultPayload, WriteDonePayload } from './constants';
 
 /**
  * `onWriteDone` 的选项

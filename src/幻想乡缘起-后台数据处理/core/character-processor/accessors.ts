@@ -3,14 +3,7 @@
  * @description 集中了所有对 stat, runtime, cache 的读写操作，以确保路径统一和类型安全。
  */
 
-import {
-  Action,
-  AffectionStageWithForget,
-  Cache,
-  Character,
-  CharacterCache,
-  Stat,
-} from '../../schema';
+import { Action, AffectionStageWithForget, Cache, Character, CharacterCache, Stat } from '../../schema';
 import { CharacterRuntime, Runtime } from '../../schema/runtime';
 import { z } from 'zod';
 
@@ -68,11 +61,7 @@ export function getAffectionStageFromRuntime(runtime: Runtime, charId: string): 
   return getCharacterRuntime(runtime, charId)?.affectionStage;
 }
 
-export function setAffectionStageInRuntime(
-  runtime: Runtime,
-  charId: string,
-  stage: AffectionStageWithForget,
-): void {
+export function setAffectionStageInRuntime(runtime: Runtime, charId: string, stage: AffectionStageWithForget): void {
   ensureCharacterRuntime(runtime, charId);
   runtime.character!.chars[charId]!.affectionStage = stage;
 }

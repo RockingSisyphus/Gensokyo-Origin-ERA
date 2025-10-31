@@ -45,7 +45,11 @@ export async function processCharacterDecisions({
     setPartitions(newRuntime, { coLocated: coLocatedChars, remote: remoteChars });
 
     // 3. 决策制定
-    const { companionDecisions, nonCompanionDecisions, newCache: decidedCache } = makeDecisions({
+    const {
+      companionDecisions,
+      nonCompanionDecisions,
+      newCache: decidedCache,
+    } = makeDecisions({
       runtime: newRuntime,
       stat: newStat,
       cache,

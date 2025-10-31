@@ -62,7 +62,7 @@ export function buildGraph({ stat }: { stat: Stat }): {
     logger.debug(funcName, '从 mapData 中提取的 edges:', edges);
 
     if (Array.isArray(edges)) {
-      edges.forEach((edge) => {
+      edges.forEach(edge => {
         if (edge && edge.a && edge.b) {
           //logger.debug(funcName, `正在添加边: ${edge.a} <-> ${edge.b}`);
           addEdge(edge.a, edge.b);

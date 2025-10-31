@@ -66,7 +66,6 @@ const ActionSchema = z.object({
 });
 export type Action = z.infer<typeof ActionSchema>;
 
-
 // --- Runtime Schema 定义 ---
 
 export const NowSchema = z.object({

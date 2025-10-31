@@ -1,11 +1,5 @@
 import _ from 'lodash';
-import {
-  Cache,
-  ChangeLogEntry,
-  IncidentConfig,
-  IncidentDetail,
-  Stat,
-} from '../../schema';
+import { Cache, ChangeLogEntry, IncidentConfig, IncidentDetail, Stat } from '../../schema';
 import { IncidentRuntimeInfo, Runtime } from '../../schema/runtime';
 import { createChangeLogEntry } from '../../utils/changeLog';
 import { Logger } from '../../utils/log';

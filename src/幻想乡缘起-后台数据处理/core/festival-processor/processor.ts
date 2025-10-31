@@ -51,10 +51,7 @@ export function processFestival({ runtime, stat }: { runtime: Runtime; stat: Sta
     // ---------- 2. 判定今日是否在节日内 ----------
     const todayFest =
       festivalList.find(
-        (fest) =>
-          fest.month === currentMonth &&
-          fest.start_day <= currentDay &&
-          currentDay <= fest.end_day,
+        fest => fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day,
       ) || null;
 
     // ---------- 3. 寻找“下一个节日”（距今的最小正天数，含跨年） ----------
