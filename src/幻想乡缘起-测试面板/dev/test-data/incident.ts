@@ -1,3 +1,6 @@
+import _ from 'lodash';
+import baseTestData from '../stat-test-data.json';
+
 export const incidentTestData = {
   // =================================================================
   // SCENARIO 1: 前置 - 设置冷却锚点
@@ -5,13 +8,14 @@ export const incidentTestData = {
   // - 预期 runtime.incident.incidentCooldownAnchor 会被设置为 10。
   // =================================================================
   '前置-设置冷却锚点': {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: { cooldownMinutes: 100 },
       },
       世界: { timeProgress: 10 },
       incidents: {},
-    },
+      cache: { incident: undefined }, // 确保没有旧的锚点
+    }),
   },
 
   // =================================================================
@@ -21,7 +25,7 @@ export const incidentTestData = {
   // - 预期 runtime.incident.remainingCooldown > 0
   // =================================================================
   '日常(基于前置)': {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: { cooldownMinutes: 100 },
       },
@@ -30,7 +34,7 @@ export const incidentTestData = {
       cache: {
         incident: { incidentCooldownAnchor: 10 },
       },
-    },
+    }),
   },
 
   // =================================================================
@@ -40,7 +44,7 @@ export const incidentTestData = {
   // - 预期 stat.incidents 中会新增 '红雾异变'
   // =================================================================
   '触发新异变(冷却结束)': {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: {
           cooldownMinutes: 100,
@@ -53,7 +57,7 @@ export const incidentTestData = {
       cache: {
         incident: { incidentCooldownAnchor: 10 },
       },
-    },
+    }),
   },
 
   // =================================================================
@@ -62,7 +66,7 @@ export const incidentTestData = {
   // - 预期无视冷却时间
   // =================================================================
   '触发新异变(强制)': {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: {
           cooldownMinutes: 9999,
@@ -73,7 +77,7 @@ export const incidentTestData = {
       },
       世界: { timeProgress: 1 },
       incidents: {},
-    },
+    }),
   },
 
   // =================================================================
@@ -82,7 +86,7 @@ export const incidentTestData = {
   // - 预期 runtime.incident.current 包含 '红雾异变' 的信息
   // =================================================================
   推进现有异变: {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: {
           pool: [{ name: '红雾异变', detail: '幻想乡被红色的雾气笼罩了。', mainLoc: ['红魔馆'] }],
@@ -97,7 +101,7 @@ export const incidentTestData = {
           异变退治者: ['博丽灵梦', '雾雨魔理沙'],
         },
       },
-    },
+    }),
   },
 
   // =================================================================
@@ -107,7 +111,7 @@ export const incidentTestData = {
   // - 注意: 此测试需要一个包含 legal_locations 的前置 runtime 状态
   // =================================================================
   '触发随机异变(池为空)': {
-    stat: {
+    stat: _.merge(_.cloneDeep(baseTestData), {
       config: {
         incident: {
           cooldownMinutes: 10,
@@ -119,6 +123,6 @@ export const incidentTestData = {
       cache: {
         incident: { incidentCooldownAnchor: 1 },
       },
-    },
+    }),
   },
 };

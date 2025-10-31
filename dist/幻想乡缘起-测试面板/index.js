@@ -79,10 +79,7 @@ __webpack_require__.d(character_namespaceObject, {
   charTest_S3_VisitProbFail: () => charTest_S3_VisitProbFail,
   charTest_S4_AllIdle: () => charTest_S4_AllIdle,
   charTest_S5_NoUserLocation: () => charTest_S5_NoUserLocation,
-  charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority,
-  charTest_S7_AffectionLevel_Standard: () => charTest_S7_AffectionLevel_Standard,
-  charTest_S8_AffectionLevel_MissingConfig: () => charTest_S8_AffectionLevel_MissingConfig,
-  charTest_S9_AffectionLevel_EmptyStages: () => charTest_S9_AffectionLevel_EmptyStages
+  charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority
 });
 
 var festival_namespaceObject = {};
@@ -259,565 +256,107 @@ class Logger {
   }
 }
 
-const standardRuntime = {
-  clock: {
-    now: {
-      year: 1,
-      month: 4,
-      day: 15,
-      hm: "14:30",
-      periodName: "下午",
-      iso: "0001-04-15T14:30:00"
-    }
-  },
-  chars: {
-    博丽灵梦: {
-      好感度等级: "亲近"
-    },
-    西瓜: {
-      好感度等级: "不渝"
-    },
-    秦心: {
-      好感度等级: "憎恨"
-    },
-    路人: {
-      好感度等级: "厌恶"
-    },
-    雾雨魔理沙: {
-      好感度等级: "思慕"
-    },
-    琪露诺: {
-      好感度等级: "憎恨"
-    }
-  }
-};
-
-const standardData = {
-  config: {
-    ui: {
-      theme: "dark",
-      mainFontPercent: 110,
-      fontScaleStepPct: 10,
-      ribbonStep: 300
-    },
-    defaults: {
-      fallbackPlace: "博丽神社"
-    },
-    incident: {
-      cooldown: 120,
-      immediate_trigger: false,
-      random_pool: true
-    },
-    meetStuff: {
-      skipVisitHunters: false
-    },
-    nightStuff: {
-      skipSleepHunters: false
-    },
-    affection: {
-      affectionStages: [ [ -999, "死敌" ], [ -100, "憎恨" ], [ -50, "厌恶" ], [ 0, "不喜" ], [ 20, "冷淡" ], [ 50, "熟悉" ], [ 80, "亲近" ], [ 100, "思慕" ], [ 999, "不渝" ] ],
-      loveThreshold: 100,
-      hateThreshold: -100
-    }
-  },
-  user: {
-    姓名: "玩家",
-    身份: "外来者",
-    性别: "男",
-    年龄: 20,
-    特殊能力: "适应环境",
-    所在地区: "博丽神社",
-    居住地区: "人间之里",
-    重要经历: [ "解决了红雾异变", "参加了宴会" ],
-    人际关系: "与博丽灵梦是朋友关系。\n与雾雨魔理沙是竞争对手。"
-  },
-  chars: {
-    博丽灵梦: {
-      所在地区: "博丽神社",
-      居住地区: "博丽神社",
-      好感度: 85,
-      年龄: 18,
-      身份: "巫女"
-    },
-    西瓜: {
-      所在地区: "博丽神社",
-      居住地区: "博丽神社",
-      好感度: 200,
-      年龄: 18,
-      身份: "吃货"
-    },
-    秦心: {
-      所在地区: "博丽神社",
-      居住地区: "博丽神社",
-      好感度: -200,
-      年龄: 18,
-      身份: "扫货"
-    },
-    路人: {
-      所在地区: "博丽神社",
-      居住地区: "博丽神社",
-      好感度: -30,
-      年龄: 18,
-      身份: "1货"
-    },
-    雾雨魔理沙: {
-      所在地区: "魔法森林",
-      居住地区: "魔法森林",
-      好感度: 110,
-      年龄: 17,
-      身份: "魔法使"
-    },
-    琪露诺: {
-      所在地区: "雾之湖",
-      居住地区: "雾之湖",
-      好感度: -120,
-      年龄: "不明",
-      身份: "妖精"
-    }
-  },
-  world: {
-    map_ascii: " [博丽神社] -- [魔法之森]\n      | \n [雾之湖]",
-    map_graph: {
-      tree: {
-        幻想乡及周边: {
-          幻想乡本土: {
-            东境丘陵带: [ "博丽神社" ],
-            魔法之森带: [ "魔法之森" ],
-            西境水域带: [ "雾之湖" ]
-          }
-        }
-      },
-      edges: [ {
-        a: "博丽神社",
-        b: "魔法之森"
-      }, {
-        a: "博丽神社",
-        b: "雾之湖"
-      } ]
-    }
-  },
-  festivals_list: [ {
-    month: 1,
-    start_day: 1,
-    end_day: 3,
-    name: "正月（三天）",
-    type: "seasonal_festival",
-    customs: [ "到神社或寺院初诣参拜、抽签与写绘马，常见于博丽神社与命莲寺", "食用御节料理与年杂煮，门口挂注连绳、摆门松与镜饼", "发压岁钱与寄新年贺卡，迎接新年第一道日出" ],
-    importance: 5,
-    主办地: "博丽神社"
-  }, {
-    month: 1,
-    start_day: 13,
-    end_day: 13,
-    name: "成人日（成人式）",
-    type: "national_holiday",
-    customs: [ "新成人举行典礼与祈福，常着和服前往神社参拜", "家庭与同辈聚会合影留念" ],
-    importance: 3,
-    主办地: "人间之里"
-  }, {
-    month: 1,
-    start_day: 24,
-    end_day: 25,
-    name: "莺替神事",
-    type: "matsuri",
-    customs: [ "巫女吹响笛子呼唤莺群，举行莺替祭事", "现在聚到这里的并不是普通的鸴，而是天神的使者。这些鸴会啄去你说过的谎言。将其转换成幸福，它们会聚集在撒了谎的人身上。" ],
-    importance: 2,
-    主办地: "博丽神社"
-  }, {
-    month: 2,
-    start_day: 3,
-    end_day: 3,
-    name: "节分",
-    type: "seasonal_festival",
-    customs: [ "撒豆驱鬼，高喊“鬼出福进”，向屋外或扮鬼者投福豆", "按年龄吃同数黄豆祈好运，面向当年惠方默食整卷惠方卷" ],
-    importance: 4,
-    主办地: "博丽神社"
-  }, {
-    month: 2,
-    start_day: 8,
-    end_day: 8,
-    name: "事八日（祭针节/厄日）",
-    type: "seasonal_festival",
-    customs: [ "神明的力量变得衰弱的厄日", "年末年初的神圣期在此结束，人类之世的一年在这一天才开始" ],
-    importance: 1,
-    主办地: "人间之里"
-  }, {
-    month: 2,
-    start_day: 10,
-    end_day: 11,
-    name: "雾之湖·冰雪祭",
-    type: "matsuri",
-    customs: [ "湖畔与冰面展出大型雪雕与冰雕，夜间点灯映湖", "设置雪地娱乐与小吃摊位，提醒游客注意冰面安全" ],
-    importance: 3,
-    主办地: "雾之湖"
-  }, {
-    month: 2,
-    start_day: 14,
-    end_day: 14,
-    name: "情人节",
-    type: "observance",
-    customs: [ "女性向男性赠巧克力（本命、朋友或礼节性），商家推出礼盒", "为白色情人节做准备，记录收受与回礼清单" ],
-    importance: 4,
-    主办地: "人间之里"
-  }, {
-    month: 2,
-    start_day: 15,
-    end_day: 15,
-    name: "涅槃会",
-    type: "matsuri",
-    customs: [ "命莲寺每年都会举办涅槃会。" ],
-    importance: 2,
-    主办地: "命莲寺"
-  }, {
-    month: 3,
-    start_day: 3,
-    end_day: 3,
-    name: "女儿节（雏祭）",
-    type: "seasonal_festival",
-    customs: [ "在家陈列雏人形祈愿女孩健康成长", "食用菱饼、雏霰、散寿司与蛤蜊清汤", "键山雏出售纸片制作的速成雏人偶并取得了很高的人气", "雏人偶是为了积攒厄运，再扔掉的东西", "新的雏人偶完全是一次性的雏人偶。女儿节一过去了就全都被扔在河里任凭它漂走", "键山雏会回收扔进河里的雏人偶" ],
-    importance: 3,
-    主办地: "人间之里"
-  }, {
-    month: 3,
-    start_day: 14,
-    end_day: 14,
-    name: "白色情人节（回礼日）",
-    type: "observance",
-    customs: [ "男性向情人节赠与者回礼，多为糖果、点心或小饰品", "商铺推出回礼专区与包装服务" ],
-    importance: 4,
-    主办地: "人间之里"
-  }, {
-    month: 3,
-    start_day: 20,
-    end_day: 20,
-    name: "春分日（彼岸日）",
-    type: "national_holiday",
-    customs: [ "祭扫先祖，供彼岸饼与鲜花", "维持生者与亡者分界的礼仪与秩序", "所谓彼岸日就是每年白昼和黑夜一样长的那一天，因为太阳和月亮有着相同的强度，借力于幽冥之事物也能显出原形来", "彼岸日的幽灵很多", "博丽灵梦会在彼岸日前往墓地抑制灵力", "从神社看去，彼岸日的太阳正好是从鸟居正中升起。太阳从鸟居正中升起的这个时节，它的力量达到最大。这样的太阳沉落到墓地时，正是抑制灵力的最佳时刻" ],
-    importance: 3,
-    主办地: "墓地"
-  }, {
-    month: 3,
-    start_day: 25,
-    end_day: 31,
-    name: "花见（赏樱）",
-    type: "seasonal_festival",
-    customs: [ "亲友席地野餐欣赏樱花，夜间观赏点灯樱景", "爱护树木，不扰动周边结界设施与生态" ],
-    importance: 2,
-    主办地: "无名之丘"
-  }, {
-    month: 5,
-    start_day: 5,
-    end_day: 5,
-    name: "儿童节（端午）",
-    type: "national_holiday",
-    customs: [ "悬挂鲤鱼旗，陈设武者人偶或头盔祈健康成长", "吃柏饼与粽子，洗菖蒲汤辟邪" ],
-    importance: 4,
-    主办地: "人间之里"
-  }, {
-    month: 5,
-    start_day: 16,
-    end_day: 18,
-    name: "博丽神社例大祭",
-    type: "matsuri",
-    customs: [ "神轿巡游、参拜与各类摊位，绘卷与展售热闹非凡", "遵循巫女指示，避免触碰结界设施" ],
-    importance: 4,
-    主办地: "博丽神社"
-  }, {
-    month: 5,
-    start_day: 20,
-    end_day: 23,
-    name: "守矢神社大祭",
-    type: "matsuri",
-    customs: [ "山道花车与神轿巡行，祭乐鼓吹与祈愿仪式", "与神灵庙大祭轮替为年度盛典" ],
-    importance: 4,
-    主办地: "守矢神社"
-  }, {
-    month: 6,
-    start_day: 7,
-    end_day: 14,
-    name: "神灵庙大祭",
-    type: "matsuri",
-    customs: [ "古装行列出巡与法会雅乐，巡至山麓与里外边境", "与守矢神社大祭轮替为年度盛典" ],
-    importance: 4,
-    主办地: "神灵庙"
-  }, {
-    month: 7,
-    start_day: 7,
-    end_day: 7,
-    name: "七夕",
-    type: "seasonal_festival",
-    customs: [ "写愿望短册并挂于竹枝，商街布置彩笺竹饰", "部分地区按旧历在八月举行配套活动" ],
-    importance: 3,
-    主办地: "人间之里"
-  }, {
-    month: 7,
-    start_day: 27,
-    end_day: 31,
-    name: "妖怪之山·天狗祭",
-    type: "matsuri",
-    customs: [ "整月分期举行祭礼与展列，中旬与下旬进行两次盛大巡行", "宵山张灯结彩，山民与来客交流繁盛" ],
-    importance: 4,
-    主办地: "妖怪之山"
-  }, {
-    month: 7,
-    start_day: 21,
-    end_day: 21,
-    name: "海之日（湖岸庆典）",
-    type: "national_holiday",
-    customs: [ "湖岸感恩水域恩惠的净湖仪式与划舟活动", "水上安全讲习与湖滨清洁行动" ],
-    importance: 3,
-    主办地: "风神之湖"
-  }, {
-    month: 7,
-    start_day: 24,
-    end_day: 25,
-    name: "天神祭",
-    type: "matsuri",
-    customs: [ "陆上巡行与水上灯列，夜空花火与太鼓表演", "祈学业与文运兴隆" ],
-    importance: 4,
-    主办地: "神灵庙"
-  }, {
-    month: 8,
-    start_day: 11,
-    end_day: 11,
-    name: "山之日",
-    type: "national_holiday",
-    customs: [ "组织登山健行与自然体验活动", "提醒参与者遵守山域安全与结界规则" ],
-    importance: 2,
-    主办地: "妖怪之山"
-  }, {
-    month: 8,
-    start_day: 2,
-    end_day: 7,
-    name: "虹龙洞·睡魔灯祭",
-    type: "matsuri",
-    customs: [ "洞外巡游大型发光花灯与舞队，终夜烟火与灯河压轴", "提示游客注意洞窟通道与灵气涌动时段" ],
-    importance: 4,
-    主办地: "虹龙洞"
-  }, {
-    month: 8,
-    start_day: 12,
-    end_day: 12,
-    name: "人间之里·盂兰盆舞大会",
-    type: "matsuri",
-    customs: [ "舞队击太鼓与三味线，市民与来客可入场共舞", "设摊与夜市，营造节庆氛围" ],
-    importance: 4,
-    主办地: "人间之里"
-  }, {
-    month: 8,
-    start_day: 13,
-    end_day: 16,
-    name: "盂兰盆",
-    type: "seasonal_festival",
-    customs: [ "迎魂灯笼引路、扫墓祭祖与设灵位供品", "送魂以放河灯或送火作结，可于三途河边祈愿" ],
-    importance: 5,
-    主办地: "命莲寺"
-  }, {
-    month: 9,
-    start_day: 23,
-    end_day: 23,
-    name: "秋分日（彼岸日）",
-    type: "national_holiday",
-    customs: [ "祭扫先祖，供彼岸饼与鲜花", "维持生者与亡者分界的礼仪与秩序", "所谓彼岸日就是每年白昼和黑夜一样长的那一天，因为太阳和月亮有着相同的强度，借力于幽冥之事物也能显出原形来", "彼岸日的幽灵很多", "博丽灵梦会在彼岸日前往墓地抑制灵力", "从神社看去，彼岸日的太阳正好是从鸟居正中升起。太阳从鸟居正中升起的这个时节，它的力量达到最大。这样的太阳沉落到墓地时，正是抑制灵力的最佳时刻" ],
-    importance: 3,
-    主办地: "墓地"
-  }, {
-    month: 9,
-    start_day: 21,
-    end_day: 21,
-    name: "月见（例月祭）",
-    type: "seasonal_festival",
-    customs: [ "供月见团子、芒草与时令薯栗，赏月小酌作诗", "推荐于高丘或湖岸观月，避开危险地带", "永远亭会在月地距离最近的满月之日举行名为例月祭的祭典，是由八意永琳发起的。", "例月祭当天，永远亭的居民会将团子之类的圆形物体当作满月，相对的远离它，用这样的行为来防止月之使者的降临。" ],
-    importance: 3,
-    主办地: "永远亭"
-  }, {
-    month: 10,
-    start_day: 1,
-    end_day: 2,
-    name: "丰收祭",
-    type: "seasonal_festival",
-    customs: [ "近几年才开始在博丽神社举办的小型祭典，博丽灵梦会用‘这个时候献上供奉的话神灵会特别高兴哦’的奇怪理由要求每个到访祭典的人献上比往常更多的供奉。", "实际上是贫困的博丽灵梦为了积攒过冬的粮食杜撰硬凑出来的奇怪祭典，虽然大家心知肚明，但还是会主动给贫困的博丽神社献上一点供奉。", "掌管幻想乡的秋天的红叶之神秋静叶和丰收之神秋穰子也会在这一天在博丽神社献身，和大家一起庆祝。" ],
-    importance: 1,
-    主办地: "博丽神社"
-  }, {
-    month: 11,
-    start_day: 15,
-    end_day: 15,
-    name: "七五三",
-    type: "seasonal_festival",
-    customs: [ "三岁五岁七岁儿童身着礼服参拜祈福，食用千岁糖", "家庭正式合影留念" ],
-    importance: 3,
-    主办地: "博丽神社"
-  }, {
-    month: 11,
-    start_day: 24,
-    end_day: 25,
-    name: "酉之市",
-    type: "seasonal_festival",
-    customs: [ "博丽神社每年都举办的热闹集市" ],
-    importance: 2,
-    主办地: "博丽神社"
-  }, {
-    month: 12,
-    start_day: 8,
-    end_day: 8,
-    name: "事八日（祭针节/厄日）",
-    type: "seasonal_festival",
-    customs: [ "神明的力量变得衰弱的厄日", "年末年初的神圣期在此结束，人类之世的一年在这一天才开始" ],
-    importance: 1,
-    主办地: "人间之里"
-  }, {
-    month: 12,
-    start_day: 25,
-    end_day: 25,
-    name: "圣诞节（冬季庆典）",
-    type: "observance",
-    customs: [ "冬季灯饰、蛋糕与炸鸡套餐流行，情侣约会氛围", "城馆举办公益夜会与音乐演出" ],
-    importance: 3,
-    主办地: "红魔馆"
-  }, {
-    month: 12,
-    start_day: 31,
-    end_day: 31,
-    name: "大晦日（除夜）",
-    type: "seasonal_festival",
-    customs: [ "食跨年荞麦面祈长寿越年", "寺院敲钟一百零八声以祓除烦恼，迎接新年", "红魔馆会在这天举行晚宴，吃荞麦面。", "雾雨魔理沙会早早地来到博丽神社进行新年参拜。", "命莲寺会举办除夕夜钟活动。" ],
-    importance: 4,
-    主办地: "博丽神社"
-  } ],
-  文文新闻: "今日头条：幻想乡天气持续晴朗，适合外出。",
-  附加正文: "（这里是附加的说明文本）",
-  incidents: {
-    红雾异变: {
-      异变名称: "红雾异变",
-      异变已结束: true,
-      异变退治者: [ "博丽灵梦", "雾雨魔理沙" ]
-    }
-  },
-  世界: {
-    timeProgress: 500,
-    天气: "晴朗"
-  }
-};
-
-const missingRuntime = {};
-
-const missingData = {
-  config: {
-    ui: {},
-    defaults: {}
-  },
-  user: {
-    姓名: "玩家",
-    所在地区: "博丽神社"
-  },
-  chars: {
-    博丽灵梦: {
-      所在地区: "博丽神社"
-    }
-  },
-  world: {
-    map_ascii: null,
-    map_graph: {
-      edges: []
-    }
-  },
-  festivals_list: [],
-  文文新闻: "",
-  附加正文: [],
-  incidents: {},
-  世界: {}
-};
-
-const boundaryRuntime = {
-  clock: {
-    now: {
-      year: 99,
-      month: 12,
-      day: 31,
-      hm: "23:59"
-    }
-  }
-};
-
-const boundaryData = {
-  config: {
-    ui: {
-      theme: "invalid-theme",
-      mainFontPercent: 300,
-      fontScaleStepPct: "not-a-number"
-    },
-    defaults: {
-      fallbackPlace: "迷途竹林"
-    },
-    incident: {
-      cooldown: 10,
-      immediate_trigger: true,
-      random_pool: false
-    },
-    meetStuff: {
-      skipVisitHunters: true
-    },
-    nightStuff: {
-      skipSleepHunters: true
-    },
-    affection: {
-      affectionStages: [ [ -100, "HATE" ], [ 100, "LOVE" ] ],
-      loveThreshold: 100,
-      hateThreshold: -100
-    }
-  },
-  user: {
-    姓名: "玩家",
-    所在地区: "博丽神社"
-  },
-  chars: {
-    博丽灵梦: {
-      所在地区: "博丽神社",
-      好感度: 100
-    },
-    雾雨魔理沙: {
-      所在地区: "博丽神社",
-      好感度: -100
-    }
-  },
-  world: {
-    map_ascii: "[人间之里] -- [迷途竹林]",
-    map_graph: {
-      edges: []
-    }
-  },
-  festivals_list: null,
-  文文新闻: "一条非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常非常长的测试新闻，用于检查文本是否会正确换行和溢出处理。",
-  附加正文: "附加正文",
-  incidents: {},
-  世界: {
-    timeProgress: 1e12,
-    天气: "雨xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx"
-  }
-};
-
 const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const baseConfig = {
-  config: {
-    time: {
-      epochISO: "2025-10-24T06:00:00+09:00"
+const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-100,"name":"憎恨","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-20,"name":"厌恶","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":10,"name":"普通","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":20,"name":"熟悉","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":40,"name":"亲近","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":70,"name":"亲密","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":100,"name":"思慕","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":99999,"name":"不渝","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]}]},"time":{"epochISO":"2025-10-24T06:00:00+09:00","periodNames":["清晨","上午","下午","傍晚","夜晚","深夜"],"periodKeys":["morning","forenoon","afternoon","evening","night","lateNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["spring","summer","autumn","winter"],"weekNames":["月","火","水","木","金","土","日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":["博丽神社","永远亭","迷途竹林","神灵庙","梦殿大祀庙"],"中部平原带":["人间之里","铃奈庵","命莲寺","墓地","香霖堂"],"魔法之森带":["魔法之森","迷途之家","雾雨魔法店"],"西境水域带":["雾之湖","红魔馆"],"西北山地带":["妖怪之山","守矢神社","九天瀑布","风神之湖","玄武之泽","虹龙洞","秘天崖","兽道","大蛤蟆之池"],"南境丘陵带":["无名之丘","太阳花田","辉针城"]},"冥界":["幽冥结界","白玉楼"],"地底·地狱系":["幻想风穴","间歇泉","旧都","血之湖","地灵殿","灼热地狱遗址","地狱","畜生界（兽王园）"],"彼岸·中阴界":["中有之道","三途河","彼岸","柳之运河","无缘冢"],"天界等上层":["天界","有顶天","仙界","梦境世界"],"月面":["月都"],"外界":["秘封俱乐部"]}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
+
+const standardRuntime = {
+  clock: {
+    now: {
+      year: 1,
+      month: 10,
+      day: 24,
+      hm: "06:00",
+      periodName: "清晨",
+      iso: "2025-10-24T06:00:00+09:00"
+    }
+  },
+  chars: {
+    reimu: {
+      好感度等级: "亲近"
+    },
+    marisa: {
+      好感度等级: "熟悉"
+    },
+    sanae: {
+      好感度等级: "普通"
+    },
+    sakuya: {
+      好感度等级: "厌恶"
     }
   }
 };
 
-const timeTest_Initial = {
-  ...external_default().cloneDeep(baseConfig),
-  世界: {
-    timeProgress: 0
+const standardData = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+const missingRuntime = {};
+
+const missingData = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  world: {
+    map_graph: undefined
+  },
+  festivals_list: [],
+  incidents: {}
+});
+
+delete missingData.user;
+
+delete missingData.chars.reimu;
+
+const boundaryRuntime = {
+  clock: {
+    now: {
+      year: 9999,
+      month: 12,
+      day: 31,
+      hm: "23:59",
+      periodName: "深夜",
+      iso: "9999-12-31T23:59:59+09:00"
+    }
+  },
+  chars: {
+    reimu: {
+      好感度等级: "不渝"
+    },
+    sakuya: {
+      好感度等级: "死敌"
+    }
   }
 };
 
-const timeTest_NoChange = {
-  ...external_default().cloneDeep(baseConfig),
+const boundaryData = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  config: {
+    affection: {
+      affectionStages: [ {
+        threshold: -100,
+        name: "HATE"
+      }, {
+        threshold: 100,
+        name: "LOVE"
+      } ]
+    }
+  },
+  chars: {
+    reimu: {
+      好感度: 9999
+    },
+    sakuya: {
+      好感度: -9999
+    }
+  },
+  festivals_list: null
+});
+
+const timeTest_Initial = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  世界: {
+    timeProgress: 0
+  },
+  cache: undefined
+});
+
+const timeTest_NoChange = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: 10
   },
@@ -835,10 +374,9 @@ const timeTest_NoChange = {
       }
     }
   }
-};
+});
 
-const timeTest_NewPeriod = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewPeriod = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: 2 * 60
   },
@@ -856,10 +394,9 @@ const timeTest_NewPeriod = {
       }
     }
   }
-};
+});
 
-const timeTest_NewDay = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewDay = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: 19 * 60
   },
@@ -877,10 +414,9 @@ const timeTest_NewDay = {
       }
     }
   }
-};
+});
 
-const timeTest_NewWeek = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewWeek = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: 3 * 24 * 60
   },
@@ -898,10 +434,9 @@ const timeTest_NewWeek = {
       }
     }
   }
-};
+});
 
-const timeTest_NewMonth = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewMonth = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: 8 * 24 * 60
   },
@@ -919,10 +454,9 @@ const timeTest_NewMonth = {
       }
     }
   }
-};
+});
 
-const timeTest_NewSeason = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewSeason = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: (8 + 30) * 24 * 60
   },
@@ -940,10 +474,9 @@ const timeTest_NewSeason = {
       }
     }
   }
-};
+});
 
-const timeTest_NewYear = {
-  ...external_default().cloneDeep(baseConfig),
+const timeTest_NewYear = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   世界: {
     timeProgress: (8 + 30 + 31) * 24 * 60
   },
@@ -961,90 +494,39 @@ const timeTest_NewYear = {
       }
     }
   }
-};
+});
 
-const statWithIllegalLocations = {
+const statWithIllegalLocations = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   user: {
-    name: "测试用户",
     居住地区: "人里",
     所在地区: "火星"
   },
   chars: {
-    灵梦: {
-      name: "博丽灵梦",
-      居住地区: "博丽神社",
-      所在地区: "博丽神社"
-    },
-    魔理沙: {
-      name: "雾雨魔理沙",
+    marisa: {
       居住地区: "雾雨店",
       所在地区: "魔法森林"
     },
-    早苗: {
-      name: "东风谷早苗",
+    sanae: {
       居住地区: "幻想乡",
       所在地区: ""
     },
-    芙兰朵露: {
+    flandre: {
       name: "芙兰朵露·斯卡雷特",
       居住地区: "红魔馆地下室",
       所在地区: "玩耍中"
     }
-  },
-  world: {
-    fallbackPlace: "博丽神社",
-    map_graph: {
-      tree: {
-        幻想乡及周边: {
-          幻想乡本土: {
-            东境丘陵带: [ "博丽神社", "永远亭", "迷途竹林", "神灵庙", "梦殿大祀庙" ],
-            中部平原带: [ "人间之里", "铃奈庵", "命莲寺", "墓地", "香霖堂" ],
-            魔法之森带: [ "魔法之森", "迷途之家", "雾雨魔法店" ],
-            西境水域带: [ "雾之湖", "红魔馆" ]
-          }
-        }
-      },
-      aliases: {
-        博丽神社: [ "博麗神社", "博丽" ],
-        人间之里: [ "人里", "人間之里" ],
-        雾雨魔法店: [ "雾雨店", "魔法店" ],
-        魔法之森: [ "魔法森林" ],
-        红魔馆: [ "红馆" ]
-      }
-    }
   }
-};
+});
 
-const statWithMissingLocations = {
-  user: {
-    name: "测试用户"
-  },
-  chars: {
-    灵梦: {
-      name: "博丽灵梦",
-      居住地区: "博丽神社",
-      所在地区: "博丽神社"
-    },
-    魔理沙: {
-      name: "雾雨魔理沙"
-    }
-  },
-  world: {
-    fallbackPlace: "人间之里",
-    map_graph: {
-      tree: {
-        幻想乡本土: {
-          东境丘陵带: [ "博丽神社" ],
-          中部平原带: [ "人间之里" ]
-        }
-      },
-      aliases: {
-        博丽神社: [ "博丽" ],
-        人间之里: [ "人里" ]
-      }
-    }
-  }
-};
+const statWithMissingLocations = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+delete statWithMissingLocations.user.居住地区;
+
+delete statWithMissingLocations.user.所在地区;
+
+delete statWithMissingLocations.chars.marisa.居住地区;
+
+delete statWithMissingLocations.chars.marisa.所在地区;
 
 const coreTestPayload = {
   mk: "test-mk-001",
@@ -1108,29 +590,14 @@ const normalizerTestPayloads = {
   MissingLocations: createNormalizerTestPayload(statWithMissingLocations)
 };
 
-const baseStat = {
-  chars: {
-    角色A: {
-      好感度: 50,
-      其他属性: "不变"
-    },
-    角色B: {
-      好感度: 10
-    }
-  },
-  user: {
-    name: "测试员"
-  }
-};
+const stat_largeIncrease = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-const stat_largeIncrease = external_default().cloneDeep(baseStat);
-
-stat_largeIncrease.chars.角色A.好感度 = 150;
+stat_largeIncrease.chars.reimu.好感度 = 150;
 
 const log_largeIncrease = JSON.stringify([ {
   op: "update",
-  path: "chars.角色A.好感度",
-  value_old: 50,
+  path: "chars.reimu.好感度",
+  value_old: 60,
   value_new: 150
 } ]);
 
@@ -1150,14 +617,14 @@ const largeIncrease = {
   consecutiveProcessingCount: 1
 };
 
-const stat_largeDecrease = external_default().cloneDeep(baseStat);
+const stat_largeDecrease = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-stat_largeDecrease.chars.角色A.好感度 = -50;
+stat_largeDecrease.chars.reimu.好感度 = -50;
 
 const log_largeDecrease = JSON.stringify([ {
   op: "update",
-  path: "chars.角色A.好感度",
-  value_old: 50,
+  path: "chars.reimu.好感度",
+  value_old: 60,
   value_new: -50
 } ]);
 
@@ -1177,15 +644,15 @@ const largeDecrease = {
   consecutiveProcessingCount: 1
 };
 
-const stat_smallChange = external_default().cloneDeep(baseStat);
+const stat_smallChange = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-stat_smallChange.chars.角色A.好感度 = 52;
+stat_smallChange.chars.reimu.好感度 = 62;
 
 const log_smallChange = JSON.stringify([ {
   op: "update",
-  path: "chars.角色A.好感度",
-  value_old: 50,
-  value_new: 52
+  path: "chars.reimu.好感度",
+  value_old: 60,
+  value_new: 62
 } ]);
 
 const smallChange = {
@@ -1204,15 +671,16 @@ const smallChange = {
   consecutiveProcessingCount: 1
 };
 
-const stat_initialAssign = external_default().cloneDeep(baseStat);
+const stat_initialAssign = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-stat_initialAssign.chars["角色C"] = {
+stat_initialAssign.chars["charC"] = {
+  name: "角色C",
   好感度: 200
 };
 
 const log_initialAssign = JSON.stringify([ {
   op: "update",
-  path: "chars.角色C.好感度",
+  path: "chars.charC.好感度",
   value_old: undefined,
   value_new: 200
 } ]);
@@ -1233,17 +701,16 @@ const initialAssign = {
   consecutiveProcessingCount: 1
 };
 
-const stat_objectUpdate = external_default().cloneDeep(baseStat);
+const stat_objectUpdate = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-stat_objectUpdate.chars.角色B.好感度 = 110;
+stat_objectUpdate.chars.marisa.好感度 = 110;
 
 const log_objectUpdate = JSON.stringify([ {
   op: "update",
-  path: "chars.角色B",
-  value_old: {
-    好感度: 10
-  },
+  path: "chars.marisa",
+  value_old: stat_test_data_namespaceObject.chars.marisa,
   value_new: {
+    ...stat_test_data_namespaceObject.chars.marisa,
     好感度: 110
   }
 } ]);
@@ -1264,38 +731,40 @@ const objectUpdate = {
   consecutiveProcessingCount: 1
 };
 
-const stat_mixedOps = external_default().cloneDeep(baseStat);
+const stat_mixedOps = external_default().cloneDeep(stat_test_data_namespaceObject);
 
 stat_mixedOps.user.name = "新测试员";
 
-stat_mixedOps.chars.角色A.好感度 = 250;
+stat_mixedOps.chars.reimu.好感度 = 250;
 
-stat_mixedOps.chars.角色B.好感度 = -90;
+stat_mixedOps.chars.marisa.好感度 = -90;
 
-stat_mixedOps.chars["角色D"] = {
+stat_mixedOps.chars["charD"] = {
+  name: "角色D",
   好感度: 5
 };
 
 const log_mixedOps = JSON.stringify([ {
   op: "update",
   path: "user.name",
-  value_old: "测试员",
+  value_old: undefined,
   value_new: "新测试员"
 }, {
   op: "update",
-  path: "chars.角色A.好感度",
-  value_old: 50,
+  path: "chars.reimu.好感度",
+  value_old: 60,
   value_new: 250
 }, {
   op: "insert",
-  path: "chars.角色D",
+  path: "chars.charD",
   value_new: {
+    name: "角色D",
     好感度: 5
   }
 }, {
   op: "update",
-  path: "chars.角色B.好感度",
-  value_old: 10,
+  path: "chars.marisa.好感度",
+  value_old: 20,
   value_new: -90
 } ]);
 
@@ -1315,526 +784,65 @@ const mixedOps = {
   consecutiveProcessingCount: 1
 };
 
-const worldWithMapGraph = {
-  map_graph: {
-    tree: {
-      幻想乡及周边: {
-        幻想乡本土: {
-          东境丘陵带: [ "博丽神社", "永远亭", "迷途竹林", "神灵庙", "梦殿大祀庙" ],
-          中部平原带: [ "人间之里", "铃奈庵", "命莲寺", "墓地", "香霖堂" ],
-          魔法之森带: [ "魔法之森", "迷途之家", "雾雨魔法店" ],
-          西境水域带: [ "雾之湖", "红魔馆" ],
-          西北山地带: [ "妖怪之山", "守矢神社", "九天瀑布", "风神之湖", "玄武之泽", "虹龙洞", "秘天崖", "兽道", "大蛤蟆之池" ],
-          南境丘陵带: [ "无名之丘", "太阳花田", "辉针城" ]
-        },
-        冥界: [ "幽冥结界", "白玉楼" ],
-        地底·地狱系: [ "幻想风穴", "间歇泉", "旧都", "血之湖", "地灵殿", "灼热地狱遗址", "地狱", "畜生界（兽王园）" ],
-        彼岸·中阴界: [ "中有之道", "三途河", "彼岸", "柳之运河", "无缘冢" ],
-        天界等上层: [ "天界", "有顶天", "仙界", "梦境世界" ],
-        月面: [ "月都" ],
-        外界: [ "秘封俱乐部" ]
-      }
-    },
-    edges: [ {
-      a: "博丽神社",
-      b: "兽道",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "人间之里",
-      b: "兽道",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "人间之里",
-      b: "铃奈庵",
-      mode: [ "walk" ]
-    }, {
-      a: "雾之湖",
-      b: "博丽神社",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "雾之湖",
-      b: "红魔馆",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "雾之湖",
-      b: "妖怪之山",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "雾之湖",
-      b: "魔法之森",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "风神之湖",
-      b: "妖怪之山",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "妖怪之山",
-      b: "玄武之泽",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "守矢神社",
-      b: "大蛤蟆之池",
-      mode: [ "walk" ]
-    }, {
-      a: "玄武之泽",
-      b: "大蛤蟆之池",
-      mode: [ "walk" ]
-    }, {
-      a: "妖怪之山",
-      b: "大蛤蟆之池",
-      mode: [ "walk" ]
-    }, {
-      a: "风神之湖",
-      b: "守矢神社",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "秘天崖",
-      b: "九天瀑布",
-      mode: [ "walk" ]
-    }, {
-      a: "秘天崖",
-      b: "守矢神社",
-      mode: [ "walk" ]
-    }, {
-      a: "秘天崖",
-      b: "天界",
-      mode: [ "fly" ]
-    }, {
-      a: "虹龙洞",
-      b: "九天瀑布",
-      mode: [ "walk" ]
-    }, {
-      a: "魔法之森",
-      b: "人间之里",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "魔法之森",
-      b: "雾雨魔法店",
-      mode: [ "walk" ]
-    }, {
-      a: "雾雨魔法店",
-      b: "香霖堂",
-      mode: [ "walk" ]
-    }, {
-      a: "魔法之森",
-      b: "迷途之家",
-      mode: [ "walk" ]
-    }, {
-      a: "墓地",
-      b: "命莲寺",
-      mode: [ "walk" ]
-    }, {
-      a: "人间之里",
-      b: "香霖堂",
-      mode: [ "walk" ]
-    }, {
-      a: "人间之里",
-      b: "命莲寺",
-      mode: [ "walk" ]
-    }, {
-      a: "命莲寺",
-      b: "神灵庙",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "命莲寺",
-      b: "迷途竹林",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "神灵庙",
-      b: "梦殿大祀庙",
-      mode: [ "walk" ]
-    }, {
-      a: "迷途竹林",
-      b: "永远亭",
-      mode: [ "walk" ]
-    }, {
-      a: "迷途竹林",
-      b: "辉针城",
-      mode: [ "walk" ]
-    }, {
-      a: "太阳花田",
-      b: "无名之丘",
-      mode: [ "walk" ]
-    }, {
-      a: "太阳花田",
-      b: "幻想风穴",
-      mode: [ "walk" ]
-    }, {
-      a: "太阳花田",
-      b: "魔法之森",
-      mode: [ "walk" ]
-    }, {
-      a: "无名之丘",
-      b: "幻想风穴",
-      mode: [ "walk" ]
-    }, {
-      a: "幻想风穴",
-      b: "间歇泉",
-      mode: [ "walk" ]
-    }, {
-      a: "间歇泉",
-      b: "地灵殿",
-      mode: [ "walk" ]
-    }, {
-      a: "旧都",
-      b: "血之湖",
-      mode: [ "walk" ]
-    }, {
-      a: "血之湖",
-      b: "地灵殿",
-      mode: [ "walk" ]
-    }, {
-      a: "旧都",
-      b: "灼热地狱遗址",
-      mode: [ "walk" ]
-    }, {
-      a: "灼热地狱遗址",
-      b: "地狱",
-      mode: [ "walk" ]
-    }, {
-      a: "地狱",
-      b: "畜生界（兽王园）",
-      mode: [ "walk" ]
-    }, {
-      a: "无缘冢",
-      b: "柳之运河",
-      mode: [ "walk" ]
-    }, {
-      a: "墓地",
-      b: "中有之道",
-      mode: [ "walk" ]
-    }, {
-      a: "柳之运河",
-      b: "中有之道",
-      mode: [ "walk" ]
-    }, {
-      a: "中有之道",
-      b: "三途河",
-      mode: [ "walk" ]
-    }, {
-      a: "无缘冢",
-      b: "畜生界（兽王园）",
-      mode: [ "walk" ]
-    }, {
-      a: "彼岸",
-      b: "三途河",
-      mode: [ "walk" ]
-    }, {
-      a: "无缘冢",
-      b: "幽冥结界",
-      mode: [ "walk", "fly" ]
-    }, {
-      a: "幽冥结界",
-      b: "白玉楼",
-      mode: [ "walk" ]
-    }, {
-      a: "天界",
-      b: "有顶天",
-      mode: [ "fly" ]
-    }, {
-      a: "有顶天",
-      b: "仙界",
-      mode: [ "fly" ]
-    }, {
-      a: "仙界",
-      b: "梦境世界",
-      mode: [ "fly" ]
-    }, {
-      a: "梦境世界",
-      b: "月都",
-      mode: [ "fly" ]
-    }, {
-      a: "红魔馆",
-      b: "月都",
-      mode: [ "fly" ]
-    } ],
-    aliases: {
-      博丽神社: [ "博麗神社", "博丽", "博丽神社周边" ],
-      永远亭: [ "永遠亭" ],
-      迷途竹林: [ "迷途竹林" ],
-      神灵庙: [ "神靈廟" ],
-      梦殿大祀庙: [ "夢殿大祀廟" ],
-      人间之里: [ "人里", "人間之里" ],
-      铃奈庵: [ "鈴奈庵", "铃奈庵·稗田书店" ],
-      命莲寺: [ "命蓮寺" ],
-      墓地: [ "墓地" ],
-      香霖堂: [ "香霖", "古道具屋", "Kourindou" ],
-      魔法之森: [ "魔法森林", "魔之森", "魔法之林" ],
-      迷途之家: [ "爱丽丝的家", "娃娃之家" ],
-      雾雨魔法店: [ "雾雨店", "魔法店", "魔理沙的家" ],
-      雾之湖: [ "霧之湖" ],
-      红魔馆: [ "红馆", "紅魔館", "SDM" ],
-      妖怪之山: [ "妖山", "天狗之山", "河童之山" ],
-      守矢神社: [ "守矢" ],
-      九天瀑布: [ "九天之瀑" ],
-      风神之湖: [ "風神之湖", "风神湖" ],
-      玄武之泽: [ "玄武之澤", "玄武泽" ],
-      虹龙洞: [ "虹龍洞" ],
-      秘天崖: [ "秘天崖" ],
-      兽道: [ "獸道" ],
-      大蛤蟆之池: [ "大蟾蜍之池" ],
-      无名之丘: [ "无名丘" ],
-      太阳花田: [ "太陽花田", "向日葵田" ],
-      辉针城: [ "輝針城" ],
-      幽冥结界: [ "冥界结界", "幽冥結界" ],
-      白玉楼: [ "白玉樓", "白玉楼阁" ],
-      幻想风穴: [ "幻想風穴", "风穴" ],
-      间歇泉: [ "間歇泉", "温泉" ],
-      旧都: [ "舊都", "旧地狱区" ],
-      血之湖: [ "血之湖" ],
-      地灵殿: [ "地靈殿", "地灵殿宅邸" ],
-      灼热地狱遗址: [ "灼熱地獄遺址", "灼热地狱遗迹" ],
-      地狱: [ "地獄" ],
-      "畜生界（兽王园）": [ "畜生界（獸王園）" ],
-      中有之道: [ "中有道" ],
-      三途河: [ "三途之河" ],
-      彼岸: [ "彼岸界" ],
-      柳之运河: [ "柳之運河", "柳川" ],
-      无缘冢: [ "無緣冢", "无缘塚" ],
-      天界: [ "天" ],
-      有顶天: [ "有頂天", "有顶天界" ],
-      仙界: [ "仙境" ],
-      梦境世界: [ "夢境世界", "梦世界" ],
-      月都: [ "月球", "月之都", "月都" ],
-      秘封俱乐部: [ "秘封俱樂部" ]
-    }
-  }
-};
+const statUserAtKnownLocation = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-const statUserAtKnownLocation = {
+const statUserAtUnknownLocation = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
   user: {
-    name: "测试用户",
-    所在地区: "博丽神社"
-  },
-  world: worldWithMapGraph
-};
-
-const statUserAtUnknownLocation = {
-  user: {
-    name: "测试用户",
     所在地区: "外界"
-  },
-  world: worldWithMapGraph
-};
-
-const statUserLocationMissing = {
-  user: {
-    name: "测试用户"
-  },
-  world: worldWithMapGraph
-};
-
-const statWorldMissing = {
-  user: {
-    name: "测试用户",
-    所在地区: "博丽神社"
-  },
-  world: []
-};
-
-const statForRouteFromShrine = {
-  user: {
-    name: "测试用户",
-    所在地区: "博丽神社"
-  },
-  world: worldWithMapGraph
-};
-
-const statForRouteFromEientei = {
-  user: {
-    name: "测试用户",
-    所在地区: "永远亭"
-  },
-  world: worldWithMapGraph
-};
-
-const statForRouteFromIsolated = {
-  user: {
-    name: "测试用户",
-    所在地区: "秘封俱乐部"
-  },
-  world: worldWithMapGraph
-};
-
-const baseCharacterData = {
-  config: {
-    time: {
-      epochISO: "2025-10-24T08:00:00+09:00"
-    },
-    affection: {
-      affectionStages: [ {
-        threshold: 0,
-        name: "陌生",
-        patienceUnit: "period",
-        visit: {
-          enabled: true,
-          probBase: 1,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 50,
-        name: "熟悉",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: 1,
-          coolUnit: "day"
-        }
-      } ]
-    }
-  },
-  世界: {
-    timeProgress: 0,
-    festival: {
-      list: [ {
-        name: "夏日祭",
-        start: "2025-10-25T00:00:00+09:00",
-        end: "2025-10-25T23:59:59+09:00"
-      } ]
-    },
-    map_graph: {
-      tree: {
-        幻想乡本土: {
-          东境丘陵带: [ "博丽神社" ],
-          魔法之森带: [ "魔法之森" ],
-          西北山地带: [ "守矢神社" ]
-        }
-      },
-      edges: [ {
-        a: "博丽神社",
-        b: "魔法之森",
-        mode: [ "fly" ]
-      }, {
-        a: "博丽神社",
-        b: "守矢神社",
-        mode: [ "fly" ]
-      } ]
-    },
-    aliases: {
-      博丽神社: [ "博丽" ],
-      魔法之森: [ "魔法森林" ],
-      守矢神社: [ "守矢" ]
-    }
-  },
-  cache: {
-    time: {
-      clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
-    }
-  },
-  user: {
-    所在地区: "博丽神社"
-  },
-  chars: {
-    reimu: {
-      好感度: 60,
-      所在地区: "博丽神社",
-      routine: [ {
-        when: {
-          byFlag: [ "newDay" ]
-        },
-        action: {
-          to: "博丽神社",
-          do: "打扫神社"
-        }
-      } ]
-    },
-    marisa: {
-      好感度: 20,
-      所在地区: "魔法森林",
-      routine: [ {
-        when: {
-          byFlag: [ "newDay" ]
-        },
-        action: {
-          to: "魔法之森",
-          do: "进行魔法研究"
-        }
-      } ]
-    },
-    sanae: {
-      好感度: 10,
-      affectionStages: [ {
-        threshold: 0,
-        name: "陌生",
-        patienceUnit: "day",
-        visit: {
-          enabled: false
-        }
-      } ],
-      所在地区: "守矢神社",
-      specials: [ {
-        when: {
-          byFestival: "夏日祭"
-        },
-        priority: 10,
-        action: {
-          to: "博丽神社",
-          do: "参加祭典"
-        }
-      } ],
-      routine: [ {
-        when: {
-          byFlag: [ "newDay" ]
-        },
-        action: {
-          to: "守矢神社",
-          do: "进行风祝的修行"
-        }
-      } ]
-    }
   }
-};
+});
 
-const charTest_S1_R1_Standard = external_default().cloneDeep(baseCharacterData);
+const statUserLocationMissing = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: undefined
+  }
+});
 
-external_default().set(charTest_S1_R1_Standard, "cache.character-processor", {});
+const statWorldMissing = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  world: undefined
+});
 
-const charTest_S2_R2_StandardNextDay = external_default().cloneDeep(baseCharacterData);
+const statForRouteFromShrine = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+const statForRouteFromEientei = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: "永远亭"
+  }
+});
+
+const statForRouteFromIsolated = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: "秘封俱乐部"
+  }
+});
+
+const charTest_S1_R1_Standard = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+external_default().set(charTest_S1_R1_Standard, "cache.character", {});
+
+const charTest_S2_R2_StandardNextDay = external_default().cloneDeep(stat_test_data_namespaceObject);
 
 charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60;
 
 charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = "博丽神社";
 
-external_default().set(charTest_S2_R2_StandardNextDay, "cache.character-processor.marisa.visit.cooling", true);
+external_default().set(charTest_S2_R2_StandardNextDay, "cache.character.marisa.visit.cooling", true);
 
-charTest_S2_R2_StandardNextDay.cache.time = baseCharacterData.cache.time;
+charTest_S2_R2_StandardNextDay.cache.time = stat_test_data_namespaceObject.cache.time;
 
-const charTest_S3_VisitProbFail = external_default().cloneDeep(baseCharacterData);
+const charTest_S3_VisitProbFail = external_default().cloneDeep(stat_test_data_namespaceObject);
 
-external_default().set(charTest_S3_VisitProbFail, "cache.character-processor", {});
+external_default().set(charTest_S3_VisitProbFail, "cache.character", {});
 
-charTest_S3_VisitProbFail.config.affection.affectionStages = [ {
-  threshold: 0,
-  name: "陌生",
-  patienceUnit: "period",
-  visit: {
-    enabled: true,
-    probBase: 0,
-    coolUnit: "day"
-  }
-}, {
-  threshold: 50,
-  name: "熟悉",
-  patienceUnit: "day",
-  visit: {
-    enabled: true,
-    probBase: 1,
-    coolUnit: "day"
-  }
-} ];
+const marisaAffectionStage = charTest_S3_VisitProbFail.config.affection.affectionStages.find(stage => stage.name === "普通");
 
-const charTest_S4_AllIdle = external_default().cloneDeep(baseCharacterData);
+if (marisaAffectionStage) {
+  marisaAffectionStage.visit.probBase = 0;
+}
 
-external_default().set(charTest_S4_AllIdle, "cache.character-processor", {});
+const charTest_S4_AllIdle = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+external_default().set(charTest_S4_AllIdle, "cache.character", {});
 
 charTest_S4_AllIdle.chars.reimu.routine = [];
 
@@ -1844,11 +852,11 @@ charTest_S4_AllIdle.chars.sanae.specials = [];
 
 charTest_S4_AllIdle.chars.sanae.routine = [];
 
-const charTest_S5_NoUserLocation = external_default().omit(external_default().cloneDeep(baseCharacterData), "user");
+const charTest_S5_NoUserLocation = external_default().omit(external_default().cloneDeep(stat_test_data_namespaceObject), "user");
 
-external_default().set(charTest_S5_NoUserLocation, "cache.character-processor", {});
+external_default().set(charTest_S5_NoUserLocation, "cache.character", {});
 
-const charTest_S6_CompanionPriority = external_default().cloneDeep(baseCharacterData);
+const charTest_S6_CompanionPriority = external_default().cloneDeep(stat_test_data_namespaceObject);
 
 charTest_S6_CompanionPriority.世界.timeProgress = 120;
 
@@ -1866,166 +874,15 @@ charTest_S6_CompanionPriority.chars.reimu.所在地区 = "博丽神社";
 
 charTest_S6_CompanionPriority.user.所在地区 = "博丽神社";
 
-external_default().set(charTest_S6_CompanionPriority, "cache.character-processor", {});
+external_default().set(charTest_S6_CompanionPriority, "cache.character", {});
 
-charTest_S6_CompanionPriority.cache.time = baseCharacterData.cache.time;
+charTest_S6_CompanionPriority.cache.time = stat_test_data_namespaceObject.cache.time;
 
-const charTest_S7_AffectionLevel_Standard = {
-  config: {
-    affection: {
-      affectionStages: [ {
-        threshold: -99999,
-        name: "死敌",
-        patienceUnit: "day",
-        visit: {
-          enabled: false,
-          probBase: 0,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: -100,
-        name: "憎恨",
-        patienceUnit: "day",
-        visit: {
-          enabled: false,
-          probBase: 0,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: -20,
-        name: "厌恶",
-        patienceUnit: "day",
-        visit: {
-          enabled: false,
-          probBase: 0,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 0,
-        name: "陌生",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .1,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 10,
-        name: "普通",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .2,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 20,
-        name: "熟悉",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .3,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 40,
-        name: "亲近",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .5,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 70,
-        name: "亲密",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .7,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 100,
-        name: "思慕",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: .9,
-          coolUnit: "day"
-        }
-      }, {
-        threshold: 99999,
-        name: "不渝",
-        patienceUnit: "day",
-        visit: {
-          enabled: true,
-          probBase: 1,
-          coolUnit: "day"
-        }
-      } ]
-    }
-  },
-  user: {
-    所在地区: "博丽神社"
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: "博丽神社",
-      居住地区: "博丽神社"
-    },
-    雾雨魔理沙: {
-      好感度: 75,
-      所在地区: "魔法之森",
-      居住地区: "魔法之森"
-    },
-    十六夜咲夜: {
-      好感度: -50,
-      所在地区: "红魔馆",
-      居住地区: "红魔馆"
-    },
-    无好感度角色: {}
-  }
-};
-
-const charTest_S8_AffectionLevel_MissingConfig = {
-  user: {
-    所在地区: "博丽神社"
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: "博丽神社"
-    }
-  }
-};
-
-const charTest_S9_AffectionLevel_EmptyStages = {
-  config: {
-    affection: {
-      affectionStages: []
-    }
-  },
-  user: {
-    所在地区: "博丽神社"
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: "博丽神社"
-    }
-  }
-};
-
-const baseFestivalStat = {
+const festivalSpecificData = {
   config: {
     time: {
       epochISO: "2025-01-01T00:00:00+09:00"
     }
-  },
-  世界: {
-    timeProgress: 0
   },
   festivals_list: [ {
     month: 1,
@@ -2057,8 +914,10 @@ const baseFestivalStat = {
   } ]
 };
 
+const baseFestivalStat = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), festivalSpecificData);
+
 const getProgress = (targetMonth, targetDay) => {
-  const epoch = new Date("2025-01-01T00:00:00+09:00");
+  const epoch = new Date(baseFestivalStat.config.time.epochISO);
   const target = new Date(epoch);
   target.setMonth(targetMonth - 1, targetDay);
   const diffMs = target.getTime() - epoch.getTime();
@@ -2097,7 +956,7 @@ festivalTest_EmptyList.世界.timeProgress = getProgress(1, 1);
 
 const incidentTestData = {
   "前置-设置冷却锚点": {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           cooldownMinutes: 100
@@ -2106,11 +965,14 @@ const incidentTestData = {
       世界: {
         timeProgress: 10
       },
-      incidents: {}
-    }
+      incidents: {},
+      cache: {
+        incident: undefined
+      }
+    })
   },
   "日常(基于前置)": {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           cooldownMinutes: 100
@@ -2125,10 +987,10 @@ const incidentTestData = {
           incidentCooldownAnchor: 10
         }
       }
-    }
+    })
   },
   "触发新异变(冷却结束)": {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           cooldownMinutes: 100,
@@ -2149,10 +1011,10 @@ const incidentTestData = {
           incidentCooldownAnchor: 10
         }
       }
-    }
+    })
   },
   "触发新异变(强制)": {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           cooldownMinutes: 9999,
@@ -2169,10 +1031,10 @@ const incidentTestData = {
         timeProgress: 1
       },
       incidents: {}
-    }
+    })
   },
   推进现有异变: {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           pool: [ {
@@ -2193,10 +1055,10 @@ const incidentTestData = {
           异变退治者: [ "博丽灵梦", "雾雨魔理沙" ]
         }
       }
-    }
+    })
   },
   "触发随机异变(池为空)": {
-    stat: {
+    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
       config: {
         incident: {
           cooldownMinutes: 10,
@@ -2212,7 +1074,7 @@ const incidentTestData = {
           incidentCooldownAnchor: 1
         }
       }
-    }
+    })
   }
 };
 

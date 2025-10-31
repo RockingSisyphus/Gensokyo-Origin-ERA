@@ -13,7 +13,7 @@ import { processTime } from './core/time-processor';
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
-import { StatSchema, Stat } from './schema';
+import { Stat, StatSchema } from './schema';
 import { Runtime } from './schema/runtime';
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
@@ -49,8 +49,19 @@ $(() => {
 
   // 定义核心数据处理函数
   const handleWriteDone = async (payload: WriteDonePayload) => {
-    const { statWithoutMeta, mk, editLogs, message_id } = payload;
+    const { statWithoutMeta, mk, editLogs } = payload;
     logger.log('handleWriteDone', '接收到原始 stat 数据', statWithoutMeta);
+
+    // 使用酒馆助手 API 获取最新的消息
+    const latestMessages = getChatMessages(-1);
+    if (!latestMessages || latestMessages.length === 0) {
+      logger.error('handleWriteDone', '无法获取到最新的聊天消息，中止执行。');
+      return;
+    }
+    // 使用最新的消息 ID
+    const latestMessage = latestMessages[0];
+    const message_id = latestMessage.message_id;
+    logger.log('handleWriteDone', `使用最新的消息 ID: ${message_id}`);
 
     // 使用 Zod 解析和验证 stat
     const parseResult = StatSchema.safeParse(statWithoutMeta);
@@ -206,7 +217,10 @@ $(() => {
   onWriteDone(
     (detail: WriteDonePayload) => {
       logger.log('main', '接收到 era:writeDone 事件');
-      handleWriteDone(detail);
+      // 确保 handleWriteDone 中的任何未捕获的 Promise 拒绝都会被记录
+      handleWriteDone(detail).catch(error => {
+        logger.error('onWriteDone', 'handleWriteDone 发生未处理的 Promise 拒绝:', error);
+      });
     },
     { ignoreApiWrite: true },
   );
@@ -214,7 +228,10 @@ $(() => {
   // 监听来自 dev ael 的伪造数据写入事件，用于测试
   eventOn('dev:fakeWriteDone', (detail: WriteDonePayload) => {
     logger.log('main', '接收到伪造的 dev:fakeWriteDone 事件');
-    handleWriteDone(detail);
+    // 确保 handleWriteDone 中的任何未捕获的 Promise 拒绝都会被记录
+    handleWriteDone(detail).catch(error => {
+      logger.error('dev:fakeWriteDone', 'handleWriteDone 发生未处理的 Promise 拒绝:', error);
+    });
   });
 
   // 脚本卸载时的清理工作

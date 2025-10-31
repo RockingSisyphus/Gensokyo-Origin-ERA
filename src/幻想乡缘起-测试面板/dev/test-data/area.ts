@@ -1,217 +1,46 @@
 /**
  * @file 用于测试 Area Processor 的数据
  */
-
-// 测试用的世界书条目，包含一个 map_graph
-const worldWithMapGraph = {
-  map_graph: {
-    tree: {
-      幻想乡及周边: {
-        幻想乡本土: {
-          东境丘陵带: ['博丽神社', '永远亭', '迷途竹林', '神灵庙', '梦殿大祀庙'],
-          中部平原带: ['人间之里', '铃奈庵', '命莲寺', '墓地', '香霖堂'],
-          魔法之森带: ['魔法之森', '迷途之家', '雾雨魔法店'],
-          西境水域带: ['雾之湖', '红魔馆'],
-          西北山地带: [
-            '妖怪之山',
-            '守矢神社',
-            '九天瀑布',
-            '风神之湖',
-            '玄武之泽',
-            '虹龙洞',
-            '秘天崖',
-            '兽道',
-            '大蛤蟆之池',
-          ],
-          南境丘陵带: ['无名之丘', '太阳花田', '辉针城'],
-        },
-        冥界: ['幽冥结界', '白玉楼'],
-        '地底·地狱系': ['幻想风穴', '间歇泉', '旧都', '血之湖', '地灵殿', '灼热地狱遗址', '地狱', '畜生界（兽王园）'],
-        '彼岸·中阴界': ['中有之道', '三途河', '彼岸', '柳之运河', '无缘冢'],
-        天界等上层: ['天界', '有顶天', '仙界', '梦境世界'],
-        月面: ['月都'],
-        外界: ['秘封俱乐部'],
-      },
-    },
-    edges: [
-      { a: '博丽神社', b: '兽道', mode: ['walk', 'fly'] },
-      { a: '人间之里', b: '兽道', mode: ['walk', 'fly'] },
-      { a: '人间之里', b: '铃奈庵', mode: ['walk'] },
-
-      { a: '雾之湖', b: '博丽神社', mode: ['walk', 'fly'] },
-      { a: '雾之湖', b: '红魔馆', mode: ['walk', 'fly'] },
-      { a: '雾之湖', b: '妖怪之山', mode: ['walk', 'fly'] },
-      { a: '雾之湖', b: '魔法之森', mode: ['walk', 'fly'] },
-
-      { a: '风神之湖', b: '妖怪之山', mode: ['walk', 'fly'] },
-      { a: '妖怪之山', b: '玄武之泽', mode: ['walk', 'fly'] },
-
-      { a: '守矢神社', b: '大蛤蟆之池', mode: ['walk'] },
-      { a: '玄武之泽', b: '大蛤蟆之池', mode: ['walk'] },
-      { a: '妖怪之山', b: '大蛤蟆之池', mode: ['walk'] },
-      { a: '风神之湖', b: '守矢神社', mode: ['walk', 'fly'] },
-      { a: '秘天崖', b: '九天瀑布', mode: ['walk'] },
-      { a: '秘天崖', b: '守矢神社', mode: ['walk'] },
-      { a: '秘天崖', b: '天界', mode: ['fly'] },
-      { a: '虹龙洞', b: '九天瀑布', mode: ['walk'] },
-
-      { a: '魔法之森', b: '人间之里', mode: ['walk', 'fly'] },
-      { a: '魔法之森', b: '雾雨魔法店', mode: ['walk'] },
-      { a: '雾雨魔法店', b: '香霖堂', mode: ['walk'] },
-      { a: '魔法之森', b: '迷途之家', mode: ['walk'] },
-      { a: '墓地', b: '命莲寺', mode: ['walk'] },
-      { a: '人间之里', b: '香霖堂', mode: ['walk'] },
-      { a: '人间之里', b: '命莲寺', mode: ['walk'] },
-
-      { a: '命莲寺', b: '神灵庙', mode: ['walk', 'fly'] },
-      { a: '命莲寺', b: '迷途竹林', mode: ['walk', 'fly'] },
-      { a: '神灵庙', b: '梦殿大祀庙', mode: ['walk'] },
-
-      { a: '迷途竹林', b: '永远亭', mode: ['walk'] },
-      { a: '迷途竹林', b: '辉针城', mode: ['walk'] },
-
-      { a: '太阳花田', b: '无名之丘', mode: ['walk'] },
-      { a: '太阳花田', b: '幻想风穴', mode: ['walk'] },
-      { a: '太阳花田', b: '魔法之森', mode: ['walk'] },
-      { a: '无名之丘', b: '幻想风穴', mode: ['walk'] },
-
-      { a: '幻想风穴', b: '间歇泉', mode: ['walk'] },
-      { a: '间歇泉', b: '地灵殿', mode: ['walk'] },
-      { a: '旧都', b: '血之湖', mode: ['walk'] },
-      { a: '血之湖', b: '地灵殿', mode: ['walk'] },
-      { a: '旧都', b: '灼热地狱遗址', mode: ['walk'] },
-      { a: '灼热地狱遗址', b: '地狱', mode: ['walk'] },
-      { a: '地狱', b: '畜生界（兽王园）', mode: ['walk'] },
-
-      { a: '无缘冢', b: '柳之运河', mode: ['walk'] },
-      { a: '墓地', b: '中有之道', mode: ['walk'] },
-      { a: '柳之运河', b: '中有之道', mode: ['walk'] },
-      { a: '中有之道', b: '三途河', mode: ['walk'] },
-      { a: '无缘冢', b: '畜生界（兽王园）', mode: ['walk'] },
-      { a: '彼岸', b: '三途河', mode: ['walk'] },
-
-      { a: '无缘冢', b: '幽冥结界', mode: ['walk', 'fly'] },
-      { a: '幽冥结界', b: '白玉楼', mode: ['walk'] },
-
-      { a: '天界', b: '有顶天', mode: ['fly'] },
-      { a: '有顶天', b: '仙界', mode: ['fly'] },
-      { a: '仙界', b: '梦境世界', mode: ['fly'] },
-      { a: '梦境世界', b: '月都', mode: ['fly'] },
-      { a: '红魔馆', b: '月都', mode: ['fly'] },
-    ],
-    aliases: {
-      博丽神社: ['博麗神社', '博丽', '博丽神社周边'],
-      永远亭: ['永遠亭'],
-      迷途竹林: ['迷途竹林'],
-      神灵庙: ['神靈廟'],
-      梦殿大祀庙: ['夢殿大祀廟'],
-      人间之里: ['人里', '人間之里'],
-      铃奈庵: ['鈴奈庵', '铃奈庵·稗田书店'],
-      命莲寺: ['命蓮寺'],
-      墓地: ['墓地'],
-      香霖堂: ['香霖', '古道具屋', 'Kourindou'],
-      魔法之森: ['魔法森林', '魔之森', '魔法之林'],
-      迷途之家: ['爱丽丝的家', '娃娃之家'],
-      雾雨魔法店: ['雾雨店', '魔法店', '魔理沙的家'],
-      雾之湖: ['霧之湖'],
-      红魔馆: ['红馆', '紅魔館', 'SDM'],
-      妖怪之山: ['妖山', '天狗之山', '河童之山'],
-      守矢神社: ['守矢'],
-      九天瀑布: ['九天之瀑'],
-      风神之湖: ['風神之湖', '风神湖'],
-      玄武之泽: ['玄武之澤', '玄武泽'],
-      虹龙洞: ['虹龍洞'],
-      秘天崖: ['秘天崖'],
-      兽道: ['獸道'],
-      大蛤蟆之池: ['大蟾蜍之池'],
-      无名之丘: ['无名丘'],
-      太阳花田: ['太陽花田', '向日葵田'],
-      辉针城: ['輝針城'],
-      幽冥结界: ['冥界结界', '幽冥結界'],
-      白玉楼: ['白玉樓', '白玉楼阁'],
-      幻想风穴: ['幻想風穴', '风穴'],
-      间歇泉: ['間歇泉', '温泉'],
-      旧都: ['舊都', '旧地狱区'],
-      血之湖: ['血之湖'],
-      地灵殿: ['地靈殿', '地灵殿宅邸'],
-      灼热地狱遗址: ['灼熱地獄遺址', '灼热地狱遗迹'],
-      地狱: ['地獄'],
-      '畜生界（兽王园）': ['畜生界（獸王園）'],
-      中有之道: ['中有道'],
-      三途河: ['三途之河'],
-      彼岸: ['彼岸界'],
-      柳之运河: ['柳之運河', '柳川'],
-      无缘冢: ['無緣冢', '无缘塚'],
-      天界: ['天'],
-      有顶天: ['有頂天', '有顶天界'],
-      仙界: ['仙境'],
-      梦境世界: ['夢境世界', '梦世界'],
-      月都: ['月球', '月之都', '月都'],
-      秘封俱乐部: ['秘封俱樂部'],
-    },
-  },
-};
+import _ from 'lodash';
+import baseTestData from '../stat-test-data.json';
 
 // 测试场景 1: 用户位于一个已知的地区（博丽神社）
-export const statUserAtKnownLocation = {
-  user: {
-    name: '测试用户',
-    所在地区: '博丽神社',
-  },
-  world: worldWithMapGraph,
-};
+export const statUserAtKnownLocation = _.cloneDeep(baseTestData);
 
 // 测试场景 2: 用户位于一个未知的地区
-export const statUserAtUnknownLocation = {
+export const statUserAtUnknownLocation = _.merge(_.cloneDeep(baseTestData), {
   user: {
-    name: '测试用户',
     所在地区: '外界',
   },
-  world: worldWithMapGraph,
-};
+});
 
 // 测试场景 3: stat 中没有用户位置信息
-export const statUserLocationMissing = {
+export const statUserLocationMissing = _.merge(_.cloneDeep(baseTestData), {
   user: {
-    name: '测试用户',
+    所在地区: undefined,
   },
-  world: worldWithMapGraph,
-};
+});
 
 // 测试场景 4: stat 中没有世界书信息
-export const statWorldMissing = {
-  user: {
-    name: '测试用户',
-    所在地区: '博丽神社',
-  },
-  world: [],
-};
+export const statWorldMissing = _.merge(_.cloneDeep(baseTestData), {
+  world: undefined,
+});
 
 // === 路线计算测试场景 ===
 
 // 场景 5: 从博丽神社出发，应能看到到人间之里和魔法之森的路线
-export const statForRouteFromShrine = {
-  user: {
-    name: '测试用户',
-    所在地区: '博丽神社',
-  },
-  world: worldWithMapGraph,
-};
+export const statForRouteFromShrine = _.cloneDeep(baseTestData);
 
 // 场景 6: 从永远亭出发，应能看到到迷途竹林的路线
-export const statForRouteFromEientei = {
+export const statForRouteFromEientei = _.merge(_.cloneDeep(baseTestData), {
   user: {
-    name: '测试用户',
     所在地区: '永远亭',
   },
-  world: worldWithMapGraph,
-};
+});
 
 // 场景 7: 从一个没有边的孤立点出发（如天界），不应有任何路线
-export const statForRouteFromIsolated = {
+export const statForRouteFromIsolated = _.merge(_.cloneDeep(baseTestData), {
   user: {
-    name: '测试用户',
     所在地区: '秘封俱乐部',
   },
-  world: worldWithMapGraph,
-};
+});

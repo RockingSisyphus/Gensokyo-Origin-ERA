@@ -3,17 +3,15 @@
  */
 
 import _ from 'lodash';
+import baseTestData from '../stat-test-data.json';
 
 // --- 基础数据 ---
-// 定义一个仅包含节日测试所需的最少字段的 stat 对象，不再依赖 ui.ts
-const baseFestivalStat = {
+// 使用一个特定的节日列表和纪元时间来进行测试
+const festivalSpecificData = {
   config: {
     time: {
       epochISO: '2025-01-01T00:00:00+09:00',
     },
-  },
-  世界: {
-    timeProgress: 0,
   },
   festivals_list: [
     {
@@ -48,11 +46,12 @@ const baseFestivalStat = {
     },
   ],
 };
+const baseFestivalStat = _.merge(_.cloneDeep(baseTestData), festivalSpecificData);
 
 // --- 工具函数 ---
-// 计算从基准日(1月1日)到目标日期的分钟数
+// 计算从基准日到目标日期的分钟数
 const getProgress = (targetMonth: number, targetDay: number): number => {
-  const epoch = new Date('2025-01-01T00:00:00+09:00');
+  const epoch = new Date(baseFestivalStat.config.time.epochISO);
   const target = new Date(epoch);
   // 注意：Date.setMonth 的月份参数是从0开始的
   target.setMonth(targetMonth - 1, targetDay);

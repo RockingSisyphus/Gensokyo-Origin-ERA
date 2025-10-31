@@ -3237,8 +3237,16 @@ function logState(moduleName, modified, {stat, runtime, cache}) {
 $(() => {
   _logger.log("main", "后台数据处理脚本加载");
   const handleWriteDone = async payload => {
-    const {statWithoutMeta, mk, editLogs, message_id} = payload;
+    const {statWithoutMeta, mk, editLogs} = payload;
     _logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
+    const latestMessages = getChatMessages(-1);
+    if (!latestMessages || latestMessages.length === 0) {
+      _logger.error("handleWriteDone", "无法获取到最新的聊天消息，中止执行。");
+      return;
+    }
+    const latestMessage = latestMessages[0];
+    const message_id = latestMessage.message_id;
+    _logger.log("handleWriteDone", `使用最新的消息 ID: ${message_id}`);
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
       _logger.error("handleWriteDone", "Stat 数据结构验证失败。以下是详细错误:");
@@ -3378,13 +3386,17 @@ $(() => {
   };
   onWriteDone(detail => {
     _logger.log("main", "接收到 era:writeDone 事件");
-    handleWriteDone(detail);
+    handleWriteDone(detail).catch(error => {
+      _logger.error("onWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
+    });
   }, {
     ignoreApiWrite: true
   });
   eventOn("dev:fakeWriteDone", detail => {
     _logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");
-    handleWriteDone(detail);
+    handleWriteDone(detail).catch(error => {
+      _logger.error("dev:fakeWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
+    });
   });
   $(window).on("pagehide.main", () => {
     _logger.log("main", "后台数据处理脚本卸载");

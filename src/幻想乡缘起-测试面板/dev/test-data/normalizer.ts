@@ -1,99 +1,44 @@
 /**
  * @file 用于测试 Normalizer 模块的数据
  */
+import _ from 'lodash';
+import baseTestData from '../stat-test-data.json';
 
 // 测试场景 1: 用户和角色的地区名称包含别名或非法名称
-export const statWithIllegalLocations = {
+export const statWithIllegalLocations = _.merge(_.cloneDeep(baseTestData), {
   user: {
-    name: '测试用户',
     // 使用别名
     居住地区: '人里',
     // 使用非法地区
     所在地区: '火星',
   },
   chars: {
-    // 角色1：使用标准名称
-    灵梦: {
-      name: '博丽灵梦',
-      居住地区: '博丽神社',
-      所在地区: '博丽神社',
-    },
-    // 角色2：使用别名
-    魔理沙: {
-      name: '雾雨魔理沙',
+    // marisa: 使用别名
+    marisa: {
       居住地区: '雾雨店', // 别名
       所在地区: '魔法森林', // 别名
     },
-    // 角色3：居住地区非法，所在地区为空
-    早苗: {
-      name: '东风谷早苗',
+    // sanae: 居住地区非法，所在地区为空
+    sanae: {
       居住地区: '幻想乡', // 非法地区
       所在地区: '', // 空地区
     },
-    // 角色4: 两个地区都非法
-    芙兰朵露: {
+    // 新增一个角色，两个地区都非法
+    flandre: {
       name: '芙兰朵露·斯卡雷特',
       居住地区: '红魔馆地下室',
       所在地区: '玩耍中',
     },
   },
-  world: {
-    // 定义一个明确的回退地点
-    fallbackPlace: '博丽神社',
-    // 包含一个完整的 map_graph 以确保测试独立
-    map_graph: {
-      tree: {
-        幻想乡及周边: {
-          幻想乡本土: {
-            东境丘陵带: ['博丽神社', '永远亭', '迷途竹林', '神灵庙', '梦殿大祀庙'],
-            中部平原带: ['人间之里', '铃奈庵', '命莲寺', '墓地', '香霖堂'],
-            魔法之森带: ['魔法之森', '迷途之家', '雾雨魔法店'],
-            西境水域带: ['雾之湖', '红魔馆'],
-          },
-        },
-      },
-      aliases: {
-        博丽神社: ['博麗神社', '博丽'],
-        人间之里: ['人里', '人間之里'],
-        雾雨魔法店: ['雾雨店', '魔法店'],
-        魔法之森: ['魔法森林'],
-        红魔馆: ['红馆'],
-      },
-    },
-  },
-};
+});
 
 // 测试场景 2: 用户和部分角色的地区信息完全缺失
-export const statWithMissingLocations = {
-  user: {
-    name: '测试用户',
-    // 居住地区和所在地区都缺失
-  },
-  chars: {
-    // 角色1：信息完整
-    灵梦: {
-      name: '博丽灵梦',
-      居住地区: '博丽神社',
-      所在地区: '博丽神社',
-    },
-    // 角色2：信息缺失
-    魔理沙: {
-      name: '雾雨魔理沙',
-    },
-  },
-  world: {
-    fallbackPlace: '人间之里',
-    map_graph: {
-      tree: {
-        幻想乡本土: {
-          东境丘陵带: ['博丽神社'],
-          中部平原带: ['人间之里'],
-        },
-      },
-      aliases: {
-        博丽神社: ['博丽'],
-        人间之里: ['人里'],
-      },
-    },
-  },
-};
+export const statWithMissingLocations = _.cloneDeep(baseTestData);
+// @ts-expect-error: for testing purpose
+delete statWithMissingLocations.user.居住地区;
+// @ts-expect-error: for testing purpose
+delete statWithMissingLocations.user.所在地区;
+// @ts-expect-error: for testing purpose
+delete statWithMissingLocations.chars.marisa.居住地区;
+// @ts-expect-error: for testing purpose
+delete statWithMissingLocations.chars.marisa.所在地区;

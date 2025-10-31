@@ -1,131 +1,50 @@
 import _ from 'lodash';
+import baseTestData from '../stat-test-data.json';
 
 // ==================================================================
 // 角色决策模块 (`character-processor`) 测试数据
 // ==================================================================
 
-const baseCharacterData = {
-  // 移植自 time.ts
-  config: {
-    time: {
-      epochISO: '2025-10-24T08:00:00+09:00', // JST, 2025-10-24 上午
-    },
-    affection: {
-      affectionStages: [
-        {
-          threshold: 0,
-          name: '陌生',
-          patienceUnit: 'period',
-          visit: { enabled: true, probBase: 1.0, coolUnit: 'day' },
-        },
-        { threshold: 50, name: '熟悉', patienceUnit: 'day', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
-      ],
-    },
-  },
-  // 移植自 time.ts 和 area.ts
-  世界: {
-    timeProgress: 0,
-    festival: {
-      list: [{ name: '夏日祭', start: '2025-10-25T00:00:00+09:00', end: '2025-10-25T23:59:59+09:00' }],
-    },
-    // 移植自 area.ts 的 worldWithMapGraph
-    map_graph: {
-      tree: { 幻想乡本土: { 东境丘陵带: ['博丽神社'], 魔法之森带: ['魔法之森'], 西北山地带: ['守矢神社'] } },
-      edges: [
-        { a: '博丽神社', b: '魔法之森', mode: ['fly'] },
-        { a: '博丽神社', b: '守矢神社', mode: ['fly'] },
-      ],
-    },
-    aliases: {
-      博丽神社: ['博丽'],
-      魔法之森: ['魔法森林'],
-      守矢神社: ['守矢'],
-    },
-  },
-  // 移植自 time.ts
-  cache: {
-    time: {
-      // 上一刻是 2025-10-26 (周日)
-      clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
-        seasonID: 20252,
-        seasonIdx: 2,
-      },
-    },
-  },
-  user: {
-    所在地区: '博丽神社',
-  },
-  chars: {
-    reimu: {
-      好感度: 60, // 熟悉, patienceUnit: 'day'
-      所在地区: '博丽神社',
-      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '博丽神社', do: '打扫神社' } }],
-    },
-    marisa: {
-      好感度: 20, // 陌生, patienceUnit: 'period'
-      所在地区: '魔法森林',
-      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '魔法之森', do: '进行魔法研究' } }],
-    },
-    sanae: {
-      好感度: 10, // 陌生
-      affectionStages: [{ threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: false } }],
-      所在地区: '守矢神社',
-      specials: [
-        {
-          when: { byFestival: '夏日祭' },
-          priority: 10,
-          action: { to: '博丽神社', do: '参加祭典' },
-        },
-      ],
-      routine: [{ when: { byFlag: ['newDay'] }, action: { to: '守矢神社', do: '进行风祝的修行' } }],
-    },
-  },
-};
-
 // ==================================================================
 // 场景 1: 标准流程 - 第一天
 // ==================================================================
 // 预期: reimu(相伴), marisa(来访), sanae(routine)
-export const charTest_S1_R1_Standard = _.cloneDeep(baseCharacterData);
+export const charTest_S1_R1_Standard = _.cloneDeep(baseTestData);
 // 初始时，时间 flag 应该被正确计算，但角色相关的 cache 是空的
-_.set(charTest_S1_R1_Standard, 'cache.character-processor', {});
+_.set(charTest_S1_R1_Standard, 'cache.character', {});
 
 // ==================================================================
 // 场景 2: 标准流程 - 第二天 (承接场景1)
 // ==================================================================
 // 预期: reimu(routine,耐心耗尽), marisa(routine,冷却中), sanae(special,祭典)
-export const charTest_S2_R2_StandardNextDay = _.cloneDeep(baseCharacterData);
+export const charTest_S2_R2_StandardNextDay = _.cloneDeep(baseTestData);
 charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60; // 推进一天
 charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = '博丽神社'; // marisa 已到达
 // 模拟 marisa 在前一天来访后进入冷却状态
-_.set(charTest_S2_R2_StandardNextDay, 'cache.character-processor.marisa.visit.cooling', true);
+_.set(charTest_S2_R2_StandardNextDay, 'cache.character.marisa.visit.cooling', true);
 // 确保 clockAck 保持不变，这样 time-processor 才能检测到时间变化
-charTest_S2_R2_StandardNextDay.cache.time = baseCharacterData.cache.time;
+charTest_S2_R2_StandardNextDay.cache.time = baseTestData.cache.time;
 
 // ==================================================================
 // 场景 3: 边缘情况 - 来访概率失败
 // ==================================================================
 // 预期: marisa 因概率检定失败而不会来访，转而执行 routine
-export const charTest_S3_VisitProbFail = _.cloneDeep(baseCharacterData);
-_.set(charTest_S3_VisitProbFail, 'cache.character-processor', {});
+export const charTest_S3_VisitProbFail = _.cloneDeep(baseTestData);
+_.set(charTest_S3_VisitProbFail, 'cache.character', {});
 // 修改 marisa 的好感度配置，使来访概率为 0
-charTest_S3_VisitProbFail.config.affection.affectionStages = [
-  { threshold: 0, name: '陌生', patienceUnit: 'period', visit: { enabled: true, probBase: 0.0, coolUnit: 'day' } },
-  { threshold: 50, name: '熟悉', patienceUnit: 'day', visit: { enabled: true, probBase: 1.0, coolUnit: 'day' } },
-];
+const marisaAffectionStage = charTest_S3_VisitProbFail.config.affection.affectionStages.find(
+  (stage) => stage.name === '普通',
+);
+if (marisaAffectionStage) {
+  marisaAffectionStage.visit.probBase = 0.0;
+}
 
 // ==================================================================
 // 场景 4: 边缘情况 - 全员待机
 // ==================================================================
 // 预期: 所有角色都因不满足任何行动条件而待机
-export const charTest_S4_AllIdle = _.cloneDeep(baseCharacterData);
-_.set(charTest_S4_AllIdle, 'cache.character-processor', {});
+export const charTest_S4_AllIdle = _.cloneDeep(baseTestData);
+_.set(charTest_S4_AllIdle, 'cache.character', {});
 // 通过将 routine 和 specials 设为空数组来确保没有行动会被触发
 charTest_S4_AllIdle.chars.reimu.routine = [];
 charTest_S4_AllIdle.chars.marisa.routine = [];
@@ -136,14 +55,14 @@ charTest_S4_AllIdle.chars.sanae.routine = [];
 // 场景 5: 边缘情况 - 主角位置缺失
 // ==================================================================
 // 预期: 所有角色被视为 remote, reimu 不会相伴，而是执行 routine
-export const charTest_S5_NoUserLocation = _.omit(_.cloneDeep(baseCharacterData), 'user');
-_.set(charTest_S5_NoUserLocation, 'cache.character-processor', {});
+export const charTest_S5_NoUserLocation = _.omit(_.cloneDeep(baseTestData), 'user');
+_.set(charTest_S5_NoUserLocation, 'cache.character', {});
 
 // ==================================================================
 // 场景 6: 优先级测试 - 相伴 vs 其他决策
 // ==================================================================
 // 预期: reimu 同时满足“相伴”和“routine”条件时，应优先执行“相伴”。
-export const charTest_S6_CompanionPriority = _.cloneDeep(baseCharacterData);
+export const charTest_S6_CompanionPriority = _.cloneDeep(baseTestData);
 // 推进2小时，确保 newPeriod 为 true
 charTest_S6_CompanionPriority.世界.timeProgress = 120;
 // 修改 reimu 的 routine，使其在任何时段变化时都触发
@@ -154,94 +73,6 @@ charTest_S6_CompanionPriority.chars.reimu.routine = [
 charTest_S6_CompanionPriority.chars.reimu.所在地区 = '博丽神社';
 charTest_S6_CompanionPriority.user.所在地区 = '博丽神社';
 // 重置 cache
-_.set(charTest_S6_CompanionPriority, 'cache.character-processor', {});
+_.set(charTest_S6_CompanionPriority, 'cache.character', {});
 // 确保 clockAck 保持不变，这样 time-processor 才能检测到时间变化
-charTest_S6_CompanionPriority.cache.time = baseCharacterData.cache.time;
-
-// ==================================================================
-// 场景 7: 好感度等级 - 标准
-// ==================================================================
-export const charTest_S7_AffectionLevel_Standard = {
-  config: {
-    affection: {
-      affectionStages: [
-        {
-          threshold: -99999,
-          name: '死敌',
-          patienceUnit: 'day',
-          visit: { enabled: false, probBase: 0, coolUnit: 'day' },
-        },
-        { threshold: -100, name: '憎恨', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
-        { threshold: -20, name: '厌恶', patienceUnit: 'day', visit: { enabled: false, probBase: 0, coolUnit: 'day' } },
-        { threshold: 0, name: '陌生', patienceUnit: 'day', visit: { enabled: true, probBase: 0.1, coolUnit: 'day' } },
-        { threshold: 10, name: '普通', patienceUnit: 'day', visit: { enabled: true, probBase: 0.2, coolUnit: 'day' } },
-        { threshold: 20, name: '熟悉', patienceUnit: 'day', visit: { enabled: true, probBase: 0.3, coolUnit: 'day' } },
-        { threshold: 40, name: '亲近', patienceUnit: 'day', visit: { enabled: true, probBase: 0.5, coolUnit: 'day' } },
-        { threshold: 70, name: '亲密', patienceUnit: 'day', visit: { enabled: true, probBase: 0.7, coolUnit: 'day' } },
-        { threshold: 100, name: '思慕', patienceUnit: 'day', visit: { enabled: true, probBase: 0.9, coolUnit: 'day' } },
-        {
-          threshold: 99999,
-          name: '不渝',
-          patienceUnit: 'day',
-          visit: { enabled: true, probBase: 1.0, coolUnit: 'day' },
-        },
-      ],
-    },
-  },
-  user: {
-    所在地区: '博丽神社',
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: '博丽神社',
-      居住地区: '博丽神社',
-    },
-    雾雨魔理沙: {
-      好感度: 75,
-      所在地区: '魔法之森',
-      居住地区: '魔法之森',
-    },
-    十六夜咲夜: {
-      好感度: -50,
-      所在地区: '红魔馆',
-      居住地区: '红魔馆',
-    },
-    无好感度角色: {},
-  },
-};
-
-// ==================================================================
-// 场景 8: 好感度等级 - 缺少配置
-// ==================================================================
-export const charTest_S8_AffectionLevel_MissingConfig = {
-  user: {
-    所在地区: '博丽神社',
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: '博丽神社',
-    },
-  },
-};
-
-// ==================================================================
-// 场景 9: 好感度等级 - 空配置
-// ==================================================================
-export const charTest_S9_AffectionLevel_EmptyStages = {
-  config: {
-    affection: {
-      affectionStages: [],
-    },
-  },
-  user: {
-    所在地区: '博丽神社',
-  },
-  chars: {
-    博丽灵梦: {
-      好感度: 30,
-      所在地区: '博丽神社',
-    },
-  },
-};
+charTest_S6_CompanionPriority.cache.time = baseTestData.cache.time;
