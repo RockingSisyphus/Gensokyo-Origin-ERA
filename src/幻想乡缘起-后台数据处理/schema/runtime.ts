@@ -241,20 +241,22 @@ export type RouteInfo = z.infer<typeof RouteInfoSchema>;
 // 最终的 Runtime Schema
 export const RuntimeSchema = z.object({
   incident: IncidentSchema.optional(),
-  clock: ClockSchema,
+  clock: ClockSchema.optional(),
   graph: z.record(z.string(), z.record(z.string(), z.boolean())).optional(),
   legal_locations: z.array(z.string()).optional(),
   neighbors: z.array(z.string()).optional(),
   loadArea: z.array(z.string()).optional(),
   route: RouteInfoSchema.optional(),
-  festival: FestivalSchema,
-  character: z.object({
-    chars: z.record(z.string(), CharacterRuntimeSchema),
-    partitions: z.object({
-      coLocated: z.array(z.string()),
-      remote: z.array(z.string()),
-    }),
-  }),
+  festival: FestivalSchema.optional(),
+  character: z
+    .object({
+      chars: z.record(z.string(), CharacterRuntimeSchema),
+      partitions: z.object({
+        coLocated: z.array(z.string()),
+        remote: z.array(z.string()),
+      }),
+    })
+    .optional(),
   characterLog: CharacterLogSchema.optional(),
 });
 

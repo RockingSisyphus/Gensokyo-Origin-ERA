@@ -195,6 +195,17 @@ class Logger {
 
 const external_z_namespaceObject = z;
 
+const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
+  }
+  return val;
+}, schema);
+
 const ForgettingRuleSchema = external_z_namespaceObject.z.object({
   triggerFlag: external_z_namespaceObject.z.string(),
   decrease: external_z_namespaceObject.z.number()
@@ -212,13 +223,13 @@ const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
     probK: external_z_namespaceObject.z.number().optional(),
     coolUnit: TimeUnitSchema.optional()
   }).optional(),
-  forgettingSpeed: external_z_namespaceObject.z.array(ForgettingRuleSchema).optional()
+  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional()
 }).passthrough();
 
 const CharacterForgettingInfoSchema = external_z_namespaceObject.z.object({
   id: external_z_namespaceObject.z.string(),
   name: external_z_namespaceObject.z.string(),
-  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema)
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
 });
 
 const ChangeLogEntrySchema = external_z_namespaceObject.z.object({
@@ -279,9 +290,9 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   好感度: external_z_namespaceObject.z.number(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable(),
-  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema).default([]),
-  specials: external_z_namespaceObject.z.array(EntrySchema).default([]),
-  routine: external_z_namespaceObject.z.array(EntrySchema).default([]),
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
+  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
   目标: external_z_namespaceObject.z.string().optional()
 });
 
@@ -296,11 +307,11 @@ const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespace
 
 const MapGraphSchema = external_z_namespaceObject.z.object({
   tree: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.any()),
-  edges: external_z_namespaceObject.z.array(external_z_namespaceObject.z.object({
+  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
     a: external_z_namespaceObject.z.string(),
     b: external_z_namespaceObject.z.string()
-  })).optional(),
-  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.string()).optional()
+  }))).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
 });
 
 const WorldSchema = external_z_namespaceObject.z.object({
@@ -318,7 +329,7 @@ const IncidentConfigSchema = external_z_namespaceObject.z.object({
   cooldownMinutes: external_z_namespaceObject.z.number(),
   forceTrigger: external_z_namespaceObject.z.boolean(),
   isRandomPool: external_z_namespaceObject.z.boolean(),
-  pool: external_z_namespaceObject.z.array(IncidentPoolItemSchema),
+  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
   randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
 });
@@ -334,22 +345,22 @@ const TimeConfigSchema = external_z_namespaceObject.z.object({
 
 const ConfigSchema = external_z_namespaceObject.z.object({
   affection: external_z_namespaceObject.z.object({
-    affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema)
+    affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
   }),
   time: TimeConfigSchema,
   incident: IncidentConfigSchema.optional()
 }).passthrough();
 
 const IncidentCacheSchema = external_z_namespaceObject.z.object({
-  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable()
+  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable().optional()
 });
 
 const CacheSchema = external_z_namespaceObject.z.object({
   time: external_z_namespaceObject.z.object({
-    clockAck: ClockAckSchema
-  }).optional(),
-  incident: IncidentCacheSchema.optional(),
-  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).default({})
+    clockAck: ClockAckSchema.optional()
+  }).optional().default({}),
+  incident: IncidentCacheSchema.optional().default({}),
+  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({})
 });
 
 const 世界Schema = external_z_namespaceObject.z.object({
@@ -362,14 +373,9 @@ const StatSchema = external_z_namespaceObject.z.object({
   user: UserSchema,
   world: WorldSchema.optional(),
   世界: 世界Schema,
-  cache: CacheSchema.default({
-    character: {},
-    incident: {
-      incidentCooldownAnchor: null
-    }
-  }),
+  cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
-  festivals_list: external_z_namespaceObject.z.array(FestivalDefinitionSchema).default([])
+  festivals_list: external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([])
 });
 
 const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
@@ -2041,20 +2047,20 @@ const RouteInfoSchema = external_z_namespaceObject.z.object({
 
 const RuntimeSchema = external_z_namespaceObject.z.object({
   incident: IncidentSchema.optional(),
-  clock: ClockSchema,
+  clock: ClockSchema.optional(),
   graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())).optional(),
   legal_locations: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
   neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
   loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
   route: RouteInfoSchema.optional(),
-  festival: FestivalSchema,
+  festival: FestivalSchema.optional(),
   character: external_z_namespaceObject.z.object({
     chars: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterRuntimeSchema),
     partitions: external_z_namespaceObject.z.object({
       coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
       remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
     })
-  }),
+  }).optional(),
   characterLog: CharacterLogSchema.optional()
 });
 
@@ -3235,130 +3241,140 @@ $(() => {
     _logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
-      _logger.error("handleWriteDone", "Stat 数据结构验证失败", {
-        error: parseResult.error.format(),
-        originalStat: statWithoutMeta
+      _logger.error("handleWriteDone", "Stat 数据结构验证失败。以下是详细错误:");
+      parseResult.error.issues.forEach(issue => {
+        const path = issue.path.join(".");
+        const receivedValue = external_default().get(statWithoutMeta, issue.path);
+        _logger.error("Stat-Validation", `路径 "${path}": ${issue.message}. (收到的值: ${JSON.stringify(receivedValue, null, 2)})`);
       });
+      _logger.error("handleWriteDone", "完整的原始 Stat 数据:", statWithoutMeta);
       return;
     }
-    let currentStat = parseResult.data;
-    let currentRuntime = getRuntimeObject();
-    logState("初始状态", "无", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const currentEditLog = editLogs?.[mk];
-    const normalizationResult = processNormalization({
-      originalStat: currentStat
-    });
-    currentStat = normalizationResult.processedStat;
-    const normalizationChanges = normalizationResult.changes;
-    logState("Normalizer Processor", "stat", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const affectionResult = processAffectionDecisions({
-      stat: currentStat,
-      editLog: currentEditLog
-    });
-    currentStat = affectionResult.stat;
-    const affectionChanges = affectionResult.changes;
-    logState("Affection Processor", "stat", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const timeResult = await time_processor_processTime({
-      stat: currentStat,
-      runtime: currentRuntime
-    });
-    currentStat = timeResult.stat;
-    currentRuntime = timeResult.runtime;
-    logState("Time Processor", "stat (cache), runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
-    const snapshotPayload = await getSnapshotsBetweenMIds({
-      startId,
-      endId: message_id
-    });
-    const snapshots = snapshotPayload.result || [];
-    const charLogResult = processCharacterLog({
-      runtime: currentRuntime,
-      snapshots,
-      stat: currentStat
-    });
-    currentRuntime = charLogResult.runtime;
-    logState("Character Log Processor", "runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const incidentResult = await processIncidentDecisions({
-      runtime: currentRuntime,
-      stat: currentStat
-    });
-    currentStat = incidentResult.stat;
-    currentRuntime = incidentResult.runtime;
-    const incidentChanges = incidentResult.changes;
-    logState("Incident Processor", "stat (cache), runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const areaResult = await processArea({
-      stat: currentStat,
-      runtime: currentRuntime
-    });
-    currentStat = areaResult.stat;
-    currentRuntime = areaResult.runtime;
-    logState("Area Processor", "runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const festivalResult = await festival_processor_processFestival({
-      stat: currentStat,
-      runtime: currentRuntime
-    });
-    currentStat = festivalResult.stat;
-    currentRuntime = festivalResult.runtime;
-    logState("Festival Processor", "runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const charResult = await processCharacterDecisions({
-      stat: currentStat,
-      runtime: currentRuntime
-    });
-    currentStat = charResult.stat;
-    currentRuntime = charResult.runtime;
-    const charChanges = charResult.changes;
-    logState("Character Processor", "stat (cache), runtime", {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat)
-    });
-    const prompt = buildPrompt({
-      runtime: currentRuntime,
-      stat: currentStat
-    });
-    _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
-    const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
-    await sendData({
-      stat: currentStat,
-      runtime: currentRuntime,
-      eraPayload: payload,
-      changes: allChanges
-    });
-    _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
-      finalRuntime: currentRuntime
-    });
+    try {
+      let currentStat = parseResult.data;
+      let currentRuntime = getRuntimeObject();
+      logState("初始状态", "无", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const currentEditLog = editLogs?.[mk];
+      const normalizationResult = processNormalization({
+        originalStat: currentStat
+      });
+      currentStat = normalizationResult.processedStat;
+      const normalizationChanges = normalizationResult.changes;
+      logState("Normalizer Processor", "stat", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const affectionResult = processAffectionDecisions({
+        stat: currentStat,
+        editLog: currentEditLog
+      });
+      currentStat = affectionResult.stat;
+      const affectionChanges = affectionResult.changes;
+      logState("Affection Processor", "stat", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const timeResult = await time_processor_processTime({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = timeResult.stat;
+      currentRuntime = timeResult.runtime;
+      logState("Time Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
+      const snapshotPayload = await getSnapshotsBetweenMIds({
+        startId,
+        endId: message_id
+      });
+      const snapshots = snapshotPayload.result || [];
+      const charLogResult = processCharacterLog({
+        runtime: currentRuntime,
+        snapshots,
+        stat: currentStat
+      });
+      currentRuntime = charLogResult.runtime;
+      logState("Character Log Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const incidentResult = await processIncidentDecisions({
+        runtime: currentRuntime,
+        stat: currentStat
+      });
+      currentStat = incidentResult.stat;
+      currentRuntime = incidentResult.runtime;
+      const incidentChanges = incidentResult.changes;
+      logState("Incident Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const areaResult = await processArea({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = areaResult.stat;
+      currentRuntime = areaResult.runtime;
+      logState("Area Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const festivalResult = await festival_processor_processFestival({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = festivalResult.stat;
+      currentRuntime = festivalResult.runtime;
+      logState("Festival Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const charResult = await processCharacterDecisions({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = charResult.stat;
+      currentRuntime = charResult.runtime;
+      const charChanges = charResult.changes;
+      logState("Character Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const prompt = buildPrompt({
+        runtime: currentRuntime,
+        stat: currentStat
+      });
+      _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
+      const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
+      await sendData({
+        stat: currentStat,
+        runtime: currentRuntime,
+        eraPayload: payload,
+        changes: allChanges
+      });
+      _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
+        finalRuntime: currentRuntime
+      });
+    } catch (error) {
+      _logger.error("handleWriteDone", "主处理流程发生未捕获的错误:", error);
+      if (error instanceof Error) {
+        _logger.error("handleWriteDone", "错误堆栈:", error.stack);
+      }
+    }
   };
   onWriteDone(detail => {
     _logger.log("main", "接收到 era:writeDone 事件");

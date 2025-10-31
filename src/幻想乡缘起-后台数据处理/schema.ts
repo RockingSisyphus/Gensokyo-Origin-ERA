@@ -3,6 +3,26 @@
  */
 import { z } from 'zod';
 
+// --- 辅助函数 ---
+/**
+ * 一个 Zod 预处理器，用于安全地解析数组中可能被字符串化的对象。
+ * 如果输入是字符串，它会尝试 JSON.parse。如果解析失败，它会返回原始字符串，
+ * 以便后续的 schema 验证可以捕获到类型错误。
+ * @param schema - 要应用于预处理后值的 Zod schema。
+ */
+const PreprocessStringifiedObject = <T extends z.ZodTypeAny>(schema: T) =>
+  z.preprocess((val) => {
+    if (typeof val === 'string') {
+      try {
+        return JSON.parse(val);
+      } catch (e) {
+        // 如果解析失败，返回原始值，让后续的 object 验证捕获错误
+        return val;
+      }
+    }
+    return val;
+  }, schema);
+
 // --- 通用/共享 Schema 定义 ---
 
 // 定义好感度阶段中的“忘记速度”规则
@@ -36,7 +56,7 @@ export const AffectionStageWithForgetSchema = z
         coolUnit: TimeUnitSchema.optional(),
       })
       .optional(),
-    forgettingSpeed: z.array(ForgettingRuleSchema).optional(),
+    forgettingSpeed: z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
     // 允许其他未知属性
   })
   .passthrough();
@@ -46,7 +66,7 @@ export type AffectionStageWithForget = z.infer<typeof AffectionStageWithForgetSc
 export const CharacterForgettingInfoSchema = z.object({
   id: z.string(),
   name: z.string(),
-  affectionStages: z.array(AffectionStageWithForgetSchema),
+  affectionStages: z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)),
 });
 export type CharacterForgettingInfo = z.infer<typeof CharacterForgettingInfoSchema>;
 
@@ -131,9 +151,9 @@ const CharacterSchema = z.object({
   好感度: z.number(),
   所在地区: z.string().nullable(),
   居住地区: z.string().nullable(),
-  affectionStages: z.array(AffectionStageWithForgetSchema).default([]),
-  specials: z.array(EntrySchema).default([]),
-  routine: z.array(EntrySchema).default([]),
+  affectionStages: z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
+  specials: z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  routine: z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
   目标: z.string().optional(),
 });
 
@@ -155,13 +175,15 @@ const MapGraphSchema = z.object({
   tree: z.record(z.string(), z.any()),
   edges: z
     .array(
-      z.object({
-        a: z.string(),
-        b: z.string(),
-      }),
+      PreprocessStringifiedObject(
+        z.object({
+          a: z.string(),
+          b: z.string(),
+        }),
+      ),
     )
     .optional(),
-  aliases: z.record(z.string(), z.string()).optional(),
+  aliases: z.record(z.string(), z.array(z.string())).optional(),
 });
 export type MapGraph = z.infer<typeof MapGraphSchema>;
 
@@ -184,7 +206,7 @@ export const IncidentConfigSchema = z.object({
   cooldownMinutes: z.number(),
   forceTrigger: z.boolean(),
   isRandomPool: z.boolean(),
-  pool: z.array(IncidentPoolItemSchema),
+  pool: z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
   randomCore: z.array(z.string()),
   randomType: z.array(z.string()),
 });
@@ -202,7 +224,7 @@ const TimeConfigSchema = z.object({
 const ConfigSchema = z
   .object({
     affection: z.object({
-      affectionStages: z.array(AffectionStageWithForgetSchema),
+      affectionStages: z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)),
     }),
     time: TimeConfigSchema,
     incident: IncidentConfigSchema.optional(),
@@ -210,7 +232,7 @@ const ConfigSchema = z
   .passthrough();
 
 export const IncidentCacheSchema = z.object({
-  incidentCooldownAnchor: z.number().nullable(),
+  incidentCooldownAnchor: z.number().nullable().optional(),
 });
 export type IncidentCache = z.infer<typeof IncidentCacheSchema>;
 
@@ -218,11 +240,12 @@ export type IncidentCache = z.infer<typeof IncidentCacheSchema>;
 export const CacheSchema = z.object({
   time: z
     .object({
-      clockAck: ClockAckSchema,
+      clockAck: ClockAckSchema.optional(),
     })
-    .optional(),
-  incident: IncidentCacheSchema.optional(),
-  character: z.record(z.string(), CharacterCacheSchema).default({}),
+    .optional()
+    .default({}),
+  incident: IncidentCacheSchema.optional().default({}),
+  character: z.record(z.string(), CharacterCacheSchema).optional().default({}),
 });
 
 // 最终的 Stat Schema
@@ -238,12 +261,9 @@ export const StatSchema = z.object({
   user: UserSchema,
   world: WorldSchema.optional(),
   世界: 世界Schema,
-  cache: CacheSchema.default({
-    character: {},
-    incident: { incidentCooldownAnchor: null },
-  }),
+  cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
-  festivals_list: z.array(FestivalDefinitionSchema).default([]),
+  festivals_list: z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]),
 });
 
 // 从 Schema 推断出 TypeScript 类型

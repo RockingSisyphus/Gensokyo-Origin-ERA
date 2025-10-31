@@ -55,134 +55,147 @@ $(() => {
     // 使用 Zod 解析和验证 stat
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
-      logger.error('handleWriteDone', 'Stat 数据结构验证失败', {
-        error: parseResult.error.format(),
-        originalStat: statWithoutMeta,
+      logger.error('handleWriteDone', 'Stat 数据结构验证失败。以下是详细错误:');
+      parseResult.error.issues.forEach((issue) => {
+        const path = issue.path.join('.');
+        const receivedValue = _.get(statWithoutMeta, issue.path);
+        logger.error(
+          'Stat-Validation',
+          `路径 "${path}": ${issue.message}. (收到的值: ${JSON.stringify(receivedValue, null, 2)})`,
+        );
       });
+      logger.error('handleWriteDone', '完整的原始 Stat 数据:', statWithoutMeta);
       return; // 中止执行
     }
 
-    // --- 初始状态 ---
-    // 从这里开始，currentStat 就是经过验证和类型推断的
-    let currentStat: Stat = parseResult.data;
-    let currentRuntime: Runtime = getRuntimeObject();
-    logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+    try {
+      // --- 初始状态 ---
+      // 从这里开始，currentStat 就是经过验证和类型推断的
+      let currentStat: Stat = parseResult.data;
+      let currentRuntime: Runtime = getRuntimeObject();
+      logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
 
-    // 根据当前 mk 获取对应的 editLog
-    const currentEditLog = (editLogs as any)?.[mk];
+      // 根据当前 mk 获取对应的 editLog
+      const currentEditLog = (editLogs as any)?.[mk];
 
-    // 1. 数据规范化处理
-    const normalizationResult = processNormalization({ originalStat: currentStat });
-    currentStat = normalizationResult.processedStat;
-    const normalizationChanges = normalizationResult.changes;
-    logState('Normalizer Processor', 'stat', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 1. 数据规范化处理
+      const normalizationResult = processNormalization({ originalStat: currentStat });
+      currentStat = normalizationResult.processedStat;
+      const normalizationChanges = normalizationResult.changes;
+      logState('Normalizer Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 1.5. 好感度处理
-    const affectionResult = processAffectionDecisions({ stat: currentStat, editLog: currentEditLog });
-    currentStat = affectionResult.stat;
-    const affectionChanges = affectionResult.changes;
-    logState('Affection Processor', 'stat', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 1.5. 好感度处理
+      const affectionResult = processAffectionDecisions({ stat: currentStat, editLog: currentEditLog });
+      currentStat = affectionResult.stat;
+      const affectionChanges = affectionResult.changes;
+      logState('Affection Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 2.5. 时间处理
-    const timeResult = await processTime({
-      stat: currentStat,
-      runtime: currentRuntime,
-    });
-    currentStat = timeResult.stat;
-    currentRuntime = timeResult.runtime;
-    logState('Time Processor', 'stat (cache), runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 2.5. 时间处理
+      const timeResult = await processTime({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = timeResult.stat;
+      currentRuntime = timeResult.runtime;
+      logState('Time Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 2.8. 角色日志处理
-    const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
-    const snapshotPayload = await getSnapshotsBetweenMIds({
-      startId,
-      endId: message_id,
-    });
-    const snapshots = (snapshotPayload.result as QueryResultItem[]) || [];
-    const charLogResult = processCharacterLog({ runtime: currentRuntime, snapshots, stat: currentStat });
-    currentRuntime = charLogResult.runtime;
-    logState('Character Log Processor', 'runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 2.8. 角色日志处理
+      const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
+      const snapshotPayload = await getSnapshotsBetweenMIds({
+        startId,
+        endId: message_id,
+      });
+      const snapshots = (snapshotPayload.result as QueryResultItem[]) || [];
+      const charLogResult = processCharacterLog({ runtime: currentRuntime, snapshots, stat: currentStat });
+      currentRuntime = charLogResult.runtime;
+      logState('Character Log Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 2.8. 异变处理
-    const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
-    currentStat = incidentResult.stat;
-    currentRuntime = incidentResult.runtime;
-    const incidentChanges = incidentResult.changes;
-    logState('Incident Processor', 'stat (cache), runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 2.8. 异变处理
+      const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
+      currentStat = incidentResult.stat;
+      currentRuntime = incidentResult.runtime;
+      const incidentChanges = incidentResult.changes;
+      logState('Incident Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 2.9. 地区处理
-    const areaResult = await processArea({
-      stat: currentStat,
-      runtime: currentRuntime,
-    });
-    currentStat = areaResult.stat;
-    currentRuntime = areaResult.runtime;
-    logState('Area Processor', 'runtime', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+      // 2.9. 地区处理
+      const areaResult = await processArea({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = areaResult.stat;
+      currentRuntime = areaResult.runtime;
+      logState('Area Processor', 'runtime', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
 
-    // 3. 节日处理
-    const festivalResult = await processFestival({
-      stat: currentStat,
-      runtime: currentRuntime,
-    });
-    currentStat = festivalResult.stat;
-    currentRuntime = festivalResult.runtime;
-    logState('Festival Processor', 'runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 3. 节日处理
+      const festivalResult = await processFestival({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = festivalResult.stat;
+      currentRuntime = festivalResult.runtime;
+      logState('Festival Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 3.5. 角色决策处理
-    const charResult = await processCharacterDecisions({
-      stat: currentStat,
-      runtime: currentRuntime,
-    });
-    currentStat = charResult.stat;
-    currentRuntime = charResult.runtime;
-    const charChanges = charResult.changes;
-    logState('Character Processor', 'stat (cache), runtime', {
-      stat: currentStat,
-      runtime: currentRuntime,
-      cache: getCache(currentStat),
-    });
+      // 3.5. 角色决策处理
+      const charResult = await processCharacterDecisions({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = charResult.stat;
+      currentRuntime = charResult.runtime;
+      const charChanges = charResult.changes;
+      logState('Character Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
-    // 4. 提示词构建
-    const prompt = buildPrompt({ runtime: currentRuntime, stat: currentStat });
-    logger.log('handleWriteDone', '提示词构建完毕:', prompt);
+      // 4. 提示词构建
+      const prompt = buildPrompt({ runtime: currentRuntime, stat: currentStat });
+      logger.log('handleWriteDone', '提示词构建完毕:', prompt);
 
-    // 5. 数据写入/发送
-    // 合并所有 changes
-    const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
-    await sendData({
-      stat: currentStat,
-      runtime: currentRuntime,
-      eraPayload: payload,
-      changes: allChanges,
-    });
+      // 5. 数据写入/发送
+      // 合并所有 changes
+      const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
+      await sendData({
+        stat: currentStat,
+        runtime: currentRuntime,
+        eraPayload: payload,
+        changes: allChanges,
+      });
 
-    logger.log('handleWriteDone', '所有核心模块处理完毕。', {
-      finalRuntime: currentRuntime,
-    });
+      logger.log('handleWriteDone', '所有核心模块处理完毕。', {
+        finalRuntime: currentRuntime,
+      });
+    } catch (error) {
+      logger.error('handleWriteDone', '主处理流程发生未捕获的错误:', error);
+      if (error instanceof Error) {
+        logger.error('handleWriteDone', '错误堆栈:', error.stack);
+      }
+    }
   };
 
   // 监听 ERA 数据写入完成事件，并忽略由 API 写入触发的事件
