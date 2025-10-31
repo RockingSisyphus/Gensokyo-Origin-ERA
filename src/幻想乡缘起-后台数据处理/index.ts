@@ -56,7 +56,7 @@ $(() => {
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
       logger.error('handleWriteDone', 'Stat 数据结构验证失败。以下是详细错误:');
-      parseResult.error.issues.forEach((issue) => {
+      parseResult.error.issues.forEach(issue => {
         const path = issue.path.join('.');
         const receivedValue = _.get(statWithoutMeta, issue.path);
         logger.error(
@@ -144,7 +144,11 @@ $(() => {
       });
       currentStat = areaResult.stat;
       currentRuntime = areaResult.runtime;
-      logState('Area Processor', 'runtime', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+      logState('Area Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
       // 3. 节日处理
       const festivalResult = await processFestival({

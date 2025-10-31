@@ -11,7 +11,7 @@ import { z } from 'zod';
  * @param schema - 要应用于预处理后值的 Zod schema。
  */
 const PreprocessStringifiedObject = <T extends z.ZodTypeAny>(schema: T) =>
-  z.preprocess((val) => {
+  z.preprocess(val => {
     if (typeof val === 'string') {
       try {
         return JSON.parse(val);
