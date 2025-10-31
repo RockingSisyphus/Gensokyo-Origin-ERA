@@ -33,7 +33,7 @@ export const charTest_S3_VisitProbFail = _.cloneDeep(baseTestData);
 _.set(charTest_S3_VisitProbFail, 'cache.character', {});
 // 修改 marisa 的好感度配置，使来访概率为 0
 const marisaAffectionStage = charTest_S3_VisitProbFail.config.affection.affectionStages.find(
-  (stage) => stage.name === '普通',
+  stage => stage.name === '普通',
 );
 if (marisaAffectionStage) {
   marisaAffectionStage.visit.probBase = 0.0;
