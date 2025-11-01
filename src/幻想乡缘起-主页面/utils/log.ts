@@ -4,7 +4,7 @@
 
 'use strict';
 
-const PROJECT_NAME = '幻想乡缘起-主页面';
+const PROJECT_NAME = 'GSKO-FACE';
 
 // --- 新的运行时调试配置系统 (V3) ---
 

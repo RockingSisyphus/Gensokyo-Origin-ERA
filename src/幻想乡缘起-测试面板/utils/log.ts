@@ -4,7 +4,7 @@
 
 'use strict';
 
-const PROJECT_NAME = '幻想乡缘起-测试面板';
+const PROJECT_NAME = 'GSKO-TEST';
 
 // --- 新的运行时调试配置系统 (V3) ---
 

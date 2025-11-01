@@ -94,7 +94,7 @@ __webpack_require__.d(festival_namespaceObject, {
   festivalTest_Upcoming: () => festivalTest_Upcoming
 });
 
-const PROJECT_NAME = "幻想乡缘起-测试面板";
+const PROJECT_NAME = "GSKO-TEST";
 
 const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
 
@@ -914,10 +914,12 @@ external_default().set(charTest_S6_CompanionPriority, "cache.character", {});
 
 charTest_S6_CompanionPriority.cache.time = stat_test_data_namespaceObject.cache.time;
 
+const FESTIVAL_EPOCH_ISO = "2025-01-01T00:00:00Z";
+
 const festivalSpecificData = {
   config: {
     time: {
-      epochISO: "2025-01-01T00:00:00+09:00"
+      epochISO: FESTIVAL_EPOCH_ISO
     }
   },
   festivals_list: [ {
@@ -926,8 +928,9 @@ const festivalSpecificData = {
     end_day: 3,
     name: "正月（三天）",
     type: "seasonal_festival",
-    customs: [ "初诣参拜", "食御节料理", "发压岁钱" ],
+    customs: [ "初詣参拜", "食御节料理", "发压岁钱" ],
     importance: 5,
+    host: "博丽神社",
     主办地: "博丽神社"
   }, {
     month: 2,
@@ -937,6 +940,7 @@ const festivalSpecificData = {
     type: "seasonal_festival",
     customs: [ "撒豆驱鬼" ],
     importance: 4,
+    host: "博丽神社",
     主办地: "博丽神社"
   }, {
     month: 12,
@@ -944,8 +948,9 @@ const festivalSpecificData = {
     end_day: 31,
     name: "大晦日（除夜）",
     type: "seasonal_festival",
-    customs: [ "食跨年荞麦面", "敲钟一百零八声" ],
+    customs: [ "吃跨年荞麦面", "敲钟一百零八声" ],
     importance: 4,
+    host: "博丽神社",
     主办地: "博丽神社"
   } ]
 };
@@ -960,35 +965,33 @@ const getProgress = (targetMonth, targetDay) => {
   return diffMs / 6e4;
 };
 
-const festivalTest_Ongoing = external_default().cloneDeep(baseFestivalStat);
+const createFestivalStat = (month, day) => {
+  const stat = external_default().cloneDeep(baseFestivalStat);
+  const progress = getProgress(month, day);
+  external_default().set(stat, [ "世界", "timeProgress" ], progress);
+  if (external_default().has(stat, "world")) {
+    external_default().set(stat, [ "world", "timeProgress" ], progress);
+  }
+  return stat;
+};
 
-festivalTest_Ongoing.世界.timeProgress = getProgress(1, 2);
+const festivalTest_Ongoing = createFestivalStat(1, 2);
 
-const festivalTest_Upcoming = external_default().cloneDeep(baseFestivalStat);
+const festivalTest_Upcoming = createFestivalStat(2, 1);
 
-festivalTest_Upcoming.世界.timeProgress = getProgress(2, 1);
+const festivalTest_None = createFestivalStat(4, 15);
 
-const festivalTest_None = external_default().cloneDeep(baseFestivalStat);
+const festivalTest_BoundaryStart = createFestivalStat(1, 1);
 
-festivalTest_None.世界.timeProgress = getProgress(4, 15);
+const festivalTest_BoundaryEnd = createFestivalStat(1, 3);
 
-const festivalTest_BoundaryStart = external_default().cloneDeep(baseFestivalStat);
+const festivalTest_CrossYearUpcoming = createFestivalStat(12, 29);
 
-festivalTest_BoundaryStart.世界.timeProgress = getProgress(1, 1);
-
-const festivalTest_BoundaryEnd = external_default().cloneDeep(baseFestivalStat);
-
-festivalTest_BoundaryEnd.世界.timeProgress = getProgress(1, 3);
-
-const festivalTest_CrossYearUpcoming = external_default().cloneDeep(baseFestivalStat);
-
-festivalTest_CrossYearUpcoming.世界.timeProgress = getProgress(12, 29);
-
-const festivalTest_EmptyList = external_default().cloneDeep(baseFestivalStat);
-
-festivalTest_EmptyList.festivals_list = [];
-
-festivalTest_EmptyList.世界.timeProgress = getProgress(1, 1);
+const festivalTest_EmptyList = (() => {
+  const stat = createFestivalStat(1, 1);
+  stat.festivals_list = [];
+  return stat;
+})();
 
 const incidentTestData = {
   "前置-设置冷却锚点": {

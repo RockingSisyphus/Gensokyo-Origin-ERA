@@ -4,7 +4,7 @@
 
 'use strict';
 
-const PROJECT_NAME = '幻想乡缘起-后台数据处理';
+const PROJECT_NAME = 'GSKO-BASE';
 
 // --- 新的运行时调试配置系统 (V3) ---
 

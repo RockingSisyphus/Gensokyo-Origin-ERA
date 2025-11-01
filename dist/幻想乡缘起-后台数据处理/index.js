@@ -33,7 +33,7 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const PROJECT_NAME = "幻想乡缘起-后台数据处理";
+const PROJECT_NAME = "GSKO-BASE";
 
 const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
 
