@@ -993,124 +993,269 @@ const festivalTest_EmptyList = (() => {
   return stat;
 })();
 
+if (stat_test_data_namespaceObject?.incidents?.["红雾异变"]) {
+  stat_test_data_namespaceObject.incidents["红雾异变"] = {
+    ...stat_test_data_namespaceObject.incidents["红雾异变"],
+    异变已结束: true
+  };
+}
+
+const createStat = overrides => external_default().mergeWith(external_default().cloneDeep(stat_test_data_namespaceObject), overrides, (objValue, srcValue) => {
+  if (Array.isArray(srcValue)) {
+    return srcValue;
+  }
+  return undefined;
+});
+
 const incidentTestData = {
-  "前置-设置冷却锚点": {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  冷却锚点初始化: {
+    stat: createStat({
       config: {
         incident: {
-          cooldownMinutes: 100
+          cooldownMinutes: 180,
+          forceTrigger: false,
+          isRandomPool: false
         }
       },
       世界: {
-        timeProgress: 10
-      },
-      incidents: {},
-      cache: {
-        incident: undefined
-      }
-    })
-  },
-  "日常(基于前置)": {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-      config: {
-        incident: {
-          cooldownMinutes: 100
-        }
-      },
-      世界: {
-        timeProgress: 50
+        timeProgress: 120
       },
       incidents: {},
       cache: {
         incident: {
-          incidentCooldownAnchor: 10
+          incidentCooldownAnchor: null
         }
       }
     })
   },
-  "触发新异变(冷却结束)": {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  冷却期内保持日常: {
+    stat: createStat({
       config: {
         incident: {
-          cooldownMinutes: 100,
+          cooldownMinutes: 240,
+          forceTrigger: false,
+          isRandomPool: false
+        }
+      },
+      世界: {
+        timeProgress: 180
+      },
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 60
+        }
+      }
+    })
+  },
+  冷却结束触发预设异变: {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 90,
+          forceTrigger: false,
           isRandomPool: false,
           pool: [ {
-            name: "红雾异变",
-            detail: "幻想乡被红色的雾气笼罩了。",
-            mainLoc: [ "红魔馆" ]
-          } ]
-        }
-      },
-      世界: {
-        timeProgress: 111
-      },
-      incidents: {},
-      cache: {
-        incident: {
-          incidentCooldownAnchor: 10
-        }
-      }
-    })
-  },
-  "触发新异变(强制)": {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-      config: {
-        incident: {
-          cooldownMinutes: 9999,
-          forceTrigger: true,
-          isRandomPool: false,
-          pool: [ {
-            name: "春雪异变",
-            detail: "春天来了，但雪还在下。",
-            mainLoc: [ "白玉楼" ]
-          } ]
-        }
-      },
-      世界: {
-        timeProgress: 1
-      },
-      incidents: {}
-    })
-  },
-  推进现有异变: {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-      config: {
-        incident: {
-          pool: [ {
-            name: "红雾异变",
-            detail: "幻想乡被红色的雾气笼罩了。",
-            mainLoc: [ "红魔馆" ]
+            name: "星光逆流异变",
+            detail: "夜空的星光在白昼逆流而下，幻象扭曲。",
+            mainLoc: [ "无名丘" ]
           } ]
         }
       },
       世界: {
         timeProgress: 200
       },
-      incidents: {
-        红雾异变: {
-          异变已结束: false,
-          异变细节: "天空中弥漫着不祥的红色雾气。",
-          主要地区: [ "红魔馆" ],
-          异变退治者: [ "博丽灵梦", "雾雨魔理沙" ]
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 80
         }
       }
     })
   },
-  "触发随机异变(池为空)": {
-    stat: external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  冷却结束触发随机异变: {
+    stat: createStat({
       config: {
         incident: {
-          cooldownMinutes: 10,
-          pool: []
+          cooldownMinutes: 60,
+          forceTrigger: false,
+          isRandomPool: true,
+          pool: [],
+          randomCore: [ "梦境" ],
+          randomType: [ "偏移" ]
         }
       },
       世界: {
-        timeProgress: 15
+        timeProgress: 200
       },
       incidents: {},
       cache: {
         incident: {
-          incidentCooldownAnchor: 1
+          incidentCooldownAnchor: 120
+        }
+      }
+    })
+  },
+  "随机池-多候选触发": {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 45,
+          forceTrigger: false,
+          isRandomPool: true,
+          pool: [ {
+            name: "梦境余响异变",
+            detail: "人们的梦境在白昼回荡，现实被扭曲。",
+            mainLoc: [ "梦境之里" ]
+          }, {
+            name: "影子共鸣异变",
+            detail: "影子失控地移动，与本体产生共鸣噪音。",
+            mainLoc: [ "无名丘", "竹林" ]
+          } ],
+          randomCore: [ "影子" ],
+          randomType: [ "共鸣" ]
+        }
+      },
+      世界: {
+        timeProgress: 300
+      },
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 200
+        }
+      }
+    })
+  },
+  "随机池-排除历史后触发": {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 80,
+          forceTrigger: false,
+          isRandomPool: true,
+          pool: [ {
+            name: "梦境余响异变",
+            detail: "梦境残响尚未散去。",
+            mainLoc: [ "梦境之里" ]
+          }, {
+            name: "星辉倒影异变",
+            detail: "星辉倒映在湖面，时间被拖慢。",
+            mainLoc: [ "雾之湖" ]
+          } ],
+          randomCore: [ "星辉" ],
+          randomType: [ "倒影" ]
+        }
+      },
+      世界: {
+        timeProgress: 410
+      },
+      incidents: {
+        梦境余响异变: {
+          异变已结束: true,
+          异变细节: "梦境余响被巫女镇压。",
+          主要地区: [ "梦境之里" ],
+          异变退治者: [ "博丽灵梦" ]
+        }
+      },
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 300
+        }
+      }
+    })
+  },
+  强制触发忽略冷却: {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 300,
+          forceTrigger: true,
+          isRandomPool: false,
+          pool: [ {
+            name: "春雪异变",
+            detail: "春天到了但鹅毛大雪仍在飘落。",
+            mainLoc: [ "白玉楼" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 260
+      },
+      incidents: {},
+      cache: {
+        incident: {
+          incidentCooldownAnchor: 200
+        }
+      }
+    })
+  },
+  正在进行的异变: {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 180,
+          forceTrigger: false,
+          isRandomPool: false,
+          pool: [ {
+            name: "红雾异变",
+            detail: "红雾仍在蔓延，调查暂未结束。",
+            mainLoc: [ "红魔馆", "雾之湖" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 420
+      },
+      incidents: {
+        红雾异变: {
+          异变已结束: false,
+          异变细节: "红色的雾气覆盖了整个天空。",
+          主要地区: [ "红魔馆", "雾之湖" ],
+          异变退治者: [ "博丽灵梦" ]
+        }
+      },
+      cache: {
+        incident: {
+          incidentCooldownAnchor: null
+        }
+      }
+    })
+  },
+  历史异变后重新冷却: {
+    stat: createStat({
+      config: {
+        incident: {
+          cooldownMinutes: 120,
+          forceTrigger: false,
+          isRandomPool: false,
+          pool: [ {
+            name: "花映冢异变",
+            detail: "花海异动蔓延至人间之里。",
+            mainLoc: [ "人间之里" ]
+          } ]
+        }
+      },
+      世界: {
+        timeProgress: 540
+      },
+      incidents: {
+        红雾异变: {
+          异变已结束: true,
+          异变细节: "红雾已经散去，只剩些许余韵。",
+          主要地区: [ "红魔馆" ],
+          异变退治者: [ "博丽灵梦", "雾雨魔理沙" ]
+        },
+        春雪异变: {
+          异变已结束: true,
+          异变细节: "春雪停歇，幻想乡恢复常态。",
+          主要地区: [ "白玉楼" ],
+          异变退治者: [ "魂魄妖梦" ]
+        }
+      },
+      cache: {
+        incident: {
+          incidentCooldownAnchor: null
         }
       }
     })
