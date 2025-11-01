@@ -3,7 +3,7 @@ import { Stat } from '../../../schema/stat';
 import { Logger } from '../../../utils/log';
 import { getChar, getCharLocation, getChars, getUserLocation } from '../accessors';
 
-const logger = new Logger('CharPartitioner');
+const logger = new Logger();
 
 /**
  * 角色分组模块，根据与主角的相对位置将角色分为“同区”和“异区”。

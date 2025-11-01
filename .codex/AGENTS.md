@@ -1,7 +1,9 @@
 # 酒馆助手前端界面或脚本编制
 
-Always respond in Chinese-simplified
+## 最高要求
+**所有的注释都必须使用中文，并且必须使用中文来进行回复**
 
+## 请在编码时参考以下文件中的内容
 @.codex/rules/data-access-rule.md
 @.codex/rules/ERA_API_DOCUMENT.md
 @.codex/rules/function-params-rule.md

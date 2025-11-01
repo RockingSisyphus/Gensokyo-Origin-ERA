@@ -167,16 +167,21 @@ export const logContext = {
   mk: '',
 };
 
+type InjectedModuleName = string & { readonly __injectedByBundler?: unique symbol };
+
 export class Logger {
   private moduleName: string;
 
   /**
    * 创建一个新的 Logger 实例。
-   * @param moduleName - 【请勿手动填写】此参数由 Webpack 构建过程自动注入，用于标识当前模块。
    */
-  constructor(moduleName?: string) {
+  constructor(...[moduleName]: [InjectedModuleName?]) {
+    // A custom ts-loader transformer injects the module name as the first runtime argument.
+    const maybeModuleName = moduleName;
+    const injectedModuleName = typeof maybeModuleName === 'string' ? maybeModuleName : undefined;
+
     // 优先使用由 Webpack 注入的模块名，如果不存在，则回退到旧的堆栈解析方法（仅用于非打包环境）
-    this.moduleName = moduleName || this._getModuleNameFromStack() || 'unknown';
+    this.moduleName = injectedModuleName || this._getModuleNameFromStack() || 'unknown';
   }
 
   private _getModuleNameFromStack(): string | null {

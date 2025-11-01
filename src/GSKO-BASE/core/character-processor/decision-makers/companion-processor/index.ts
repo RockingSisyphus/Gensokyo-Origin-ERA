@@ -4,7 +4,7 @@ import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromRuntime } from '../../accessors';
 
-const logger = new Logger('CompanionDecisionMaker');
+const logger = new Logger();
 
 /**
  * 检查角色是否命中其“耐心窗口”。

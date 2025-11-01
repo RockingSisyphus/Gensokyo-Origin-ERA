@@ -7,7 +7,7 @@ import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromRuntime, getChar, isVisitCooling, setVisitCooling } from '../../accessors';
 import { PREDEFINED_ACTIONS } from '../../constants';
 
-const logger = new Logger('VisitDecisionMaker');
+const logger = new Logger();
 
 /**
  * 执行概率检定。

@@ -131,8 +131,10 @@ const logContext = {
 
 class Logger {
   moduleName;
-  constructor(moduleName) {
-    this.moduleName = moduleName || this._getModuleNameFromStack() || "unknown";
+  constructor(...[moduleName]) {
+    const maybeModuleName = moduleName;
+    const injectedModuleName = typeof maybeModuleName === "string" ? maybeModuleName : undefined;
+    this.moduleName = injectedModuleName || this._getModuleNameFromStack() || "unknown";
   }
   _getModuleNameFromStack() {
     try {
@@ -214,7 +216,7 @@ const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
   return ChangeLogEntrySchema.parse(entry);
 };
 
-const logger = new Logger("幻想乡缘起-后台数据处理/utils/editLog");
+const logger = new Logger("GSKO-BASE/utils/editLog");
 
 function parseEditLogString(logString) {
   try {
@@ -382,7 +384,7 @@ function getCurrentAffectionStage(affection, stages) {
   return stages[stages.length - 1];
 }
 
-const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/affection-processor/processor");
+const processor_logger = new Logger("GSKO-BASE/core/affection-processor/processor");
 
 function processAffection({stat, editLog, runtime}) {
   const funcName = "processAffection";
@@ -521,7 +523,7 @@ function processAffection({stat, editLog, runtime}) {
   };
 }
 
-const affection_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/affection-processor");
+const affection_processor_logger = new Logger("GSKO-BASE/core/affection-processor");
 
 function processAffectionDecisions({stat, editLog, runtime}) {
   const funcName = "processAffectionDecisions";
@@ -543,7 +545,7 @@ function processAffectionDecisions({stat, editLog, runtime}) {
   }
 }
 
-const graph_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor/graph-builder");
+const graph_builder_logger = new Logger("GSKO-BASE/core/area-processor/graph-builder");
 
 function buildGraph({stat}) {
   const funcName = "buildGraph";
@@ -647,7 +649,7 @@ const RUNTIME_PATH = {
   CURRENT_FESTIVAL_NAME: "festival.current.name"
 };
 
-const log = new Logger("幻想乡缘起-后台数据处理/utils/message");
+const log = new Logger("GSKO-BASE/utils/message");
 
 function getMessageContent(msg) {
   if (!msg) return null;
@@ -745,7 +747,7 @@ async function updateMessageContent(message, newContent) {
   });
 }
 
-const location_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor/location-loader");
+const location_loader_logger = new Logger("GSKO-BASE/core/area-processor/location-loader");
 
 async function loadLocations({stat, legalLocations, neighbors}) {
   const funcName = "loadLocations";
@@ -789,7 +791,7 @@ async function loadLocations({stat, legalLocations, neighbors}) {
   return external_default().uniq(hits);
 }
 
-const neighbor_loader_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor/neighbor-loader");
+const neighbor_loader_logger = new Logger("GSKO-BASE/core/area-processor/neighbor-loader");
 
 function processNeighbors({stat, graph}) {
   const funcName = "processNeighbors";
@@ -812,7 +814,7 @@ function processNeighbors({stat, graph}) {
   }
 }
 
-const utils_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor/utils");
+const utils_logger = new Logger("GSKO-BASE/core/area-processor/utils");
 
 function bfs(source, destination, graph) {
   const funcName = "bfs";
@@ -855,7 +857,7 @@ function bfs(source, destination, graph) {
   };
 }
 
-const route_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor/route");
+const route_logger = new Logger("GSKO-BASE/core/area-processor/route");
 
 function processRoute({stat, runtime, graph}) {
   const funcName = "processRoute";
@@ -911,7 +913,7 @@ function processRoute({stat, runtime, graph}) {
   }
 }
 
-const area_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/area-processor");
+const area_processor_logger = new Logger("GSKO-BASE/core/area-processor");
 
 async function processArea({stat, runtime}) {
   const funcName = "processArea";
@@ -965,7 +967,7 @@ async function processArea({stat, runtime}) {
   };
 }
 
-const character_log_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-log-processor");
+const character_log_processor_logger = new Logger("GSKO-BASE/core/character-log-processor");
 
 function processCharacterLog({runtime, snapshots, stat}) {
   character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
@@ -1323,7 +1325,7 @@ const DEFAULT_VALUES = {
   IDLE_ACTION_DO: "待机"
 };
 
-const aggregator_logger = new Logger("Aggregator");
+const aggregator_logger = new Logger("GSKO-BASE/core/character-processor/aggregator");
 
 function resolveTargetLocation(to, stat) {
   if (!to || to === "HERO") {
@@ -1394,7 +1396,7 @@ function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanio
   }
 }
 
-const action_processor_logger = new Logger("ActionDecisionMaker");
+const action_processor_logger = new Logger("GSKO-BASE/core/character-processor/decision-makers/action-processor");
 
 function areConditionsMet(entry, {runtime}) {
   const {when} = entry;
@@ -1498,7 +1500,7 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
   };
 }
 
-const companion_processor_logger = new Logger("CompanionDecisionMaker");
+const companion_processor_logger = new Logger("GSKO-BASE/core/character-processor/decision-makers/companion-processor");
 
 function isPatienceWindowHit(patienceUnit, flags) {
   switch (patienceUnit) {
@@ -1550,7 +1552,7 @@ function makeCompanionDecisions({runtime, coLocatedChars}) {
   };
 }
 
-const visit_processor_logger = new Logger("VisitDecisionMaker");
+const visit_processor_logger = new Logger("GSKO-BASE/core/character-processor/decision-makers/visit-processor");
 
 function checkProbability(probBase = 0, probK = 0, affection = 0) {
   const finalProb = external_default().clamp(probBase + probK * affection, 0, 1);
@@ -1594,7 +1596,7 @@ function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
   };
 }
 
-const decision_makers_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor/decision-makers");
+const decision_makers_logger = new Logger("GSKO-BASE/core/character-processor/decision-makers");
 
 function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
   const funcName = "makeDecisions";
@@ -1647,7 +1649,7 @@ function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
   }
 }
 
-const partitioner_logger = new Logger("CharPartitioner");
+const partitioner_logger = new Logger("GSKO-BASE/core/character-processor/partitioner");
 
 function partitionCharacters({stat}) {
   const funcName = "partitionCharacters";
@@ -1695,7 +1697,7 @@ function getAffectionStage(char, globalAffectionStages) {
   return external_default().maxBy(applicableStages, "threshold") || null;
 }
 
-const preprocessor_logger = new Logger("CharPreProcessor");
+const preprocessor_logger = new Logger("GSKO-BASE/core/character-processor/preprocessor");
 
 function isCooldownResetTriggered(coolUnit, flags) {
   if (!coolUnit || !flags) return false;
@@ -1769,7 +1771,7 @@ function preprocess({runtime, stat, cache}) {
   }
 }
 
-const character_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-processor");
+const character_processor_logger = new Logger("GSKO-BASE/core/character-processor");
 
 async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
@@ -1974,7 +1976,7 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
   characterSettings: CharacterSettingsMapSchema.optional()
 });
 
-const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
+const runtime_logger = new Logger("GSKO-BASE/utils/runtime");
 
 function getRuntimeObject() {
   return RuntimeSchema.parse({});
@@ -2013,7 +2015,7 @@ async function setRuntimeObject(runtimeObject, options) {
   }
 }
 
-const data_sender_logger = new Logger("幻想乡缘起-后台数据处理/core/data-sender");
+const data_sender_logger = new Logger("GSKO-BASE/core/data-sender");
 
 async function sendData({stat, runtime, eraPayload: originalPayload, changes}) {
   const funcName = "sendData";
@@ -2051,7 +2053,7 @@ function toNumber(value, fallback = 0) {
   return Number.isFinite(n) ? n : fallback;
 }
 
-const festival_processor_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/festival-processor/processor");
+const festival_processor_processor_logger = new Logger("GSKO-BASE/core/festival-processor/processor");
 
 function processFestival({runtime, stat}) {
   const funcName = "processFestival";
@@ -2127,7 +2129,7 @@ function processFestival({runtime, stat}) {
   }
 }
 
-const festival_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/festival-processor");
+const festival_processor_logger = new Logger("GSKO-BASE/core/festival-processor");
 
 async function festival_processor_processFestival({stat, runtime}) {
   const funcName = "processFestival";
@@ -2212,7 +2214,7 @@ const asArray = value => Array.isArray(value) ? value.map(item => String(item)) 
 
 const pick = array => Array.isArray(array) && array.length ? array[Math.floor(Math.random() * array.length)] : undefined;
 
-const incident_processor_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/incident-processor/processor");
+const incident_processor_processor_logger = new Logger("GSKO-BASE/core/incident-processor/processor");
 
 function getCurrentIncident(stat) {
   const allIncidents = getIncidents(stat);
@@ -2422,11 +2424,18 @@ function processIncident({runtime, stat, cache}) {
   }
 }
 
-const incident_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/incident-processor");
+const incident_processor_logger = new Logger("GSKO-BASE/core/incident-processor");
 
 async function processIncidentDecisions({stat, runtime}) {
   const funcName = "processIncidentDecisions";
   incident_processor_logger.debug(funcName, "开始处理异变决策...");
+  incident_processor_logger.log(funcName, "111开始处理异变决策...");
+  incident_processor_logger.warn(funcName, "111开始处理异变决策...");
+  incident_processor_logger.error(funcName, "111开始处理异变决策...");
+  console.error(funcName, "《GSKO-BASE》111开始处理异变决策...");
+  console.warn(funcName, "《GSKO-BASE》111开始处理异变决策...");
+  console.debug(funcName, "《GSKO-BASE》111开始处理异变决策...");
+  console.log(funcName, "《GSKO-BASE》111开始处理异变决策...");
   try {
     const cache = getCache(stat);
     const {runtime: finalRuntime, stat: newStat, changes, cache: finalCache} = processIncident({
@@ -2493,7 +2502,7 @@ function extractLeafs(mapGraph) {
   return leafs;
 }
 
-const location_logger = new Logger("幻想乡缘起-后台数据处理/core/normalizer-processor/location");
+const location_logger = new Logger("GSKO-BASE/core/normalizer-processor/location");
 
 function normalizeLocationData(originalStat) {
   const funcName = "normalizeLocationData";
@@ -2616,7 +2625,7 @@ function normalizeLocationData(originalStat) {
   };
 }
 
-const normalizer_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/normalizer-processor");
+const normalizer_processor_logger = new Logger("GSKO-BASE/core/normalizer-processor");
 
 function processNormalization({originalStat}) {
   const funcName = "processNormalization";
@@ -2634,7 +2643,7 @@ function processNormalization({originalStat}) {
   };
 }
 
-const festival_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/festival");
+const festival_logger = new Logger("GSKO-BASE/core/prompt-builder/festival");
 
 function buildFestivalPrompt({runtime}) {
   const funcName = "buildFestivalPrompt";
@@ -2677,7 +2686,7 @@ function buildLegalLocationsPrompt({runtime}) {
   return prompt;
 }
 
-const prompt_builder_route_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/route");
+const prompt_builder_route_logger = new Logger("GSKO-BASE/core/prompt-builder/route");
 
 function formatPath(path) {
   if (!path || !path.steps || path.steps.length === 0) {
@@ -2707,7 +2716,7 @@ function buildRoutePrompt({runtime, stat}) {
   return prompt;
 }
 
-const time_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder/time");
+const time_logger = new Logger("GSKO-BASE/core/prompt-builder/time");
 
 function buildTimePrompt({runtime}) {
   const funcName = "buildTimePrompt";
@@ -2747,7 +2756,7 @@ function buildTimePrompt({runtime}) {
   }
 }
 
-const prompt_builder_logger = new Logger("幻想乡缘起-后台数据处理/core/prompt-builder");
+const prompt_builder_logger = new Logger("GSKO-BASE/core/prompt-builder");
 
 function buildPrompt({runtime, stat}) {
   const funcName = "buildPrompt";
@@ -2842,7 +2851,7 @@ function seasonIndexOf(m) {
   return 3;
 }
 
-const time_processor_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/time-processor/processor");
+const time_processor_processor_logger = new Logger("GSKO-BASE/core/time-processor/processor");
 
 function processTime({stat, prevClockAck}) {
   const funcName = "processTime";
@@ -2995,7 +3004,7 @@ function processTime({stat, prevClockAck}) {
   }
 }
 
-const time_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/time-processor");
+const time_processor_logger = new Logger("GSKO-BASE/core/time-processor");
 
 async function time_processor_processTime({stat, runtime}) {
   const funcName = "processTime";
@@ -3285,7 +3294,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   festivals_list: FestivalsListSchema
 });
 
-const _logger = new Logger("幻想乡缘起-后台数据处理");
+const GSKO_BASE_logger = new Logger("GSKO-BASE");
 
 function logState(moduleName, modified, {stat, runtime, cache}) {
   const title = `[${moduleName}] (修改: ${modified})`;
@@ -3294,31 +3303,31 @@ function logState(moduleName, modified, {stat, runtime, cache}) {
     Runtime: external_default().cloneDeep(runtime),
     Cache: external_default().cloneDeep(cache)
   };
-  _logger.log("logState", title, data);
+  GSKO_BASE_logger.log("logState", title, data);
 }
 
 $(() => {
-  _logger.log("main", "后台数据处理脚本加载");
+  GSKO_BASE_logger.log("main", "后台数据处理脚本加载");
   const handleWriteDone = async payload => {
     const {statWithoutMeta, mk, editLogs} = payload;
-    _logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
+    GSKO_BASE_logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
     const latestMessages = getChatMessages(-1);
     if (!latestMessages || latestMessages.length === 0) {
-      _logger.error("handleWriteDone", "无法获取到最新的聊天消息，中止执行。");
+      GSKO_BASE_logger.error("handleWriteDone", "无法获取到最新的聊天消息，中止执行。");
       return;
     }
     const latestMessage = latestMessages[0];
     const message_id = latestMessage.message_id;
-    _logger.log("handleWriteDone", `使用最新的消息 ID: ${message_id}`);
+    GSKO_BASE_logger.log("handleWriteDone", `使用最新的消息 ID: ${message_id}`);
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
-      _logger.error("handleWriteDone", "Stat 数据结构验证失败。以下是详细错误:");
+      GSKO_BASE_logger.error("handleWriteDone", "Stat 数据结构验证失败。以下是详细错误:");
       parseResult.error.issues.forEach(issue => {
         const path = issue.path.join(".");
         const receivedValue = external_default().get(statWithoutMeta, issue.path);
-        _logger.error("Stat-Validation", `路径 "${path}": ${issue.message}. (收到的值: ${JSON.stringify(receivedValue, null, 2)})`);
+        GSKO_BASE_logger.error("Stat-Validation", `路径 "${path}": ${issue.message}. (收到的值: ${JSON.stringify(receivedValue, null, 2)})`);
       });
-      _logger.error("handleWriteDone", "完整的原始 Stat 数据:", statWithoutMeta);
+      GSKO_BASE_logger.error("handleWriteDone", "完整的原始 Stat 数据:", statWithoutMeta);
       return;
     }
     try {
@@ -3439,7 +3448,7 @@ $(() => {
         runtime: currentRuntime,
         stat: currentStat
       });
-      _logger.log("handleWriteDone", "提示词构建完毕:", prompt);
+      GSKO_BASE_logger.log("handleWriteDone", "提示词构建完毕:", prompt);
       const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
       await sendData({
         stat: currentStat,
@@ -3447,32 +3456,32 @@ $(() => {
         eraPayload: payload,
         changes: allChanges
       });
-      _logger.log("handleWriteDone", "所有核心模块处理完毕。", {
+      GSKO_BASE_logger.log("handleWriteDone", "所有核心模块处理完毕。", {
         finalRuntime: currentRuntime
       });
     } catch (error) {
-      _logger.error("handleWriteDone", "主处理流程发生未捕获的错误:", error);
+      GSKO_BASE_logger.error("handleWriteDone", "主处理流程发生未捕获的错误:", error);
       if (error instanceof Error) {
-        _logger.error("handleWriteDone", "错误堆栈:", error.stack);
+        GSKO_BASE_logger.error("handleWriteDone", "错误堆栈:", error.stack);
       }
     }
   };
   onWriteDone(detail => {
-    _logger.log("main", "接收到 era:writeDone 事件");
+    GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件");
     handleWriteDone(detail).catch(error => {
-      _logger.error("onWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
+      GSKO_BASE_logger.error("onWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
     });
   }, {
     ignoreApiWrite: true
   });
   eventOn("dev:fakeWriteDone", detail => {
-    _logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");
+    GSKO_BASE_logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");
     handleWriteDone(detail).catch(error => {
-      _logger.error("dev:fakeWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
+      GSKO_BASE_logger.error("dev:fakeWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
     });
   });
   $(window).on("pagehide.main", () => {
-    _logger.log("main", "后台数据处理脚本卸载");
+    GSKO_BASE_logger.log("main", "后台数据处理脚本卸载");
     $(window).off(".main");
   });
 });

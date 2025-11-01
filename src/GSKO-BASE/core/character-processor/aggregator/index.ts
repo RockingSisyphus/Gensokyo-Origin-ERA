@@ -15,7 +15,7 @@ import {
 } from '../accessors';
 import { PREDEFINED_ACTIONS } from '../constants';
 
-const logger = new Logger('Aggregator');
+const logger = new Logger();
 
 /**
  * 解析决策中的目标地点。

@@ -8,7 +8,7 @@ import { Logger } from '../../../../utils/log';
 import { getChar, getCharLocation } from '../../accessors';
 import { DEFAULT_VALUES, ENTRY_KEYS } from '../../constants';
 
-const logger = new Logger('ActionDecisionMaker');
+const logger = new Logger();
 
 /**
  * 检查一个行为条目（Entry）的 `when` 条件是否满足。

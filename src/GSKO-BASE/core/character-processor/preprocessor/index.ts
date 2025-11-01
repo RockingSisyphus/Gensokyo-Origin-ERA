@@ -16,7 +16,7 @@ import {
 } from '../accessors';
 import { getAffectionStage } from '../utils';
 
-const logger = new Logger('CharPreProcessor');
+const logger = new Logger();
 
 /**
  * 检查给定的冷却单位是否在当前时间拍点被触发。
