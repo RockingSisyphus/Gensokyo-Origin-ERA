@@ -20,7 +20,7 @@ const createStat = (overrides: Record<string, unknown>) =>
 export const incidentTestData = {
   // 所有情景都直接设定 cache，以便独立测试异变处理的各个分支。
 
-  '冷却锚点初始化': {
+  冷却锚点初始化: {
     stat: createStat({
       config: {
         incident: {
@@ -37,7 +37,7 @@ export const incidentTestData = {
     }),
   },
 
-  '冷却期内保持日常': {
+  冷却期内保持日常: {
     stat: createStat({
       config: {
         incident: {
@@ -54,7 +54,7 @@ export const incidentTestData = {
     }),
   },
 
-  '冷却结束触发预设异变': {
+  冷却结束触发预设异变: {
     stat: createStat({
       config: {
         incident: {
@@ -72,7 +72,7 @@ export const incidentTestData = {
     }),
   },
 
-  '冷却结束触发随机异变': {
+  冷却结束触发随机异变: {
     stat: createStat({
       config: {
         incident: {
@@ -145,7 +145,7 @@ export const incidentTestData = {
     }),
   },
 
-  '强制触发忽略冷却': {
+  强制触发忽略冷却: {
     stat: createStat({
       config: {
         incident: {
@@ -163,16 +163,14 @@ export const incidentTestData = {
     }),
   },
 
-  '正在进行的异变': {
+  正在进行的异变: {
     stat: createStat({
       config: {
         incident: {
           cooldownMinutes: 180,
           forceTrigger: false,
           isRandomPool: false,
-          pool: [
-            { name: '红雾异变', detail: '红雾仍在蔓延，调查暂未结束。', mainLoc: ['红魔馆', '雾之湖'] },
-          ],
+          pool: [{ name: '红雾异变', detail: '红雾仍在蔓延，调查暂未结束。', mainLoc: ['红魔馆', '雾之湖'] }],
         },
       },
       世界: { timeProgress: 420 },
@@ -190,7 +188,7 @@ export const incidentTestData = {
     }),
   },
 
-  '历史异变后重新冷却': {
+  历史异变后重新冷却: {
     stat: createStat({
       config: {
         incident: {
