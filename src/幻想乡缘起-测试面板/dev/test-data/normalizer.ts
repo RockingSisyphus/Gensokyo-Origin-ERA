@@ -4,8 +4,11 @@
 import _ from 'lodash';
 import baseTestData from '../stat-test-data.json';
 
+// 返回一份深拷贝的基础测试数据，防止交叉污染
+const getClonedBaseData = () => _.cloneDeep(baseTestData);
+
 // 测试场景 1: 用户和角色的地区名称包含别名或非法名称
-export const statWithIllegalLocations = _.merge(_.cloneDeep(baseTestData), {
+export const statWithIllegalLocations = _.merge(getClonedBaseData(), {
   user: {
     // 使用别名
     居住地区: '人里',
@@ -33,12 +36,15 @@ export const statWithIllegalLocations = _.merge(_.cloneDeep(baseTestData), {
 });
 
 // 测试场景 2: 用户和部分角色的地区信息完全缺失
-export const statWithMissingLocations = _.cloneDeep(baseTestData);
-// @ts-expect-error: for testing purpose
-delete statWithMissingLocations.user.居住地区;
-// @ts-expect-error: for testing purpose
-delete statWithMissingLocations.user.所在地区;
-// @ts-expect-error: for testing purpose
-delete statWithMissingLocations.chars.marisa.居住地区;
-// @ts-expect-error: for testing purpose
-delete statWithMissingLocations.chars.marisa.所在地区;
+export const statWithMissingLocations = (() => {
+  const stat = getClonedBaseData();
+  // @ts-expect-error: for testing purpose
+  delete stat.user.居住地区;
+  // @ts-expect-error: for testing purpose
+  delete stat.user.所在地区;
+  // @ts-expect-error: for testing purpose
+  delete stat.chars.marisa.居住地区;
+  // @ts-expect-error: for testing purpose
+  delete stat.chars.marisa.所在地区;
+  return stat;
+})();

@@ -2,25 +2,94 @@
   "config": {
     "affection": {
       "affectionStages": [
-        { "threshold": -99999, "name": "死敌", "patienceUnit": "day", "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": -100, "name": "憎恨", "patienceUnit": "day", "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": -20, "name": "厌恶", "patienceUnit": "day", "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 0, "name": "陌生", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.1, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 10, "name": "普通", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.2, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 20, "name": "熟悉", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.3, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 40, "name": "亲近", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.5, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 70, "name": "亲密", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 100, "name": "思慕", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 0.9, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] },
-        { "threshold": 99999, "name": "不渝", "patienceUnit": "day", "visit": { "enabled": true, "probBase": 1.0, "coolUnit": "day" }, "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }] }
+        {
+          "threshold": -99999,
+          "name": "死敌",
+          "patienceUnit": "day",
+          "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": -100,
+          "name": "憎恨",
+          "patienceUnit": "day",
+          "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": -20,
+          "name": "厌恶",
+          "patienceUnit": "day",
+          "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 0,
+          "name": "陌生",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.1, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 10,
+          "name": "普通",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.2, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 20,
+          "name": "熟悉",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.3, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 40,
+          "name": "亲近",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.5, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 70,
+          "name": "亲密",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 100,
+          "name": "思慕",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 0.9, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        },
+        {
+          "threshold": 99999,
+          "name": "不渝",
+          "patienceUnit": "day",
+          "visit": { "enabled": true, "probBase": 1.0, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+        }
       ]
     },
     "time": {
-      "epochISO": "2025-10-24T06:00:00+09:00",
-      "periodNames": ["清晨", "上午", "下午", "傍晚", "夜晚", "深夜"],
-      "periodKeys": ["morning", "forenoon", "afternoon", "evening", "night", "lateNight"],
+      "epochISO": "2025-10-24T06:00:00Z",
+      "periodNames": ["清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜"],
+      "periodKeys": [
+        "newDawn",
+        "newMorning",
+        "newNoon",
+        "newAfternoon",
+        "newDusk",
+        "newNight",
+        "newFirstHalfNight",
+        "newSecondHalfNight"
+      ],
       "seasonNames": ["春", "夏", "秋", "冬"],
-      "seasonKeys": ["spring", "summer", "autumn", "winter"],
-      "weekNames": ["月", "火", "水", "木", "金", "土", "日"]
+      "seasonKeys": ["newSpring", "newSummer", "newAutumn", "newWinter"],
+      "weekNames": ["周一", "周二", "周三", "周四", "周五", "周六", "周日"]
     },
     "incident": {
       "cooldownMinutes": 100,
@@ -70,9 +139,7 @@
       "好感度": 10,
       "所在地区": "守矢神社",
       "居住地区": "守矢神社",
-      "affectionStages": [
-        { "threshold": 0, "name": "陌生", "patienceUnit": "day", "visit": { "enabled": false } }
-      ],
+      "affectionStages": [{ "threshold": 0, "name": "陌生", "patienceUnit": "day", "visit": { "enabled": false } }],
       "specials": [
         {
           "when": { "byFestival": "夏日祭" },
@@ -89,14 +156,14 @@
       "目标": ""
     },
     "sakuya": {
-        "name": "十六夜咲夜",
-        "好感度": -50,
-        "所在地区": "红魔馆",
-        "居住地区": "红魔馆",
-        "affectionStages": [],
-        "specials": [],
-        "routine": [],
-        "目标": ""
+      "name": "十六夜咲夜",
+      "好感度": -50,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [],
+      "目标": ""
     }
   },
   "user": {
@@ -112,7 +179,17 @@
             "中部平原带": ["人间之里", "铃奈庵", "命莲寺", "墓地", "香霖堂"],
             "魔法之森带": ["魔法之森", "迷途之家", "雾雨魔法店"],
             "西境水域带": ["雾之湖", "红魔馆"],
-            "西北山地带": ["妖怪之山", "守矢神社", "九天瀑布", "风神之湖", "玄武之泽", "虹龙洞", "秘天崖", "兽道", "大蛤蟆之池"],
+            "西北山地带": [
+              "妖怪之山",
+              "守矢神社",
+              "九天瀑布",
+              "风神之湖",
+              "玄武之泽",
+              "虹龙洞",
+              "秘天崖",
+              "兽道",
+              "大蛤蟆之池"
+            ],
             "南境丘陵带": ["无名之丘", "太阳花田", "辉针城"]
           },
           "冥界": ["幽冥结界", "白玉楼"],
@@ -126,7 +203,68 @@
       "edges": [
         { "a": "博丽神社", "b": "兽道" },
         { "a": "人间之里", "b": "兽道" },
-        { "a": "人间之里", "b": "铃奈庵" }
+        { "a": "人间之里", "b": "铃奈庵" },
+
+        { "a": "雾之湖", "b": "博丽神社" },
+        { "a": "雾之湖", "b": "红魔馆" },
+        { "a": "雾之湖", "b": "妖怪之山" },
+        { "a": "雾之湖", "b": "魔法之森" },
+
+        { "a": "风神之湖", "b": "妖怪之山" },
+        { "a": "妖怪之山", "b": "玄武之泽" },
+
+        { "a": "守矢神社", "b": "大蛤蟆之池" },
+        { "a": "玄武之泽", "b": "大蛤蟆之池" },
+        { "a": "妖怪之山", "b": "大蛤蟆之池" },
+        { "a": "风神之湖", "b": "守矢神社" },
+        { "a": "秘天崖", "b": "九天瀑布" },
+        { "a": "秘天崖", "b": "守矢神社" },
+        { "a": "秘天崖", "b": "天界" },
+        { "a": "虹龙洞", "b": "九天瀑布" },
+
+        { "a": "魔法之森", "b": "人间之里" },
+        { "a": "魔法之森", "b": "雾雨魔法店" },
+        { "a": "雾雨魔法店", "b": "香霖堂" },
+        { "a": "魔法之森", "b": "迷途之家" },
+        { "a": "墓地", "b": "命莲寺" },
+        { "a": "人间之里", "b": "香霖堂" },
+        { "a": "人间之里", "b": "命莲寺" },
+
+        { "a": "命莲寺", "b": "神灵庙" },
+        { "a": "命莲寺", "b": "迷途竹林" },
+        { "a": "神灵庙", "b": "梦殿大祀庙" },
+
+        { "a": "迷途竹林", "b": "永远亭" },
+        { "a": "迷途竹林", "b": "辉针城" },
+
+        { "a": "太阳花田", "b": "无名之丘" },
+        { "a": "太阳花田", "b": "幻想风穴" },
+        { "a": "太阳花田", "b": "魔法之森" },
+        { "a": "无名之丘", "b": "幻想风穴" },
+
+        { "a": "幻想风穴", "b": "间歇泉" },
+        { "a": "间歇泉", "b": "地灵殿" },
+        { "a": "旧都", "b": "血之湖" },
+        { "a": "血之湖", "b": "地灵殿" },
+        { "a": "旧都", "b": "灼热地狱遗址" },
+        { "a": "灼热地狱遗址", "b": "地狱" },
+        { "a": "地狱", "b": "畜生界（兽王园）" },
+
+        { "a": "无缘冢", "b": "柳之运河" },
+        { "a": "墓地", "b": "中有之道" },
+        { "a": "柳之运河", "b": "中有之道" },
+        { "a": "中有之道", "b": "三途河" },
+        { "a": "无缘冢", "b": "畜生界（兽王园）" },
+        { "a": "彼岸", "b": "三途河" },
+
+        { "a": "无缘冢", "b": "幽冥结界" },
+        { "a": "幽冥结界", "b": "白玉楼" },
+
+        { "a": "天界", "b": "有顶天" },
+        { "a": "有顶天", "b": "仙界" },
+        { "a": "仙界", "b": "梦境世界" },
+        { "a": "梦境世界", "b": "月都" },
+        { "a": "红魔馆", "b": "月都" }
       ],
       "aliases": {
         "博丽神社": ["博麗神社", "博丽", "博丽神社周边"],

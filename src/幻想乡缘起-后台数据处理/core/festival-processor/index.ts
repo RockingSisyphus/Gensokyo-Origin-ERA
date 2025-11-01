@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Stat } from '../../schema';
+import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { processFestival as processor } from './processor';

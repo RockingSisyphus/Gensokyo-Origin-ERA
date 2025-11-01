@@ -1,4 +1,5 @@
-import { Cache, CacheSchema, Stat } from '../schema';
+import { Cache, CacheSchema } from '../schema/cache';
+import { Stat } from '../schema/stat';
 
 /**
  * 从 stat 对象中安全地提取或初始化 cache 对象。

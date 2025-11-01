@@ -1,6 +1,10 @@
 import _ from 'lodash';
-import { Cache, ChangeLogEntry, Stat, TimeUnit } from '../../../schema';
-import { ClockFlags, Runtime } from '../../../schema/runtime';
+import { Cache } from '../../../schema/cache';
+import { ChangeLogEntry } from '../../../schema/change-log-entry';
+import { ClockFlags } from '../../../schema/clock';
+import { Runtime } from '../../../schema/runtime';
+import { Stat } from '../../../schema/stat';
+import { TimeUnit } from '../../../schema/character-settings';
 import { Logger } from '../../../utils/log';
 import {
   getChar,

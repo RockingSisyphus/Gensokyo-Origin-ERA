@@ -1,4 +1,4 @@
-import { MapGraph } from '../schema';
+import { MapGraph } from '../schema/world';
 
 /**
  * @description 从地图图谱的 `aliases` 字段中提取并构建一个别名到标准名称的映射表。

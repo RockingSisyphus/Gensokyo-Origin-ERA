@@ -1,5 +1,8 @@
 import _ from 'lodash';
-import { Action, Cache, ChangeLogEntry, Stat } from '../../../schema';
+import { Cache } from '../../../schema/cache';
+import { ChangeLogEntry } from '../../../schema/change-log-entry';
+import { Action } from '../../../schema/runtime';
+import { Stat } from '../../../schema/stat';
 import { Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
 import {

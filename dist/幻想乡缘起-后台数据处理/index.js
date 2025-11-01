@@ -195,187 +195,12 @@ class Logger {
 
 const external_z_namespaceObject = z;
 
-const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
-  if (typeof val === "string") {
-    try {
-      return JSON.parse(val);
-    } catch (e) {
-      return val;
-    }
-  }
-  return val;
-}, schema);
-
-const ForgettingRuleSchema = external_z_namespaceObject.z.object({
-  triggerFlag: external_z_namespaceObject.z.string(),
-  decrease: external_z_namespaceObject.z.number()
-});
-
-const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
-
-const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
-  threshold: external_z_namespaceObject.z.number(),
-  name: external_z_namespaceObject.z.string(),
-  patienceUnit: TimeUnitSchema.optional(),
-  visit: external_z_namespaceObject.z.object({
-    enabled: external_z_namespaceObject.z.boolean().optional(),
-    probBase: external_z_namespaceObject.z.number().optional(),
-    probK: external_z_namespaceObject.z.number().optional(),
-    coolUnit: TimeUnitSchema.optional()
-  }).optional(),
-  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional()
-}).passthrough();
-
-const CharacterForgettingInfoSchema = external_z_namespaceObject.z.object({
-  id: external_z_namespaceObject.z.string(),
-  name: external_z_namespaceObject.z.string(),
-  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
-});
-
 const ChangeLogEntrySchema = external_z_namespaceObject.z.object({
   module: external_z_namespaceObject.z.string(),
   path: external_z_namespaceObject.z.string(),
   oldValue: external_z_namespaceObject.z.any(),
   newValue: external_z_namespaceObject.z.any(),
   reason: external_z_namespaceObject.z.string()
-});
-
-const ClockAckSchema = external_z_namespaceObject.z.object({
-  dayID: external_z_namespaceObject.z.number(),
-  weekID: external_z_namespaceObject.z.number(),
-  monthID: external_z_namespaceObject.z.number(),
-  yearID: external_z_namespaceObject.z.number(),
-  periodID: external_z_namespaceObject.z.number(),
-  periodIdx: external_z_namespaceObject.z.number(),
-  seasonID: external_z_namespaceObject.z.number(),
-  seasonIdx: external_z_namespaceObject.z.number()
-});
-
-const IncidentDetailSchema = external_z_namespaceObject.z.object({
-  异变细节: external_z_namespaceObject.z.string(),
-  主要地区: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  异变退治者: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional(),
-  异变已结束: external_z_namespaceObject.z.boolean()
-});
-
-const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
-  month: external_z_namespaceObject.z.number(),
-  start_day: external_z_namespaceObject.z.number(),
-  end_day: external_z_namespaceObject.z.number(),
-  host: external_z_namespaceObject.z.string().optional(),
-  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
-});
-
-const CharacterCacheSchema = external_z_namespaceObject.z.object({
-  visit: external_z_namespaceObject.z.object({
-    cooling: external_z_namespaceObject.z.boolean().optional()
-  }).optional()
-});
-
-const ActionSchema = external_z_namespaceObject.z.object({
-  do: external_z_namespaceObject.z.string(),
-  to: external_z_namespaceObject.z.string().optional(),
-  source: external_z_namespaceObject.z.string().optional()
-});
-
-const EntrySchema = external_z_namespaceObject.z.object({
-  when: external_z_namespaceObject.z.any(),
-  action: ActionSchema,
-  priority: external_z_namespaceObject.z.number().optional()
-});
-
-const CharacterSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
-  好感度: external_z_namespaceObject.z.number(),
-  所在地区: external_z_namespaceObject.z.string().nullable(),
-  居住地区: external_z_namespaceObject.z.string().nullable(),
-  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
-  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  目标: external_z_namespaceObject.z.string().optional()
-});
-
-const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
-
-const UserSchema = external_z_namespaceObject.z.object({
-  所在地区: external_z_namespaceObject.z.string().nullable(),
-  居住地区: external_z_namespaceObject.z.string().nullable()
-});
-
-const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
-
-const MapGraphSchema = external_z_namespaceObject.z.object({
-  tree: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.any()),
-  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
-    a: external_z_namespaceObject.z.string(),
-    b: external_z_namespaceObject.z.string()
-  }))).optional(),
-  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
-});
-
-const WorldSchema = external_z_namespaceObject.z.object({
-  map_graph: MapGraphSchema.optional(),
-  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
-}).passthrough();
-
-const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
-  detail: external_z_namespaceObject.z.string(),
-  mainLoc: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ])
-});
-
-const IncidentConfigSchema = external_z_namespaceObject.z.object({
-  cooldownMinutes: external_z_namespaceObject.z.number(),
-  forceTrigger: external_z_namespaceObject.z.boolean(),
-  isRandomPool: external_z_namespaceObject.z.boolean(),
-  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
-  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
-});
-
-const TimeConfigSchema = external_z_namespaceObject.z.object({
-  epochISO: external_z_namespaceObject.z.string(),
-  periodNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  periodKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  seasonNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  seasonKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  weekNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
-});
-
-const ConfigSchema = external_z_namespaceObject.z.object({
-  affection: external_z_namespaceObject.z.object({
-    affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
-  }),
-  time: TimeConfigSchema,
-  incident: IncidentConfigSchema.optional()
-}).passthrough();
-
-const IncidentCacheSchema = external_z_namespaceObject.z.object({
-  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable().optional()
-});
-
-const CacheSchema = external_z_namespaceObject.z.object({
-  time: external_z_namespaceObject.z.object({
-    clockAck: ClockAckSchema.optional()
-  }).optional().default({}),
-  incident: IncidentCacheSchema.optional().default({}),
-  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({})
-});
-
-const 世界Schema = external_z_namespaceObject.z.object({
-  timeProgress: external_z_namespaceObject.z.number()
-}).passthrough();
-
-const StatSchema = external_z_namespaceObject.z.object({
-  config: ConfigSchema,
-  chars: CharsSchema,
-  user: UserSchema,
-  world: WorldSchema.optional(),
-  世界: 世界Schema,
-  cache: CacheSchema.optional(),
-  incidents: IncidentsSchema.default({}),
-  festivals_list: external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([])
 });
 
 const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
@@ -1121,52 +946,193 @@ async function processArea({stat, runtime}) {
   };
 }
 
-function getCharAffectionStages(stat, charId) {
-  const character = stat.chars[charId];
-  if (character && character.affectionStages) {
-    return character.affectionStages;
-  }
-  return stat.config.affection.affectionStages;
-}
-
-function processCharacterForgetting({stat}) {
-  const results = [];
-  for (const charId in stat.chars) {
-    const character = stat.chars[charId];
-    if (!character) continue;
-    const affectionStages = getCharAffectionStages(stat, charId);
-    const forgettingInfo = {
-      id: charId,
-      name: character.name,
-      affectionStages
-    };
-    results.push(forgettingInfo);
-  }
-  return results;
-}
-
 const character_log_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/character-log-processor");
 
 function processCharacterLog({runtime, snapshots, stat}) {
   character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
     snapshotCount: snapshots.length
   });
-  const forgettingInfo = processCharacterForgetting({
-    stat
-  });
-  const characterLog = {
-    forgettingInfo
-  };
-  const newRuntime = {
-    ...runtime,
-    characterLog
-  };
   return {
-    runtime: newRuntime
+    runtime
   };
 }
 
+function getGlobalAffectionStages(stat) {
+  return stat.config?.affection?.affectionStages ?? [];
+}
+
+function getCharAffectionStages(stat, charId) {
+  const charStages = stat.chars?.[charId]?.affectionStages;
+  if (charStages && charStages.length > 0) {
+    return charStages;
+  }
+  return getGlobalAffectionStages(stat);
+}
+
+function getCharSpecials(stat, charId) {
+  return stat.chars?.[charId]?.specials ?? [];
+}
+
+function getCharRoutine(stat, charId) {
+  return stat.chars?.[charId]?.routine ?? [];
+}
+
+function processCharacterSettings({stat}) {
+  const settingsMap = {};
+  if (!stat.chars) {
+    return settingsMap;
+  }
+  for (const charId in stat.chars) {
+    const character = stat.chars[charId];
+    if (!character) continue;
+    const affectionStages = getCharAffectionStages(stat, charId);
+    const specials = getCharSpecials(stat, charId);
+    const routine = getCharRoutine(stat, charId);
+    const settings = {
+      id: charId,
+      name: character.name,
+      affectionStages,
+      specials,
+      routine
+    };
+    settingsMap[charId] = settings;
+  }
+  return settingsMap;
+}
+
+function process({runtime, stat}) {
+  const characterSettings = processCharacterSettings({
+    stat
+  });
+  const newRuntime = Object.assign({}, runtime, {
+    characterSettings
+  });
+  return newRuntime;
+}
+
 const HISTORY_LENGTH = 20;
+
+const BY_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
+
+const BY_SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
+
+const ClockAckSchema = external_z_namespaceObject.z.object({
+  dayID: external_z_namespaceObject.z.number(),
+  weekID: external_z_namespaceObject.z.number(),
+  monthID: external_z_namespaceObject.z.number(),
+  yearID: external_z_namespaceObject.z.number(),
+  periodID: external_z_namespaceObject.z.number(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  seasonID: external_z_namespaceObject.z.number(),
+  seasonIdx: external_z_namespaceObject.z.number()
+});
+
+const NowSchema = external_z_namespaceObject.z.object({
+  iso: external_z_namespaceObject.z.string(),
+  year: external_z_namespaceObject.z.number(),
+  month: external_z_namespaceObject.z.number(),
+  day: external_z_namespaceObject.z.number(),
+  weekdayIndex: external_z_namespaceObject.z.number(),
+  weekdayName: external_z_namespaceObject.z.string(),
+  periodName: external_z_namespaceObject.z.string(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  minutesSinceMidnight: external_z_namespaceObject.z.number(),
+  seasonName: external_z_namespaceObject.z.string(),
+  seasonIdx: external_z_namespaceObject.z.number(),
+  hour: external_z_namespaceObject.z.number(),
+  minute: external_z_namespaceObject.z.number(),
+  hm: external_z_namespaceObject.z.string()
+});
+
+const ClockFlagsSchema = external_z_namespaceObject.z.object({
+  newPeriod: external_z_namespaceObject.z.boolean(),
+  byPeriod: external_z_namespaceObject.z.object({
+    newDawn: external_z_namespaceObject.z.boolean(),
+    newMorning: external_z_namespaceObject.z.boolean(),
+    newNoon: external_z_namespaceObject.z.boolean(),
+    newAfternoon: external_z_namespaceObject.z.boolean(),
+    newDusk: external_z_namespaceObject.z.boolean(),
+    newNight: external_z_namespaceObject.z.boolean(),
+    newFirstHalfNight: external_z_namespaceObject.z.boolean(),
+    newSecondHalfNight: external_z_namespaceObject.z.boolean()
+  }),
+  newDay: external_z_namespaceObject.z.boolean(),
+  newWeek: external_z_namespaceObject.z.boolean(),
+  newMonth: external_z_namespaceObject.z.boolean(),
+  newSeason: external_z_namespaceObject.z.boolean(),
+  bySeason: external_z_namespaceObject.z.object({
+    newSpring: external_z_namespaceObject.z.boolean(),
+    newSummer: external_z_namespaceObject.z.boolean(),
+    newAutumn: external_z_namespaceObject.z.boolean(),
+    newWinter: external_z_namespaceObject.z.boolean()
+  }),
+  newYear: external_z_namespaceObject.z.boolean()
+});
+
+const ClockSchema = external_z_namespaceObject.z.object({
+  now: NowSchema,
+  flags: ClockFlagsSchema
+});
+
+const EMPTY_NOW = {
+  iso: "",
+  year: 0,
+  month: 0,
+  day: 0,
+  weekdayIndex: 0,
+  weekdayName: "",
+  periodName: "",
+  periodIdx: 0,
+  minutesSinceMidnight: 0,
+  seasonName: "",
+  seasonIdx: 0,
+  hour: 0,
+  minute: 0,
+  hm: ""
+};
+
+const EMPTY_FLAGS = {
+  newPeriod: false,
+  byPeriod: {
+    newDawn: false,
+    newMorning: false,
+    newNoon: false,
+    newAfternoon: false,
+    newDusk: false,
+    newNight: false,
+    newFirstHalfNight: false,
+    newSecondHalfNight: false
+  },
+  newDay: false,
+  newWeek: false,
+  newMonth: false,
+  newSeason: false,
+  bySeason: {
+    newSpring: false,
+    newSummer: false,
+    newAutumn: false,
+    newWinter: false
+  },
+  newYear: false
+};
+
+const CharacterCacheSchema = external_z_namespaceObject.z.object({
+  visit: external_z_namespaceObject.z.object({
+    cooling: external_z_namespaceObject.z.boolean().optional()
+  }).optional()
+});
+
+const IncidentCacheSchema = external_z_namespaceObject.z.object({
+  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable().optional()
+});
+
+const CacheSchema = external_z_namespaceObject.z.object({
+  time: external_z_namespaceObject.z.object({
+    clockAck: ClockAckSchema.optional()
+  }).optional().default({}),
+  incident: IncidentCacheSchema.optional().default({}),
+  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({})
+});
 
 function getCache(stat) {
   const cache = CacheSchema.parse(stat.cache ?? {});
@@ -1186,7 +1152,7 @@ function getChar(stat, charId) {
   return stat.chars[charId];
 }
 
-function getGlobalAffectionStages(stat) {
+function accessors_getGlobalAffectionStages(stat) {
   return stat.config.affection.affectionStages;
 }
 
@@ -1746,7 +1712,7 @@ function preprocess({runtime, stat, cache}) {
     const newCache = external_default().cloneDeep(cache);
     const changes = [];
     const charIds = Object.keys(getChars(stat));
-    const globalAffectionStages = getGlobalAffectionStages(stat);
+    const globalAffectionStages = accessors_getGlobalAffectionStages(stat);
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
@@ -1836,149 +1802,67 @@ async function processCharacterDecisions({stat, runtime}) {
   }
 }
 
-const runtime_TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
+  }
+  return val;
+}, schema);
 
-const runtime_ForgettingRuleSchema = external_z_namespaceObject.z.object({
+const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+
+const ForgettingRuleSchema = external_z_namespaceObject.z.object({
   triggerFlag: external_z_namespaceObject.z.string(),
   decrease: external_z_namespaceObject.z.number()
 });
 
-const runtime_AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
+const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
   threshold: external_z_namespaceObject.z.number(),
   name: external_z_namespaceObject.z.string(),
-  patienceUnit: runtime_TimeUnitSchema.optional(),
+  patienceUnit: TimeUnitSchema.optional(),
   visit: external_z_namespaceObject.z.object({
     enabled: external_z_namespaceObject.z.boolean().optional(),
     probBase: external_z_namespaceObject.z.number().optional(),
     probK: external_z_namespaceObject.z.number().optional(),
-    coolUnit: runtime_TimeUnitSchema.optional()
+    coolUnit: TimeUnitSchema.optional()
   }).optional(),
-  forgettingSpeed: external_z_namespaceObject.z.array(runtime_ForgettingRuleSchema).optional()
+  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional()
 }).passthrough();
 
-const runtime_CharacterForgettingInfoSchema = external_z_namespaceObject.z.object({
+const ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const EntrySchema = external_z_namespaceObject.z.object({
+  when: external_z_namespaceObject.z.any(),
+  action: ActionSchema,
+  priority: external_z_namespaceObject.z.number().optional()
+});
+
+const CharacterSettingsSchema = external_z_namespaceObject.z.object({
   id: external_z_namespaceObject.z.string(),
   name: external_z_namespaceObject.z.string(),
-  affectionStages: external_z_namespaceObject.z.array(runtime_AffectionStageWithForgetSchema)
+  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema),
+  specials: external_z_namespaceObject.z.array(EntrySchema),
+  routine: external_z_namespaceObject.z.array(EntrySchema)
 });
 
-const runtime_ClockAckSchema = external_z_namespaceObject.z.object({
-  dayID: external_z_namespaceObject.z.number(),
-  weekID: external_z_namespaceObject.z.number(),
-  monthID: external_z_namespaceObject.z.number(),
-  yearID: external_z_namespaceObject.z.number(),
-  periodID: external_z_namespaceObject.z.number(),
-  periodIdx: external_z_namespaceObject.z.number(),
-  seasonID: external_z_namespaceObject.z.number(),
-  seasonIdx: external_z_namespaceObject.z.number()
-});
+const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSettingsSchema);
 
-const runtime_IncidentDetailSchema = external_z_namespaceObject.z.object({
+const IncidentDetailSchema = external_z_namespaceObject.z.object({
   异变细节: external_z_namespaceObject.z.string(),
   主要地区: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   异变退治者: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional(),
   异变已结束: external_z_namespaceObject.z.boolean()
 });
 
-const runtime_ActionSchema = external_z_namespaceObject.z.object({
-  do: external_z_namespaceObject.z.string(),
-  to: external_z_namespaceObject.z.string().optional(),
-  source: external_z_namespaceObject.z.string().optional()
-});
-
-const NowSchema = external_z_namespaceObject.z.object({
-  iso: external_z_namespaceObject.z.string(),
-  year: external_z_namespaceObject.z.number(),
-  month: external_z_namespaceObject.z.number(),
-  day: external_z_namespaceObject.z.number(),
-  weekdayIndex: external_z_namespaceObject.z.number(),
-  weekdayName: external_z_namespaceObject.z.string(),
-  periodName: external_z_namespaceObject.z.string(),
-  periodIdx: external_z_namespaceObject.z.number(),
-  minutesSinceMidnight: external_z_namespaceObject.z.number(),
-  seasonName: external_z_namespaceObject.z.string(),
-  seasonIdx: external_z_namespaceObject.z.number(),
-  hour: external_z_namespaceObject.z.number(),
-  minute: external_z_namespaceObject.z.number(),
-  hm: external_z_namespaceObject.z.string()
-});
-
-const ClockFlagsSchema = external_z_namespaceObject.z.object({
-  newPeriod: external_z_namespaceObject.z.boolean(),
-  byPeriod: external_z_namespaceObject.z.object({
-    newDawn: external_z_namespaceObject.z.boolean(),
-    newMorning: external_z_namespaceObject.z.boolean(),
-    newNoon: external_z_namespaceObject.z.boolean(),
-    newAfternoon: external_z_namespaceObject.z.boolean(),
-    newDusk: external_z_namespaceObject.z.boolean(),
-    newNight: external_z_namespaceObject.z.boolean(),
-    newFirstHalfNight: external_z_namespaceObject.z.boolean(),
-    newSecondHalfNight: external_z_namespaceObject.z.boolean()
-  }),
-  newDay: external_z_namespaceObject.z.boolean(),
-  newWeek: external_z_namespaceObject.z.boolean(),
-  newMonth: external_z_namespaceObject.z.boolean(),
-  newSeason: external_z_namespaceObject.z.boolean(),
-  bySeason: external_z_namespaceObject.z.object({
-    newSpring: external_z_namespaceObject.z.boolean(),
-    newSummer: external_z_namespaceObject.z.boolean(),
-    newAutumn: external_z_namespaceObject.z.boolean(),
-    newWinter: external_z_namespaceObject.z.boolean()
-  }),
-  newYear: external_z_namespaceObject.z.boolean()
-});
-
-const ClockSchema = external_z_namespaceObject.z.object({
-  now: NowSchema,
-  flags: ClockFlagsSchema
-});
-
-const TimeProcessorResultSchema = external_z_namespaceObject.z.object({
-  clock: ClockSchema,
-  newClockAck: runtime_ClockAckSchema.nullable()
-});
-
-const EMPTY_NOW = {
-  iso: "",
-  year: 0,
-  month: 0,
-  day: 0,
-  weekdayIndex: 0,
-  weekdayName: "",
-  periodName: "",
-  periodIdx: 0,
-  minutesSinceMidnight: 0,
-  seasonName: "",
-  seasonIdx: 0,
-  hour: 0,
-  minute: 0,
-  hm: ""
-};
-
-const EMPTY_FLAGS = {
-  newPeriod: false,
-  byPeriod: {
-    newDawn: false,
-    newMorning: false,
-    newNoon: false,
-    newAfternoon: false,
-    newDusk: false,
-    newNight: false,
-    newFirstHalfNight: false,
-    newSecondHalfNight: false
-  },
-  newDay: false,
-  newWeek: false,
-  newMonth: false,
-  newSeason: false,
-  bySeason: {
-    newSpring: false,
-    newSummer: false,
-    newAutumn: false,
-    newWinter: false
-  },
-  newYear: false
-};
+const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
 
 const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
@@ -1986,7 +1870,13 @@ const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
   solver: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   mainLoc: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   isFinished: external_z_namespaceObject.z.boolean(),
-  raw: runtime_IncidentDetailSchema
+  raw: IncidentDetailSchema
+});
+
+const runtime_ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
 });
 
 const IncidentSchema = external_z_namespaceObject.z.object({
@@ -2018,14 +1908,10 @@ const FestivalSchema = external_z_namespaceObject.z.object({
 });
 
 const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
-  affectionStage: runtime_AffectionStageWithForgetSchema.optional(),
+  affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: runtime_ActionSchema.optional(),
   companionDecision: runtime_ActionSchema.optional()
 });
-
-const CharacterLogSchema = external_z_namespaceObject.z.object({
-  forgettingInfo: external_z_namespaceObject.z.array(runtime_CharacterForgettingInfoSchema)
-}).passthrough();
 
 const BfsPathSchema = external_z_namespaceObject.z.object({
   hops: external_z_namespaceObject.z.number(),
@@ -2061,7 +1947,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
       remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
     })
   }).optional(),
-  characterLog: CharacterLogSchema.optional()
+  characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
+  characterSettings: CharacterSettingsMapSchema.optional()
 });
 
 const runtime_logger = new Logger("幻想乡缘起-后台数据处理/utils/runtime");
@@ -2152,6 +2039,12 @@ function processFestival({runtime, stat}) {
     next: null
   };
   try {
+    if (!runtime.clock) {
+      festival_processor_processor_logger.warn(funcName, "runtime.clock 未定义，无法处理节日信息。");
+      return {
+        festival: defaultFestivalInfo
+      };
+    }
     const {month: currentMonth, day: currentDay} = runtime.clock.now;
     const {festivals_list: festivalList} = stat;
     if (festivalList.length === 0) {
@@ -2374,7 +2267,7 @@ function shouldTriggerNewIncident(stat, cache, config) {
       anchor: null
     };
   }
-  if (anchor === null) {
+  if (anchor === null || anchor === undefined) {
     return {
       trigger: false,
       anchor: timeProgress
@@ -2481,7 +2374,7 @@ function processIncident({runtime, stat, cache}) {
       isIncidentActive: !!currentIncident
     };
     setIncidentCache(newCache, {
-      incidentCooldownAnchor: newAnchor
+      incidentCooldownAnchor: newAnchor ?? null
     });
     incident_processor_processor_logger.debug(funcName, "异变处理完成, runtime.incident=", runtime.incident);
     return {
@@ -2867,6 +2760,32 @@ function buildPrompt({runtime, stat}) {
   return finalPrompt;
 }
 
+function getTimeConfig(stat) {
+  return stat.config.time;
+}
+
+function accessors_getTimeProgress(stat) {
+  return stat.世界.timeProgress;
+}
+
+function getClockAck(cache) {
+  return cache.time?.clockAck;
+}
+
+function getClock(runtime) {
+  return runtime.clock;
+}
+
+function writeTimeProcessorResult({runtime, cache, result}) {
+  if (result.clock) {
+    runtime.clock = result.clock;
+  }
+  if (!cache.time) {
+    cache.time = {};
+  }
+  cache.time.clockAck = result.newClockAck ?? undefined;
+}
+
 const PAD2 = n => n < 10 ? "0" + n : "" + n;
 
 const ymdID = d => d.getUTCFullYear() * 1e4 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
@@ -2908,9 +2827,9 @@ function processTime({stat, prevClockAck}) {
     time_processor_processor_logger.debug(funcName, `开始时间计算...`);
     const prev = prevClockAck;
     time_processor_processor_logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
-    const timeConfig = stat.config.time;
+    const timeConfig = getTimeConfig(stat);
     const {epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames} = timeConfig;
-    const tpMin = stat.世界.timeProgress;
+    const tpMin = accessors_getTimeProgress(stat);
     time_processor_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
     const weekStartsOn = 1;
     const epochMS = Date.parse(epochISO);
@@ -2995,21 +2914,33 @@ function processTime({stat, prevClockAck}) {
       hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ":" + PAD2(minutesSinceMidnight % 60)
     };
     const byPeriod = {
-      newDawn: newPeriod && periodKey === "newDawn",
-      newMorning: newPeriod && periodKey === "newMorning",
-      newNoon: newPeriod && periodKey === "newNoon",
-      newAfternoon: newPeriod && periodKey === "newAfternoon",
-      newDusk: newPeriod && periodKey === "newDusk",
-      newNight: newPeriod && periodKey === "newNight",
-      newFirstHalfNight: newPeriod && periodKey === "newFirstHalfNight",
-      newSecondHalfNight: newPeriod && periodKey === "newSecondHalfNight"
+      newDawn: false,
+      newMorning: false,
+      newNoon: false,
+      newAfternoon: false,
+      newDusk: false,
+      newNight: false,
+      newFirstHalfNight: false,
+      newSecondHalfNight: false
     };
+    if (newPeriod) {
+      const keyToSet = BY_PERIOD_KEYS[periodIdx];
+      if (keyToSet) {
+        byPeriod[keyToSet] = true;
+      }
+    }
     const bySeason = {
-      newSpring: newSeason && seasonKeys[seasonIdx] === "newSpring",
-      newSummer: newSeason && seasonKeys[seasonIdx] === "newSummer",
-      newAutumn: newSeason && seasonKeys[seasonIdx] === "newAutumn",
-      newWinter: newSeason && seasonKeys[seasonIdx] === "newWinter"
+      newSpring: false,
+      newSummer: false,
+      newAutumn: false,
+      newWinter: false
     };
+    if (newSeason) {
+      const keyToSet = BY_SEASON_KEYS[seasonIdx];
+      if (keyToSet) {
+        bySeason[keyToSet] = true;
+      }
+    }
     const flags = {
       newPeriod,
       byPeriod,
@@ -3048,19 +2979,15 @@ async function time_processor_processTime({stat, runtime}) {
   time_processor_logger.debug(funcName, "开始处理时间...");
   try {
     const cache = getCache(stat);
-    const prevClockAck = cache.time?.clockAck ?? null;
+    const prevClockAck = getClockAck(cache);
     const timeResult = processTime({
       stat,
-      prevClockAck
+      prevClockAck: prevClockAck ?? null
     });
-    if (timeResult.newClockAck) {
-      cache.time = {
-        ...cache.time,
-        clockAck: timeResult.newClockAck
-      };
-    }
-    external_default().merge(runtime, {
-      clock: timeResult.clock
+    writeTimeProcessorResult({
+      runtime,
+      cache,
+      result: timeResult
     });
     applyCacheToStat(stat, cache);
     time_processor_logger.debug(funcName, "时间处理完毕。");
@@ -3222,6 +3149,119 @@ function onQueryResult(listener) {
   };
 }
 
+const CharacterSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  好感度: external_z_namespaceObject.z.number(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable(),
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
+  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  目标: external_z_namespaceObject.z.string().optional()
+});
+
+const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
+
+const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  detail: external_z_namespaceObject.z.string(),
+  mainLoc: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ])
+});
+
+const IncidentConfigSchema = external_z_namespaceObject.z.object({
+  cooldownMinutes: external_z_namespaceObject.z.number(),
+  forceTrigger: external_z_namespaceObject.z.boolean(),
+  isRandomPool: external_z_namespaceObject.z.boolean(),
+  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
+  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+});
+
+const TimeConfigSchema = external_z_namespaceObject.z.object({
+  epochISO: external_z_namespaceObject.z.string().datetime({
+    message: "无效的 ISO 8601 日期时间格式"
+  }),
+  periodNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(8, {
+    message: "periodNames 必须有 8 个元素"
+  }),
+  periodKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(8, {
+    message: "periodKeys 必须有 8 个元素"
+  }),
+  seasonNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(4, {
+    message: "seasonNames 必须有 4 个元素"
+  }),
+  seasonKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(4, {
+    message: "seasonKeys 必须有 4 个元素"
+  }),
+  weekNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(7, {
+    message: "weekNames 必须有 7 个元素"
+  })
+});
+
+const DEFAULT_TIME_CONFIG = {
+  epochISO: "2025-10-24T06:00:00+09:00",
+  periodNames: [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ],
+  periodKeys: [ ...BY_PERIOD_KEYS ],
+  seasonNames: [ "春", "夏", "秋", "冬" ],
+  seasonKeys: [ ...BY_SEASON_KEYS ],
+  weekNames: [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ]
+};
+
+const AffectionConfigSchema = external_z_namespaceObject.z.object({
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
+});
+
+const ConfigSchema = external_z_namespaceObject.z.object({
+  affection: AffectionConfigSchema,
+  time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
+  incident: IncidentConfigSchema.optional()
+}).passthrough();
+
+const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  month: external_z_namespaceObject.z.number(),
+  start_day: external_z_namespaceObject.z.number(),
+  end_day: external_z_namespaceObject.z.number(),
+  host: external_z_namespaceObject.z.string().optional(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
+});
+
+const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
+
+const UserSchema = external_z_namespaceObject.z.object({
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable()
+});
+
+const MapGraphSchema = external_z_namespaceObject.z.object({
+  tree: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.any()),
+  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
+    a: external_z_namespaceObject.z.string(),
+    b: external_z_namespaceObject.z.string()
+  }))).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
+});
+
+const WorldSchema = external_z_namespaceObject.z.object({
+  map_graph: MapGraphSchema.optional(),
+  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
+}).passthrough();
+
+const 世界Schema = external_z_namespaceObject.z.object({
+  timeProgress: external_z_namespaceObject.z.number()
+}).passthrough();
+
+const StatSchema = external_z_namespaceObject.z.object({
+  config: ConfigSchema,
+  chars: CharsSchema,
+  user: UserSchema,
+  world: WorldSchema.optional(),
+  世界: 世界Schema,
+  cache: CacheSchema.optional(),
+  incidents: IncidentsSchema.default({}),
+  festivals_list: FestivalsListSchema
+});
+
 const _logger = new Logger("幻想乡缘起-后台数据处理");
 
 function logState(moduleName, modified, {stat, runtime, cache}) {
@@ -3273,6 +3313,15 @@ $(() => {
       currentStat = normalizationResult.processedStat;
       const normalizationChanges = normalizationResult.changes;
       logState("Normalizer Processor", "stat", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = process({
+        runtime: currentRuntime,
+        stat: currentStat
+      });
+      logState("Character Settings Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

@@ -5,7 +5,7 @@
 
 import _ from 'lodash';
 import { z } from 'zod';
-import { Stat } from '../../schema';
+import { Stat } from '../../schema/stat';
 import { FestivalSchema, Runtime } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { dayOfYear } from './utils';
@@ -37,6 +37,10 @@ export function processFestival({ runtime, stat }: { runtime: Runtime; stat: Sta
 
   try {
     // ---------- 1. 读取所需数据 ----------
+    if (!runtime.clock) {
+      logger.warn(funcName, 'runtime.clock 未定义，无法处理节日信息。');
+      return { festival: defaultFestivalInfo };
+    }
     // schema 保证了 clock.now 和 festivals_list 的存在，因此可以直接访问
     const { month: currentMonth, day: currentDay } = runtime.clock.now;
     const { festivals_list: festivalList } = stat;

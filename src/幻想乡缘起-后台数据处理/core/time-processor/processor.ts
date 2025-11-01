@@ -1,8 +1,18 @@
-import { ClockAck, Stat } from '../../schema';
-import { ClockFlags, EMPTY_FLAGS, EMPTY_NOW, NowSchema, TimeProcessorResult } from '../../schema/runtime';
-import { Logger } from '../../utils/log';
-import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 import { z } from 'zod';
+import { ClockAck } from '../../schema/clock';
+import {
+  BY_PERIOD_KEYS,
+  BY_SEASON_KEYS,
+  ClockFlags,
+  EMPTY_FLAGS,
+  EMPTY_NOW,
+  NowSchema,
+} from '../../schema/clock';
+import { Stat } from '../../schema/stat';
+import { TimeProcessorResult } from '../../schema/time-processor-result';
+import { Logger } from '../../utils/log';
+import { getTimeConfig, getTimeProgress } from './accessors';
+import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 
 const logger = new Logger();
 
@@ -21,10 +31,10 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
     logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
 
     // ---------- 读取时间源和配置 ----------
-    const timeConfig = stat.config.time;
+    const timeConfig = getTimeConfig(stat);
     const { epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames } = timeConfig;
 
-    const tpMin = stat.世界.timeProgress;
+    const tpMin = getTimeProgress(stat);
     logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
 
     const weekStartsOn = 1; // 周一
@@ -136,22 +146,36 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
     };
 
     const byPeriod = {
-      newDawn: newPeriod && periodKey === 'newDawn',
-      newMorning: newPeriod && periodKey === 'newMorning',
-      newNoon: newPeriod && periodKey === 'newNoon',
-      newAfternoon: newPeriod && periodKey === 'newAfternoon',
-      newDusk: newPeriod && periodKey === 'newDusk',
-      newNight: newPeriod && periodKey === 'newNight',
-      newFirstHalfNight: newPeriod && periodKey === 'newFirstHalfNight',
-      newSecondHalfNight: newPeriod && periodKey === 'newSecondHalfNight',
+      newDawn: false,
+      newMorning: false,
+      newNoon: false,
+      newAfternoon: false,
+      newDusk: false,
+      newNight: false,
+      newFirstHalfNight: false,
+      newSecondHalfNight: false,
     };
 
+    if (newPeriod) {
+      const keyToSet = BY_PERIOD_KEYS[periodIdx];
+      if (keyToSet) {
+        byPeriod[keyToSet] = true;
+      }
+    }
+
     const bySeason = {
-      newSpring: newSeason && seasonKeys[seasonIdx] === 'newSpring',
-      newSummer: newSeason && seasonKeys[seasonIdx] === 'newSummer',
-      newAutumn: newSeason && seasonKeys[seasonIdx] === 'newAutumn',
-      newWinter: newSeason && seasonKeys[seasonIdx] === 'newWinter',
+      newSpring: false,
+      newSummer: false,
+      newAutumn: false,
+      newWinter: false,
     };
+
+    if (newSeason) {
+      const keyToSet = BY_SEASON_KEYS[seasonIdx];
+      if (keyToSet) {
+        bySeason[keyToSet] = true;
+      }
+    }
 
     const flags: ClockFlags = {
       newPeriod,

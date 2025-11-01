@@ -1,5 +1,8 @@
 import _ from 'lodash';
-import { Action, Character, Entry, Stat } from '../../../../schema';
+import { Character } from '../../../../schema/character';
+import { Entry } from '../../../../schema/character-settings';
+import { Action } from '../../../../schema/runtime';
+import { Stat } from '../../../../schema/stat';
 import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
 import { getChar, getCharLocation } from '../../accessors';

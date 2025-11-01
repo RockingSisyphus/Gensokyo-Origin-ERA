@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Stat } from '../../../schema';
+import { Stat } from '../../../schema/stat';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { Logger } from '../../../utils/log';
 import { matchMessages } from '../../../utils/message';

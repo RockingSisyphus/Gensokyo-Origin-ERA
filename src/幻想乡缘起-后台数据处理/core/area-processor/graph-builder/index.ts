@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { Stat } from '../../../schema';
+import { Stat } from '../../../schema/stat';
 import { Logger } from '../../../utils/log';
 
 const logger = new Logger();

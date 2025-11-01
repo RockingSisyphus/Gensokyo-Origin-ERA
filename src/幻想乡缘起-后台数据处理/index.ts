@@ -2,6 +2,7 @@ import _ from 'lodash';
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
 import { processCharacterLog } from './core/character-log-processor';
+import { process as processCharacterSettings } from './core/character-settings-processor';
 import { HISTORY_LENGTH } from './core/character-log-processor/constants';
 import { processCharacterDecisions } from './core/character-processor';
 import { sendData } from './core/data-sender';
@@ -13,7 +14,7 @@ import { processTime } from './core/time-processor';
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
-import { Stat, StatSchema } from './schema';
+import { Stat, StatSchema } from './schema/stat';
 import { Runtime } from './schema/runtime';
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
@@ -94,6 +95,14 @@ $(() => {
       currentStat = normalizationResult.processedStat;
       const normalizationChanges = normalizationResult.changes;
       logState('Normalizer Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // 1.2. 角色设置处理
+      currentRuntime = processCharacterSettings({ runtime: currentRuntime, stat: currentStat });
+      logState('Character Settings Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

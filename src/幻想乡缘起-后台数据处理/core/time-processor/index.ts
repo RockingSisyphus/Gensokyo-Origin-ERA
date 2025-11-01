@@ -1,8 +1,8 @@
-import _ from 'lodash';
-import { Stat } from '../../schema';
+import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
 import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
+import { getClockAck, writeTimeProcessorResult } from './accessors';
 import { processTime as processor } from './processor';
 
 const logger = new Logger();
@@ -29,26 +29,16 @@ export async function processTime({
     // 1. 提取缓存
     const cache = getCache(stat);
 
-    // 2. 从缓存中直接读取上一轮的 clockAck
-    const prevClockAck = cache.time?.clockAck ?? null;
+    // 2. 使用 accessor 读取上一轮的 clockAck
+    const prevClockAck = getClockAck(cache);
 
     // 3. 调用核心处理器
-    const timeResult = processor({ stat, prevClockAck });
+    const timeResult = processor({ stat, prevClockAck: prevClockAck ?? null });
 
-    // 4. 将新的 clockAck 写入缓存
-    if (timeResult.newClockAck) {
-      // 使用新对象替换旧的 cache.time，以保证结构的原子性和类型安全
-      // 如果 cache.time 已有其他属性，此操作会保留它们
-      cache.time = {
-        ...cache.time,
-        clockAck: timeResult.newClockAck,
-      };
-    }
+    // 4. 使用 accessor 将结果写入 runtime 和 cache
+    writeTimeProcessorResult({ runtime, cache, result: timeResult });
 
-    // 5. 将时间计算结果合并到 runtime
-    _.merge(runtime, { clock: timeResult.clock });
-
-    // 6. 将最终的缓存应用回 stat
+    // 5. 将最终的缓存应用回 stat
     applyCacheToStat(stat, cache);
 
     logger.debug(funcName, '时间处理完毕。');

@@ -1,5 +1,6 @@
-import { TimeUnit } from '../../../../schema';
-import { ClockFlags, Runtime } from '../../../../schema/runtime';
+import { TimeUnit } from '../../../../schema/character-settings';
+import { ClockFlags } from '../../../../schema/clock';
+import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromRuntime } from '../../accessors';
 

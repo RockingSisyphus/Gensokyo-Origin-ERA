@@ -14,18 +14,6 @@ export const statUserAtUnknownLocation = _.merge(_.cloneDeep(baseTestData), {
   },
 });
 
-// 测试场景 3: stat 中没有用户位置信息
-export const statUserLocationMissing = _.merge(_.cloneDeep(baseTestData), {
-  user: {
-    所在地区: undefined,
-  },
-});
-
-// 测试场景 4: stat 中没有世界书信息
-export const statWorldMissing = _.merge(_.cloneDeep(baseTestData), {
-  world: undefined,
-});
-
 // === 路线计算测试场景 ===
 
 // 场景 5: 从博丽神社出发，应能看到到人间之里和魔法之森的路线

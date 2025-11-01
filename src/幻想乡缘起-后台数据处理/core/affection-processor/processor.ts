@@ -4,7 +4,8 @@
  */
 
 import _ from 'lodash';
-import { ChangeLogEntry, Stat } from '../../schema';
+import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { Stat } from '../../schema/stat';
 import { createChangeLogEntry } from '../../utils/changeLog';
 import { EditLogOp, getAtomicChangesFromUpdate, getUpdateOps, parseEditLogString } from '../../utils/editLog';
 import { Logger } from '../../utils/log';

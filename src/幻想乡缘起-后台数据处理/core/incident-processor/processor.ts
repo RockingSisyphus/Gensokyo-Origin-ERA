@@ -1,5 +1,9 @@
 import _ from 'lodash';
-import { Cache, ChangeLogEntry, IncidentConfig, IncidentDetail, Stat } from '../../schema';
+import { Cache } from '../../schema/cache';
+import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { IncidentConfig } from '../../schema/config';
+import { IncidentDetail } from '../../schema/incident';
+import { Stat } from '../../schema/stat';
 import { IncidentRuntimeInfo, Runtime } from '../../schema/runtime';
 import { createChangeLogEntry } from '../../utils/changeLog';
 import { Logger } from '../../utils/log';
@@ -115,7 +119,7 @@ function shouldTriggerNewIncident(
   }
 
   // 首次运行，不触发，但提议设置新锚点
-  if (anchor === null) {
+  if (anchor === null || anchor === undefined) {
     return { trigger: false, anchor: timeProgress };
   }
 
@@ -281,7 +285,7 @@ export function processIncident({ runtime, stat, cache }: { runtime: Runtime; st
     };
 
     // 更新 cache
-    setIncidentCache(newCache, { incidentCooldownAnchor: newAnchor });
+    setIncidentCache(newCache, { incidentCooldownAnchor: newAnchor ?? null });
 
     logger.debug(funcName, '异变处理完成, runtime.incident=', runtime.incident);
     return { runtime, stat: newStat, changes, cache: newCache };

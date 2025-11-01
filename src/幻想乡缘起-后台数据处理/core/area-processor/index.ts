@@ -1,4 +1,4 @@
-import { Stat } from '../../schema';
+import { Stat } from '../../schema/stat';
 import { Runtime, RouteInfo } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { buildGraph } from './graph-builder';

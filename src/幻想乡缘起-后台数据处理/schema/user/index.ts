@@ -1,0 +1,7 @@
+import { z } from 'zod';
+
+// Stat.user 的定义
+export const UserSchema = z.object({
+  所在地区: z.string().nullable(),
+  居住地区: z.string().nullable(),
+});

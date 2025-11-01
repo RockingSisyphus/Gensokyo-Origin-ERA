@@ -1,4 +1,7 @@
-import { Cache, IncidentCache, IncidentConfig, Incidents, Stat } from '../../schema';
+import { Cache, IncidentCache } from '../../schema/cache';
+import { IncidentConfig } from '../../schema/config';
+import { Incidents } from '../../schema/incident';
+import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
 import { DEFAULT_INCIDENT_CONFIG } from './constants';
 

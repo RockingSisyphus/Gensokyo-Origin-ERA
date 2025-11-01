@@ -1,5 +1,6 @@
 import _ from 'lodash';
-import { ChangeLogEntry, Stat } from '../../schema';
+import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { Stat } from '../../schema/stat';
 import { Logger } from '../../utils/log';
 import { normalizeLocationData } from './location';
 

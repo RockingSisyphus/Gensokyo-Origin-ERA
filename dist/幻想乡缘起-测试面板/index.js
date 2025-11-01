@@ -64,9 +64,7 @@ __webpack_require__.d(area_namespaceObject, {
   statForRouteFromIsolated: () => statForRouteFromIsolated,
   statForRouteFromShrine: () => statForRouteFromShrine,
   statUserAtKnownLocation: () => statUserAtKnownLocation,
-  statUserAtUnknownLocation: () => statUserAtUnknownLocation,
-  statUserLocationMissing: () => statUserLocationMissing,
-  statWorldMissing: () => statWorldMissing
+  statUserAtUnknownLocation: () => statUserAtUnknownLocation
 });
 
 var character_namespaceObject = {};
@@ -260,7 +258,7 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-100,"name":"憎恨","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-20,"name":"厌恶","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":10,"name":"普通","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":20,"name":"熟悉","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":40,"name":"亲近","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":70,"name":"亲密","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":100,"name":"思慕","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":99999,"name":"不渝","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]}]},"time":{"epochISO":"2025-10-24T06:00:00+09:00","periodNames":["清晨","上午","下午","傍晚","夜晚","深夜"],"periodKeys":["morning","forenoon","afternoon","evening","night","lateNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["spring","summer","autumn","winter"],"weekNames":["月","火","水","木","金","土","日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":["博丽神社","永远亭","迷途竹林","神灵庙","梦殿大祀庙"],"中部平原带":["人间之里","铃奈庵","命莲寺","墓地","香霖堂"],"魔法之森带":["魔法之森","迷途之家","雾雨魔法店"],"西境水域带":["雾之湖","红魔馆"],"西北山地带":["妖怪之山","守矢神社","九天瀑布","风神之湖","玄武之泽","虹龙洞","秘天崖","兽道","大蛤蟆之池"],"南境丘陵带":["无名之丘","太阳花田","辉针城"]},"冥界":["幽冥结界","白玉楼"],"地底·地狱系":["幻想风穴","间歇泉","旧都","血之湖","地灵殿","灼热地狱遗址","地狱","畜生界（兽王园）"],"彼岸·中阴界":["中有之道","三途河","彼岸","柳之运河","无缘冢"],"天界等上层":["天界","有顶天","仙界","梦境世界"],"月面":["月都"],"外界":["秘封俱乐部"]}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
+const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-100,"name":"憎恨","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-20,"name":"厌恶","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":10,"name":"普通","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":20,"name":"熟悉","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":40,"name":"亲近","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":70,"name":"亲密","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":100,"name":"思慕","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":99999,"name":"不渝","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]}]},"time":{"epochISO":"2025-10-24T06:00:00Z","periodNames":["清晨","上午","中午","下午","黄昏","夜晚","上半夜","下半夜"],"periodKeys":["newDawn","newMorning","newNoon","newAfternoon","newDusk","newNight","newFirstHalfNight","newSecondHalfNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["newSpring","newSummer","newAutumn","newWinter"],"weekNames":["周一","周二","周三","周四","周五","周六","周日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":["博丽神社","永远亭","迷途竹林","神灵庙","梦殿大祀庙"],"中部平原带":["人间之里","铃奈庵","命莲寺","墓地","香霖堂"],"魔法之森带":["魔法之森","迷途之家","雾雨魔法店"],"西境水域带":["雾之湖","红魔馆"],"西北山地带":["妖怪之山","守矢神社","九天瀑布","风神之湖","玄武之泽","虹龙洞","秘天崖","兽道","大蛤蟆之池"],"南境丘陵带":["无名之丘","太阳花田","辉针城"]},"冥界":["幽冥结界","白玉楼"],"地底·地狱系":["幻想风穴","间歇泉","旧都","血之湖","地灵殿","灼热地狱遗址","地狱","畜生界（兽王园）"],"彼岸·中阴界":["中有之道","三途河","彼岸","柳之运河","无缘冢"],"天界等上层":["天界","有顶天","仙界","梦境世界"],"月面":["月都"],"外界":["秘封俱乐部"]}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"},{"a":"雾之湖","b":"博丽神社"},{"a":"雾之湖","b":"红魔馆"},{"a":"雾之湖","b":"妖怪之山"},{"a":"雾之湖","b":"魔法之森"},{"a":"风神之湖","b":"妖怪之山"},{"a":"妖怪之山","b":"玄武之泽"},{"a":"守矢神社","b":"大蛤蟆之池"},{"a":"玄武之泽","b":"大蛤蟆之池"},{"a":"妖怪之山","b":"大蛤蟆之池"},{"a":"风神之湖","b":"守矢神社"},{"a":"秘天崖","b":"九天瀑布"},{"a":"秘天崖","b":"守矢神社"},{"a":"秘天崖","b":"天界"},{"a":"虹龙洞","b":"九天瀑布"},{"a":"魔法之森","b":"人间之里"},{"a":"魔法之森","b":"雾雨魔法店"},{"a":"雾雨魔法店","b":"香霖堂"},{"a":"魔法之森","b":"迷途之家"},{"a":"墓地","b":"命莲寺"},{"a":"人间之里","b":"香霖堂"},{"a":"人间之里","b":"命莲寺"},{"a":"命莲寺","b":"神灵庙"},{"a":"命莲寺","b":"迷途竹林"},{"a":"神灵庙","b":"梦殿大祀庙"},{"a":"迷途竹林","b":"永远亭"},{"a":"迷途竹林","b":"辉针城"},{"a":"太阳花田","b":"无名之丘"},{"a":"太阳花田","b":"幻想风穴"},{"a":"太阳花田","b":"魔法之森"},{"a":"无名之丘","b":"幻想风穴"},{"a":"幻想风穴","b":"间歇泉"},{"a":"间歇泉","b":"地灵殿"},{"a":"旧都","b":"血之湖"},{"a":"血之湖","b":"地灵殿"},{"a":"旧都","b":"灼热地狱遗址"},{"a":"灼热地狱遗址","b":"地狱"},{"a":"地狱","b":"畜生界（兽王园）"},{"a":"无缘冢","b":"柳之运河"},{"a":"墓地","b":"中有之道"},{"a":"柳之运河","b":"中有之道"},{"a":"中有之道","b":"三途河"},{"a":"无缘冢","b":"畜生界（兽王园）"},{"a":"彼岸","b":"三途河"},{"a":"无缘冢","b":"幽冥结界"},{"a":"幽冥结界","b":"白玉楼"},{"a":"天界","b":"有顶天"},{"a":"有顶天","b":"仙界"},{"a":"仙界","b":"梦境世界"},{"a":"梦境世界","b":"月都"},{"a":"红魔馆","b":"月都"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
 
 const standardRuntime = {
   clock: {
@@ -349,18 +347,20 @@ const boundaryData = external_default().merge(external_default().cloneDeep(stat_
   festivals_list: null
 });
 
-const timeTest_Initial = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 0
-  },
-  cache: undefined
-});
+function getInitialTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 0;
+  delete data.cache;
+  return data;
+}
 
-const timeTest_NoChange = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 10
-  },
-  cache: {
+const timeTest_Initial = getInitialTest();
+
+function getNoChangeTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 10;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
         dayID: 20251024,
@@ -373,14 +373,17 @@ const timeTest_NoChange = external_default().merge(external_default().cloneDeep(
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewPeriod = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 2 * 60
-  },
-  cache: {
+const timeTest_NoChange = getNoChangeTest();
+
+function getNewPeriodTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 2 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
         dayID: 20251024,
@@ -393,110 +396,130 @@ const timeTest_NewPeriod = external_default().merge(external_default().cloneDeep
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewDay = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 19 * 60
-  },
-  cache: {
+const timeTest_NewPeriod = getNewPeriodTest();
+
+function getNewDayTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 19 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
         dayID: 20251024,
         weekID: 20251020,
         monthID: 202510,
         yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
+        periodID: 202510247,
+        periodIdx: 7,
         seasonID: 20252,
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewWeek = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 3 * 24 * 60
-  },
-  cache: {
+const timeTest_NewDay = getNewDayTest();
+
+function getNewWeekTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 3 * 24 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
-        dayID: 20251024,
+        dayID: 20251026,
         weekID: 20251020,
         monthID: 202510,
         yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
+        periodID: 202510267,
+        periodIdx: 7,
         seasonID: 20252,
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewMonth = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: 8 * 24 * 60
-  },
-  cache: {
+const timeTest_NewWeek = getNewWeekTest();
+
+function getNewMonthTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = 8 * 24 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
+        dayID: 20251031,
+        weekID: 20251027,
         monthID: 202510,
         yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
+        periodID: 202510317,
+        periodIdx: 7,
         seasonID: 20252,
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewSeason = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: (8 + 30) * 24 * 60
-  },
-  cache: {
+const timeTest_NewMonth = getNewMonthTest();
+
+function getNewSeasonTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = (8 + 30) * 24 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
+        dayID: 20251130,
+        weekID: 20251124,
+        monthID: 202511,
         yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
+        periodID: 202511307,
+        periodIdx: 7,
         seasonID: 20252,
         seasonIdx: 2
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const timeTest_NewYear = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  世界: {
-    timeProgress: (8 + 30 + 31) * 24 * 60
-  },
-  cache: {
+const timeTest_NewSeason = getNewSeasonTest();
+
+function getNewYearTest() {
+  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
+  data.世界.timeProgress = (8 + 30 + 31) * 24 * 60;
+  data.cache = {
+    ...stat_test_data_namespaceObject.cache,
     time: {
       clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
+        dayID: 20251231,
+        weekID: 20251229,
+        monthID: 202512,
         yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
-        seasonID: 20252,
-        seasonIdx: 2
+        periodID: 202512317,
+        periodIdx: 7,
+        seasonID: 20253,
+        seasonIdx: 3
       }
     }
-  }
-});
+  };
+  return data;
+}
 
-const statWithIllegalLocations = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+const timeTest_NewYear = getNewYearTest();
+
+const getClonedBaseData = () => external_default().cloneDeep(stat_test_data_namespaceObject);
+
+const statWithIllegalLocations = external_default().merge(getClonedBaseData(), {
   user: {
     居住地区: "人里",
     所在地区: "火星"
@@ -518,15 +541,14 @@ const statWithIllegalLocations = external_default().merge(external_default().clo
   }
 });
 
-const statWithMissingLocations = external_default().cloneDeep(stat_test_data_namespaceObject);
-
-delete statWithMissingLocations.user.居住地区;
-
-delete statWithMissingLocations.user.所在地区;
-
-delete statWithMissingLocations.chars.marisa.居住地区;
-
-delete statWithMissingLocations.chars.marisa.所在地区;
+const statWithMissingLocations = (() => {
+  const stat = getClonedBaseData();
+  delete stat.user.居住地区;
+  delete stat.user.所在地区;
+  delete stat.chars.marisa.居住地区;
+  delete stat.chars.marisa.所在地区;
+  return stat;
+})();
 
 const coreTestPayload = {
   mk: "test-mk-001",
@@ -590,199 +612,194 @@ const normalizerTestPayloads = {
   MissingLocations: createNormalizerTestPayload(statWithMissingLocations)
 };
 
-const stat_largeIncrease = external_default().cloneDeep(stat_test_data_namespaceObject);
+const affection_getClonedBaseData = () => external_default().cloneDeep(stat_test_data_namespaceObject);
 
-stat_largeIncrease.chars.reimu.好感度 = 150;
+const getClonedCharData = () => external_default().cloneDeep(stat_test_data_namespaceObject.chars.reimu);
 
-const log_largeIncrease = JSON.stringify([ {
-  op: "update",
-  path: "chars.reimu.好感度",
-  value_old: 60,
-  value_new: 150
-} ]);
+const largeIncrease = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.chars.reimu.好感度 = 150;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.reimu.好感度",
+    value_old: 60,
+    value_new: 150
+  } ]);
+  return {
+    mk: "affection-test-1",
+    message_id: 2001,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-1": log
+    },
+    selectedMks: [ "affection-test-1" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
-const largeIncrease = {
-  mk: "affection-test-1",
-  message_id: 2001,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_largeIncrease,
-  statWithoutMeta: stat_largeIncrease,
-  editLogs: {
-    "affection-test-1": log_largeIncrease
-  },
-  selectedMks: [ "affection-test-1" ],
-  consecutiveProcessingCount: 1
-};
+const largeDecrease = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.chars.reimu.好感度 = -50;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.reimu.好感度",
+    value_old: 60,
+    value_new: -50
+  } ]);
+  return {
+    mk: "affection-test-2",
+    message_id: 2002,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-2": log
+    },
+    selectedMks: [ "affection-test-2" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
-const stat_largeDecrease = external_default().cloneDeep(stat_test_data_namespaceObject);
+const smallChange = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.chars.reimu.好感度 = 62;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.reimu.好感度",
+    value_old: 60,
+    value_new: 62
+  } ]);
+  return {
+    mk: "affection-test-3",
+    message_id: 2003,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-3": log
+    },
+    selectedMks: [ "affection-test-3" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
-stat_largeDecrease.chars.reimu.好感度 = -50;
+const initialAssign = (() => {
+  const stat = affection_getClonedBaseData();
+  const newChar = getClonedCharData();
+  newChar.name = "角色C";
+  newChar.好感度 = 200;
+  stat.chars["charC"] = newChar;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.charC.好感度",
+    value_old: undefined,
+    value_new: 200
+  } ]);
+  return {
+    mk: "affection-test-4",
+    message_id: 2004,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-4": log
+    },
+    selectedMks: [ "affection-test-4" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
-const log_largeDecrease = JSON.stringify([ {
-  op: "update",
-  path: "chars.reimu.好感度",
-  value_old: 60,
-  value_new: -50
-} ]);
+const objectUpdate = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.chars.marisa.好感度 = 110;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.marisa",
+    value_old: stat_test_data_namespaceObject.chars.marisa,
+    value_new: {
+      ...stat_test_data_namespaceObject.chars.marisa,
+      好感度: 110
+    }
+  } ]);
+  return {
+    mk: "affection-test-5",
+    message_id: 2005,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-5": log
+    },
+    selectedMks: [ "affection-test-5" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
-const largeDecrease = {
-  mk: "affection-test-2",
-  message_id: 2002,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_largeDecrease,
-  statWithoutMeta: stat_largeDecrease,
-  editLogs: {
-    "affection-test-2": log_largeDecrease
-  },
-  selectedMks: [ "affection-test-2" ],
-  consecutiveProcessingCount: 1
-};
-
-const stat_smallChange = external_default().cloneDeep(stat_test_data_namespaceObject);
-
-stat_smallChange.chars.reimu.好感度 = 62;
-
-const log_smallChange = JSON.stringify([ {
-  op: "update",
-  path: "chars.reimu.好感度",
-  value_old: 60,
-  value_new: 62
-} ]);
-
-const smallChange = {
-  mk: "affection-test-3",
-  message_id: 2003,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_smallChange,
-  statWithoutMeta: stat_smallChange,
-  editLogs: {
-    "affection-test-3": log_smallChange
-  },
-  selectedMks: [ "affection-test-3" ],
-  consecutiveProcessingCount: 1
-};
-
-const stat_initialAssign = external_default().cloneDeep(stat_test_data_namespaceObject);
-
-stat_initialAssign.chars["charC"] = {
-  name: "角色C",
-  好感度: 200
-};
-
-const log_initialAssign = JSON.stringify([ {
-  op: "update",
-  path: "chars.charC.好感度",
-  value_old: undefined,
-  value_new: 200
-} ]);
-
-const initialAssign = {
-  mk: "affection-test-4",
-  message_id: 2004,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_initialAssign,
-  statWithoutMeta: stat_initialAssign,
-  editLogs: {
-    "affection-test-4": log_initialAssign
-  },
-  selectedMks: [ "affection-test-4" ],
-  consecutiveProcessingCount: 1
-};
-
-const stat_objectUpdate = external_default().cloneDeep(stat_test_data_namespaceObject);
-
-stat_objectUpdate.chars.marisa.好感度 = 110;
-
-const log_objectUpdate = JSON.stringify([ {
-  op: "update",
-  path: "chars.marisa",
-  value_old: stat_test_data_namespaceObject.chars.marisa,
-  value_new: {
-    ...stat_test_data_namespaceObject.chars.marisa,
-    好感度: 110
-  }
-} ]);
-
-const objectUpdate = {
-  mk: "affection-test-5",
-  message_id: 2005,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_objectUpdate,
-  statWithoutMeta: stat_objectUpdate,
-  editLogs: {
-    "affection-test-5": log_objectUpdate
-  },
-  selectedMks: [ "affection-test-5" ],
-  consecutiveProcessingCount: 1
-};
-
-const stat_mixedOps = external_default().cloneDeep(stat_test_data_namespaceObject);
-
-stat_mixedOps.user.name = "新测试员";
-
-stat_mixedOps.chars.reimu.好感度 = 250;
-
-stat_mixedOps.chars.marisa.好感度 = -90;
-
-stat_mixedOps.chars["charD"] = {
-  name: "角色D",
-  好感度: 5
-};
-
-const log_mixedOps = JSON.stringify([ {
-  op: "update",
-  path: "user.name",
-  value_old: undefined,
-  value_new: "新测试员"
-}, {
-  op: "update",
-  path: "chars.reimu.好感度",
-  value_old: 60,
-  value_new: 250
-}, {
-  op: "insert",
-  path: "chars.charD",
-  value_new: {
-    name: "角色D",
-    好感度: 5
-  }
-}, {
-  op: "update",
-  path: "chars.marisa.好感度",
-  value_old: 20,
-  value_new: -90
-} ]);
-
-const mixedOps = {
-  mk: "affection-test-6",
-  message_id: 2006,
-  actions: {
-    apiWrite: true,
-    sync: false
-  },
-  stat: stat_mixedOps,
-  statWithoutMeta: stat_mixedOps,
-  editLogs: {
-    "affection-test-6": log_mixedOps
-  },
-  selectedMks: [ "affection-test-6" ],
-  consecutiveProcessingCount: 1
-};
+const mixedOps = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.user.name = "新测试员";
+  stat.chars.reimu.好感度 = 250;
+  stat.chars.marisa.好感度 = -90;
+  const newChar = getClonedCharData();
+  newChar.name = "角色D";
+  newChar.好感度 = 5;
+  stat.chars["charD"] = newChar;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "user.name",
+    value_old: undefined,
+    value_new: "新测试员"
+  }, {
+    op: "update",
+    path: "chars.reimu.好感度",
+    value_old: 60,
+    value_new: 250
+  }, {
+    op: "insert",
+    path: "chars.charD",
+    value_new: {
+      name: "角色D",
+      好感度: 5
+    }
+  }, {
+    op: "update",
+    path: "chars.marisa.好感度",
+    value_old: 20,
+    value_new: -90
+  } ]);
+  return {
+    mk: "affection-test-6",
+    message_id: 2006,
+    actions: {
+      apiWrite: true,
+      sync: false
+    },
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-6": log
+    },
+    selectedMks: [ "affection-test-6" ],
+    consecutiveProcessingCount: 1
+  };
+})();
 
 const statUserAtKnownLocation = external_default().cloneDeep(stat_test_data_namespaceObject);
 
@@ -790,16 +807,6 @@ const statUserAtUnknownLocation = external_default().merge(external_default().cl
   user: {
     所在地区: "外界"
   }
-});
-
-const statUserLocationMissing = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  user: {
-    所在地区: undefined
-  }
-});
-
-const statWorldMissing = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
-  world: undefined
 });
 
 const statForRouteFromShrine = external_default().cloneDeep(stat_test_data_namespaceObject);

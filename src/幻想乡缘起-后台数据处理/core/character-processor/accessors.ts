@@ -3,7 +3,11 @@
  * @description 集中了所有对 stat, runtime, cache 的读写操作，以确保路径统一和类型安全。
  */
 
-import { Action, AffectionStageWithForget, Cache, Character, CharacterCache, Stat } from '../../schema';
+import { Cache, CharacterCache } from '../../schema/cache';
+import { Character } from '../../schema/character';
+import { AffectionStageWithForget } from '../../schema/character-settings';
+import { Action } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
 import { CharacterRuntime, Runtime } from '../../schema/runtime';
 import { z } from 'zod';
 

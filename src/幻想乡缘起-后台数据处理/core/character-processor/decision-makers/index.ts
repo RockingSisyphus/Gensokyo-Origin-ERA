@@ -1,5 +1,7 @@
 import _ from 'lodash';
-import { Action, Cache, Stat } from '../../../schema';
+import { Cache } from '../../../schema/cache';
+import { Action } from '../../../schema/runtime';
+import { Stat } from '../../../schema/stat';
 import { Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
 import { makeActionDecisions } from './action-processor';
