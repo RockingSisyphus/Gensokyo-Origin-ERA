@@ -17,15 +17,7 @@ const logger = new Logger();
  * @param {Runtime} params.runtime - 当前的 runtime 对象。
  * @returns {{ stat: Stat; changes: ChangeLogEntry[] }} - 返回一个包含更新后 stat 和变更日志的对象。
  */
-export function processAffectionDecisions({
-  stat,
-  editLog,
-  runtime,
-}: {
-  stat: Stat;
-  editLog: any;
-  runtime: Runtime;
-}): {
+export function processAffectionDecisions({ stat, editLog, runtime }: { stat: Stat; editLog: any; runtime: Runtime }): {
   stat: Stat;
   changes: ChangeLogEntry[];
 } {
