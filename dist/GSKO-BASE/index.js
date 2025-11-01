@@ -2429,13 +2429,6 @@ const incident_processor_logger = new Logger("GSKO-BASE/core/incident-processor"
 async function processIncidentDecisions({stat, runtime}) {
   const funcName = "processIncidentDecisions";
   incident_processor_logger.debug(funcName, "开始处理异变决策...");
-  incident_processor_logger.log(funcName, "111开始处理异变决策...");
-  incident_processor_logger.warn(funcName, "111开始处理异变决策...");
-  incident_processor_logger.error(funcName, "111开始处理异变决策...");
-  console.error(funcName, "《GSKO-BASE》111开始处理异变决策...");
-  console.warn(funcName, "《GSKO-BASE》111开始处理异变决策...");
-  console.debug(funcName, "《GSKO-BASE》111开始处理异变决策...");
-  console.log(funcName, "《GSKO-BASE》111开始处理异变决策...");
   try {
     const cache = getCache(stat);
     const {runtime: finalRuntime, stat: newStat, changes, cache: finalCache} = processIncident({
