@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { Logger } from '../../utils/log';
 import { processAffection } from './processor';
@@ -13,9 +14,18 @@ const logger = new Logger();
  * @param {object} params - 参数对象。
  * @param {Stat} params.stat - 完整的持久层数据。
  * @param {any} params.editLog - 当前消息的 editLog。
+ * @param {Runtime} params.runtime - 当前的 runtime 对象。
  * @returns {{ stat: Stat; changes: ChangeLogEntry[] }} - 返回一个包含更新后 stat 和变更日志的对象。
  */
-export function processAffectionDecisions({ stat, editLog }: { stat: Stat; editLog: any }): {
+export function processAffectionDecisions({
+  stat,
+  editLog,
+  runtime,
+}: {
+  stat: Stat;
+  editLog: any;
+  runtime: Runtime;
+}): {
   stat: Stat;
   changes: ChangeLogEntry[];
 } {
@@ -24,7 +34,7 @@ export function processAffectionDecisions({ stat, editLog }: { stat: Stat; editL
 
   try {
     // 直接调用核心处理器
-    const result = processAffection({ stat, editLog });
+    const result = processAffection({ stat, editLog, runtime });
     logger.debug(funcName, '好感度处理完毕。');
     return result;
   } catch (e) {

@@ -7,70 +7,80 @@
           "name": "死敌",
           "patienceUnit": "day",
           "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
         },
         {
           "threshold": -100,
           "name": "憎恨",
           "patienceUnit": "day",
           "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
         },
         {
           "threshold": -20,
           "name": "厌恶",
           "patienceUnit": "day",
           "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
         },
         {
           "threshold": 0,
           "name": "陌生",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.1, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 5, "divisor": 2 }
         },
         {
           "threshold": 10,
           "name": "普通",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.2, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 5, "divisor": 2 }
         },
         {
           "threshold": 20,
           "name": "熟悉",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.3, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 5, "divisor": 2 }
         },
         {
           "threshold": 40,
           "name": "亲近",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.5, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
         },
         {
           "threshold": 70,
           "name": "亲密",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
         },
         {
           "threshold": 100,
           "name": "思慕",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 0.9, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
         },
         {
           "threshold": 99999,
           "name": "不渝",
           "patienceUnit": "day",
           "visit": { "enabled": true, "probBase": 1.0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }]
+          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
         }
       ]
     },

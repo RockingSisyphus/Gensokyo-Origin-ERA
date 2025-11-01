@@ -109,7 +109,11 @@ $(() => {
       });
 
       // 1.5. 好感度处理
-      const affectionResult = processAffectionDecisions({ stat: currentStat, editLog: currentEditLog });
+      const affectionResult = processAffectionDecisions({
+        stat: currentStat,
+        editLog: currentEditLog,
+        runtime: currentRuntime,
+      });
       currentStat = affectionResult.stat;
       const affectionChanges = affectionResult.changes;
       logState('Affection Processor', 'stat', {

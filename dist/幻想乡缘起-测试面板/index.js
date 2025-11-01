@@ -47,12 +47,12 @@ var affection_namespaceObject = {};
 __webpack_require__.r(affection_namespaceObject);
 
 __webpack_require__.d(affection_namespaceObject, {
-  initialAssign: () => initialAssign,
-  largeDecrease: () => largeDecrease,
-  largeIncrease: () => largeIncrease,
-  mixedOps: () => mixedOps,
-  objectUpdate: () => objectUpdate,
-  smallChange: () => smallChange
+  customConfigLimited: () => customConfigLimited,
+  customConfigNoLimit: () => customConfigNoLimit,
+  globalConfigLargeDecrease: () => globalConfigLargeDecrease,
+  globalConfigLargeIncrease: () => globalConfigLargeIncrease,
+  globalConfigSmallIncrease: () => globalConfigSmallIncrease,
+  objectUpdate: () => objectUpdate
 });
 
 var area_namespaceObject = {};
@@ -258,7 +258,7 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-100,"name":"憎恨","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":-20,"name":"厌恶","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":10,"name":"普通","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":20,"name":"熟悉","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":40,"name":"亲近","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":70,"name":"亲密","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":100,"name":"思慕","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]},{"threshold":99999,"name":"不渝","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}]}]},"time":{"epochISO":"2025-10-24T06:00:00Z","periodNames":["清晨","上午","中午","下午","黄昏","夜晚","上半夜","下半夜"],"periodKeys":["newDawn","newMorning","newNoon","newAfternoon","newDusk","newNight","newFirstHalfNight","newSecondHalfNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["newSpring","newSummer","newAutumn","newWinter"],"weekNames":["周一","周二","周三","周四","周五","周六","周日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":["博丽神社","永远亭","迷途竹林","神灵庙","梦殿大祀庙"],"中部平原带":["人间之里","铃奈庵","命莲寺","墓地","香霖堂"],"魔法之森带":["魔法之森","迷途之家","雾雨魔法店"],"西境水域带":["雾之湖","红魔馆"],"西北山地带":["妖怪之山","守矢神社","九天瀑布","风神之湖","玄武之泽","虹龙洞","秘天崖","兽道","大蛤蟆之池"],"南境丘陵带":["无名之丘","太阳花田","辉针城"]},"冥界":["幽冥结界","白玉楼"],"地底·地狱系":["幻想风穴","间歇泉","旧都","血之湖","地灵殿","灼热地狱遗址","地狱","畜生界（兽王园）"],"彼岸·中阴界":["中有之道","三途河","彼岸","柳之运河","无缘冢"],"天界等上层":["天界","有顶天","仙界","梦境世界"],"月面":["月都"],"外界":["秘封俱乐部"]}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"},{"a":"雾之湖","b":"博丽神社"},{"a":"雾之湖","b":"红魔馆"},{"a":"雾之湖","b":"妖怪之山"},{"a":"雾之湖","b":"魔法之森"},{"a":"风神之湖","b":"妖怪之山"},{"a":"妖怪之山","b":"玄武之泽"},{"a":"守矢神社","b":"大蛤蟆之池"},{"a":"玄武之泽","b":"大蛤蟆之池"},{"a":"妖怪之山","b":"大蛤蟆之池"},{"a":"风神之湖","b":"守矢神社"},{"a":"秘天崖","b":"九天瀑布"},{"a":"秘天崖","b":"守矢神社"},{"a":"秘天崖","b":"天界"},{"a":"虹龙洞","b":"九天瀑布"},{"a":"魔法之森","b":"人间之里"},{"a":"魔法之森","b":"雾雨魔法店"},{"a":"雾雨魔法店","b":"香霖堂"},{"a":"魔法之森","b":"迷途之家"},{"a":"墓地","b":"命莲寺"},{"a":"人间之里","b":"香霖堂"},{"a":"人间之里","b":"命莲寺"},{"a":"命莲寺","b":"神灵庙"},{"a":"命莲寺","b":"迷途竹林"},{"a":"神灵庙","b":"梦殿大祀庙"},{"a":"迷途竹林","b":"永远亭"},{"a":"迷途竹林","b":"辉针城"},{"a":"太阳花田","b":"无名之丘"},{"a":"太阳花田","b":"幻想风穴"},{"a":"太阳花田","b":"魔法之森"},{"a":"无名之丘","b":"幻想风穴"},{"a":"幻想风穴","b":"间歇泉"},{"a":"间歇泉","b":"地灵殿"},{"a":"旧都","b":"血之湖"},{"a":"血之湖","b":"地灵殿"},{"a":"旧都","b":"灼热地狱遗址"},{"a":"灼热地狱遗址","b":"地狱"},{"a":"地狱","b":"畜生界（兽王园）"},{"a":"无缘冢","b":"柳之运河"},{"a":"墓地","b":"中有之道"},{"a":"柳之运河","b":"中有之道"},{"a":"中有之道","b":"三途河"},{"a":"无缘冢","b":"畜生界（兽王园）"},{"a":"彼岸","b":"三途河"},{"a":"无缘冢","b":"幽冥结界"},{"a":"幽冥结界","b":"白玉楼"},{"a":"天界","b":"有顶天"},{"a":"有顶天","b":"仙界"},{"a":"仙界","b":"梦境世界"},{"a":"梦境世界","b":"月都"},{"a":"红魔馆","b":"月都"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
+const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-100,"name":"憎恨","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-20,"name":"厌恶","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":10,"name":"普通","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":20,"name":"熟悉","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":40,"name":"亲近","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":70,"name":"亲密","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":100,"name":"思慕","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":99999,"name":"不渝","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}}]},"time":{"epochISO":"2025-10-24T06:00:00Z","periodNames":["清晨","上午","中午","下午","黄昏","夜晚","上半夜","下半夜"],"periodKeys":["newDawn","newMorning","newNoon","newAfternoon","newDusk","newNight","newFirstHalfNight","newSecondHalfNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["newSpring","newSummer","newAutumn","newWinter"],"weekNames":["周一","周二","周三","周四","周五","周六","周日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":["博丽神社","永远亭","迷途竹林","神灵庙","梦殿大祀庙"],"中部平原带":["人间之里","铃奈庵","命莲寺","墓地","香霖堂"],"魔法之森带":["魔法之森","迷途之家","雾雨魔法店"],"西境水域带":["雾之湖","红魔馆"],"西北山地带":["妖怪之山","守矢神社","九天瀑布","风神之湖","玄武之泽","虹龙洞","秘天崖","兽道","大蛤蟆之池"],"南境丘陵带":["无名之丘","太阳花田","辉针城"]},"冥界":["幽冥结界","白玉楼"],"地底·地狱系":["幻想风穴","间歇泉","旧都","血之湖","地灵殿","灼热地狱遗址","地狱","畜生界（兽王园）"],"彼岸·中阴界":["中有之道","三途河","彼岸","柳之运河","无缘冢"],"天界等上层":["天界","有顶天","仙界","梦境世界"],"月面":["月都"],"外界":["秘封俱乐部"]}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"},{"a":"雾之湖","b":"博丽神社"},{"a":"雾之湖","b":"红魔馆"},{"a":"雾之湖","b":"妖怪之山"},{"a":"雾之湖","b":"魔法之森"},{"a":"风神之湖","b":"妖怪之山"},{"a":"妖怪之山","b":"玄武之泽"},{"a":"守矢神社","b":"大蛤蟆之池"},{"a":"玄武之泽","b":"大蛤蟆之池"},{"a":"妖怪之山","b":"大蛤蟆之池"},{"a":"风神之湖","b":"守矢神社"},{"a":"秘天崖","b":"九天瀑布"},{"a":"秘天崖","b":"守矢神社"},{"a":"秘天崖","b":"天界"},{"a":"虹龙洞","b":"九天瀑布"},{"a":"魔法之森","b":"人间之里"},{"a":"魔法之森","b":"雾雨魔法店"},{"a":"雾雨魔法店","b":"香霖堂"},{"a":"魔法之森","b":"迷途之家"},{"a":"墓地","b":"命莲寺"},{"a":"人间之里","b":"香霖堂"},{"a":"人间之里","b":"命莲寺"},{"a":"命莲寺","b":"神灵庙"},{"a":"命莲寺","b":"迷途竹林"},{"a":"神灵庙","b":"梦殿大祀庙"},{"a":"迷途竹林","b":"永远亭"},{"a":"迷途竹林","b":"辉针城"},{"a":"太阳花田","b":"无名之丘"},{"a":"太阳花田","b":"幻想风穴"},{"a":"太阳花田","b":"魔法之森"},{"a":"无名之丘","b":"幻想风穴"},{"a":"幻想风穴","b":"间歇泉"},{"a":"间歇泉","b":"地灵殿"},{"a":"旧都","b":"血之湖"},{"a":"血之湖","b":"地灵殿"},{"a":"旧都","b":"灼热地狱遗址"},{"a":"灼热地狱遗址","b":"地狱"},{"a":"地狱","b":"畜生界（兽王园）"},{"a":"无缘冢","b":"柳之运河"},{"a":"墓地","b":"中有之道"},{"a":"柳之运河","b":"中有之道"},{"a":"中有之道","b":"三途河"},{"a":"无缘冢","b":"畜生界（兽王园）"},{"a":"彼岸","b":"三途河"},{"a":"无缘冢","b":"幽冥结界"},{"a":"幽冥结界","b":"白玉楼"},{"a":"天界","b":"有顶天"},{"a":"有顶天","b":"仙界"},{"a":"仙界","b":"梦境世界"},{"a":"梦境世界","b":"月都"},{"a":"红魔馆","b":"月都"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
 
 const standardRuntime = {
   clock: {
@@ -614,190 +614,219 @@ const normalizerTestPayloads = {
 
 const affection_getClonedBaseData = () => external_default().cloneDeep(stat_test_data_namespaceObject);
 
-const getClonedCharData = () => external_default().cloneDeep(stat_test_data_namespaceObject.chars.reimu);
+const sanaeAffectionStages = [ {
+  threshold: 50,
+  name: "崇拜",
+  patienceUnit: "day",
+  visit: {
+    enabled: true,
+    probBase: 1,
+    coolUnit: "day"
+  },
+  forgettingSpeed: [ {
+    triggerFlag: "newMonth",
+    decrease: 1
+  } ],
+  affectionGrowthLimit: {
+    max: 20,
+    divisor: 2
+  }
+}, {
+  threshold: 20,
+  name: "信赖",
+  patienceUnit: "day",
+  visit: {
+    enabled: true,
+    probBase: .8,
+    coolUnit: "day"
+  },
+  forgettingSpeed: [ {
+    triggerFlag: "newMonth",
+    decrease: 1
+  } ],
+  affectionGrowthLimit: {
+    max: 99999,
+    divisor: 1
+  }
+}, {
+  threshold: 0,
+  name: "友人",
+  patienceUnit: "day",
+  visit: {
+    enabled: true,
+    probBase: .4,
+    coolUnit: "day"
+  },
+  forgettingSpeed: [ {
+    triggerFlag: "newMonth",
+    decrease: 1
+  } ],
+  affectionGrowthLimit: {
+    max: 3,
+    divisor: 4
+  }
+}, {
+  threshold: -50,
+  name: "警惕",
+  patienceUnit: "day",
+  visit: {
+    enabled: false,
+    probBase: 0,
+    coolUnit: "day"
+  },
+  forgettingSpeed: [ {
+    triggerFlag: "newMonth",
+    decrease: 2
+  } ],
+  affectionGrowthLimit: {
+    max: 5,
+    divisor: 2
+  }
+} ];
 
-const largeIncrease = (() => {
+const globalConfigLargeIncrease = (() => {
   const stat = affection_getClonedBaseData();
-  stat.chars.reimu.好感度 = 150;
+  stat.chars.reimu.好感度 = 80;
   const log = JSON.stringify([ {
     op: "update",
     path: "chars.reimu.好感度",
     value_old: 60,
-    value_new: 150
+    value_new: 80
   } ]);
   return {
-    mk: "affection-test-1",
-    message_id: 2001,
+    mk: "affection-test-1.1",
+    message_id: 2011,
     actions: {
-      apiWrite: true,
-      sync: false
+      apiWrite: true
     },
     stat,
     statWithoutMeta: stat,
     editLogs: {
-      "affection-test-1": log
-    },
-    selectedMks: [ "affection-test-1" ],
-    consecutiveProcessingCount: 1
+      "affection-test-1.1": log
+    }
   };
 })();
 
-const largeDecrease = (() => {
+const globalConfigSmallIncrease = (() => {
   const stat = affection_getClonedBaseData();
-  stat.chars.reimu.好感度 = -50;
+  stat.chars.reimu.好感度 = 65;
   const log = JSON.stringify([ {
     op: "update",
     path: "chars.reimu.好感度",
     value_old: 60,
-    value_new: -50
+    value_new: 65
   } ]);
   return {
-    mk: "affection-test-2",
-    message_id: 2002,
+    mk: "affection-test-1.2",
+    message_id: 2012,
     actions: {
-      apiWrite: true,
-      sync: false
+      apiWrite: true
     },
     stat,
     statWithoutMeta: stat,
     editLogs: {
-      "affection-test-2": log
-    },
-    selectedMks: [ "affection-test-2" ],
-    consecutiveProcessingCount: 1
+      "affection-test-1.2": log
+    }
   };
 })();
 
-const smallChange = (() => {
+const globalConfigLargeDecrease = (() => {
   const stat = affection_getClonedBaseData();
-  stat.chars.reimu.好感度 = 62;
+  stat.chars.sakuya.好感度 = -80;
   const log = JSON.stringify([ {
     op: "update",
-    path: "chars.reimu.好感度",
-    value_old: 60,
-    value_new: 62
+    path: "chars.sakuya.好感度",
+    value_old: -50,
+    value_new: -80
   } ]);
   return {
-    mk: "affection-test-3",
-    message_id: 2003,
+    mk: "affection-test-1.3",
+    message_id: 2013,
     actions: {
-      apiWrite: true,
-      sync: false
+      apiWrite: true
     },
     stat,
     statWithoutMeta: stat,
     editLogs: {
-      "affection-test-3": log
-    },
-    selectedMks: [ "affection-test-3" ],
-    consecutiveProcessingCount: 1
+      "affection-test-1.3": log
+    }
   };
 })();
 
-const initialAssign = (() => {
+const customConfigLimited = (() => {
   const stat = affection_getClonedBaseData();
-  const newChar = getClonedCharData();
-  newChar.name = "角色C";
-  newChar.好感度 = 200;
-  stat.chars["charC"] = newChar;
+  stat.chars.sanae.好感度 = 30;
+  stat.chars.sanae.affectionStages = sanaeAffectionStages;
   const log = JSON.stringify([ {
     op: "update",
-    path: "chars.charC.好感度",
-    value_old: undefined,
-    value_new: 200
+    path: "chars.sanae.好感度",
+    value_old: 10,
+    value_new: 30
   } ]);
   return {
-    mk: "affection-test-4",
-    message_id: 2004,
+    mk: "affection-test-2.1",
+    message_id: 2021,
     actions: {
-      apiWrite: true,
-      sync: false
+      apiWrite: true
     },
     stat,
     statWithoutMeta: stat,
     editLogs: {
-      "affection-test-4": log
+      "affection-test-2.1": log
+    }
+  };
+})();
+
+const customConfigNoLimit = (() => {
+  const stat = affection_getClonedBaseData();
+  stat.chars.sanae.好感度 = 45;
+  stat.chars.sanae.affectionStages = sanaeAffectionStages;
+  const oldStat = external_default().cloneDeep(stat);
+  oldStat.chars.sanae.好感度 = 25;
+  const log = JSON.stringify([ {
+    op: "update",
+    path: "chars.sanae.好感度",
+    value_old: 25,
+    value_new: 45
+  } ]);
+  return {
+    mk: "affection-test-2.2",
+    message_id: 2022,
+    actions: {
+      apiWrite: true
     },
-    selectedMks: [ "affection-test-4" ],
-    consecutiveProcessingCount: 1
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {
+      "affection-test-2.2": log
+    }
   };
 })();
 
 const objectUpdate = (() => {
   const stat = affection_getClonedBaseData();
+  const oldMarisa = external_default().cloneDeep(stat.chars.marisa);
   stat.chars.marisa.好感度 = 110;
   const log = JSON.stringify([ {
     op: "update",
     path: "chars.marisa",
-    value_old: stat_test_data_namespaceObject.chars.marisa,
+    value_old: oldMarisa,
     value_new: {
-      ...stat_test_data_namespaceObject.chars.marisa,
+      ...oldMarisa,
       好感度: 110
     }
   } ]);
   return {
-    mk: "affection-test-5",
-    message_id: 2005,
+    mk: "affection-test-3.1",
+    message_id: 2031,
     actions: {
-      apiWrite: true,
-      sync: false
+      apiWrite: true
     },
     stat,
     statWithoutMeta: stat,
     editLogs: {
-      "affection-test-5": log
-    },
-    selectedMks: [ "affection-test-5" ],
-    consecutiveProcessingCount: 1
-  };
-})();
-
-const mixedOps = (() => {
-  const stat = affection_getClonedBaseData();
-  stat.user.name = "新测试员";
-  stat.chars.reimu.好感度 = 250;
-  stat.chars.marisa.好感度 = -90;
-  const newChar = getClonedCharData();
-  newChar.name = "角色D";
-  newChar.好感度 = 5;
-  stat.chars["charD"] = newChar;
-  const log = JSON.stringify([ {
-    op: "update",
-    path: "user.name",
-    value_old: undefined,
-    value_new: "新测试员"
-  }, {
-    op: "update",
-    path: "chars.reimu.好感度",
-    value_old: 60,
-    value_new: 250
-  }, {
-    op: "insert",
-    path: "chars.charD",
-    value_new: {
-      name: "角色D",
-      好感度: 5
+      "affection-test-3.1": log
     }
-  }, {
-    op: "update",
-    path: "chars.marisa.好感度",
-    value_old: 20,
-    value_new: -90
-  } ]);
-  return {
-    mk: "affection-test-6",
-    message_id: 2006,
-    actions: {
-      apiWrite: true,
-      sync: false
-    },
-    stat,
-    statWithoutMeta: stat,
-    editLogs: {
-      "affection-test-6": log
-    },
-    selectedMks: [ "affection-test-6" ],
-    consecutiveProcessingCount: 1
   };
 })();
 

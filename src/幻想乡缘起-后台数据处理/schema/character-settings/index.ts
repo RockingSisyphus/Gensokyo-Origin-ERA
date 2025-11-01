@@ -47,6 +47,22 @@ export const AffectionStageWithForgetSchema = z
       })
       .optional(),
     forgettingSpeed: z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
+    /**
+     * 好感度增长的软性限制。
+     * 当增长值超过 max 时，最终增长值将被调整为 Math.max(增长值 / divisor, max)。
+     */
+    affectionGrowthLimit: z
+      .object({
+        /**
+         * 增长值的上限阈值。
+         */
+        max: z.number(),
+        /**
+         * 当增长值超过 max 时，用于缩减增长值的除数。
+         */
+        divisor: z.number(),
+      })
+      .optional(),
   })
   .passthrough();
 export type AffectionStageWithForget = z.infer<typeof AffectionStageWithForgetSchema>;

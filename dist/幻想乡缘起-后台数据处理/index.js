@@ -366,17 +366,25 @@ function findChangeByPath(logJson, targetPath) {
   return null;
 }
 
-const FOLD_RATIO = 5;
-
-const MIN_STEP = 2;
-
 const PATH_RE = /^chars\.[^.]+\.好感度$/;
 
 const isTarget = path => PATH_RE.test(String(path || ""));
 
+function getCurrentAffectionStage(affection, stages) {
+  if (!stages || stages.length === 0) {
+    return undefined;
+  }
+  for (const stage of stages) {
+    if (affection >= stage.threshold) {
+      return stage;
+    }
+  }
+  return stages[stages.length - 1];
+}
+
 const processor_logger = new Logger("幻想乡缘起-后台数据处理/core/affection-processor/processor");
 
-function processAffection({stat, editLog}) {
+function processAffection({stat, editLog, runtime}) {
   const funcName = "processAffection";
   const changes = [];
   const internalLogs = [];
@@ -446,6 +454,7 @@ function processAffection({stat, editLog}) {
         }
         const delta = newValueNum - oldValueNum;
         const absDelta = Math.abs(delta);
+        let finalDelta = delta;
         internalLogs.push({
           msg: "捕获变量更新",
           path,
@@ -454,29 +463,38 @@ function processAffection({stat, editLog}) {
           delta,
           absDelta
         });
-        if (absDelta <= MIN_STEP) {
+        const charSettings = runtime.characterSettings?.[charId];
+        const stages = charSettings?.affectionStages;
+        if (stages) {
+          const currentStage = getCurrentAffectionStage(oldValueNum, stages);
+          const limit = currentStage?.affectionGrowthLimit;
+          if (limit && absDelta > limit.max) {
+            const limitedAbsDelta = Math.max(absDelta / limit.divisor, limit.max);
+            finalDelta = limitedAbsDelta * Math.sign(delta);
+            internalLogs.push({
+              msg: "应用好感度变化软限制",
+              originalDelta: delta,
+              limit,
+              finalDelta
+            });
+          } else {
+            internalLogs.push({
+              msg: "不应用软限制（未超阈值或无配置）"
+            });
+          }
+        }
+        if (finalDelta === delta) {
           internalLogs.push({
-            msg: "不折算：变化量 ≤ 阈值",
-            absDelta,
-            MIN_STEP
+            msg: "处理后值无变化，无需覆写"
           });
           continue;
         }
-        const step = Math.max(MIN_STEP, Math.ceil(absDelta / FOLD_RATIO));
-        const foldedDelta = (delta < 0 ? -1 : 1) * step;
-        const foldedNewValue = oldValueNum + foldedDelta;
-        internalLogs.push({
-          msg: "折算计算结果",
-          FOLD_RATIO,
-          step,
-          foldedDelta,
-          foldedNewValue
-        });
-        character.好感度 = foldedNewValue;
-        const changeEntry = createChangeLogEntry("affection-processor", path, oldValueNum, foldedNewValue, `好感度折算：原始变化量 ${delta} 被折算为 ${foldedDelta}`);
+        const finalNewValue = external_default().round(oldValueNum + finalDelta);
+        character.好感度 = finalNewValue;
+        const changeEntry = createChangeLogEntry("affection-processor", path, oldValueNum, finalNewValue, `好感度处理：原始变化量 ${delta} 被软限制为 ${finalDelta}`);
         changes.push(changeEntry);
         internalLogs.push({
-          msg: "折算写入完成",
+          msg: "写入完成",
           changeEntry
         });
       } catch (err) {
@@ -505,13 +523,14 @@ function processAffection({stat, editLog}) {
 
 const affection_processor_logger = new Logger("幻想乡缘起-后台数据处理/core/affection-processor");
 
-function processAffectionDecisions({stat, editLog}) {
+function processAffectionDecisions({stat, editLog, runtime}) {
   const funcName = "processAffectionDecisions";
   affection_processor_logger.debug(funcName, "开始处理好感度...");
   try {
     const result = processAffection({
       stat,
-      editLog
+      editLog,
+      runtime
     });
     affection_processor_logger.debug(funcName, "好感度处理完毕。");
     return result;
@@ -1830,7 +1849,11 @@ const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
     probK: external_z_namespaceObject.z.number().optional(),
     coolUnit: TimeUnitSchema.optional()
   }).optional(),
-  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional()
+  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
+  affectionGrowthLimit: external_z_namespaceObject.z.object({
+    max: external_z_namespaceObject.z.number(),
+    divisor: external_z_namespaceObject.z.number()
+  }).optional()
 }).passthrough();
 
 const ActionSchema = external_z_namespaceObject.z.object({
@@ -3328,7 +3351,8 @@ $(() => {
       });
       const affectionResult = processAffectionDecisions({
         stat: currentStat,
-        editLog: currentEditLog
+        editLog: currentEditLog,
+        runtime: currentRuntime
       });
       currentStat = affectionResult.stat;
       const affectionChanges = affectionResult.changes;
