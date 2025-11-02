@@ -1,21 +1,22 @@
-import _ from 'lodash';
+﻿import _ from 'lodash';
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
 import { processCharacterLog } from './core/character-log-processor';
-import { process as processCharacterSettings } from './core/character-settings-processor';
 import { HISTORY_LENGTH } from './core/character-log-processor/constants';
 import { processCharacterDecisions } from './core/character-processor';
+import { processCharacterLocations } from './core/character-locations-processor';
+import { process as processCharacterSettings } from './core/character-settings-processor';
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
 import { processIncidentDecisions } from './core/incident-processor';
-import { processNormalization } from './core/normalizer-processor';
+import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { processTime } from './core/time-processor';
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
-import { Stat, StatSchema } from './schema/stat';
 import { Runtime } from './schema/runtime';
+import { Stat, StatSchema } from './schema/stat';
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
@@ -90,11 +91,37 @@ $(() => {
       // 根据当前 mk 获取对应的 editLog
       const currentEditLog = (editLogs as any)?.[mk];
 
+      // 2.9. 地区处理
+      const areaResult = await processArea({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = areaResult.stat;
+      currentRuntime = areaResult.runtime;
+      logState('Area Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
       // 1. 数据规范化处理
-      const normalizationResult = processNormalization({ originalStat: currentStat });
-      currentStat = normalizationResult.processedStat;
+      const normalizationResult = normalizeLocationData({ originalStat: currentStat, runtime: currentRuntime });
+      currentStat = normalizationResult.stat;
       const normalizationChanges = normalizationResult.changes;
       logState('Normalizer Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // 角色位置处理
+      const locResult = processCharacterLocations({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentStat = locResult.stat;
+      currentRuntime = locResult.runtime;
+      logState('Character Locations Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),
@@ -156,19 +183,6 @@ $(() => {
       currentRuntime = incidentResult.runtime;
       const incidentChanges = incidentResult.changes;
       logState('Incident Processor', 'stat (cache), runtime', {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat),
-      });
-
-      // 2.9. 地区处理
-      const areaResult = await processArea({
-        stat: currentStat,
-        runtime: currentRuntime,
-      });
-      currentStat = areaResult.stat;
-      currentRuntime = areaResult.runtime;
-      logState('Area Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

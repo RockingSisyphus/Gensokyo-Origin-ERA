@@ -43,8 +43,8 @@ export async function processArea({
     output.graph = graph;
     logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
 
-    // 2. 获取所有合法地区 (并立即转换为字符串数组，以适配下游函数)
-    output.legal_locations = fullLeafNodes.map(leaf => leaf.name);
+    // 2. 获取所有合法地区 (叶节点对象数组)
+    output.legal_locations = fullLeafNodes;
     logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
 
     // 3. 获取相邻地区

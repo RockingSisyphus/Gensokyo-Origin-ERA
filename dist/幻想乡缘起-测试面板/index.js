@@ -80,6 +80,16 @@ __webpack_require__.d(character_namespaceObject, {
   charTest_S6_CompanionPriority: () => charTest_S6_CompanionPriority
 });
 
+var character_locations_namespaceObject = {};
+
+__webpack_require__.r(character_locations_namespaceObject);
+
+__webpack_require__.d(character_locations_namespaceObject, {
+  charLocTest_MostOnVillage: () => charLocTest_MostOnVillage,
+  charLocTest_Standard: () => charLocTest_Standard,
+  charLocTest_WithUnknowns: () => charLocTest_WithUnknowns
+});
+
 var festival_namespaceObject = {};
 
 __webpack_require__.r(festival_namespaceObject);
@@ -918,6 +928,66 @@ external_default().set(charTest_S6_CompanionPriority, "cache.character", {});
 
 charTest_S6_CompanionPriority.cache.time = stat_test_data_namespaceObject.cache.time;
 
+const charLocTest_Standard = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: "博丽神社"
+  },
+  chars: {
+    reimu: {
+      所在地区: "博丽神社"
+    },
+    marisa: {
+      所在地区: "人间之里"
+    },
+    sakuya: {
+      所在地区: "红魔馆"
+    },
+    sanae: {
+      所在地区: "守矢神社"
+    }
+  }
+});
+
+const charLocTest_WithUnknowns = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: ""
+  },
+  chars: {
+    reimu: {
+      所在地区: ""
+    },
+    marisa: {
+      所在地区: null
+    },
+    sakuya: {
+      所在地区: "红魔馆"
+    },
+    sanae: {
+      所在地区: "人间之里"
+    }
+  }
+});
+
+const charLocTest_MostOnVillage = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
+  user: {
+    所在地区: "人间之里"
+  },
+  chars: {
+    reimu: {
+      所在地区: "人间之里"
+    },
+    marisa: {
+      所在地区: "人间之里"
+    },
+    sakuya: {
+      所在地区: "人间之里"
+    },
+    sanae: {
+      所在地区: "守矢神社"
+    }
+  }
+});
+
 const FESTIVAL_EPOCH_ISO = "2025-01-01T00:00:00Z";
 
 const festivalSpecificData = {
@@ -1351,7 +1421,7 @@ function createTestPanel() {
     text: "通用Core",
     payload: coreTestPayload
   } ];
-  addTestButtons(panel, "Core 逻辑测试", coreTestConfigs, {
+  addTestButtons(panel, "Core 通用测试", coreTestConfigs, {
     cursor: "pointer",
     padding: "8px 12px",
     border: "1px solid #5c8b2e",
@@ -1379,7 +1449,7 @@ function createTestPanel() {
       statWithoutMeta: statData
     }
   }));
-  addTestButtons(panel, "地区模块测试", areaTestConfigs, {
+  addTestButtons(panel, "区域模块测试", areaTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
     border: "1px solid #0288d1",
@@ -1389,7 +1459,7 @@ function createTestPanel() {
     fontSize: "12px"
   });
   const routeTestConfigs = [ {
-    text: "从神社出发",
+    text: "从博丽神社出发",
     payload: {
       statWithoutMeta: statForRouteFromShrine
     }
@@ -1399,7 +1469,7 @@ function createTestPanel() {
       statWithoutMeta: statForRouteFromEientei
     }
   }, {
-    text: "从孤立点出发",
+    text: "从孤立节点出发",
     payload: {
       statWithoutMeta: statForRouteFromIsolated
     }
@@ -1410,6 +1480,21 @@ function createTestPanel() {
     border: "1px solid #4caf50",
     background: "#2e7d32",
     color: "#e8f5e9",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
+  const charLocTestConfigs = Object.entries(character_locations_namespaceObject).map(([key, statData]) => ({
+    text: key.replace("charLocTest_", ""),
+    payload: {
+      statWithoutMeta: statData
+    }
+  }));
+  addTestButtons(panel, "角色分布模块测试", charLocTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #455a64",
+    background: "#263238",
+    color: "#eceff1",
     borderRadius: "3px",
     fontSize: "12px"
   });
@@ -1460,7 +1545,7 @@ function createTestPanel() {
       statWithoutMeta: data.stat
     }
   }));
-  addTestButtons(panel, "异变模块测试", incidentTestConfigs, {
+  addTestButtons(panel, "事件模块测试", incidentTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
     border: "1px solid #b71c1c",
@@ -1475,7 +1560,7 @@ function createTestPanel() {
       statWithoutMeta: statData
     }
   }));
-  addTestButtons(panel, "角色决策模块测试", characterTestConfigs, {
+  addTestButtons(panel, "角色策略模块测试", characterTestConfigs, {
     cursor: "pointer",
     padding: "5px 10px",
     border: "1px solid #283593",

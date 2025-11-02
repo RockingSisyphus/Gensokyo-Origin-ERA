@@ -5,7 +5,7 @@ import { z } from 'zod';
 import { AffectionStageWithForgetSchema, CharacterSettingsMapSchema, type Action } from './character-settings';
 import { ClockSchema, type Clock } from './clock';
 import { IncidentDetailSchema } from './incident';
-import { MapSizeSchema } from './world';
+import { MapLeafSchema, MapSizeSchema } from './world';
 export { ClockSchema };
 
 const IncidentRuntimeInfoSchema = z.object({
@@ -52,6 +52,15 @@ export const FestivalSchema = z.object({
   next: NextFestivalInfoSchema.nullable(),
 });
 
+// 角色分布：主角位置 + 各地点的 NPC 列表
+const CharacterDistributionSchema = z.object({
+  // 主角当前位置（可能为空）
+  playerLocation: z.string().nullable(),
+  // 各地点对应的 NPC（以角色 ID 标识）
+  npcByLocation: z.record(z.string(), z.array(z.string())),
+});
+export type CharacterDistribution = z.infer<typeof CharacterDistributionSchema>;
+
 export const CharacterRuntimeSchema = z.object({
   affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: ActionSchema.optional(),
@@ -82,9 +91,13 @@ const RouteInfoSchema = z.object({
 });
 export type RouteInfo = z.infer<typeof RouteInfoSchema>;
 
+const FullMapLeafSchema = MapLeafSchema.extend({
+  name: z.string(),
+});
+
 export const AreaRuntimeInfoSchema = z.object({
   graph: z.record(z.string(), z.record(z.string(), z.boolean())),
-  legal_locations: z.array(z.string()),
+  legal_locations: z.array(FullMapLeafSchema),
   neighbors: z.array(z.string()),
   loadArea: z.array(z.string()),
   route: RouteInfoSchema,
@@ -98,6 +111,8 @@ export const RuntimeSchema = z.object({
   clock: ClockSchema.optional(),
   area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
+  // 角色分布（主角位置 + 各地点 NPC）
+  characterDistribution: CharacterDistributionSchema.optional(),
   character: z
     .object({
       chars: z.record(z.string(), CharacterRuntimeSchema),

@@ -1,8 +1,9 @@
-import { Logger } from '../utils/log';
+﻿import { Logger } from '../utils/log';
 import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './payloads';
 import * as affectionTestData from './test-data/affection';
 import * as areaTestData from './test-data/area';
 import * as characterTestData from './test-data/character';
+import * as charLocTestData from './test-data/character-locations';
 import * as festivalTestData from './test-data/festival';
 import { incidentTestData } from './test-data/incident';
 import {
@@ -18,7 +19,7 @@ import { addTestButtons, TestButtonConfig } from './utils';
 const logger = new Logger();
 
 function createTestPanel() {
-  // 创建悬浮面板
+  // 创建测试面板
   const panel = $('<div>')
     .attr('id', 'demo-era-test-harness')
     .css({
@@ -27,7 +28,7 @@ function createTestPanel() {
       left: '10px',
       zIndex: 9999,
       background: 'rgba(40, 40, 40, 0.95)', // 深色背景
-      color: '#f0f0f0', // 浅色字体
+      color: '#f0f0f0', // 浅色文字
       border: '1px solid #555', // 深色边框
       padding: '10px',
       borderRadius: '5px',
@@ -67,7 +68,7 @@ function createTestPanel() {
 
   // --- Core 通用测试 ---
   const coreTestConfigs: TestButtonConfig[] = [{ text: '通用Core', payload: coreTestPayload }];
-  addTestButtons(panel, 'Core 逻辑测试', coreTestConfigs, {
+  addTestButtons(panel, 'Core 通用测试', coreTestConfigs, {
     cursor: 'pointer',
     padding: '8px 12px',
     border: '1px solid #5c8b2e',
@@ -92,12 +93,12 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
-  // --- 地区模块测试 ---
+  // --- 区域模块测试 ---
   const areaTestConfigs: TestButtonConfig[] = Object.entries(areaTestData).map(([key, statData]) => ({
     text: key,
     payload: { statWithoutMeta: statData },
   }));
-  addTestButtons(panel, '地区模块测试', areaTestConfigs, {
+  addTestButtons(panel, '区域模块测试', areaTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
     border: '1px solid #0288d1',
@@ -109,9 +110,9 @@ function createTestPanel() {
 
   // --- 路线计算测试 ---
   const routeTestConfigs: TestButtonConfig[] = [
-    { text: '从神社出发', payload: { statWithoutMeta: areaTestData.statForRouteFromShrine } },
+    { text: '从博丽神社出发', payload: { statWithoutMeta: areaTestData.statForRouteFromShrine } },
     { text: '从永远亭出发', payload: { statWithoutMeta: areaTestData.statForRouteFromEientei } },
-    { text: '从孤立点出发', payload: { statWithoutMeta: areaTestData.statForRouteFromIsolated } },
+    { text: '从孤立节点出发', payload: { statWithoutMeta: areaTestData.statForRouteFromIsolated } },
   ];
   addTestButtons(panel, '路线计算测试', routeTestConfigs, {
     cursor: 'pointer',
@@ -119,6 +120,21 @@ function createTestPanel() {
     border: '1px solid #4caf50',
     background: '#2e7d32',
     color: '#e8f5e9',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 角色分布模块测试 ---
+  const charLocTestConfigs: TestButtonConfig[] = Object.entries(charLocTestData).map(([key, statData]) => ({
+    text: key.replace('charLocTest_', ''), // 精简按钮文字
+    payload: { statWithoutMeta: statData },
+  }));
+  addTestButtons(panel, '角色分布模块测试', charLocTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #455a64',
+    background: '#263238',
+    color: '#eceff1',
     borderRadius: '3px',
     fontSize: '12px',
   });
@@ -155,7 +171,7 @@ function createTestPanel() {
 
   // --- 节日模块测试 ---
   const festivalTestConfigs: TestButtonConfig[] = Object.entries(festivalTestData).map(([key, statData]) => ({
-    text: key.replace('festivalTest_', ''), // 移除前缀以简化按钮文本
+    text: key.replace('festivalTest_', ''), // 去前缀，简化按钮文字
     payload: { statWithoutMeta: statData },
   }));
   addTestButtons(panel, '节日模块测试', festivalTestConfigs, {
@@ -168,12 +184,12 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
-  // --- 异变模块测试 ---
+  // --- 事件模块测试 ---
   const incidentTestConfigs: TestButtonConfig[] = Object.entries(incidentTestData).map(([key, data]) => ({
     text: key,
     payload: { statWithoutMeta: data.stat },
   }));
-  addTestButtons(panel, '异变模块测试', incidentTestConfigs, {
+  addTestButtons(panel, '事件模块测试', incidentTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
     border: '1px solid #b71c1c',
@@ -183,12 +199,12 @@ function createTestPanel() {
     fontSize: '12px',
   });
 
-  // --- 角色决策模块测试 ---
+  // --- 角色策略模块测试 ---
   const characterTestConfigs: TestButtonConfig[] = Object.entries(characterTestData).map(([key, statData]) => ({
-    text: key.replace('charTest_', ''), // 移除前缀以简化按钮文本
+    text: key.replace('charTest_', ''), // 去前缀，简化按钮文字
     payload: { statWithoutMeta: statData },
   }));
-  addTestButtons(panel, '角色决策模块测试', characterTestConfigs, {
+  addTestButtons(panel, '角色策略模块测试', characterTestConfigs, {
     cursor: 'pointer',
     padding: '5px 10px',
     border: '1px solid #283593',

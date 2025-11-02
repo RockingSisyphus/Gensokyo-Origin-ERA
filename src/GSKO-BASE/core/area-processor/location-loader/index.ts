@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import { FullMapLeaf } from '../../../schema/world';
 import { Stat } from '../../../schema/stat';
 import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { Logger } from '../../../utils/log';
@@ -10,7 +11,7 @@ const logger = new Logger();
  * @description 根据合法地区列表、最近消息、用户当前位置和相邻地区，处理并返回需要加载的地区。
  * @param {object} params
  * @param {Stat} params.stat - The stat object.
- * @param {string[]} params.legalLocations - An array of legal locations.
+ * @param {FullMapLeaf[]} params.legalLocations - An array of legal location objects.
  * @param {string[]} params.neighbors - An array of neighboring locations.
  * @returns {Promise<string[]>} 需要加载的地区数组。
  */
@@ -20,7 +21,7 @@ export async function loadLocations({
   neighbors,
 }: {
   stat: Stat;
-  legalLocations: string[];
+  legalLocations: FullMapLeaf[];
   neighbors: string[];
 }): Promise<string[]> {
   const funcName = 'loadLocations';
@@ -32,8 +33,10 @@ export async function loadLocations({
       return [];
     }
 
+    const legalLocationNames = legalLocations.map(loc => loc.name);
+
     // 1. 匹配最近消息
-    const matched = await matchMessages(legalLocations, {
+    const matched = await matchMessages(legalLocationNames, {
       depth: 5,
       includeSwipes: false,
       tag: ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY,
@@ -44,7 +47,7 @@ export async function loadLocations({
     const userLoc = stat.user?.所在地区?.trim() ?? '';
     if (userLoc) {
       logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
-      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
+      if (!hits.includes(userLoc) && legalLocationNames.includes(userLoc)) {
         hits.push(userLoc);
       }
     } else {
@@ -54,7 +57,7 @@ export async function loadLocations({
     // 3. 合并与当前位置相邻的地区
     if (neighbors && neighbors.length > 0) {
       neighbors.forEach(neighbor => {
-        if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+        if (!hits.includes(neighbor) && legalLocationNames.includes(neighbor)) {
           hits.push(neighbor);
         }
       });

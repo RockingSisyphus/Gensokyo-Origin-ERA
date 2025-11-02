@@ -807,7 +807,8 @@ async function loadLocations({stat, legalLocations, neighbors}) {
       location_loader_logger.debug(funcName, "传入的合法地区列表为空，无需加载。");
       return [];
     }
-    const matched = await matchMessages(legalLocations, {
+    const legalLocationNames = legalLocations.map(loc => loc.name);
+    const matched = await matchMessages(legalLocationNames, {
       depth: 5,
       includeSwipes: false,
       tag: ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
@@ -816,7 +817,7 @@ async function loadLocations({stat, legalLocations, neighbors}) {
     const userLoc = stat.user?.所在地区?.trim() ?? "";
     if (userLoc) {
       location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
-      if (!hits.includes(userLoc) && legalLocations.includes(userLoc)) {
+      if (!hits.includes(userLoc) && legalLocationNames.includes(userLoc)) {
         hits.push(userLoc);
       }
     } else {
@@ -824,7 +825,7 @@ async function loadLocations({stat, legalLocations, neighbors}) {
     }
     if (neighbors && neighbors.length > 0) {
       neighbors.forEach(neighbor => {
-        if (!hits.includes(neighbor) && legalLocations.includes(neighbor)) {
+        if (!hits.includes(neighbor) && legalLocationNames.includes(neighbor)) {
           hits.push(neighbor);
         }
       });
@@ -1030,59 +1031,6 @@ function processCharacterLog({runtime, snapshots, stat}) {
   };
 }
 
-function getGlobalAffectionStages(stat) {
-  return stat.config?.affection?.affectionStages ?? [];
-}
-
-function getCharAffectionStages(stat, charId) {
-  const charStages = stat.chars?.[charId]?.affectionStages;
-  if (charStages && charStages.length > 0) {
-    return charStages;
-  }
-  return getGlobalAffectionStages(stat);
-}
-
-function getCharSpecials(stat, charId) {
-  return stat.chars?.[charId]?.specials ?? [];
-}
-
-function getCharRoutine(stat, charId) {
-  return stat.chars?.[charId]?.routine ?? [];
-}
-
-function processCharacterSettings({stat}) {
-  const settingsMap = {};
-  if (!stat.chars) {
-    return settingsMap;
-  }
-  for (const charId in stat.chars) {
-    const character = stat.chars[charId];
-    if (!character) continue;
-    const affectionStages = getCharAffectionStages(stat, charId);
-    const specials = getCharSpecials(stat, charId);
-    const routine = getCharRoutine(stat, charId);
-    const settings = {
-      id: charId,
-      name: character.name,
-      affectionStages,
-      specials,
-      routine
-    };
-    settingsMap[charId] = settings;
-  }
-  return settingsMap;
-}
-
-function process({runtime, stat}) {
-  const characterSettings = processCharacterSettings({
-    stat
-  });
-  const newRuntime = Object.assign({}, runtime, {
-    characterSettings
-  });
-  return newRuntime;
-}
-
 const HISTORY_LENGTH = 20;
 
 const BY_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
@@ -1225,7 +1173,7 @@ function getChar(stat, charId) {
   return stat.chars[charId];
 }
 
-function accessors_getGlobalAffectionStages(stat) {
+function getGlobalAffectionStages(stat) {
   return stat.config.affection.affectionStages;
 }
 
@@ -1785,7 +1733,7 @@ function preprocess({runtime, stat, cache}) {
     const newCache = external_default().cloneDeep(cache);
     const changes = [];
     const charIds = Object.keys(getChars(stat));
-    const globalAffectionStages = accessors_getGlobalAffectionStages(stat);
+    const globalAffectionStages = getGlobalAffectionStages(stat);
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
@@ -1974,6 +1922,11 @@ const FestivalSchema = external_z_namespaceObject.z.object({
   next: NextFestivalInfoSchema.nullable()
 });
 
+const CharacterDistributionSchema = external_z_namespaceObject.z.object({
+  playerLocation: external_z_namespaceObject.z.string().nullable(),
+  npcByLocation: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()))
+});
+
 const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
   affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: runtime_ActionSchema.optional(),
@@ -2012,6 +1965,7 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
   clock: ClockSchema.optional(),
   area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
+  characterDistribution: CharacterDistributionSchema.optional(),
   character: external_z_namespaceObject.z.object({
     chars: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterRuntimeSchema),
     partitions: external_z_namespaceObject.z.object({
@@ -2500,68 +2454,26 @@ async function processIncidentDecisions({stat, runtime}) {
   }
 }
 
-function getAliasMap(mapGraph) {
-  const aliasMap = Object.create(null);
-  if (mapGraph?.aliases && typeof mapGraph.aliases === "object") {
-    for (const [standardName, aliasValue] of Object.entries(mapGraph.aliases)) {
-      const trimmedStandardName = String(standardName || "").trim();
-      if (!trimmedStandardName) continue;
-      const aliases = Array.isArray(aliasValue) ? aliasValue : [ aliasValue ];
-      for (const alias of aliases) {
-        const trimmedAlias = String(alias || "").trim();
-        if (trimmedAlias) {
-          aliasMap[trimmedAlias] = trimmedStandardName;
-        }
-      }
-    }
-  }
-  return aliasMap;
-}
-
-function extractLeafs(mapGraph) {
-  const leafs = [];
-  function walk(node) {
-    if (!node) return;
-    if (Array.isArray(node)) {
-      for (const item of node) {
-        if (typeof item === "string" && item.trim()) {
-          leafs.push(item.trim());
-        }
-      }
-      return;
-    }
-    if (typeof node === "object") {
-      for (const value of Object.values(node)) {
-        walk(value);
-      }
-    }
-  }
-  if (mapGraph?.tree) {
-    walk(mapGraph.tree);
-  }
-  return leafs;
-}
-
 const location_logger = new Logger("GSKO-BASE/core/normalizer-processor/location");
 
-function normalizeLocationData(originalStat) {
+function normalizeLocationData({originalStat, runtime}) {
   const funcName = "normalizeLocationData";
-  location_logger.debug(funcName, "开始对 stat 对象进行位置合法化处理...");
+  location_logger.debug(funcName, "开始进行地点规范化...");
   const stat = external_default().cloneDeep(originalStat);
   const changes = [];
   try {
-    if (!stat.world || !stat.world.map_graph || !stat.world.map_graph.tree) {
-      location_logger.warn(funcName, "未找到有效的 world.map_graph，跳过位置合法化。");
+    const legalLocationsData = runtime?.area?.legal_locations ?? [];
+    const legalLocations = new Set(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
+    if (legalLocations.size === 0) {
+      location_logger.warn(funcName, "runtime.area.legal_locations 为空，跳过地点规范化");
       return {
         stat,
         changes
       };
     }
-    const {map_graph} = stat.world;
-    const legalLocations = new Set(extractLeafs(map_graph));
-    const aliasMap = getAliasMap(map_graph);
-    const fallbackLocation = stat.world.fallbackPlace;
-    const normalize = (rawLocation, defaultLocation) => {
+    const fallbackLocation = stat.world?.fallbackPlace ?? "";
+    const normalize = (rawLocation, defaultLocation, options) => {
+      const {keepOnInvalid = false} = options || {};
       const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] || "" : rawLocation || "").trim();
       if (!locationString) {
         return {
@@ -2575,14 +2487,10 @@ function normalizeLocationData(originalStat) {
           fixedLocation: locationString
         };
       }
-      const standardName = aliasMap?.[locationString];
-      if (standardName && legalLocations.has(standardName)) {
-        return {
-          isOk: true,
-          fixedLocation: standardName
-        };
-      }
-      return {
+      return keepOnInvalid ? {
+        isOk: false,
+        fixedLocation: locationString
+      } : {
         isOk: false,
         fixedLocation: defaultLocation
       };
@@ -2593,93 +2501,70 @@ function normalizeLocationData(originalStat) {
       const oldValue = userHome;
       userHome = fallbackLocation;
       stat.user.居住地区 = userHome;
-      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHome, "补全用户缺失的居住地区"));
-      location_logger.debug(funcName, `补全用户缺失的居住地区 -> "${userHome}"`);
+      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHome, "补全用户居住地区"));
     }
     if (userLocation == null) {
       const oldValue = userLocation;
       userLocation = userHome;
       stat.user.所在地区 = userLocation;
-      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocation, "补全用户缺失的所在地区"));
-      location_logger.debug(funcName, `补全用户缺失的所在地区 -> "${userLocation}"`);
+      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocation, "补全用户所在地区"));
     }
     const userHomeNormalization = normalize(userHome, fallbackLocation);
     const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
     const userLocationNormalization = normalize(userLocation, userLocationFallback);
-    if (!userHomeNormalization.isOk || userHomeNormalization.fixedLocation !== userHome) {
+    if (userHomeNormalization.fixedLocation !== userHome) {
       const oldValue = stat.user.居住地区;
       stat.user.居住地区 = userHomeNormalization.fixedLocation;
       changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHomeNormalization.fixedLocation, "修正用户居住地区"));
-      location_logger.debug(funcName, `修正用户居住地区: "${userHome}" -> "${userHomeNormalization.fixedLocation}"`);
     }
-    if (!userLocationNormalization.isOk || userLocationNormalization.fixedLocation !== userLocation) {
+    if (userLocationNormalization.fixedLocation !== userLocation) {
       const oldValue = stat.user.所在地区;
       stat.user.所在地区 = userLocationNormalization.fixedLocation;
       changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocationNormalization.fixedLocation, "修正用户所在地区"));
-      location_logger.debug(funcName, `修正用户所在地区: "${userLocation}" -> "${userLocationNormalization.fixedLocation}"`);
     }
     for (const charName in stat.chars) {
-      if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
-        const charObject = stat.chars[charName];
-        if (charName.startsWith("$") || !charObject) continue;
-        let charHome = charObject.居住地区;
-        let charLocation = charObject.所在地区;
-        if (charHome == null) {
-          const oldValue = charHome;
-          charHome = fallbackLocation;
-          charObject.居住地区 = charHome;
-          changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHome, `补全角色[${charName}]缺失的居住地区`));
-          location_logger.debug(funcName, `补全角色[${charName}]缺失的居住地区 -> "${charHome}"`);
-        }
-        if (charLocation == null) {
-          const oldValue = charLocation;
-          charLocation = charHome;
-          charObject.所在地区 = charLocation;
-          changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocation, `补全角色[${charName}]缺失的所在地区`));
-          location_logger.debug(funcName, `补全角色[${charName}]缺失的所在地区 -> "${charLocation}"`);
-        }
-        const charHomeNormalization = normalize(charHome, fallbackLocation);
-        const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
-        const charLocationNormalization = normalize(charLocation, charLocationFallback);
-        if (!charHomeNormalization.isOk || charHomeNormalization.fixedLocation !== charHome) {
-          const oldValue = charObject.居住地区;
-          charObject.居住地区 = charHomeNormalization.fixedLocation;
-          changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
-          location_logger.debug(funcName, `修正角色[${charName}]居住地区: "${charHome}" -> "${charHomeNormalization.fixedLocation}"`);
-        }
-        if (!charLocationNormalization.isOk || charLocationNormalization.fixedLocation !== charLocation) {
-          const oldValue = charObject.所在地区;
-          charObject.所在地区 = charLocationNormalization.fixedLocation;
-          changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]所在地区`));
-          location_logger.debug(funcName, `修正角色[${charName}]所在地区: "${charLocation}" -> "${charLocationNormalization.fixedLocation}"`);
-        }
+      if (!Object.prototype.hasOwnProperty.call(stat.chars, charName)) continue;
+      const charObject = stat.chars[charName];
+      if (charName.startsWith("$") || !charObject) continue;
+      let charHome = charObject.居住地区;
+      let charLocation = charObject.所在地区;
+      if (charHome == null) {
+        const oldValue = charHome;
+        charHome = fallbackLocation;
+        charObject.居住地区 = charHome;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHome, `补全角色[${charName}]居住地区`));
+      }
+      if (charLocation == null) {
+        const oldValue = charLocation;
+        charLocation = charHome;
+        charObject.所在地区 = charLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocation, `补全角色[${charName}]所在地区`));
+      }
+      const charHomeNormalization = normalize(charHome, fallbackLocation, {
+        keepOnInvalid: true
+      });
+      const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
+      const charLocationNormalization = normalize(charLocation, charLocationFallback, {
+        keepOnInvalid: true
+      });
+      if (charHomeNormalization.fixedLocation !== charHome) {
+        const oldValue = charObject.居住地区;
+        charObject.居住地区 = charHomeNormalization.fixedLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
+      }
+      if (charLocationNormalization.fixedLocation !== charLocation) {
+        const oldValue = charObject.所在地区;
+        charObject.所在地区 = charLocationNormalization.fixedLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]所在地区`));
       }
     }
-    location_logger.debug(funcName, "位置合法化检查完成。");
+    location_logger.debug(funcName, "地点规范化完成");
   } catch (e) {
-    location_logger.error(funcName, "执行位置合法化时发生未知异常，将返回原始克隆数据。", e);
+    location_logger.error(funcName, "执行地点规范化时发生异常，返回原始数据", e);
   }
   return {
     stat,
     changes
-  };
-}
-
-const normalizer_processor_logger = new Logger("GSKO-BASE/core/normalizer-processor");
-
-function processNormalization({originalStat}) {
-  const funcName = "processNormalization";
-  normalizer_processor_logger.debug(funcName, "开始执行所有数据规范化流程...");
-  let stat = external_default().cloneDeep(originalStat);
-  let allChanges = [];
-  const locationResult = normalizeLocationData(stat);
-  stat = locationResult.stat;
-  allChanges = allChanges.concat(locationResult.changes);
-  normalizer_processor_logger.debug(funcName, "normalizeLocationData 处理完成。");
-  normalizer_processor_logger.debug(funcName, "所有数据规范化流程执行完毕。");
-  return {
-    processedStat: stat,
-    changes: allChanges
   };
 }
 
@@ -3365,12 +3250,35 @@ $(() => {
         cache: getCache(currentStat)
       });
       const currentEditLog = editLogs?.[mk];
-      const normalizationResult = processNormalization({
-        originalStat: currentStat
+      const areaResult = await processArea({
+        stat: currentStat,
+        runtime: currentRuntime
       });
-      currentStat = normalizationResult.processedStat;
+      currentStat = areaResult.stat;
+      currentRuntime = areaResult.runtime;
+      logState("Area Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const normalizationResult = normalizeLocationData({
+        originalStat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = normalizationResult.stat;
       const normalizationChanges = normalizationResult.changes;
       logState("Normalizer Processor", "stat", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const locResult = processCharacterLocations({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentStat = locResult.stat;
+      currentRuntime = locResult.runtime;
+      logState("Character Locations Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)
@@ -3432,17 +3340,6 @@ $(() => {
       currentRuntime = incidentResult.runtime;
       const incidentChanges = incidentResult.changes;
       logState("Incident Processor", "stat (cache), runtime", {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat)
-      });
-      const areaResult = await processArea({
-        stat: currentStat,
-        runtime: currentRuntime
-      });
-      currentStat = areaResult.stat;
-      currentRuntime = areaResult.runtime;
-      logState("Area Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

@@ -17,7 +17,7 @@ export function buildLegalLocationsPrompt({ runtime }: { runtime: Runtime }): st
     return '';
   }
 
-  const locationsString = legalLocations.join(', ');
+  const locationsString = legalLocations.map(loc => loc.name).join(', ');
 
   const prompt = `【合法地点】：以下是当前所有合法的地点名称：[${locationsString}]。在进行任何与地点相关的变量更新时, 你必须只能使用上述列表中的地点。`;
 
