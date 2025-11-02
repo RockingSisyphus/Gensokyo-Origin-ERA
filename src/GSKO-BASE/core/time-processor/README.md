@@ -17,13 +17,9 @@
   - 示例：`1440` (表示从纪元开始经过了 1 天)
 
 - **`stat.config.time`** (`object`, 可选)
-  - 描述：用于覆盖模块内置默认值的时间配置对象。
+  - 描述：时间模块所需的配置。当前仅暴露时间线基准与历史消息限制，其余展示用常量均内置在 `schema/time/constants.ts` 中。
   - **`epochISO`** (`string`): 纪元起点，ISO 8601 格式。默认值: `'2025-10-24T06:00:00+09:00'`。
-  - **`periodNames`** (`string[]`): 时段名称数组。
-  - **`periodKeys`** (`string[]`): 时段变化标志的键名数组。
-  - **`seasonNames`** (`string[]`): 季节名称数组。
-  - **`seasonKeys`** (`string[]`): 季节变化标志的键名数组。
-  - **`weekNames`** (`string[]`): 星期名称数组。
+  - **`flagHistoryLimits`** (`Record<string, number>`): 各类时间 flag 允许回溯的最大消息长度，供聊天锚点合法性检定使用。
 
 ### 2.2. 从 `runtime` 读取
 

@@ -1,19 +1,11 @@
 import { z } from 'zod';
 import { TimeChatMkAnchorsSchema } from '../time-chat-mk-sync';
+import { TIME_PERIOD_KEYS, TIME_SEASON_KEYS } from '../time/constants';
 
 // --- Constants ---
-export const BY_PERIOD_KEYS = [
-  'newDawn',
-  'newMorning',
-  'newNoon',
-  'newAfternoon',
-  'newDusk',
-  'newNight',
-  'newFirstHalfNight',
-  'newSecondHalfNight',
-] as const;
+export const BY_PERIOD_KEYS = TIME_PERIOD_KEYS;
 
-export const BY_SEASON_KEYS = ['newSpring', 'newSummer', 'newAutumn', 'newWinter'] as const;
+export const BY_SEASON_KEYS = TIME_SEASON_KEYS;
 
 // --- Schemas ---
 
@@ -73,6 +65,7 @@ export const ClockFlagsSchema = z.object({
 });
 export type ClockFlags = z.infer<typeof ClockFlagsSchema>;
 
+// 时间推进的六个根节点 flag，代表“新时段/新日/新周/新月/新季节/新年”
 export const CLOCK_ROOT_FLAG_KEYS = ['newPeriod', 'newDay', 'newWeek', 'newMonth', 'newSeason', 'newYear'] as const;
 export type ClockRootFlagKey = (typeof CLOCK_ROOT_FLAG_KEYS)[number];
 

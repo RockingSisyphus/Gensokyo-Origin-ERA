@@ -4,7 +4,6 @@
 import { z } from 'zod';
 import { PreprocessStringifiedObject } from '../../utils/zod';
 import { AffectionStageWithForgetSchema } from '../character-settings';
-import { BY_PERIOD_KEYS, BY_SEASON_KEYS } from '../clock';
 
 // --- Incident Config ---
 const IncidentPoolItemSchema = z.object({
@@ -24,8 +23,10 @@ export const IncidentConfigSchema = z.object({
 export type IncidentConfig = z.infer<typeof IncidentConfigSchema>;
 
 // --- Time Config ---
+// 单个 flag 所允许回溯的最大消息数量，单位为“条”（基于 selectedMks 的索引距离）
 const FlagHistoryLimitSchema = z.number().int().min(0);
 
+// 细分到“时段”级别的历史限制，每个键对应 ClockFlags.byPeriod 下的具体标志
 const PeriodFlagHistoryLimitSchema = z
   .object({
     newDawn: FlagHistoryLimitSchema,
@@ -40,6 +41,7 @@ const PeriodFlagHistoryLimitSchema = z
   .partial()
   .default({});
 
+// 细分到“季节”级别的历史限制，对应 ClockFlags.bySeason 下的四个季节标志
 const SeasonFlagHistoryLimitSchema = z
   .object({
     newSpring: FlagHistoryLimitSchema,
@@ -50,6 +52,13 @@ const SeasonFlagHistoryLimitSchema = z
   .partial()
   .default({});
 
+/**
+ * 针对时间相关的所有 flag（包括根节点和细分节点）的历史跨度配置。
+ * - newPeriod/newDay/...：根节点 flag 的最大回溯长度
+ * - period：时段级别的精细限制，可选
+ * - season：季节级别的精细限制，可选
+ * 这些配置会被 time-chat-mk-sync 模块读取，用于在运行态对锚点进行兜底修正。
+ */
 export const TimeFlagHistoryLimitsSchema = z
   .object({
     newPeriod: FlagHistoryLimitSchema.optional(),
@@ -64,24 +73,21 @@ export const TimeFlagHistoryLimitsSchema = z
   .default({});
 export type TimeFlagHistoryLimits = z.infer<typeof TimeFlagHistoryLimitsSchema>;
 
-export const TimeConfigSchema = z.object({
-  epochISO: z.string().datetime({ message: '无效的 ISO 8601 日期时间格式' }),
-  periodNames: z.array(z.string()).length(8, { message: 'periodNames 必须有 8 个元素' }),
-  periodKeys: z.array(z.string()).length(8, { message: 'periodKeys 必须有 8 个元素' }),
-  seasonNames: z.array(z.string()).length(4, { message: 'seasonNames 必须有 4 个元素' }),
-  seasonKeys: z.array(z.string()).length(4, { message: 'seasonKeys 必须有 4 个元素' }),
-  weekNames: z.array(z.string()).length(7, { message: 'weekNames 必须有 7 个元素' }),
-  flagHistoryLimits: TimeFlagHistoryLimitsSchema,
-});
+/**
+ * 时间配置：
+ * - epochISO 等基础时间定义用于时间处理器
+ * - flagHistoryLimits 用于聊天锚点校验模块，确保历史跨度不超标
+ */
+export const TimeConfigSchema = z
+  .object({
+    epochISO: z.string().datetime({ message: '无效的 ISO 8601 日期时间格式' }),
+    flagHistoryLimits: TimeFlagHistoryLimitsSchema,
+  })
+  .passthrough();
 export type TimeConfig = z.infer<typeof TimeConfigSchema>;
 
 export const DEFAULT_TIME_CONFIG: TimeConfig = {
   epochISO: '2025-10-24T06:00:00+09:00',
-  periodNames: ['清晨', '上午', '中午', '下午', '黄昏', '夜晚', '上半夜', '下半夜'],
-  periodKeys: [...BY_PERIOD_KEYS],
-  seasonNames: ['春', '夏', '秋', '冬'],
-  seasonKeys: [...BY_SEASON_KEYS],
-  weekNames: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
   flagHistoryLimits: {},
 };
 

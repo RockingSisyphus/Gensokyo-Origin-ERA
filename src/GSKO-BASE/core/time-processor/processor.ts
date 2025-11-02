@@ -4,6 +4,13 @@ import { BY_PERIOD_KEYS, BY_SEASON_KEYS, ClockFlags, EMPTY_FLAGS, EMPTY_NOW, Now
 import { Stat } from '../../schema/stat';
 import { TimeProcessorResult } from '../../schema/time-processor-result';
 import { Logger } from '../../utils/log';
+import {
+  TIME_PERIOD_KEYS,
+  TIME_PERIOD_NAMES,
+  TIME_SEASON_KEYS,
+  TIME_SEASON_NAMES,
+  TIME_WEEK_NAMES,
+} from '../../schema/time/constants';
 import { getTimeConfig, getTimeProgress } from './accessors';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 
@@ -25,7 +32,7 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
 
     // ---------- 读取时间源和配置 ----------
     const timeConfig = getTimeConfig(stat);
-    const { epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames } = timeConfig;
+    const { epochISO } = timeConfig;
 
     const tpMin = getTimeProgress(stat);
     logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
@@ -53,7 +60,7 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
     const day = local.getUTCDate();
 
     const seasonIdx = seasonIndexOf(month);
-    const seasonName = seasonNames[seasonIdx];
+    const seasonName = TIME_SEASON_NAMES[seasonIdx];
     const seasonID = year * 10 + seasonIdx;
 
     const ws = weekStart(local, weekStartsOn);
@@ -63,7 +70,7 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
     const yearID = year;
 
     const weekdayIdx = (local.getUTCDay() - 1 + 7) % 7;
-    const weekdayName = weekNames[weekdayIdx] || `周?(${weekdayIdx})`;
+    const weekdayName = TIME_WEEK_NAMES[weekdayIdx] || `周?(${weekdayIdx})`;
 
     const sign = tzMin >= 0 ? '+' : '-';
     const offH = ('0' + Math.floor(Math.abs(tzMin) / 60)).slice(-2);
@@ -75,8 +82,8 @@ export function processTime({ stat, prevClockAck }: ProcessTimeParams): TimeProc
 
     const minutesSinceMidnight = local.getUTCHours() * 60 + local.getUTCMinutes();
     const periodIdx = periodIndexOf(minutesSinceMidnight);
-    const periodName = periodNames[periodIdx];
-    const periodKey = periodKeys[periodIdx];
+    const periodName = TIME_PERIOD_NAMES[periodIdx];
+    const periodKey = TIME_PERIOD_KEYS[periodIdx];
     const periodID = dayID * 10 + periodIdx;
 
     logger.debug(

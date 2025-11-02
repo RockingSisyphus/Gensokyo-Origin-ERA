@@ -1,7 +1,9 @@
 import { z } from 'zod';
 
+// 每个锚点保存的 MK，可以为字符串或 null（尚未同步）
 const mkValueSchema = z.string().nullable();
 
+// 时段锚点集合：对应 ClockFlags.byPeriod 内的八个时段
 const PeriodAnchorSchema = z
   .object({
     newDawn: mkValueSchema,
@@ -16,6 +18,7 @@ const PeriodAnchorSchema = z
   .partial()
   .default({});
 
+// 季节锚点集合：对应 ClockFlags.bySeason 内的四个季节
 const SeasonAnchorSchema = z
   .object({
     newSpring: mkValueSchema,
@@ -26,6 +29,12 @@ const SeasonAnchorSchema = z
   .partial()
   .default({});
 
+/**
+ * 聊天时间锚点结构：
+ * - newPeriod/newDay/...：记录最近一次触发对应 flag 时的消息 MK
+ * - period/season：进一步记录细分时段、季节对应的 MK
+ * 该结构同时用于缓存与运行态，保证锚点状态可持久化与校验。
+ */
 export const TimeChatMkAnchorsSchema = z
   .object({
     newPeriod: mkValueSchema,

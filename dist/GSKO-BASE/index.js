@@ -1078,9 +1078,19 @@ const TimeChatMkSyncRuntimeSchema = external_z_namespaceObject.z.object({
   anchors: createEmptyAnchors()
 }));
 
-const BY_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
+const TIME_PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
 
-const BY_SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
+const TIME_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
+
+const TIME_SEASON_NAMES = [ "春", "夏", "秋", "冬" ];
+
+const TIME_SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
+
+const TIME_WEEK_NAMES = [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ];
+
+const BY_PERIOD_KEYS = TIME_PERIOD_KEYS;
+
+const BY_SEASON_KEYS = TIME_SEASON_KEYS;
 
 const ClockAckSchema = external_z_namespaceObject.z.object({
   dayID: external_z_namespaceObject.z.number(),
@@ -2939,7 +2949,7 @@ function processTime({stat, prevClockAck}) {
     const prev = prevClockAck;
     time_processor_processor_logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
     const timeConfig = getTimeConfig(stat);
-    const {epochISO, periodNames, periodKeys, seasonNames, seasonKeys, weekNames} = timeConfig;
+    const {epochISO} = timeConfig;
     const tpMin = accessors_getTimeProgress(stat);
     time_processor_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
     const weekStartsOn = 1;
@@ -2959,7 +2969,7 @@ function processTime({stat, prevClockAck}) {
     const month = local.getUTCMonth() + 1;
     const day = local.getUTCDate();
     const seasonIdx = seasonIndexOf(month);
-    const seasonName = seasonNames[seasonIdx];
+    const seasonName = TIME_SEASON_NAMES[seasonIdx];
     const seasonID = year * 10 + seasonIdx;
     const ws = weekStart(local, weekStartsOn);
     const dayID = ymdID(local);
@@ -2967,15 +2977,15 @@ function processTime({stat, prevClockAck}) {
     const monthID = ymID(local);
     const yearID = year;
     const weekdayIdx = (local.getUTCDay() - 1 + 7) % 7;
-    const weekdayName = weekNames[weekdayIdx] || `周?(${weekdayIdx})`;
+    const weekdayName = TIME_WEEK_NAMES[weekdayIdx] || `周?(${weekdayIdx})`;
     const sign = tzMin >= 0 ? "+" : "-";
     const offH = ("0" + Math.floor(Math.abs(tzMin) / 60)).slice(-2);
     const offM = ("0" + Math.abs(tzMin) % 60).slice(-2);
     const iso = `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}T` + `${("0" + local.getUTCHours()).slice(-2)}:${("0" + local.getUTCMinutes()).slice(-2)}:${("0" + local.getUTCSeconds()).slice(-2)}` + `${sign}${offH}:${offM}`;
     const minutesSinceMidnight = local.getUTCHours() * 60 + local.getUTCMinutes();
     const periodIdx = periodIndexOf(minutesSinceMidnight);
-    const periodName = periodNames[periodIdx];
-    const periodKey = periodKeys[periodIdx];
+    const periodName = TIME_PERIOD_NAMES[periodIdx];
+    const periodKey = TIME_PERIOD_KEYS[periodIdx];
     const periodID = dayID * 10 + periodIdx;
     time_processor_processor_logger.debug(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
     time_processor_processor_logger.debug(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
@@ -3679,31 +3689,11 @@ const TimeConfigSchema = external_z_namespaceObject.z.object({
   epochISO: external_z_namespaceObject.z.string().datetime({
     message: "无效的 ISO 8601 日期时间格式"
   }),
-  periodNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(8, {
-    message: "periodNames 必须有 8 个元素"
-  }),
-  periodKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(8, {
-    message: "periodKeys 必须有 8 个元素"
-  }),
-  seasonNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(4, {
-    message: "seasonNames 必须有 4 个元素"
-  }),
-  seasonKeys: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(4, {
-    message: "seasonKeys 必须有 4 个元素"
-  }),
-  weekNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(7, {
-    message: "weekNames 必须有 7 个元素"
-  }),
   flagHistoryLimits: TimeFlagHistoryLimitsSchema
-});
+}).passthrough();
 
 const DEFAULT_TIME_CONFIG = {
   epochISO: "2025-10-24T06:00:00+09:00",
-  periodNames: [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ],
-  periodKeys: [ ...BY_PERIOD_KEYS ],
-  seasonNames: [ "春", "夏", "秋", "冬" ],
-  seasonKeys: [ ...BY_SEASON_KEYS ],
-  weekNames: [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ],
   flagHistoryLimits: {}
 };
 
