@@ -545,22 +545,70 @@ function processAffectionDecisions({stat, editLog, runtime}) {
   }
 }
 
+const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
+  }
+  return val;
+}, schema);
+
+const MapSizeSchema = external_z_namespaceObject.z.object({
+  width: external_z_namespaceObject.z.number(),
+  height: external_z_namespaceObject.z.number()
+});
+
+const MapPositionSchema = external_z_namespaceObject.z.object({
+  x: external_z_namespaceObject.z.number(),
+  y: external_z_namespaceObject.z.number()
+});
+
+const MapLeafSchema = external_z_namespaceObject.z.object({
+  pos: MapPositionSchema,
+  htmlEle: external_z_namespaceObject.z.string()
+}).passthrough();
+
+const MapTreeSchema = external_z_namespaceObject.z.lazy(() => external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.union([ MapLeafSchema, MapTreeSchema ])));
+
+const MapGraphSchema = external_z_namespaceObject.z.object({
+  mapSize: MapSizeSchema,
+  tree: MapTreeSchema,
+  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
+    a: external_z_namespaceObject.z.string(),
+    b: external_z_namespaceObject.z.string()
+  }))).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
+});
+
+const WorldSchema = external_z_namespaceObject.z.object({
+  map_graph: MapGraphSchema.optional(),
+  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
+}).passthrough();
+
+const 世界Schema = external_z_namespaceObject.z.object({
+  timeProgress: external_z_namespaceObject.z.number()
+}).passthrough();
+
 const graph_builder_logger = new Logger("GSKO-BASE/core/area-processor/graph-builder");
 
 function buildGraph({stat}) {
   const funcName = "buildGraph";
   const graph = {};
   const leafNodes = [];
+  const seenNodes = new Set;
   try {
     const mapData = stat.world?.map_graph;
-    if (!mapData) {
-      graph_builder_logger.warn(funcName, "stat.world.map_graph 为空或不存在。");
+    if (!mapData?.tree) {
+      graph_builder_logger.warn(funcName, "stat.world.map_graph.tree 为空或不存在。");
       return {
         graph,
         leafNodes
       };
     }
-    graph_builder_logger.debug(funcName, "stat.world.map_graph获取成功：", mapData);
+    graph_builder_logger.debug(funcName, "stat.world.map_graph 获取成功");
     const addEdge = (nodeA, nodeB) => {
       if (nodeA === nodeB) return;
       if (!graph[nodeA]) graph[nodeA] = {};
@@ -569,24 +617,26 @@ function buildGraph({stat}) {
       graph[nodeB][nodeA] = true;
     };
     const walkTree = node => {
-      if (Array.isArray(node)) {
-        node.forEach(item => {
-          if (typeof item === "string") {
-            if (!leafNodes.includes(item)) leafNodes.push(item);
-          } else if (item && typeof item === "object") {
-            walkTree(item);
+      for (const key in node) {
+        const child = node[key];
+        const parseResult = MapLeafSchema.safeParse(child);
+        if (parseResult.success) {
+          if (!seenNodes.has(key)) {
+            leafNodes.push({
+              name: key,
+              ...parseResult.data
+            });
+            seenNodes.add(key);
           }
-        });
-      } else if (node && typeof node === "object") {
-        Object.values(node).forEach(walkTree);
+        } else if (child && typeof child === "object") {
+          walkTree(child);
+        }
       }
     };
-    if (mapData.tree) {
-      walkTree(mapData.tree);
-    }
-    leafNodes.forEach(node => {
-      if (!graph[node]) {
-        graph[node] = {};
+    walkTree(mapData.tree);
+    leafNodes.forEach(leaf => {
+      if (!graph[leaf.name]) {
+        graph[leaf.name] = {};
       }
     });
     const edges = mapData.edges ?? [];
@@ -601,8 +651,8 @@ function buildGraph({stat}) {
   } catch (error) {
     graph_builder_logger.error(funcName, "构建地图图谱时出错", error);
   }
-  graph_builder_logger.debug(funcName, "graph完成构建：", graph);
-  graph_builder_logger.debug(funcName, "leafNodes完成构建：", leafNodes);
+  graph_builder_logger.debug(funcName, "graph 完成构建");
+  graph_builder_logger.debug(funcName, "leafNodes 完成构建");
   return {
     graph,
     leafNodes
@@ -926,16 +976,18 @@ async function processArea({stat, runtime}) {
     route: {
       candidates: [],
       routes: []
-    }
+    },
+    mapSize: undefined
   };
   try {
-    const {graph, leafNodes} = buildGraph({
+    output.mapSize = stat.world?.map_graph?.mapSize;
+    const {graph, leafNodes: fullLeafNodes} = buildGraph({
       stat
     });
     output.graph = graph;
     area_processor_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
-    output.legal_locations = leafNodes;
-    area_processor_logger.debug(funcName, `获取到 ${leafNodes.length} 个合法地区`);
+    output.legal_locations = fullLeafNodes.map(leaf => leaf.name);
+    area_processor_logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
     output.neighbors = processNeighbors({
       stat,
       graph
@@ -943,7 +995,7 @@ async function processArea({stat, runtime}) {
     area_processor_logger.debug(funcName, `获取到 ${output.neighbors.length} 个相邻地区`);
     output.loadArea = await loadLocations({
       stat,
-      legalLocations: leafNodes,
+      legalLocations: output.legal_locations,
       neighbors: output.neighbors
     });
     area_processor_logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
@@ -959,7 +1011,7 @@ async function processArea({stat, runtime}) {
   } catch (e) {
     area_processor_logger.error(funcName, "处理地区时发生异常", e);
   }
-  Object.assign(runtime, output);
+  runtime.area = output;
   area_processor_logger.debug(funcName, "地区处理完成");
   return {
     stat,
@@ -1823,17 +1875,6 @@ async function processCharacterDecisions({stat, runtime}) {
   }
 }
 
-const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
-  if (typeof val === "string") {
-    try {
-      return JSON.parse(val);
-    } catch (e) {
-      return val;
-    }
-  }
-  return val;
-}, schema);
-
 const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
 
 const ForgettingRuleSchema = external_z_namespaceObject.z.object({
@@ -1844,6 +1885,7 @@ const ForgettingRuleSchema = external_z_namespaceObject.z.object({
 const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
   threshold: external_z_namespaceObject.z.number(),
   name: external_z_namespaceObject.z.string(),
+  describe: external_z_namespaceObject.z.string().nullable().optional(),
   patienceUnit: TimeUnitSchema.optional(),
   visit: external_z_namespaceObject.z.object({
     enabled: external_z_namespaceObject.z.boolean().optional(),
@@ -1956,14 +1998,19 @@ const RouteInfoSchema = external_z_namespaceObject.z.object({
   routes: external_z_namespaceObject.z.array(RouteSchema)
 });
 
+const AreaRuntimeInfoSchema = external_z_namespaceObject.z.object({
+  graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())),
+  legal_locations: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  route: RouteInfoSchema,
+  mapSize: MapSizeSchema.optional()
+});
+
 const RuntimeSchema = external_z_namespaceObject.z.object({
   incident: IncidentSchema.optional(),
   clock: ClockSchema.optional(),
-  graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())).optional(),
-  legal_locations: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
-  neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
-  loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
-  route: RouteInfoSchema.optional(),
+  area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
   character: external_z_namespaceObject.z.object({
     chars: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterRuntimeSchema),
@@ -2670,8 +2717,11 @@ function buildFestivalPrompt({runtime}) {
 }
 
 function buildLegalLocationsPrompt({runtime}) {
-  const legalLocations = external_default().get(runtime, "legal_locations");
+  const legalLocations = runtime.area?.legal_locations;
   if (external_default().isEmpty(legalLocations)) {
+    return "";
+  }
+  if (!legalLocations) {
     return "";
   }
   const locationsString = legalLocations.join(", ");
@@ -2690,9 +2740,9 @@ function formatPath(path) {
 
 function buildRoutePrompt({runtime, stat}) {
   const funcName = "buildRoutePrompt";
-  const routeInfo = external_default().get(runtime, "route");
-  const currentUserLocation = external_default().get(stat, "user.所在地区", "博丽神社");
-  const characterName = external_default().get(stat, "user.姓名", "你");
+  const routeInfo = runtime.area?.route;
+  const currentUserLocation = stat.user?.所在地区 ?? "博丽神社";
+  const characterName = stat.user?.姓名 ?? "你";
   if (!routeInfo || external_default().isEmpty(routeInfo.routes)) {
     return `【路线提示】：${characterName}当前位于${currentUserLocation}。最近消息未检测到目的地或不可达。`;
   }
@@ -3254,27 +3304,10 @@ const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
 const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
 
 const UserSchema = external_z_namespaceObject.z.object({
+  姓名: external_z_namespaceObject.z.string().nullable(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable()
 });
-
-const MapGraphSchema = external_z_namespaceObject.z.object({
-  tree: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.any()),
-  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
-    a: external_z_namespaceObject.z.string(),
-    b: external_z_namespaceObject.z.string()
-  }))).optional(),
-  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
-});
-
-const WorldSchema = external_z_namespaceObject.z.object({
-  map_graph: MapGraphSchema.optional(),
-  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
-}).passthrough();
-
-const 世界Schema = external_z_namespaceObject.z.object({
-  timeProgress: external_z_namespaceObject.z.number()
-}).passthrough();
 
 const StatSchema = external_z_namespaceObject.z.object({
   config: ConfigSchema,
