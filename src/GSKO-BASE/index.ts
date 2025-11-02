@@ -12,7 +12,7 @@ import { processIncidentDecisions } from './core/incident-processor';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { processTime } from './core/time-processor';
-import { syncTimeChatMkAnchors } from './core/time-chat-mk-sync';
+import { processTimeChatMkSync } from './core/time-chat-mk-sync';
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
@@ -52,7 +52,7 @@ $(() => {
 
   // 定义核心数据处理函数
   const handleWriteDone = async (payload: WriteDonePayload) => {
-    const { statWithoutMeta, mk, editLogs } = payload;
+    const { statWithoutMeta, mk, editLogs, selectedMks } = payload;
     logger.log('handleWriteDone', '接收到原始 stat 数据', statWithoutMeta);
 
     // 使用酒馆助手 API 获取最新的消息
@@ -163,10 +163,11 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      const mkSyncResult = syncTimeChatMkAnchors({
+      const mkSyncResult = processTimeChatMkSync({
         stat: currentStat,
         runtime: currentRuntime,
         mk,
+        selectedMks,
       });
       currentStat = mkSyncResult.stat;
       currentRuntime = mkSyncResult.runtime;

@@ -73,10 +73,14 @@ export const ClockFlagsSchema = z.object({
 });
 export type ClockFlags = z.infer<typeof ClockFlagsSchema>;
 
+export const CLOCK_ROOT_FLAG_KEYS = ['newPeriod', 'newDay', 'newWeek', 'newMonth', 'newSeason', 'newYear'] as const;
+export type ClockRootFlagKey = (typeof CLOCK_ROOT_FLAG_KEYS)[number];
+
 export const ClockSchema = z.object({
   now: NowSchema,
   flags: ClockFlagsSchema,
   mkAnchors: TimeChatMkAnchorsSchema.optional(),
+  previousMkAnchors: TimeChatMkAnchorsSchema.optional(),
 });
 export type Clock = z.infer<typeof ClockSchema>;
 

@@ -987,7 +987,7 @@ async function processArea({stat, runtime}) {
     });
     output.graph = graph;
     area_processor_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
-    output.legal_locations = fullLeafNodes.map(leaf => leaf.name);
+    output.legal_locations = fullLeafNodes;
     area_processor_logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
     output.neighbors = processNeighbors({
       stat,
@@ -1032,6 +1032,51 @@ function processCharacterLog({runtime, snapshots, stat}) {
 }
 
 const HISTORY_LENGTH = 20;
+
+const mkValueSchema = external_z_namespaceObject.z.string().nullable();
+
+const PeriodAnchorSchema = external_z_namespaceObject.z.object({
+  newDawn: mkValueSchema,
+  newMorning: mkValueSchema,
+  newNoon: mkValueSchema,
+  newAfternoon: mkValueSchema,
+  newDusk: mkValueSchema,
+  newNight: mkValueSchema,
+  newFirstHalfNight: mkValueSchema,
+  newSecondHalfNight: mkValueSchema
+}).partial().default({});
+
+const SeasonAnchorSchema = external_z_namespaceObject.z.object({
+  newSpring: mkValueSchema,
+  newSummer: mkValueSchema,
+  newAutumn: mkValueSchema,
+  newWinter: mkValueSchema
+}).partial().default({});
+
+const TimeChatMkAnchorsSchema = external_z_namespaceObject.z.object({
+  newPeriod: mkValueSchema,
+  period: PeriodAnchorSchema,
+  newDay: mkValueSchema,
+  newWeek: mkValueSchema,
+  newMonth: mkValueSchema,
+  newSeason: mkValueSchema,
+  season: SeasonAnchorSchema,
+  newYear: mkValueSchema
+}).partial().default({});
+
+const createEmptyAnchors = () => ({});
+
+const TimeChatMkSyncCacheSchema = external_z_namespaceObject.z.object({
+  anchors: TimeChatMkAnchorsSchema.optional()
+}).optional().default(() => ({
+  anchors: createEmptyAnchors()
+}));
+
+const TimeChatMkSyncRuntimeSchema = external_z_namespaceObject.z.object({
+  anchors: TimeChatMkAnchorsSchema.optional()
+}).optional().default(() => ({
+  anchors: createEmptyAnchors()
+}));
 
 const BY_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
 
@@ -1090,9 +1135,13 @@ const ClockFlagsSchema = external_z_namespaceObject.z.object({
   newYear: external_z_namespaceObject.z.boolean()
 });
 
+const CLOCK_ROOT_FLAG_KEYS = [ "newPeriod", "newDay", "newWeek", "newMonth", "newSeason", "newYear" ];
+
 const ClockSchema = external_z_namespaceObject.z.object({
   now: NowSchema,
-  flags: ClockFlagsSchema
+  flags: ClockFlagsSchema,
+  mkAnchors: TimeChatMkAnchorsSchema.optional(),
+  previousMkAnchors: TimeChatMkAnchorsSchema.optional()
 });
 
 const EMPTY_NOW = {
@@ -1152,7 +1201,8 @@ const CacheSchema = external_z_namespaceObject.z.object({
     clockAck: ClockAckSchema.optional()
   }).optional().default({}),
   incident: IncidentCacheSchema.optional().default({}),
-  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({})
+  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({}),
+  timeChatMkSync: TimeChatMkSyncCacheSchema.optional().default({})
 });
 
 function getCache(stat) {
@@ -1823,6 +1873,103 @@ async function processCharacterDecisions({stat, runtime}) {
   }
 }
 
+const character_locations_processor_logger = new Logger("GSKO-BASE/core/character-locations-processor");
+
+function processCharacterLocations({stat, runtime}) {
+  const funcName = "processCharacterLocations";
+  character_locations_processor_logger.debug(funcName, "开始计算角色分布...");
+  try {
+    const playerLocation = String(getUserLocationLocal(stat) ?? "").trim() || null;
+    const npcByLocation = {};
+    const chars = getCharsLocal(stat);
+    Object.entries(chars).forEach(([charId, charObj]) => {
+      const key = String(getCharLocationLocal(charObj) ?? "").trim() || "未知";
+      if (!npcByLocation[key]) npcByLocation[key] = [];
+      npcByLocation[key].push(charId);
+    });
+    runtime.characterDistribution = {
+      playerLocation,
+      npcByLocation
+    };
+    character_locations_processor_logger.debug(funcName, "角色分布计算完成");
+  } catch (e) {
+    character_locations_processor_logger.error(funcName, "计算角色分布时发生异常", e);
+    runtime.characterDistribution = {
+      playerLocation: null,
+      npcByLocation: {}
+    };
+  }
+  return {
+    stat,
+    runtime
+  };
+}
+
+function getUserLocationLocal(stat) {
+  return stat.user?.所在地区 ?? null;
+}
+
+function getCharsLocal(stat) {
+  return stat.chars ?? {};
+}
+
+function getCharLocationLocal(charObj) {
+  return String(charObj.所在地区 ?? "").trim();
+}
+
+function accessors_getGlobalAffectionStages(stat) {
+  return stat.config?.affection?.affectionStages ?? [];
+}
+
+function getCharAffectionStages(stat, charId) {
+  const charStages = stat.chars?.[charId]?.affectionStages;
+  if (charStages && charStages.length > 0) {
+    return charStages;
+  }
+  return accessors_getGlobalAffectionStages(stat);
+}
+
+function getCharSpecials(stat, charId) {
+  return stat.chars?.[charId]?.specials ?? [];
+}
+
+function getCharRoutine(stat, charId) {
+  return stat.chars?.[charId]?.routine ?? [];
+}
+
+function processCharacterSettings({stat}) {
+  const settingsMap = {};
+  if (!stat.chars) {
+    return settingsMap;
+  }
+  for (const charId in stat.chars) {
+    const character = stat.chars[charId];
+    if (!character) continue;
+    const affectionStages = getCharAffectionStages(stat, charId);
+    const specials = getCharSpecials(stat, charId);
+    const routine = getCharRoutine(stat, charId);
+    const settings = {
+      id: charId,
+      name: character.name,
+      affectionStages,
+      specials,
+      routine
+    };
+    settingsMap[charId] = settings;
+  }
+  return settingsMap;
+}
+
+function process({runtime, stat}) {
+  const characterSettings = processCharacterSettings({
+    stat
+  });
+  const newRuntime = Object.assign({}, runtime, {
+    characterSettings
+  });
+  return newRuntime;
+}
+
 const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
 
 const ForgettingRuleSchema = external_z_namespaceObject.z.object({
@@ -1951,9 +2098,13 @@ const RouteInfoSchema = external_z_namespaceObject.z.object({
   routes: external_z_namespaceObject.z.array(RouteSchema)
 });
 
+const FullMapLeafSchema = MapLeafSchema.extend({
+  name: external_z_namespaceObject.z.string()
+});
+
 const AreaRuntimeInfoSchema = external_z_namespaceObject.z.object({
   graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())),
-  legal_locations: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  legal_locations: external_z_namespaceObject.z.array(FullMapLeafSchema),
   neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
   route: RouteInfoSchema,
@@ -2609,7 +2760,7 @@ function buildLegalLocationsPrompt({runtime}) {
   if (!legalLocations) {
     return "";
   }
-  const locationsString = legalLocations.join(", ");
+  const locationsString = legalLocations.map(loc => loc.name).join(", ");
   const prompt = `【合法地点】：以下是当前所有合法的地点名称：[${locationsString}]。在进行任何与地点相关的变量更新时, 你必须只能使用上述列表中的地点。`;
   return prompt;
 }
@@ -2964,6 +3115,362 @@ async function time_processor_processTime({stat, runtime}) {
   }
 }
 
+const anchor_limiter_logger = new Logger("GSKO-BASE/core/time-chat-mk-sync/anchor-limiter");
+
+const toNumberLimit = value => {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return null;
+  }
+  const normalized = Math.max(0, Math.floor(value));
+  return normalized;
+};
+
+const collectMkList = selectedMks => selectedMks.filter(value => typeof value === "string" && value.length > 0);
+
+const resolveLimit = (limits, key) => {
+  if (!limits) {
+    return null;
+  }
+  return toNumberLimit(limits[key]);
+};
+
+function clampTimeChatMkAnchors({runtime, stat, selectedMks, mk}) {
+  const funcName = "clampTimeChatMkAnchors";
+  const {clock} = runtime;
+  if (!clock) {
+    anchor_limiter_logger.debug(funcName, "runtime.clock 不存在，跳过锚点限制。");
+    return runtime;
+  }
+  const {flags, mkAnchors} = clock;
+  if (!flags || !mkAnchors) {
+    anchor_limiter_logger.debug(funcName, "缺少 clock.flags 或 mkAnchors，跳过锚点限制。", {
+      hasFlags: Boolean(flags),
+      hasAnchors: Boolean(mkAnchors)
+    });
+    return runtime;
+  }
+  const {config} = stat;
+  const timeConfig = config?.time;
+  const limits = timeConfig?.flagHistoryLimits;
+  if (!limits || Object.keys(limits).length === 0) {
+    anchor_limiter_logger.debug(funcName, "配置中未定义 flagHistoryLimits，跳过锚点限制。");
+    return runtime;
+  }
+  anchor_limiter_logger.debug(funcName, "已加载 flagHistoryLimits 配置。", {
+    limits
+  });
+  const mkList = collectMkList(selectedMks);
+  if (mkList.length === 0) {
+    anchor_limiter_logger.debug(funcName, "selectedMks 为空或没有有效 MK，跳过锚点限制。");
+    return runtime;
+  }
+  anchor_limiter_logger.debug(funcName, "已解析有效 selectedMks。", {
+    mkList
+  });
+  const initialMk = typeof mk === "string" && mk.length > 0 ? mk : mkList[mkList.length - 1];
+  let currentIndex = mkList.lastIndexOf(initialMk);
+  if (currentIndex < 0) {
+    currentIndex = mkList.length - 1;
+    anchor_limiter_logger.debug(funcName, "当前 MK 不在 selectedMks 中，使用最新一条作为当前索引。", {
+      originalMk: initialMk,
+      resolvedMk: mkList[currentIndex]
+    });
+  }
+  const currentMk = mkList[currentIndex];
+  const anchors = mkAnchors;
+  const previousAnchors = clock.previousMkAnchors ?? {};
+  let changed = false;
+  const clampAnchor = options => {
+    const {baseAnchorGetter, currentAnchorGetter, anchorSetter, limit, flagActive, logKey} = options;
+    if (!flagActive) {
+      anchor_limiter_logger.debug(funcName, "标志未激活，跳过限制。", {
+        logKey
+      });
+      return;
+    }
+    const baseAnchor = baseAnchorGetter() ?? null;
+    const currentAnchor = currentAnchorGetter() ?? null;
+    const applyAnchor = (value, reason) => {
+      if (currentAnchor !== value) {
+        anchorSetter(value);
+        changed = true;
+        anchor_limiter_logger.debug(funcName, reason, {
+          logKey,
+          value,
+          previous: currentAnchor
+        });
+      }
+    };
+    if (limit == null) {
+      if (baseAnchor && baseAnchor !== currentAnchor) {
+        applyAnchor(baseAnchor, "未配置限制，恢复历史锚点。");
+      } else {
+        anchor_limiter_logger.debug(funcName, "未找到对应的限制值，跳过限制。", {
+          logKey
+        });
+      }
+      return;
+    }
+    const anchorIndex = baseAnchor ? mkList.lastIndexOf(baseAnchor) : -1;
+    const distance = anchorIndex >= 0 ? currentIndex - anchorIndex : Number.POSITIVE_INFINITY;
+    if (baseAnchor && anchorIndex >= 0 && distance <= limit) {
+      if (baseAnchor !== currentAnchor) {
+        applyAnchor(baseAnchor, "锚点距离在限制范围内，恢复历史锚点。");
+      } else {
+        anchor_limiter_logger.debug(funcName, "锚点距离在限制范围内，无需调整。", {
+          logKey,
+          limit,
+          anchorMk: baseAnchor,
+          anchorIndex,
+          currentMk,
+          currentIndex,
+          distance
+        });
+      }
+      return;
+    }
+    const targetIndex = Math.max(currentIndex - limit, 0);
+    const targetMk = mkList[targetIndex] ?? mkList[0] ?? null;
+    if (!targetMk) {
+      anchor_limiter_logger.warn(funcName, "无法找到目标 MK，保持原始锚点。", {
+        logKey,
+        limit,
+        targetIndex,
+        baseAnchor
+      });
+      return;
+    }
+    applyAnchor(targetMk, baseAnchor && anchorIndex >= 0 ? "锚点根据限制被重新定位。" : "历史锚点缺失，根据限制选择兜底锚点。");
+    anchor_limiter_logger.debug(funcName, "锚点限制调整详情", {
+      logKey,
+      limit,
+      baseAnchor,
+      anchorIndex,
+      targetMk,
+      targetIndex,
+      currentMk,
+      currentIndex,
+      originalDistance: distance
+    });
+  };
+  for (const key of CLOCK_ROOT_FLAG_KEYS) {
+    clampAnchor({
+      baseAnchorGetter: () => previousAnchors[key] ?? anchors[key],
+      currentAnchorGetter: () => anchors[key],
+      anchorSetter: value => {
+        if (anchors[key] !== value) {
+          anchors[key] = value;
+        }
+      },
+      limit: resolveLimit(limits, key),
+      flagActive: flags[key],
+      logKey: key
+    });
+  }
+  if (flags.byPeriod) {
+    anchors.period = anchors.period ?? {};
+    const periodLimits = limits.period;
+    for (const key of BY_PERIOD_KEYS) {
+      const limit = periodLimits ? toNumberLimit(periodLimits[key]) : null;
+      clampAnchor({
+        baseAnchorGetter: () => previousAnchors.period?.[key] ?? anchors.period?.[key],
+        currentAnchorGetter: () => anchors.period?.[key],
+        anchorSetter: value => {
+          anchors.period = anchors.period ?? {};
+          if (anchors.period[key] !== value) {
+            anchors.period[key] = value;
+          }
+        },
+        limit,
+        flagActive: Boolean(flags.byPeriod[key]),
+        logKey: `period.${key}`
+      });
+    }
+  }
+  if (flags.bySeason) {
+    anchors.season = anchors.season ?? {};
+    const seasonLimits = limits.season;
+    for (const key of BY_SEASON_KEYS) {
+      const limit = seasonLimits ? toNumberLimit(seasonLimits[key]) : null;
+      clampAnchor({
+        baseAnchorGetter: () => previousAnchors.season?.[key] ?? anchors.season?.[key],
+        currentAnchorGetter: () => anchors.season?.[key],
+        anchorSetter: value => {
+          anchors.season = anchors.season ?? {};
+          if (anchors.season[key] !== value) {
+            anchors.season[key] = value;
+          }
+        },
+        limit,
+        flagActive: Boolean(flags.bySeason[key]),
+        logKey: `season.${key}`
+      });
+    }
+  }
+  if (changed) {
+    anchor_limiter_logger.debug(funcName, "时间锚点限制已应用。");
+  } else {
+    anchor_limiter_logger.debug(funcName, "时间锚点限制未造成变动。");
+  }
+  return runtime;
+}
+
+const sync_logger = new Logger("GSKO-BASE/core/time-chat-mk-sync/sync");
+
+function syncTimeChatMkAnchors({stat, runtime, mk}) {
+  const funcName = "syncTimeChatMkAnchors";
+  const currentMk = mk;
+  sync_logger.debug(funcName, "开始同步流程", {
+    mk: currentMk
+  });
+  if (!currentMk) {
+    sync_logger.debug(funcName, "缺少有效 mk，跳过同步。");
+    return {
+      stat,
+      runtime
+    };
+  }
+  const {clock} = runtime;
+  if (!clock) {
+    sync_logger.warn(funcName, "runtime.clock 不存在，无法同步时间锚点。");
+    return {
+      stat,
+      runtime
+    };
+  }
+  const {flags} = clock;
+  if (!flags) {
+    sync_logger.debug(funcName, "runtime.clock.flags 不存在，跳过同步。");
+    return {
+      stat,
+      runtime
+    };
+  }
+  sync_logger.debug(funcName, "当前时间标志", {
+    flags: external_default().cloneDeep(flags),
+    now: external_default().cloneDeep(clock.now)
+  });
+  const cache = getCache(stat);
+  const cacheSync = cache.timeChatMkSync ?? {};
+  sync_logger.debug(funcName, "读取缓存中的时间锚点", cacheSync);
+  const currentAnchors = TimeChatMkAnchorsSchema.parse(cacheSync.anchors ?? {});
+  const nextAnchors = external_default().cloneDeep(currentAnchors);
+  let changed = false;
+  const ensureAnchor = key => {
+    if (nextAnchors[key] == null) {
+      nextAnchors[key] = currentMk;
+      changed = true;
+      sync_logger.debug(funcName, "锚点缺失，补齐默认值", {
+        key,
+        mk: currentMk
+      });
+    }
+  };
+  const setAnchorWhenFlagged = (key, flag) => {
+    if (flag && nextAnchors[key] !== currentMk) {
+      nextAnchors[key] = currentMk;
+      changed = true;
+      sync_logger.debug(funcName, "检测到标志位 -> 更新锚点", {
+        key,
+        mk: currentMk
+      });
+    }
+    ensureAnchor(key);
+  };
+  setAnchorWhenFlagged("newPeriod", flags.newPeriod);
+  setAnchorWhenFlagged("newDay", flags.newDay);
+  setAnchorWhenFlagged("newWeek", flags.newWeek);
+  setAnchorWhenFlagged("newMonth", flags.newMonth);
+  setAnchorWhenFlagged("newSeason", flags.newSeason);
+  setAnchorWhenFlagged("newYear", flags.newYear);
+  if (flags.byPeriod) {
+    nextAnchors.period = nextAnchors.period ?? {};
+    for (const key of BY_PERIOD_KEYS) {
+      if (flags.byPeriod[key] && nextAnchors.period[key] !== currentMk) {
+        nextAnchors.period[key] = currentMk;
+        changed = true;
+        sync_logger.debug(funcName, "时段标志触发 -> 更新锚点", {
+          periodKey: key,
+          mk: currentMk
+        });
+      }
+    }
+    const currentPeriodKey = BY_PERIOD_KEYS[clock.now?.periodIdx ?? -1];
+    if (currentPeriodKey && nextAnchors.period[currentPeriodKey] == null) {
+      nextAnchors.period[currentPeriodKey] = currentMk;
+      changed = true;
+      sync_logger.debug(funcName, "当前时段缺失锚点，补齐", {
+        periodKey: currentPeriodKey,
+        mk: currentMk
+      });
+    }
+  }
+  if (flags.bySeason) {
+    nextAnchors.season = nextAnchors.season ?? {};
+    for (const key of BY_SEASON_KEYS) {
+      if (flags.bySeason[key] && nextAnchors.season[key] !== currentMk) {
+        nextAnchors.season[key] = currentMk;
+        changed = true;
+        sync_logger.debug(funcName, "季节标志触发 -> 更新锚点", {
+          seasonKey: key,
+          mk: currentMk
+        });
+      }
+    }
+    const currentSeasonKey = BY_SEASON_KEYS[clock.now?.seasonIdx ?? -1];
+    if (currentSeasonKey && nextAnchors.season[currentSeasonKey] == null) {
+      nextAnchors.season[currentSeasonKey] = currentMk;
+      changed = true;
+      sync_logger.debug(funcName, "当前季节缺失锚点，补齐", {
+        seasonKey: currentSeasonKey,
+        mk: currentMk
+      });
+    }
+  }
+  clock.previousMkAnchors = external_default().cloneDeep(currentAnchors);
+  clock.mkAnchors = nextAnchors;
+  if (!changed) {
+    sync_logger.debug(funcName, "锚点未发生变化。", {
+      previousAnchors: currentAnchors
+    });
+    return {
+      stat,
+      runtime
+    };
+  }
+  cache.timeChatMkSync = {
+    ...cacheSync,
+    anchors: nextAnchors
+  };
+  applyCacheToStat(stat, cache);
+  sync_logger.debug(funcName, "已同步时间锚点。", {
+    previousAnchors: currentAnchors,
+    nextAnchors
+  });
+  return {
+    stat,
+    runtime
+  };
+}
+
+function processTimeChatMkSync({stat, runtime, mk, selectedMks}) {
+  const syncResult = syncTimeChatMkAnchors({
+    stat,
+    runtime,
+    mk
+  });
+  const finalRuntime = clampTimeChatMkAnchors({
+    runtime: syncResult.runtime,
+    stat: syncResult.stat,
+    selectedMks: selectedMks ?? [],
+    mk
+  });
+  return {
+    stat: syncResult.stat,
+    runtime: finalRuntime
+  };
+}
+
 const constants_ERA_EVENT_NAMES = {
   INSERT_BY_OBJECT: "era:insertByObject",
   UPDATE_BY_OBJECT: "era:updateByObject",
@@ -3137,6 +3644,37 @@ const IncidentConfigSchema = external_z_namespaceObject.z.object({
   randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
 });
 
+const FlagHistoryLimitSchema = external_z_namespaceObject.z.number().int().min(0);
+
+const PeriodFlagHistoryLimitSchema = external_z_namespaceObject.z.object({
+  newDawn: FlagHistoryLimitSchema,
+  newMorning: FlagHistoryLimitSchema,
+  newNoon: FlagHistoryLimitSchema,
+  newAfternoon: FlagHistoryLimitSchema,
+  newDusk: FlagHistoryLimitSchema,
+  newNight: FlagHistoryLimitSchema,
+  newFirstHalfNight: FlagHistoryLimitSchema,
+  newSecondHalfNight: FlagHistoryLimitSchema
+}).partial().default({});
+
+const SeasonFlagHistoryLimitSchema = external_z_namespaceObject.z.object({
+  newSpring: FlagHistoryLimitSchema,
+  newSummer: FlagHistoryLimitSchema,
+  newAutumn: FlagHistoryLimitSchema,
+  newWinter: FlagHistoryLimitSchema
+}).partial().default({});
+
+const TimeFlagHistoryLimitsSchema = external_z_namespaceObject.z.object({
+  newPeriod: FlagHistoryLimitSchema.optional(),
+  newDay: FlagHistoryLimitSchema.optional(),
+  newWeek: FlagHistoryLimitSchema.optional(),
+  newMonth: FlagHistoryLimitSchema.optional(),
+  newSeason: FlagHistoryLimitSchema.optional(),
+  newYear: FlagHistoryLimitSchema.optional(),
+  period: PeriodFlagHistoryLimitSchema.optional(),
+  season: SeasonFlagHistoryLimitSchema.optional()
+}).default({});
+
 const TimeConfigSchema = external_z_namespaceObject.z.object({
   epochISO: external_z_namespaceObject.z.string().datetime({
     message: "无效的 ISO 8601 日期时间格式"
@@ -3155,7 +3693,8 @@ const TimeConfigSchema = external_z_namespaceObject.z.object({
   }),
   weekNames: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).length(7, {
     message: "weekNames 必须有 7 个元素"
-  })
+  }),
+  flagHistoryLimits: TimeFlagHistoryLimitsSchema
 });
 
 const DEFAULT_TIME_CONFIG = {
@@ -3164,7 +3703,8 @@ const DEFAULT_TIME_CONFIG = {
   periodKeys: [ ...BY_PERIOD_KEYS ],
   seasonNames: [ "春", "夏", "秋", "冬" ],
   seasonKeys: [ ...BY_SEASON_KEYS ],
-  weekNames: [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ]
+  weekNames: [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ],
+  flagHistoryLimits: {}
 };
 
 const AffectionConfigSchema = external_z_namespaceObject.z.object({
@@ -3220,7 +3760,7 @@ function logState(moduleName, modified, {stat, runtime, cache}) {
 $(() => {
   GSKO_BASE_logger.log("main", "后台数据处理脚本加载");
   const handleWriteDone = async payload => {
-    const {statWithoutMeta, mk, editLogs} = payload;
+    const {statWithoutMeta, mk, editLogs, selectedMks} = payload;
     GSKO_BASE_logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
     const latestMessages = getChatMessages(-1);
     if (!latestMessages || latestMessages.length === 0) {
@@ -3311,6 +3851,19 @@ $(() => {
       currentStat = timeResult.stat;
       currentRuntime = timeResult.runtime;
       logState("Time Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const mkSyncResult = processTimeChatMkSync({
+        stat: currentStat,
+        runtime: currentRuntime,
+        mk,
+        selectedMks
+      });
+      currentStat = mkSyncResult.stat;
+      currentRuntime = mkSyncResult.runtime;
+      logState("Time Chat MK Sync", "stat (cache), runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

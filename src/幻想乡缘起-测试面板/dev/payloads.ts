@@ -25,29 +25,31 @@ export const coreTestPayload: WriteDonePayload = {
 // 时间模块测试 Payloads
 // ==================================================================
 
-function createTimeTestPayload(data: any): WriteDonePayload {
+function createTimeTestPayload(scenario: timeData.TimeTestScenario): WriteDonePayload {
+  const stat = _.cloneDeep(scenario.stat);
+  const actions = scenario.actions ? _.cloneDeep(scenario.actions) : { apiWrite: true, sync: false };
+  const editLogs = scenario.editLogs ? _.cloneDeep(scenario.editLogs) : {};
+  const selectedMks = scenario.selectedMks ? [...scenario.selectedMks] : [];
+
   return {
-    mk: `time-test-${Date.now()}`,
-    message_id: 1000,
-    actions: { apiWrite: true, sync: false },
-    stat: data,
-    statWithoutMeta: data,
-    editLogs: {},
-    selectedMks: [],
+    mk: scenario.mk,
+    message_id: scenario.messageId,
+    actions,
+    stat,
+    statWithoutMeta: stat,
+    editLogs,
+    selectedMks,
     consecutiveProcessingCount: 1,
   };
 }
 
-export const timeTestPayloads = {
-  Initial: createTimeTestPayload(timeData.timeTest_Initial),
-  NoChange: createTimeTestPayload(timeData.timeTest_NoChange),
-  NewPeriod: createTimeTestPayload(timeData.timeTest_NewPeriod),
-  NewDay: createTimeTestPayload(timeData.timeTest_NewDay),
-  NewWeek: createTimeTestPayload(timeData.timeTest_NewWeek),
-  NewMonth: createTimeTestPayload(timeData.timeTest_NewMonth),
-  NewSeason: createTimeTestPayload(timeData.timeTest_NewSeason),
-  NewYear: createTimeTestPayload(timeData.timeTest_NewYear),
-};
+export const timeTestPayloads = Object.fromEntries(
+  Object.entries(timeData.timeTestScenarios).map(([key, scenario]) => {
+    const label =
+      timeData.timeTestScenarioLabels[key as keyof typeof timeData.timeTestScenarioLabels] ?? `时间测试-${key}`;
+    return [label, createTimeTestPayload(scenario)];
+  }),
+);
 
 // ==================================================================
 // Normalizer 模块测试 Payloads

@@ -268,7 +268,7 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
-const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","describe":"将不惜一切代价试图杀死对方。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-100,"name":"憎恨","describe":"会主动寻找并攻击对方。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-20,"name":"厌恶","describe":"会避开对方，如果无法避开则会恶语相向。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":0,"name":"陌生","describe":"如同对待陌生人一样，保持距离和警惕。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":10,"name":"普通","describe":"会进行普通的对话和互动。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":20,"name":"熟悉","describe":"会主动打招呼，并进行更深入的对话。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":40,"name":"亲近","describe":"会分享自己的心事，并主动邀请对方。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":70,"name":"亲密","describe":"会将对方视为重要的人，并愿意为其付出。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":100,"name":"思慕","describe":"深深地爱着对方，愿意为其做任何事。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":99999,"name":"不渝","describe":"无论发生什么，都会永远爱着对方。","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}}]},"time":{"epochISO":"2025-10-24T06:00:00Z","periodNames":["清晨","上午","中午","下午","黄昏","夜晚","上半夜","下半夜"],"periodKeys":["newDawn","newMorning","newNoon","newAfternoon","newDusk","newNight","newFirstHalfNight","newSecondHalfNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["newSpring","newSummer","newAutumn","newWinter"],"weekNames":["周一","周二","周三","周四","周五","周六","周日"]},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"姓名":"测试用户","所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"mapSize":{"width":1000,"height":1000},"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":{"博丽神社":{"pos":{"x":850,"y":450},"htmlEle":"<div class=\'location-label\'>博丽神社</div>"},"永远亭":{"pos":{"x":800,"y":550},"htmlEle":"<div class=\'location-label\'>永远亭</div>"},"迷途竹林":{"pos":{"x":780,"y":580},"htmlEle":"<div class=\'location-label\'>迷途竹林</div>"},"神灵庙":{"pos":{"x":900,"y":400},"htmlEle":"<div class=\'location-label\'>神灵庙</div>"},"梦殿大祀庙":{"pos":{"x":920,"y":420},"htmlEle":"<div class=\'location-label\'>梦殿大祀庙</div>"}},"中部平原带":{"人间之里":{"pos":{"x":500,"y":500},"htmlEle":"<div class=\'location-label\'>人间之里</div>"},"铃奈庵":{"pos":{"x":520,"y":520},"htmlEle":"<div class=\'location-label\'>铃奈庵</div>"},"命莲寺":{"pos":{"x":600,"y":480},"htmlEle":"<div class=\'location-label\'>命莲寺</div>"},"墓地":{"pos":{"x":620,"y":460},"htmlEle":"<div class=\'location-label\'>墓地</div>"},"香霖堂":{"pos":{"x":450,"y":450},"htmlEle":"<div class=\'location-label\'>香霖堂</div>"}},"魔法之森带":{"魔法之森":{"pos":{"x":700,"y":750},"htmlEle":"<div class=\'location-label\'>魔法之森</div>"},"迷途之家":{"pos":{"x":680,"y":780},"htmlEle":"<div class=\'location-label\'>迷途之家</div>"},"雾雨魔法店":{"pos":{"x":750,"y":800},"htmlEle":"<div class=\'location-label\'>雾雨魔法店</div>"}},"西境水域带":{"雾之湖":{"pos":{"x":200,"y":450},"htmlEle":"<div class=\'location-label\'>雾之湖</div>"},"红魔馆":{"pos":{"x":150,"y":400},"htmlEle":"<div class=\'location-label\'>红魔馆</div>"}},"西北山地带":{"妖怪之山":{"pos":{"x":200,"y":200},"htmlEle":"<div class=\'location-label\'>妖怪之山</div>"},"守矢神社":{"pos":{"x":200,"y":150},"htmlEle":"<div class=\'location-label\'>守矢神社</div>"},"九天瀑布":{"pos":{"x":250,"y":220},"htmlEle":"<div class=\'location-label\'>九天瀑布</div>"},"风神之湖":{"pos":{"x":200,"y":100},"htmlEle":"<div class=\'location-label\'>风神之湖</div>"},"玄武之泽":{"pos":{"x":150,"y":250},"htmlEle":"<div class=\'location-label\'>玄武之泽</div>"},"虹龙洞":{"pos":{"x":280,"y":180},"htmlEle":"<div class=\'location-label\'>虹龙洞</div>"},"秘天崖":{"pos":{"x":280,"y":130},"htmlEle":"<div class=\'location-label\'>秘天崖</div>"},"兽道":{"pos":{"x":350,"y":350},"htmlEle":"<div class=\'location-label\'>兽道</div>"},"大蛤蟆之池":{"pos":{"x":150,"y":150},"htmlEle":"<div class=\'location-label\'>大蛤蟆之池</div>"}},"南境丘陵带":{"无名之丘":{"pos":{"x":500,"y":850},"htmlEle":"<div class=\'location-label\'>无名之丘</div>"},"太阳花田":{"pos":{"x":550,"y":900},"htmlEle":"<div class=\'location-label\'>太阳花田</div>"},"辉针城":{"pos":{"x":450,"y":900},"htmlEle":"<div class=\'location-label\'>辉针城</div>"}}},"冥界":{"幽冥结界":{"pos":{"x":50,"y":50},"htmlEle":"<div class=\'location-label\'>幽冥结界</div>"},"白玉楼":{"pos":{"x":20,"y":20},"htmlEle":"<div class=\'location-label\'>白玉楼</div>"}},"地底·地狱系":{"幻想风穴":{"pos":{"x":920,"y":920},"htmlEle":"<div class=\'location-label\'>幻想风穴</div>"},"间歇泉":{"pos":{"x":930,"y":930},"htmlEle":"<div class=\'location-label\'>间歇泉</div>"},"旧都":{"pos":{"x":950,"y":950},"htmlEle":"<div class=\'location-label\'>旧都</div>"},"血之湖":{"pos":{"x":960,"y":960},"htmlEle":"<div class=\'location-label\'>血之湖</div>"},"地灵殿":{"pos":{"x":970,"y":970},"htmlEle":"<div class=\'location-label\'>地灵殿</div>"},"灼热地狱遗址":{"pos":{"x":980,"y":980},"htmlEle":"<div class=\'location-label\'>灼热地狱遗址</div>"},"地狱":{"pos":{"x":990,"y":990},"htmlEle":"<div class=\'location-label\'>地狱</div>"},"畜生界（兽王园）":{"pos":{"x":995,"y":995},"htmlEle":"<div class=\'location-label\'>畜生界（兽王园）</div>"}},"彼岸·中阴界":{"中有之道":{"pos":{"x":50,"y":950},"htmlEle":"<div class=\'location-label\'>中有之道</div>"},"三途河":{"pos":{"x":50,"y":970},"htmlEle":"<div class=\'location-label\'>三途河</div>"},"彼岸":{"pos":{"x":50,"y":990},"htmlEle":"<div class=\'location-label\'>彼岸</div>"},"柳之运河":{"pos":{"x":70,"y":930},"htmlEle":"<div class=\'location-label\'>柳之运河</div>"},"无缘冢":{"pos":{"x":20,"y":920},"htmlEle":"<div class=\'location-label\'>无缘冢</div>"}},"天界等上层":{"天界":{"pos":{"x":950,"y":50},"htmlEle":"<div class=\'location-label\'>天界</div>"},"有顶天":{"pos":{"x":960,"y":40},"htmlEle":"<div class=\'location-label\'>有顶天</div>"},"仙界":{"pos":{"x":970,"y":30},"htmlEle":"<div class=\'location-label\'>仙界</div>"},"梦境世界":{"pos":{"x":980,"y":20},"htmlEle":"<div class=\'location-label\'>梦境世界</div>"}},"月面":{"月都":{"pos":{"x":500,"y":25},"htmlEle":"<div class=\'location-label\'>月都</div>"}},"外界":{"秘封俱乐部":{"pos":{"x":975,"y":500},"htmlEle":"<div class=\'location-label\'>秘封俱乐部</div>"}}}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"},{"a":"雾之湖","b":"博丽神社"},{"a":"雾之湖","b":"红魔馆"},{"a":"雾之湖","b":"妖怪之山"},{"a":"雾之湖","b":"魔法之森"},{"a":"风神之湖","b":"妖怪之山"},{"a":"妖怪之山","b":"玄武之泽"},{"a":"守矢神社","b":"大蛤蟆之池"},{"a":"玄武之泽","b":"大蛤蟆之池"},{"a":"妖怪之山","b":"大蛤蟆之池"},{"a":"风神之湖","b":"守矢神社"},{"a":"秘天崖","b":"九天瀑布"},{"a":"秘天崖","b":"守矢神社"},{"a":"秘天崖","b":"天界"},{"a":"虹龙洞","b":"九天瀑布"},{"a":"魔法之森","b":"人间之里"},{"a":"魔法之森","b":"雾雨魔法店"},{"a":"雾雨魔法店","b":"香霖堂"},{"a":"魔法之森","b":"迷途之家"},{"a":"墓地","b":"命莲寺"},{"a":"人间之里","b":"香霖堂"},{"a":"人间之里","b":"命莲寺"},{"a":"命莲寺","b":"神灵庙"},{"a":"命莲寺","b":"迷途竹林"},{"a":"神灵庙","b":"梦殿大祀庙"},{"a":"迷途竹林","b":"永远亭"},{"a":"迷途竹林","b":"辉针城"},{"a":"太阳花田","b":"无名之丘"},{"a":"太阳花田","b":"幻想风穴"},{"a":"太阳花田","b":"魔法之森"},{"a":"无名之丘","b":"幻想风穴"},{"a":"幻想风穴","b":"间歇泉"},{"a":"间歇泉","b":"地灵殿"},{"a":"旧都","b":"血之湖"},{"a":"血之湖","b":"地灵殿"},{"a":"旧都","b":"灼热地狱遗址"},{"a":"灼热地狱遗址","b":"地狱"},{"a":"地狱","b":"畜生界（兽王园）"},{"a":"无缘冢","b":"柳之运河"},{"a":"墓地","b":"中有之道"},{"a":"柳之运河","b":"中有之道"},{"a":"中有之道","b":"三途河"},{"a":"无缘冢","b":"畜生界（兽王园）"},{"a":"彼岸","b":"三途河"},{"a":"无缘冢","b":"幽冥结界"},{"a":"幽冥结界","b":"白玉楼"},{"a":"天界","b":"有顶天"},{"a":"有顶天","b":"仙界"},{"a":"仙界","b":"梦境世界"},{"a":"梦境世界","b":"月都"},{"a":"红魔馆","b":"月都"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
+const stat_test_data_namespaceObject = JSON.parse('{"config":{"affection":{"affectionStages":[{"threshold":-99999,"name":"死敌","describe":"将不惜一切代价试图杀死对方。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-100,"name":"憎恨","describe":"会主动寻找并攻击对方。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":-20,"name":"厌恶","describe":"会避开对方，如果无法避开则会恶语相向。","patienceUnit":"day","visit":{"enabled":false,"probBase":0,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":2,"divisor":2}},{"threshold":0,"name":"陌生","describe":"如同对待陌生人一样，保持距离和警惕。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":10,"name":"普通","describe":"会进行普通的对话和互动。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.2,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":20,"name":"熟悉","describe":"会主动打招呼，并进行更深入的对话。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.3,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":5,"divisor":2}},{"threshold":40,"name":"亲近","describe":"会分享自己的心事，并主动邀请对方。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.5,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":70,"name":"亲密","describe":"会将对方视为重要的人，并愿意为其付出。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.7,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":100,"name":"思慕","describe":"深深地爱着对方，愿意为其做任何事。","patienceUnit":"day","visit":{"enabled":true,"probBase":0.9,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}},{"threshold":99999,"name":"不渝","describe":"无论发生什么，都会永远爱着对方。","patienceUnit":"day","visit":{"enabled":true,"probBase":1,"coolUnit":"day"},"forgettingSpeed":[{"triggerFlag":"newMonth","decrease":1}],"affectionGrowthLimit":{"max":10,"divisor":3}}]},"time":{"epochISO":"2025-10-24T06:00:00Z","periodNames":["清晨","上午","中午","下午","黄昏","夜晚","上半夜","下半夜"],"periodKeys":["newDawn","newMorning","newNoon","newAfternoon","newDusk","newNight","newFirstHalfNight","newSecondHalfNight"],"seasonNames":["春","夏","秋","冬"],"seasonKeys":["newSpring","newSummer","newAutumn","newWinter"],"weekNames":["周一","周二","周三","周四","周五","周六","周日"],"flagHistoryLimits":{"newPeriod":12,"newDay":72,"newWeek":120,"newMonth":240,"newSeason":360,"newYear":400,"period":{"newDawn":72,"newMorning":72,"newNoon":72,"newAfternoon":72,"newDusk":72,"newNight":72,"newFirstHalfNight":72,"newSecondHalfNight":72},"season":{"newSpring":400,"newSummer":400,"newAutumn":400,"newWinter":400}}},"incident":{"cooldownMinutes":100,"forceTrigger":false,"isRandomPool":false,"pool":[{"name":"红雾异变","detail":"幻想乡被红色的雾气笼罩了。","mainLoc":"红魔馆"},{"name":"春雪异变","detail":"春天来了，但雪还在下。","mainLoc":"白玉楼"}],"randomCore":[],"randomType":[]}},"chars":{"reimu":{"name":"博丽灵梦","好感度":60,"所在地区":"博丽神社","居住地区":"博丽神社","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"打扫神社","to":"博丽神社"}}],"目标":""},"marisa":{"name":"雾雨魔理沙","好感度":20,"所在地区":"魔法森林","居住地区":"雾雨魔法店","affectionStages":[],"specials":[],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行魔法研究","to":"魔法之森"}}],"目标":""},"sanae":{"name":"东风谷早苗","好感度":10,"所在地区":"守矢神社","居住地区":"守矢神社","affectionStages":[{"threshold":0,"name":"陌生","patienceUnit":"day","visit":{"enabled":false}}],"specials":[{"when":{"byFestival":"夏日祭"},"priority":10,"action":{"do":"参加祭典","to":"博丽神社"}}],"routine":[{"when":{"byFlag":["newDay"]},"action":{"do":"进行风祝的修行","to":"守矢神社"}}],"目标":""},"sakuya":{"name":"十六夜咲夜","好感度":-50,"所在地区":"红魔馆","居住地区":"红魔馆","affectionStages":[],"specials":[],"routine":[],"目标":""}},"user":{"姓名":"测试用户","所在地区":"博丽神社","居住地区":"人间之里"},"world":{"map_graph":{"mapSize":{"width":1000,"height":1000},"tree":{"幻想乡及周边":{"幻想乡本土":{"东境丘陵带":{"博丽神社":{"pos":{"x":850,"y":450},"htmlEle":"<div class=\'location-label\'>博丽神社</div>"},"永远亭":{"pos":{"x":800,"y":550},"htmlEle":"<div class=\'location-label\'>永远亭</div>"},"迷途竹林":{"pos":{"x":780,"y":580},"htmlEle":"<div class=\'location-label\'>迷途竹林</div>"},"神灵庙":{"pos":{"x":900,"y":400},"htmlEle":"<div class=\'location-label\'>神灵庙</div>"},"梦殿大祀庙":{"pos":{"x":920,"y":420},"htmlEle":"<div class=\'location-label\'>梦殿大祀庙</div>"}},"中部平原带":{"人间之里":{"pos":{"x":500,"y":500},"htmlEle":"<div class=\'location-label\'>人间之里</div>"},"铃奈庵":{"pos":{"x":520,"y":520},"htmlEle":"<div class=\'location-label\'>铃奈庵</div>"},"命莲寺":{"pos":{"x":600,"y":480},"htmlEle":"<div class=\'location-label\'>命莲寺</div>"},"墓地":{"pos":{"x":620,"y":460},"htmlEle":"<div class=\'location-label\'>墓地</div>"},"香霖堂":{"pos":{"x":450,"y":450},"htmlEle":"<div class=\'location-label\'>香霖堂</div>"}},"魔法之森带":{"魔法之森":{"pos":{"x":700,"y":750},"htmlEle":"<div class=\'location-label\'>魔法之森</div>"},"迷途之家":{"pos":{"x":680,"y":780},"htmlEle":"<div class=\'location-label\'>迷途之家</div>"},"雾雨魔法店":{"pos":{"x":750,"y":800},"htmlEle":"<div class=\'location-label\'>雾雨魔法店</div>"}},"西境水域带":{"雾之湖":{"pos":{"x":200,"y":450},"htmlEle":"<div class=\'location-label\'>雾之湖</div>"},"红魔馆":{"pos":{"x":150,"y":400},"htmlEle":"<div class=\'location-label\'>红魔馆</div>"}},"西北山地带":{"妖怪之山":{"pos":{"x":200,"y":200},"htmlEle":"<div class=\'location-label\'>妖怪之山</div>"},"守矢神社":{"pos":{"x":200,"y":150},"htmlEle":"<div class=\'location-label\'>守矢神社</div>"},"九天瀑布":{"pos":{"x":250,"y":220},"htmlEle":"<div class=\'location-label\'>九天瀑布</div>"},"风神之湖":{"pos":{"x":200,"y":100},"htmlEle":"<div class=\'location-label\'>风神之湖</div>"},"玄武之泽":{"pos":{"x":150,"y":250},"htmlEle":"<div class=\'location-label\'>玄武之泽</div>"},"虹龙洞":{"pos":{"x":280,"y":180},"htmlEle":"<div class=\'location-label\'>虹龙洞</div>"},"秘天崖":{"pos":{"x":280,"y":130},"htmlEle":"<div class=\'location-label\'>秘天崖</div>"},"兽道":{"pos":{"x":350,"y":350},"htmlEle":"<div class=\'location-label\'>兽道</div>"},"大蛤蟆之池":{"pos":{"x":150,"y":150},"htmlEle":"<div class=\'location-label\'>大蛤蟆之池</div>"}},"南境丘陵带":{"无名之丘":{"pos":{"x":500,"y":850},"htmlEle":"<div class=\'location-label\'>无名之丘</div>"},"太阳花田":{"pos":{"x":550,"y":900},"htmlEle":"<div class=\'location-label\'>太阳花田</div>"},"辉针城":{"pos":{"x":450,"y":900},"htmlEle":"<div class=\'location-label\'>辉针城</div>"}}},"冥界":{"幽冥结界":{"pos":{"x":50,"y":50},"htmlEle":"<div class=\'location-label\'>幽冥结界</div>"},"白玉楼":{"pos":{"x":20,"y":20},"htmlEle":"<div class=\'location-label\'>白玉楼</div>"}},"地底·地狱系":{"幻想风穴":{"pos":{"x":920,"y":920},"htmlEle":"<div class=\'location-label\'>幻想风穴</div>"},"间歇泉":{"pos":{"x":930,"y":930},"htmlEle":"<div class=\'location-label\'>间歇泉</div>"},"旧都":{"pos":{"x":950,"y":950},"htmlEle":"<div class=\'location-label\'>旧都</div>"},"血之湖":{"pos":{"x":960,"y":960},"htmlEle":"<div class=\'location-label\'>血之湖</div>"},"地灵殿":{"pos":{"x":970,"y":970},"htmlEle":"<div class=\'location-label\'>地灵殿</div>"},"灼热地狱遗址":{"pos":{"x":980,"y":980},"htmlEle":"<div class=\'location-label\'>灼热地狱遗址</div>"},"地狱":{"pos":{"x":990,"y":990},"htmlEle":"<div class=\'location-label\'>地狱</div>"},"畜生界（兽王园）":{"pos":{"x":995,"y":995},"htmlEle":"<div class=\'location-label\'>畜生界（兽王园）</div>"}},"彼岸·中阴界":{"中有之道":{"pos":{"x":50,"y":950},"htmlEle":"<div class=\'location-label\'>中有之道</div>"},"三途河":{"pos":{"x":50,"y":970},"htmlEle":"<div class=\'location-label\'>三途河</div>"},"彼岸":{"pos":{"x":50,"y":990},"htmlEle":"<div class=\'location-label\'>彼岸</div>"},"柳之运河":{"pos":{"x":70,"y":930},"htmlEle":"<div class=\'location-label\'>柳之运河</div>"},"无缘冢":{"pos":{"x":20,"y":920},"htmlEle":"<div class=\'location-label\'>无缘冢</div>"}},"天界等上层":{"天界":{"pos":{"x":950,"y":50},"htmlEle":"<div class=\'location-label\'>天界</div>"},"有顶天":{"pos":{"x":960,"y":40},"htmlEle":"<div class=\'location-label\'>有顶天</div>"},"仙界":{"pos":{"x":970,"y":30},"htmlEle":"<div class=\'location-label\'>仙界</div>"},"梦境世界":{"pos":{"x":980,"y":20},"htmlEle":"<div class=\'location-label\'>梦境世界</div>"}},"月面":{"月都":{"pos":{"x":500,"y":25},"htmlEle":"<div class=\'location-label\'>月都</div>"}},"外界":{"秘封俱乐部":{"pos":{"x":975,"y":500},"htmlEle":"<div class=\'location-label\'>秘封俱乐部</div>"}}}},"edges":[{"a":"博丽神社","b":"兽道"},{"a":"人间之里","b":"兽道"},{"a":"人间之里","b":"铃奈庵"},{"a":"雾之湖","b":"博丽神社"},{"a":"雾之湖","b":"红魔馆"},{"a":"雾之湖","b":"妖怪之山"},{"a":"雾之湖","b":"魔法之森"},{"a":"风神之湖","b":"妖怪之山"},{"a":"妖怪之山","b":"玄武之泽"},{"a":"守矢神社","b":"大蛤蟆之池"},{"a":"玄武之泽","b":"大蛤蟆之池"},{"a":"妖怪之山","b":"大蛤蟆之池"},{"a":"风神之湖","b":"守矢神社"},{"a":"秘天崖","b":"九天瀑布"},{"a":"秘天崖","b":"守矢神社"},{"a":"秘天崖","b":"天界"},{"a":"虹龙洞","b":"九天瀑布"},{"a":"魔法之森","b":"人间之里"},{"a":"魔法之森","b":"雾雨魔法店"},{"a":"雾雨魔法店","b":"香霖堂"},{"a":"魔法之森","b":"迷途之家"},{"a":"墓地","b":"命莲寺"},{"a":"人间之里","b":"香霖堂"},{"a":"人间之里","b":"命莲寺"},{"a":"命莲寺","b":"神灵庙"},{"a":"命莲寺","b":"迷途竹林"},{"a":"神灵庙","b":"梦殿大祀庙"},{"a":"迷途竹林","b":"永远亭"},{"a":"迷途竹林","b":"辉针城"},{"a":"太阳花田","b":"无名之丘"},{"a":"太阳花田","b":"幻想风穴"},{"a":"太阳花田","b":"魔法之森"},{"a":"无名之丘","b":"幻想风穴"},{"a":"幻想风穴","b":"间歇泉"},{"a":"间歇泉","b":"地灵殿"},{"a":"旧都","b":"血之湖"},{"a":"血之湖","b":"地灵殿"},{"a":"旧都","b":"灼热地狱遗址"},{"a":"灼热地狱遗址","b":"地狱"},{"a":"地狱","b":"畜生界（兽王园）"},{"a":"无缘冢","b":"柳之运河"},{"a":"墓地","b":"中有之道"},{"a":"柳之运河","b":"中有之道"},{"a":"中有之道","b":"三途河"},{"a":"无缘冢","b":"畜生界（兽王园）"},{"a":"彼岸","b":"三途河"},{"a":"无缘冢","b":"幽冥结界"},{"a":"幽冥结界","b":"白玉楼"},{"a":"天界","b":"有顶天"},{"a":"有顶天","b":"仙界"},{"a":"仙界","b":"梦境世界"},{"a":"梦境世界","b":"月都"},{"a":"红魔馆","b":"月都"}],"aliases":{"博丽神社":["博麗神社","博丽","博丽神社周边"],"人间之里":["人里","人間之里"]}},"fallbackPlace":"博丽神社"},"世界":{"timeProgress":120},"cache":{"time":{"clockAck":{"dayID":20251024,"weekID":20251020,"monthID":202510,"yearID":2025,"periodID":202510240,"periodIdx":0,"seasonID":20252,"seasonIdx":2}},"incident":{"incidentCooldownAnchor":10},"character":{"reimu":{"visit":{"cooling":false}}}},"incidents":{"红雾异变":{"异变细节":"天空中弥漫着不祥的红色雾气。","主要地区":["红魔馆"],"异变退治者":["博丽灵梦","雾雨魔理沙"],"异变已结束":false}},"festivals_list":[{"name":"正月（三天）","month":1,"start_day":1,"end_day":3},{"name":"节分","month":2,"start_day":3,"end_day":3}]}');
 
 const standardRuntime = {
   clock: {
@@ -357,175 +357,425 @@ const boundaryData = external_default().merge(external_default().cloneDeep(stat_
   festivals_list: null
 });
 
-function getInitialTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 0;
-  delete data.cache;
-  return data;
-}
+const PERIOD_KEYS = null && [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
 
-const timeTest_Initial = getInitialTest();
+const SEASON_KEYS = null && [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
 
-function getNoChangeTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 10;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
+const CLOCK_ACK_AT_DAWN = {
+  dayID: 20251024,
+  weekID: 20251020,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510240,
+  periodIdx: 0,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const CLOCK_ACK_END_OF_DAY = {
+  dayID: 20251024,
+  weekID: 20251020,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510247,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const CLOCK_ACK_END_OF_WEEK = {
+  dayID: 20251026,
+  weekID: 20251020,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510267,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const CLOCK_ACK_END_OF_MONTH = {
+  dayID: 20251031,
+  weekID: 20251027,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510317,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const CLOCK_ACK_END_OF_AUTUMN = {
+  dayID: 20251130,
+  weekID: 20251124,
+  monthID: 202511,
+  yearID: 2025,
+  periodID: 202511307,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const CLOCK_ACK_END_OF_YEAR = {
+  dayID: 20251231,
+  weekID: 20251229,
+  monthID: 202512,
+  yearID: 2025,
+  periodID: 202512317,
+  periodIdx: 7,
+  seasonID: 20253,
+  seasonIdx: 3
+};
+
+const MK_INITIAL = "mk-time-initial";
+
+const MK_NO_CHANGE = "mk-time-no-change";
+
+const MK_NEW_PERIOD = "mk-time-new-period";
+
+const MK_NEW_DAY = "mk-time-new-day";
+
+const MK_NEW_WEEK = "mk-time-new-week";
+
+const MK_NEW_MONTH = "mk-time-new-month";
+
+const MK_NEW_SEASON = "mk-time-new-season";
+
+const MK_NEW_YEAR = "mk-time-new-year";
+
+const MK_NEW_WEEK_CLAMPED = "mk-time-new-week-clamped";
+
+const MK_NEW_WEEK_ANCHORLESS = "mk-time-new-week-anchorless";
+
+const buildSequentialMkList = (length, prefix = "mk-history-") => Array.from({
+  length
+}, (_, idx) => `${prefix}${idx.toString().padStart(4, "0")}`);
+
+const LONG_HISTORY_SELECTED_MKS = [ ...buildSequentialMkList(180), MK_NEW_WEEK_CLAMPED ];
+
+const LONG_HISTORY_SELECTED_MKS_ANCHORLESS = [ ...buildSequentialMkList(120, "mk-anchorless-"), MK_NEW_WEEK_ANCHORLESS ];
+
+const LONG_HISTORY_EARLY_MK = LONG_HISTORY_SELECTED_MKS[0];
+
+const LONG_HISTORY_PERIOD_MK = LONG_HISTORY_SELECTED_MKS[20];
+
+const LONG_HISTORY_SEASON_MK = LONG_HISTORY_SELECTED_MKS[30];
+
+const LONG_HISTORY_NEW_DAY_ANCHOR = LONG_HISTORY_SELECTED_MKS[110];
+
+const LONG_HISTORY_NEW_MONTH_ANCHOR = LONG_HISTORY_SELECTED_MKS[150];
+
+const LONG_HISTORY_NEW_SEASON_ANCHOR = LONG_HISTORY_SELECTED_MKS[100];
+
+const LONG_HISTORY_NEW_YEAR_ANCHOR = LONG_HISTORY_SELECTED_MKS[60];
+
+function createScenario(config) {
+  const stat = external_default().cloneDeep(stat_test_data_namespaceObject);
+  stat.世界.timeProgress = config.timeProgress;
+  if (config.dropCache) {
+    delete stat.cache;
+  } else {
+    const cache = external_default().cloneDeep(stat_test_data_namespaceObject.cache ?? {});
+    const cacheAny = cache;
+    if (config.prevClockAck) {
+      cacheAny.time = {
+        ...cacheAny.time ?? {},
+        clockAck: {
+          ...config.prevClockAck
+        }
+      };
+    } else if (cacheAny.time) {
+      Reflect.deleteProperty(cacheAny.time, "clockAck");
     }
-  };
-  return data;
-}
-
-const timeTest_NoChange = getNoChangeTest();
-
-function getNewPeriodTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 2 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510240,
-        periodIdx: 0,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
+    if (config.anchors) {
+      cacheAny.timeChatMkSync = {
+        anchors: external_default().cloneDeep(config.anchors)
+      };
+    } else if (cacheAny.timeChatMkSync) {
+      Reflect.deleteProperty(cacheAny, "timeChatMkSync");
     }
+    stat.cache = cache;
+  }
+  if (config.flagHistoryLimits && stat.config?.time) {
+    const mergedLimits = external_default().merge({}, stat.config.time.flagHistoryLimits ?? {}, config.flagHistoryLimits);
+    stat.config.time.flagHistoryLimits = mergedLimits;
+  }
+  const mk = config.mk;
+  const selectedMks = config.selectedMks ? [ ...config.selectedMks ] : [ mk ];
+  return {
+    stat,
+    mk,
+    messageId: config.messageId,
+    selectedMks,
+    editLogs: config.editLogs ? external_default().cloneDeep(config.editLogs) : undefined,
+    actions: config.actions ? external_default().cloneDeep(config.actions) : undefined,
+    description: config.description
   };
-  return data;
 }
 
-const timeTest_NewPeriod = getNewPeriodTest();
+const scenarioInitial = createScenario({
+  mk: MK_INITIAL,
+  messageId: 2e3,
+  timeProgress: 0,
+  dropCache: true,
+  description: "首次运行，cache 为空，检查时间处理与锚点的初始化。"
+});
 
-function getNewDayTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 19 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251024,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510247,
-        periodIdx: 7,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
-    }
-  };
-  return data;
-}
+const scenarioNoChange = createScenario({
+  mk: MK_NO_CHANGE,
+  messageId: 2001,
+  timeProgress: 10,
+  prevClockAck: CLOCK_ACK_AT_DAWN,
+  anchors: {
+    newPeriod: MK_INITIAL,
+    period: {
+      newDawn: MK_INITIAL
+    },
+    newDay: "mk-day-20251024",
+    newWeek: "mk-week-20251020",
+    newMonth: "mk-month-202510",
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE ],
+  description: "时间推进 10 分钟但未跨越任何边界，锚点应保持原值。"
+});
 
-const timeTest_NewDay = getNewDayTest();
+const scenarioNewPeriod = createScenario({
+  mk: MK_NEW_PERIOD,
+  messageId: 2002,
+  timeProgress: 2 * 60,
+  prevClockAck: CLOCK_ACK_AT_DAWN,
+  anchors: {
+    newPeriod: MK_NO_CHANGE,
+    period: {
+      newDawn: MK_INITIAL,
+      newMorning: MK_NO_CHANGE
+    },
+    newDay: "mk-day-20251024",
+    newWeek: "mk-week-20251020",
+    newMonth: "mk-month-202510",
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD ],
+  description: "跨越清晨到上午，newMorning/newPeriod 的锚点应更新为当前 MK。"
+});
 
-function getNewWeekTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 3 * 24 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251026,
-        weekID: 20251020,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510267,
-        periodIdx: 7,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
-    }
-  };
-  return data;
-}
+const scenarioNewDay = createScenario({
+  mk: MK_NEW_DAY,
+  messageId: 2003,
+  timeProgress: 19 * 60,
+  prevClockAck: CLOCK_ACK_END_OF_DAY,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newMorning: MK_NEW_PERIOD,
+      newSecondHalfNight: "mk-period-second-night-prev"
+    },
+    newDay: "mk-day-20251024",
+    newWeek: "mk-week-20251020",
+    newMonth: "mk-month-202510",
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD, MK_NEW_DAY ],
+  description: "跨日，newDay 与夜间相关的锚点需要同步到当前 MK。"
+});
 
-const timeTest_NewWeek = getNewWeekTest();
+const scenarioNewWeek = createScenario({
+  mk: MK_NEW_WEEK,
+  messageId: 2004,
+  timeProgress: 3 * 24 * 60,
+  prevClockAck: CLOCK_ACK_END_OF_WEEK,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newMorning: MK_NEW_PERIOD
+    },
+    newDay: MK_NEW_DAY,
+    newWeek: "mk-week-20251020",
+    newMonth: "mk-month-202510",
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD, MK_NEW_DAY, MK_NEW_WEEK ],
+  description: "跨周，newWeek 锚点应从旧的周首 MK 切换到当前 MK。"
+});
 
-function getNewMonthTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = 8 * 24 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251031,
-        weekID: 20251027,
-        monthID: 202510,
-        yearID: 2025,
-        periodID: 202510317,
-        periodIdx: 7,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
-    }
-  };
-  return data;
-}
+const scenarioNewMonth = createScenario({
+  mk: MK_NEW_MONTH,
+  messageId: 2005,
+  timeProgress: 8 * 24 * 60,
+  prevClockAck: CLOCK_ACK_END_OF_MONTH,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newMorning: MK_NEW_PERIOD
+    },
+    newDay: MK_NEW_DAY,
+    newWeek: MK_NEW_WEEK,
+    newMonth: "mk-month-202510",
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD, MK_NEW_DAY, MK_NEW_WEEK, MK_NEW_MONTH ],
+  description: "跨月，newMonth 锚点应该刷新为当前 MK。"
+});
 
-const timeTest_NewMonth = getNewMonthTest();
+const scenarioNewSeason = createScenario({
+  mk: MK_NEW_SEASON,
+  messageId: 2006,
+  timeProgress: (8 + 30) * 24 * 60,
+  prevClockAck: CLOCK_ACK_END_OF_AUTUMN,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newMorning: MK_NEW_PERIOD
+    },
+    newDay: MK_NEW_DAY,
+    newWeek: MK_NEW_WEEK,
+    newMonth: MK_NEW_MONTH,
+    newSeason: "mk-season-autumn-start",
+    season: {
+      newAutumn: "mk-season-autumn-start",
+      newWinter: "mk-season-winter-prev"
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD, MK_NEW_DAY, MK_NEW_WEEK, MK_NEW_MONTH, MK_NEW_SEASON ],
+  description: "跨季节，newSeason 与 newWinter 的锚点应被当前 MK 覆盖。"
+});
 
-function getNewSeasonTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = (8 + 30) * 24 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251130,
-        weekID: 20251124,
-        monthID: 202511,
-        yearID: 2025,
-        periodID: 202511307,
-        periodIdx: 7,
-        seasonID: 20252,
-        seasonIdx: 2
-      }
-    }
-  };
-  return data;
-}
+const scenarioNewYear = createScenario({
+  mk: MK_NEW_YEAR,
+  messageId: 2007,
+  timeProgress: (8 + 30 + 31) * 24 * 60,
+  prevClockAck: CLOCK_ACK_END_OF_YEAR,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newMorning: MK_NEW_PERIOD
+    },
+    newDay: MK_NEW_DAY,
+    newWeek: MK_NEW_WEEK,
+    newMonth: MK_NEW_MONTH,
+    newSeason: MK_NEW_SEASON,
+    season: {
+      newWinter: MK_NEW_SEASON
+    },
+    newYear: "mk-year-2025"
+  },
+  selectedMks: [ MK_INITIAL, MK_NO_CHANGE, MK_NEW_PERIOD, MK_NEW_DAY, MK_NEW_WEEK, MK_NEW_MONTH, MK_NEW_SEASON, MK_NEW_YEAR ],
+  description: "跨年，newYear 锚点需要刷新，同时保持其他季节锚点稳定。"
+});
 
-const timeTest_NewSeason = getNewSeasonTest();
+const scenarioNewWeekHistoryClamped = createScenario({
+  mk: MK_NEW_WEEK_CLAMPED,
+  messageId: 2100,
+  timeProgress: 3 * 24 * 60 + 30,
+  prevClockAck: CLOCK_ACK_END_OF_WEEK,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newNight: LONG_HISTORY_PERIOD_MK
+    },
+    newDay: LONG_HISTORY_NEW_DAY_ANCHOR,
+    newWeek: LONG_HISTORY_EARLY_MK,
+    newMonth: LONG_HISTORY_NEW_MONTH_ANCHOR,
+    newSeason: LONG_HISTORY_NEW_SEASON_ANCHOR,
+    season: {
+      newAutumn: LONG_HISTORY_SEASON_MK
+    },
+    newYear: LONG_HISTORY_NEW_YEAR_ANCHOR
+  },
+  selectedMks: LONG_HISTORY_SELECTED_MKS,
+  description: "历史消息超出配置限制时，newWeek 与相关锚点应被截断到限制范围内。"
+});
 
-function getNewYearTest() {
-  const data = external_default().cloneDeep(stat_test_data_namespaceObject);
-  data.世界.timeProgress = (8 + 30 + 31) * 24 * 60;
-  data.cache = {
-    ...stat_test_data_namespaceObject.cache,
-    time: {
-      clockAck: {
-        dayID: 20251231,
-        weekID: 20251229,
-        monthID: 202512,
-        yearID: 2025,
-        periodID: 202512317,
-        periodIdx: 7,
-        seasonID: 20253,
-        seasonIdx: 3
-      }
-    }
-  };
-  return data;
-}
+const scenarioNewWeekAnchorFallback = createScenario({
+  mk: MK_NEW_WEEK_ANCHORLESS,
+  messageId: 2101,
+  timeProgress: 3 * 24 * 60 + 45,
+  prevClockAck: CLOCK_ACK_END_OF_WEEK,
+  anchors: {
+    newPeriod: MK_NEW_PERIOD,
+    period: {
+      newNoon: "mk-period-anchor-missing"
+    },
+    newDay: MK_NEW_DAY,
+    newWeek: "mk-week-anchor-missing",
+    newMonth: MK_NEW_MONTH,
+    newSeason: MK_NEW_SEASON,
+    season: {
+      newWinter: "mk-season-anchor-missing"
+    },
+    newYear: MK_NEW_YEAR
+  },
+  selectedMks: LONG_HISTORY_SELECTED_MKS_ANCHORLESS,
+  description: "当锚点在 selectedMks 中缺失时，模块会按限制回溯并选择兜底 MK。"
+});
 
-const timeTest_NewYear = getNewYearTest();
+const timeTestScenarios = {
+  Initial: scenarioInitial,
+  NoChange: scenarioNoChange,
+  NewPeriod: scenarioNewPeriod,
+  NewDay: scenarioNewDay,
+  NewWeek: scenarioNewWeek,
+  NewMonth: scenarioNewMonth,
+  NewSeason: scenarioNewSeason,
+  NewYear: scenarioNewYear,
+  NewWeekHistoryClamped: scenarioNewWeekHistoryClamped,
+  NewWeekAnchorFallback: scenarioNewWeekAnchorFallback
+};
+
+const timeTestScenarioLabels = {
+  Initial: "初始化场景（首次运行）",
+  NoChange: "时间推进但未跨越边界",
+  NewPeriod: "跨越时间段（清晨→上午）",
+  NewDay: "跨日（进入新一天）",
+  NewWeek: "跨周（进入新的一周）",
+  NewMonth: "跨月（进入新的一月）",
+  NewSeason: "跨季节（秋→冬）",
+  NewYear: "跨年（2025→2026）",
+  NewWeekHistoryClamped: "历史消息超限时锚点截断",
+  NewWeekAnchorFallback: "锚点缺失时限制兜底取值"
+};
+
+const timeTest_Initial = scenarioInitial.stat;
+
+const timeTest_NoChange = scenarioNoChange.stat;
+
+const timeTest_NewPeriod = scenarioNewPeriod.stat;
+
+const timeTest_NewDay = scenarioNewDay.stat;
+
+const timeTest_NewWeek = scenarioNewWeek.stat;
+
+const timeTest_NewMonth = scenarioNewMonth.stat;
+
+const timeTest_NewSeason = scenarioNewSeason.stat;
+
+const timeTest_NewYear = scenarioNewYear.stat;
+
+const timeTest_NewWeekHistoryClamped = scenarioNewWeekHistoryClamped.stat;
+
+const timeTest_NewWeekAnchorFallback = scenarioNewWeekAnchorFallback.stat;
 
 const getClonedBaseData = () => external_default().cloneDeep(stat_test_data_namespaceObject);
 
@@ -574,32 +824,30 @@ const coreTestPayload = {
   consecutiveProcessingCount: 1
 };
 
-function createTimeTestPayload(data) {
+function createTimeTestPayload(scenario) {
+  const stat = external_default().cloneDeep(scenario.stat);
+  const actions = scenario.actions ? external_default().cloneDeep(scenario.actions) : {
+    apiWrite: true,
+    sync: false
+  };
+  const editLogs = scenario.editLogs ? external_default().cloneDeep(scenario.editLogs) : {};
+  const selectedMks = scenario.selectedMks ? [ ...scenario.selectedMks ] : [];
   return {
-    mk: `time-test-${Date.now()}`,
-    message_id: 1e3,
-    actions: {
-      apiWrite: true,
-      sync: false
-    },
-    stat: data,
-    statWithoutMeta: data,
-    editLogs: {},
-    selectedMks: [],
+    mk: scenario.mk,
+    message_id: scenario.messageId,
+    actions,
+    stat,
+    statWithoutMeta: stat,
+    editLogs,
+    selectedMks,
     consecutiveProcessingCount: 1
   };
 }
 
-const timeTestPayloads = {
-  Initial: createTimeTestPayload(timeTest_Initial),
-  NoChange: createTimeTestPayload(timeTest_NoChange),
-  NewPeriod: createTimeTestPayload(timeTest_NewPeriod),
-  NewDay: createTimeTestPayload(timeTest_NewDay),
-  NewWeek: createTimeTestPayload(timeTest_NewWeek),
-  NewMonth: createTimeTestPayload(timeTest_NewMonth),
-  NewSeason: createTimeTestPayload(timeTest_NewSeason),
-  NewYear: createTimeTestPayload(timeTest_NewYear)
-};
+const timeTestPayloads = Object.fromEntries(Object.entries(timeTestScenarios).map(([key, scenario]) => {
+  const label = timeTestScenarioLabels[key] ?? `时间测试-${key}`;
+  return [ label, createTimeTestPayload(scenario) ];
+}));
 
 function createNormalizerTestPayload(data) {
   return {

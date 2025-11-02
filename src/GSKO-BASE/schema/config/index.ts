@@ -24,6 +24,46 @@ export const IncidentConfigSchema = z.object({
 export type IncidentConfig = z.infer<typeof IncidentConfigSchema>;
 
 // --- Time Config ---
+const FlagHistoryLimitSchema = z.number().int().min(0);
+
+const PeriodFlagHistoryLimitSchema = z
+  .object({
+    newDawn: FlagHistoryLimitSchema,
+    newMorning: FlagHistoryLimitSchema,
+    newNoon: FlagHistoryLimitSchema,
+    newAfternoon: FlagHistoryLimitSchema,
+    newDusk: FlagHistoryLimitSchema,
+    newNight: FlagHistoryLimitSchema,
+    newFirstHalfNight: FlagHistoryLimitSchema,
+    newSecondHalfNight: FlagHistoryLimitSchema,
+  })
+  .partial()
+  .default({});
+
+const SeasonFlagHistoryLimitSchema = z
+  .object({
+    newSpring: FlagHistoryLimitSchema,
+    newSummer: FlagHistoryLimitSchema,
+    newAutumn: FlagHistoryLimitSchema,
+    newWinter: FlagHistoryLimitSchema,
+  })
+  .partial()
+  .default({});
+
+export const TimeFlagHistoryLimitsSchema = z
+  .object({
+    newPeriod: FlagHistoryLimitSchema.optional(),
+    newDay: FlagHistoryLimitSchema.optional(),
+    newWeek: FlagHistoryLimitSchema.optional(),
+    newMonth: FlagHistoryLimitSchema.optional(),
+    newSeason: FlagHistoryLimitSchema.optional(),
+    newYear: FlagHistoryLimitSchema.optional(),
+    period: PeriodFlagHistoryLimitSchema.optional(),
+    season: SeasonFlagHistoryLimitSchema.optional(),
+  })
+  .default({});
+export type TimeFlagHistoryLimits = z.infer<typeof TimeFlagHistoryLimitsSchema>;
+
 export const TimeConfigSchema = z.object({
   epochISO: z.string().datetime({ message: '无效的 ISO 8601 日期时间格式' }),
   periodNames: z.array(z.string()).length(8, { message: 'periodNames 必须有 8 个元素' }),
@@ -31,6 +71,7 @@ export const TimeConfigSchema = z.object({
   seasonNames: z.array(z.string()).length(4, { message: 'seasonNames 必须有 4 个元素' }),
   seasonKeys: z.array(z.string()).length(4, { message: 'seasonKeys 必须有 4 个元素' }),
   weekNames: z.array(z.string()).length(7, { message: 'weekNames 必须有 7 个元素' }),
+  flagHistoryLimits: TimeFlagHistoryLimitsSchema,
 });
 export type TimeConfig = z.infer<typeof TimeConfigSchema>;
 
@@ -41,6 +82,7 @@ export const DEFAULT_TIME_CONFIG: TimeConfig = {
   seasonNames: ['春', '夏', '秋', '冬'],
   seasonKeys: [...BY_SEASON_KEYS],
   weekNames: ['周一', '周二', '周三', '周四', '周五', '周六', '周日'],
+  flagHistoryLimits: {},
 };
 
 // --- Affection Config ---
