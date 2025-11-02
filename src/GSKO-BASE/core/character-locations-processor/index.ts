@@ -10,13 +10,10 @@ const logger = new Logger();
  * - 主角当前位置
  * - 各地点对应的 NPC（按角色 ID 列表）
  */
-export function processCharacterLocations({
-  stat,
-  runtime,
-}: {
+export function processCharacterLocations({ stat, runtime }: { stat: Stat; runtime: Runtime }): {
   stat: Stat;
   runtime: Runtime;
-}): { stat: Stat; runtime: Runtime } {
+} {
   const funcName = 'processCharacterLocations';
   logger.debug(funcName, '开始计算角色分布...');
 

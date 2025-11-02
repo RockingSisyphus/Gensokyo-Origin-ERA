@@ -133,4 +133,3 @@ export function syncTimeChatMkAnchors({ stat, runtime, mk }: SyncParams): SyncRe
   logger.debug(funcName, '已同步时间锚点。', { previousAnchors: currentAnchors, nextAnchors });
   return { stat, runtime };
 }
-

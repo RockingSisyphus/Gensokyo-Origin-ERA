@@ -37,4 +37,3 @@ export const charLocTest_MostOnVillage = _.merge(_.cloneDeep(baseTestData), {
     sanae: { 所在地区: '守矢神社' },
   },
 });
-

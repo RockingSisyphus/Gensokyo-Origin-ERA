@@ -12,13 +12,10 @@ const logger = new Logger();
  * - 用户：严格标准化（不匹配时回退到 fallback）。
  * - 角色：非空但不匹配时保留原值，避免误回退到同一地点。
  */
-export function normalizeLocationData({
-  originalStat,
-  runtime,
-}: {
-  originalStat: Stat;
-  runtime: Runtime;
-}): { stat: Stat; changes: ChangeLogEntry[] } {
+export function normalizeLocationData({ originalStat, runtime }: { originalStat: Stat; runtime: Runtime }): {
+  stat: Stat;
+  changes: ChangeLogEntry[];
+} {
   const funcName = 'normalizeLocationData';
   logger.debug(funcName, '开始进行地点规范化...');
 
@@ -27,9 +24,7 @@ export function normalizeLocationData({
 
   try {
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
-    const legalLocations = new Set<string>(
-      legalLocationsData.map(loc => loc.name.trim()).filter(Boolean),
-    );
+    const legalLocations = new Set<string>(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
     if (legalLocations.size === 0) {
       logger.warn(funcName, 'runtime.area.legal_locations 为空，跳过地点规范化');
       return { stat, changes };
@@ -77,7 +72,13 @@ export function normalizeLocationData({
       const oldValue = stat.user.居住地区;
       stat.user.居住地区 = userHomeNormalization.fixedLocation;
       changes.push(
-        createChangeLogEntry(funcName, 'user.居住地区', oldValue, userHomeNormalization.fixedLocation, '修正用户居住地区'),
+        createChangeLogEntry(
+          funcName,
+          'user.居住地区',
+          oldValue,
+          userHomeNormalization.fixedLocation,
+          '修正用户居住地区',
+        ),
       );
     }
     if (userLocationNormalization.fixedLocation !== userLocation) {
@@ -133,9 +134,7 @@ export function normalizeLocationData({
       }
 
       const charHomeNormalization = normalize(charHome, fallbackLocation, { keepOnInvalid: true });
-      const charLocationFallback = charHomeNormalization.isOk
-        ? charHomeNormalization.fixedLocation
-        : fallbackLocation;
+      const charLocationFallback = charHomeNormalization.isOk ? charHomeNormalization.fixedLocation : fallbackLocation;
       const charLocationNormalization = normalize(charLocation, charLocationFallback, { keepOnInvalid: true });
 
       if (charHomeNormalization.fixedLocation !== charHome) {

@@ -204,7 +204,7 @@ export function clampTimeChatMkAnchors({ runtime, stat, selectedMks, mk }: Clamp
 
     applyAnchor(
       targetMk,
-      baseAnchor && anchorIndex >= 0 ? '锚点根据限制被重新定位。' : '历史锚点缺失，根据限制选择兜底锚点。'
+      baseAnchor && anchorIndex >= 0 ? '锚点根据限制被重新定位。' : '历史锚点缺失，根据限制选择兜底锚点。',
     );
 
     logger.debug(funcName, '锚点限制调整详情', {
