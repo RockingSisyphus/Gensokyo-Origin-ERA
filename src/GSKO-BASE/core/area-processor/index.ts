@@ -1,5 +1,5 @@
+import { AreaRuntimeInfo, RouteInfo, Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
-import { Runtime, RouteInfo } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { buildGraph } from './graph-builder';
 import { loadLocations } from './location-loader';
@@ -25,36 +25,38 @@ export async function processArea({
   logger.debug(funcName, '开始处理地区...');
 
   // 遵循“显式覆盖原则”，在函数开头为所有属性设置明确的“空状态”默认值
-  const output: {
-    graph: Record<string, Record<string, boolean>>;
-    legal_locations: string[];
-    neighbors: string[];
-    loadArea: string[];
-    route: RouteInfo;
-  } = {
+  const output: AreaRuntimeInfo = {
     graph: {},
     legal_locations: [],
     neighbors: [],
     loadArea: [],
     route: { candidates: [], routes: [] }, // 总是包含一个默认的 route 结构
+    mapSize: undefined, // 显式设置默认值
   };
 
   try {
-    // 1. 构建图
-    const { graph, leafNodes } = buildGraph({ stat });
+    // 从 stat 中提取 mapSize
+    output.mapSize = stat.world?.map_graph?.mapSize;
+
+    // 1. 构建图，并获取包含完整信息的叶节点
+    const { graph, leafNodes: fullLeafNodes } = buildGraph({ stat });
     output.graph = graph;
     logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
 
-    // 2. 获取所有合法地区
-    output.legal_locations = leafNodes;
-    logger.debug(funcName, `获取到 ${leafNodes.length} 个合法地区`);
+    // 2. 获取所有合法地区 (并立即转换为字符串数组，以适配下游函数)
+    output.legal_locations = fullLeafNodes.map(leaf => leaf.name);
+    logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
 
     // 3. 获取相邻地区
     output.neighbors = processNeighbors({ stat, graph });
     logger.debug(funcName, `获取到 ${output.neighbors.length} 个相邻地区`);
 
     // 4. 根据合法地区、相邻地区等，确定需要加载的地区
-    output.loadArea = await loadLocations({ stat, legalLocations: leafNodes, neighbors: output.neighbors });
+    output.loadArea = await loadLocations({
+      stat,
+      legalLocations: output.legal_locations,
+      neighbors: output.neighbors,
+    });
     logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
 
     // 5. 基于加载的地区计算路线
@@ -67,7 +69,7 @@ export async function processArea({
   }
 
   // 将计算结果合并到 runtime
-  Object.assign(runtime, output);
+  runtime.area = output;
 
   logger.debug(funcName, '地区处理完成');
   return { stat, runtime };

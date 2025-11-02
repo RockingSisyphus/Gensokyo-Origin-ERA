@@ -5,6 +5,7 @@ import { z } from 'zod';
 import { AffectionStageWithForgetSchema, CharacterSettingsMapSchema, type Action } from './character-settings';
 import { ClockSchema, type Clock } from './clock';
 import { IncidentDetailSchema } from './incident';
+import { MapSizeSchema } from './world';
 export { ClockSchema };
 
 const IncidentRuntimeInfoSchema = z.object({
@@ -81,15 +82,21 @@ const RouteInfoSchema = z.object({
 });
 export type RouteInfo = z.infer<typeof RouteInfoSchema>;
 
+export const AreaRuntimeInfoSchema = z.object({
+  graph: z.record(z.string(), z.record(z.string(), z.boolean())),
+  legal_locations: z.array(z.string()),
+  neighbors: z.array(z.string()),
+  loadArea: z.array(z.string()),
+  route: RouteInfoSchema,
+  mapSize: MapSizeSchema.optional(),
+});
+export type AreaRuntimeInfo = z.infer<typeof AreaRuntimeInfoSchema>;
+
 // 最终的 Runtime Schema
 export const RuntimeSchema = z.object({
   incident: IncidentSchema.optional(),
   clock: ClockSchema.optional(),
-  graph: z.record(z.string(), z.record(z.string(), z.boolean())).optional(),
-  legal_locations: z.array(z.string()).optional(),
-  neighbors: z.array(z.string()).optional(),
-  loadArea: z.array(z.string()).optional(),
-  route: RouteInfoSchema.optional(),
+  area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
   character: z
     .object({

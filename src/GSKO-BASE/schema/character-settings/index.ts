@@ -37,6 +37,7 @@ export const AffectionStageWithForgetSchema = z
   .object({
     threshold: z.number(),
     name: z.string(),
+    describe: z.string().nullable().optional(),
     patienceUnit: TimeUnitSchema.optional(),
     visit: z
       .object({

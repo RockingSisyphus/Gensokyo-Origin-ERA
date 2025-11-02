@@ -1,14 +1,19 @@
 import _ from 'lodash';
+import { Runtime } from '../../../schema/runtime';
 
 /**
  * @description 构建合法地点提示词
- * @param {{ runtime: any }} params
+ * @param {{ runtime: Runtime }} params
  * @returns {string}
  */
-export function buildLegalLocationsPrompt({ runtime }: { runtime: any }): string {
-  const legalLocations = _.get(runtime, 'legal_locations');
+export function buildLegalLocationsPrompt({ runtime }: { runtime: Runtime }): string {
+  const legalLocations = runtime.area?.legal_locations;
 
   if (_.isEmpty(legalLocations)) {
+    return '';
+  }
+  // Type guard to ensure legalLocations is not undefined
+  if (!legalLocations) {
     return '';
   }
 

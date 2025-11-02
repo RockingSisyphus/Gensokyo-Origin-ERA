@@ -17,6 +17,7 @@ const sanaeAffectionStages = [
   {
     threshold: 50,
     name: '崇拜',
+    describe: '将对方视为神明一样崇拜，会无条件地听从对方的任何指示。',
     patienceUnit: 'day',
     visit: { enabled: true, probBase: 1.0, coolUnit: 'day' },
     forgettingSpeed: [{ triggerFlag: 'newMonth', decrease: 1 }],
@@ -25,6 +26,7 @@ const sanaeAffectionStages = [
   {
     threshold: 20,
     name: '信赖',
+    describe: '非常信赖对方，愿意向对方寻求帮助和建议。',
     patienceUnit: 'day',
     visit: { enabled: true, probBase: 0.8, coolUnit: 'day' },
     forgettingSpeed: [{ triggerFlag: 'newMonth', decrease: 1 }],
@@ -34,6 +36,7 @@ const sanaeAffectionStages = [
   {
     threshold: 0,
     name: '友人',
+    describe: '将对方视为朋友，可以一起愉快地交谈和行动。',
     patienceUnit: 'day',
     visit: { enabled: true, probBase: 0.4, coolUnit: 'day' },
     forgettingSpeed: [{ triggerFlag: 'newMonth', decrease: 1 }],
@@ -42,6 +45,7 @@ const sanaeAffectionStages = [
   {
     threshold: -50,
     name: '警惕',
+    describe: '对对方抱有强烈的警惕心，会尽量避免与对方接触。',
     patienceUnit: 'day',
     visit: { enabled: false, probBase: 0, coolUnit: 'day' },
     forgettingSpeed: [{ triggerFlag: 'newMonth', decrease: 2 }],
