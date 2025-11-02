@@ -12,6 +12,7 @@ import { processIncidentDecisions } from './core/incident-processor';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { processTime } from './core/time-processor';
+import { syncTimeChatMkAnchors } from './core/time-chat-mk-sync';
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
@@ -157,6 +158,19 @@ $(() => {
       currentStat = timeResult.stat;
       currentRuntime = timeResult.runtime;
       logState('Time Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      const mkSyncResult = syncTimeChatMkAnchors({
+        stat: currentStat,
+        runtime: currentRuntime,
+        mk,
+      });
+      currentStat = mkSyncResult.stat;
+      currentRuntime = mkSyncResult.runtime;
+      logState('Time Chat MK Sync', 'stat (cache), runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

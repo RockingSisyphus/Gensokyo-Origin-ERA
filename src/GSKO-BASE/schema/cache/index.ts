@@ -1,5 +1,6 @@
 import { z } from 'zod';
 import { ClockAckSchema } from '../clock';
+import { TimeChatMkSyncCacheSchema } from '../time-chat-mk-sync';
 
 export const CharacterCacheSchema = z.object({
   visit: z
@@ -25,6 +26,7 @@ export const CacheSchema = z.object({
     .default({}),
   incident: IncidentCacheSchema.optional().default({}),
   character: z.record(z.string(), CharacterCacheSchema).optional().default({}),
+  timeChatMkSync: TimeChatMkSyncCacheSchema.optional().default({}),
 });
 
 export type Cache = z.infer<typeof CacheSchema>;

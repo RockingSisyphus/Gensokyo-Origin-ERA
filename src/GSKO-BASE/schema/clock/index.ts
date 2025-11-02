@@ -1,4 +1,5 @@
 import { z } from 'zod';
+import { TimeChatMkAnchorsSchema } from '../time-chat-mk-sync';
 
 // --- Constants ---
 export const BY_PERIOD_KEYS = [
@@ -75,6 +76,7 @@ export type ClockFlags = z.infer<typeof ClockFlagsSchema>;
 export const ClockSchema = z.object({
   now: NowSchema,
   flags: ClockFlagsSchema,
+  mkAnchors: TimeChatMkAnchorsSchema.optional(),
 });
 export type Clock = z.infer<typeof ClockSchema>;
 
