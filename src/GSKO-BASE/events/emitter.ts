@@ -188,8 +188,11 @@ export function getSnapshotsBetweenMks(payload: { startMk?: string; endMk?: stri
  * [伪造] 请求获取两个消息密钥（MK）之间（包含两者）的所有历史变量快照。
  * 触发一个自定义事件，并等待一个伪造的响应。
  */
-export function getSnapshotsBetweenMks_fake(payload: { startMk?: string; endMk?: string }): Promise<QueryResultPayload> {
-  return new Promise((resolve) => {
+export function getSnapshotsBetweenMks_fake(payload: {
+  startMk?: string;
+  endMk?: string;
+}): Promise<QueryResultPayload> {
+  return new Promise(resolve => {
     eventOnce('dev:fakeSnapshotsResponse', (response: { result: QueryResultPayload }) => {
       resolve(response.result);
     });

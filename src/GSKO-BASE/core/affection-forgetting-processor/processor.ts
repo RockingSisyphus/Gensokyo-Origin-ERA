@@ -48,7 +48,7 @@ interface AnchorInfo {
 const logger = new Logger();
 
 const hasSharedLocation = (snapshots: QueryResultItem[], charId: string): boolean => {
-  return snapshots.some((snapshot) => {
+  return snapshots.some(snapshot => {
     const userLocation = getSnapshotUserLocation(snapshot);
     const charLocation = getSnapshotCharacterLocation(snapshot, charId);
     return userLocation && charLocation && userLocation === charLocation;
@@ -56,7 +56,7 @@ const hasSharedLocation = (snapshots: QueryResultItem[], charId: string): boolea
 };
 
 const sumDecrease = (rules: ActiveRule[]): number => {
-  return _.sumBy(rules, (entry) => {
+  return _.sumBy(rules, entry => {
     const value = toFiniteNumber(entry.rule.decrease);
     return value && value > 0 ? value : 0;
   });
@@ -85,7 +85,7 @@ export async function processAffectionForgettingInternal({
     return { stat, runtime, changes };
   }
   if (!mk || !selectedMks) {
-    logger.debug(funcName, "缺少 mk / selectedMks 信息，跳过遗忘处理。");
+    logger.debug(funcName, '缺少 mk / selectedMks 信息，跳过遗忘处理。');
     return { stat, runtime, changes };
   }
 
@@ -93,7 +93,7 @@ export async function processAffectionForgettingInternal({
     (selectedMks ?? []).filter((value): value is string => typeof value === 'string' && value.length > 0),
   );
   if (validSelectedMks.size === 0) {
-    logger.debug(funcName, "selectedMks 中没有任何有效 MK，跳过遗忘处理。");
+    logger.debug(funcName, 'selectedMks 中没有任何有效 MK，跳过遗忘处理。');
     return { stat, runtime, changes };
   }
 
@@ -125,7 +125,7 @@ export async function processAffectionForgettingInternal({
   }
 
   if (activeCharacters.length === 0 || requiredFlags.size === 0) {
-    logger.debug(funcName, "当前没有角色触发遗忘规则。");
+    logger.debug(funcName, '当前没有角色触发遗忘规则。');
     return { stat, runtime, changes };
   }
 
@@ -134,7 +134,7 @@ export async function processAffectionForgettingInternal({
   // 3. --- 直接使用 runtime 中的快照 ---
   const snapshots = runtime.snapshots ?? [];
   if (snapshots.length === 0) {
-    logger.debug(funcName, "runtime.snapshots 为空，无法判定同地区情况。");
+    logger.debug(funcName, 'runtime.snapshots 为空，无法判定同地区情况。');
     return { stat, runtime, changes };
   }
   logger.debug(funcName, `[步骤3] 从 runtime 获取到 ${snapshots.length} 个历史快照。`);
@@ -145,8 +145,8 @@ export async function processAffectionForgettingInternal({
 
     const anchorMk = getAnchorMkByFlag(runtime, rules[0].flagKey);
     if (!anchorMk || !validSelectedMks.has(anchorMk)) {
-        logger.debug(funcName, `角色 ${charId} 的锚点无效或不在主干消息链中，跳过。`);
-        continue;
+      logger.debug(funcName, `角色 ${charId} 的锚点无效或不在主干消息链中，跳过。`);
+      continue;
     }
 
     const shared = hasSharedLocation(snapshots, charId);
@@ -164,11 +164,11 @@ export async function processAffectionForgettingInternal({
     if (!char) continue;
     char[CHARACTER_FIELDS.affection] = newAffection;
 
-    const reason = `在 ${rules.map((item) => item.flagKey).join(', ')} 跨度内未与玩家同地区，按遗忘规则降低好感度 ${decreaseValue}`;
+    const reason = `在 ${rules.map(item => item.flagKey).join(', ')} 跨度内未与玩家同地区，按遗忘规则降低好感度 ${decreaseValue}`;
     const path = `chars.${charId}.${CHARACTER_FIELDS.affection}`;
-    changes.push(createChangeLogEntry("affection-forgetting-processor", path, affection, newAffection, reason));
+    changes.push(createChangeLogEntry('affection-forgetting-processor', path, affection, newAffection, reason));
 
-    logger.debug(funcName, "应用遗忘规则降低好感度。", {
+    logger.debug(funcName, '应用遗忘规则降低好感度。', {
       charId,
       oldAffection: affection,
       newAffection,

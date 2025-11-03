@@ -1867,7 +1867,17 @@ const DEFAULT_VALUES = {
 
 const aggregator_logger = new Logger("GSKO-BASE/core/character-processor/aggregator");
 
-function resolveTargetLocation(to, stat) {
+function resolveTargetLocation(to, stat, runtime) {
+  if (to === "RANDOM") {
+    const legalLocations = runtime.area?.legal_locations;
+    if (legalLocations && legalLocations.length > 0) {
+      const sampled = external_default().sample(legalLocations);
+      if (typeof sampled === "string") {
+        return sampled;
+      }
+    }
+    return accessors_getUserLocation(stat);
+  }
   if (!to || to === "HERO") {
     return accessors_getUserLocation(stat);
   }
@@ -1878,7 +1888,7 @@ function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions
   const funcName = "applyNonCompanionDecisions";
   external_default().forEach(nonCompanionDecisions, (decision, charId) => {
     aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
-    const newLocation = resolveTargetLocation(decision.to, stat);
+    const newLocation = resolveTargetLocation(decision.to, stat, runtime);
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
     aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
@@ -4268,7 +4278,8 @@ const StatSchema = external_z_namespaceObject.z.object({
   世界: 世界Schema,
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
-  festivals_list: FestivalsListSchema
+  festivals_list: FestivalsListSchema,
+  文文新闻: external_z_namespaceObject.z.string().optional()
 });
 
 const GSKO_BASE_logger = new Logger("GSKO-BASE");

@@ -8,9 +8,10 @@ function formatNewsEntry(entry: AyaNews['entries'][number]): string {
   const location = entry.location;
   const ayaTarget = `文文正在${entry.target}`;
 
-  const otherChars = entry.otherCharacters.length > 0
-    ? '遇到了：' + entry.otherCharacters.map(char => `${char.name}(${char.target})`).join('、')
-    : '没有遇到其他人';
+  const otherChars =
+    entry.otherCharacters.length > 0
+      ? '遇到了：' + entry.otherCharacters.map(char => `${char.name}(${char.target})`).join('、')
+      : '没有遇到其他人';
 
   return `${time}；在【${location}】；${ayaTarget}；${otherChars}。`;
 }

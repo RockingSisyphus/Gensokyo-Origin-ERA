@@ -1,5 +1,5 @@
-import { z } from "zod";
-import { PreprocessStringifiedObject } from "../../utils/zod";
+import { z } from 'zod';
+import { PreprocessStringifiedObject } from '../../utils/zod';
 
 export const MapSizeSchema = z.object({
   width: z.number(),
@@ -47,8 +47,8 @@ export const MapGraphSchema = z.object({
 export type MapGraph = z.infer<typeof MapGraphSchema>;
 
 export const WORLD_DEFAULTS = {
-  fallbackPlace: "博丽神社" as const,
-  mainStoryTag: "gensokyo" as const,
+  fallbackPlace: '博丽神社' as const,
+  mainStoryTag: 'gensokyo' as const,
 } as const;
 
 export const WorldSchema = z

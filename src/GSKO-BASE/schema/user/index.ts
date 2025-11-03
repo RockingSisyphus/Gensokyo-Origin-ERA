@@ -1,4 +1,4 @@
-import { z } from "zod";
+import { z } from 'zod';
 
 export const UserSchema = z.object({
   姓名: z.string().nullable(),
@@ -7,7 +7,7 @@ export const UserSchema = z.object({
 });
 
 export const USER_FIELDS = {
-  name: "姓名" as const,
-  currentLocation: "所在地区" as const,
-  home: "居住地区" as const,
+  name: '姓名' as const,
+  currentLocation: '所在地区' as const,
+  home: '居住地区' as const,
 } as const;

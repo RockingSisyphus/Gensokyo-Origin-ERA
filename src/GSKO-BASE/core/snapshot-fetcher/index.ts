@@ -55,7 +55,7 @@ export async function fetchSnapshotsForTimeFlags({ runtime, mk, isFake }: FetchP
     // 根据模式选择真实或伪造的 API
     const snapshotPayload = isFake
       ? await getSnapshotsBetweenMks_fake({ startMk, endMk }) // 伪造的 API
-      : await getSnapshotsBetweenMks({ startMk, endMk });   // 真实的 API
+      : await getSnapshotsBetweenMks({ startMk, endMk }); // 真实的 API
 
     const snapshots = (snapshotPayload.result as QueryResultItem[]) || [];
     runtime.snapshots = snapshots;

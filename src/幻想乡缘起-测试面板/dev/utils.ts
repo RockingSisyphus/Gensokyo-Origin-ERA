@@ -61,7 +61,7 @@ export function addTestButtons(
         if (config.beforeTest) {
           await config.beforeTest();
         }
-        
+
         const eventType = config.eventType || 'dev:fakeWriteDone';
         // 确保在事件处理完后再清理模拟器
         try {

@@ -1,12 +1,12 @@
-import _ from "lodash";
-import { ChangeLogEntry } from "../../schema/change-log-entry";
-import { Stat } from "../../schema/stat";
-import { Runtime } from "../../schema/runtime";
-import { CHARACTER_FIELDS } from "../../schema/character";
-import { USER_FIELDS } from "../../schema/user";
-import { WORLD_DEFAULTS } from "../../schema/world";
-import { createChangeLogEntry } from "../../utils/changeLog";
-import { Logger } from "../../utils/log";
+import _ from 'lodash';
+import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { Stat } from '../../schema/stat';
+import { Runtime } from '../../schema/runtime';
+import { CHARACTER_FIELDS } from '../../schema/character';
+import { USER_FIELDS } from '../../schema/user';
+import { WORLD_DEFAULTS } from '../../schema/world';
+import { createChangeLogEntry } from '../../utils/changeLog';
+import { Logger } from '../../utils/log';
 
 const logger = new Logger();
 
@@ -14,8 +14,8 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
   stat: Stat;
   changes: ChangeLogEntry[];
 } {
-  const funcName = "normalizeLocationData";
-  logger.debug(funcName, "开始进行地点规范化...");
+  const funcName = 'normalizeLocationData';
+  logger.debug(funcName, '开始进行地点规范化...');
 
   const stat = _.cloneDeep(originalStat);
   const changes: ChangeLogEntry[] = [];
@@ -24,7 +24,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
     const legalLocations = new Set<string>(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
     if (legalLocations.size === 0) {
-      logger.warn(funcName, "合法地点列表为空，跳过地点规范化。");
+      logger.warn(funcName, '合法地点列表为空，跳过地点规范化。');
       return { stat, changes };
     }
     const fallbackLocation = stat.world?.fallbackPlace ?? WORLD_DEFAULTS.fallbackPlace;
@@ -60,7 +60,15 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       const oldValue = userLocation;
       userLocation = userHome;
       stat.user[USER_FIELDS.currentLocation] = userLocation;
-      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.currentLocation}`, oldValue, userLocation, '补全用户当前位置'));
+      changes.push(
+        createChangeLogEntry(
+          funcName,
+          `user.${USER_FIELDS.currentLocation}`,
+          oldValue,
+          userLocation,
+          '补全用户当前位置',
+        ),
+      );
     }
     const userHomeNormalization = normalize(userHome, fallbackLocation);
     const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
@@ -161,9 +169,9 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       }
     }
 
-    logger.debug(funcName, "地点规范化完成。", { changes });
+    logger.debug(funcName, '地点规范化完成。', { changes });
   } catch (error) {
-    logger.error(funcName, "执行地点规范化时发生异常，将保留原始数据", error);
+    logger.error(funcName, '执行地点规范化时发生异常，将保留原始数据', error);
   }
 
   return { stat, changes };

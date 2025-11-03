@@ -134,12 +134,7 @@ export function getStr(obj: object, path: string | string[], fallback: any = '')
  * @param clock - 时间戳对象。
  * @returns {string} 格式化后的时间字符串，例如 "1 年 10 月 28 日，清晨"。
  */
-export function formatTime(clock: {
-  yearID: number;
-  monthID: number;
-  dayID: number;
-  periodIdx: number;
-}): string {
+export function formatTime(clock: { yearID: number; monthID: number; dayID: number; periodIdx: number }): string {
   if (!clock) return '未知时间';
 
   const year = clock.yearID;
