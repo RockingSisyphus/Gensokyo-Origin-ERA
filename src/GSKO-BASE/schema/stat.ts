@@ -17,6 +17,7 @@ export const StatSchema = z.object({
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,
+  文文新闻: z.string().optional(),
 });
 
 // 从 Schema 推断出 TypeScript 类型

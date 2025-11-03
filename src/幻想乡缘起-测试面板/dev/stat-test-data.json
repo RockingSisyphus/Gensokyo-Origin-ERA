@@ -415,5 +415,6 @@
   "festivals_list": [
     { "name": "正月（三天）", "month": 1, "start_day": 1, "end_day": 3 },
     { "name": "节分", "month": 2, "start_day": 3, "end_day": 3 }
-  ]
+  ],
+  "文文新闻": ""
 }
