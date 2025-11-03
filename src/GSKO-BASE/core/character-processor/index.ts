@@ -62,7 +62,9 @@ export async function processCharacterDecisions({
 
     // 2. 角色分组：直接从 processedRuntime.characterDistribution 计算分区
     const playerLocation = processedRuntime.characterDistribution?.playerLocation;
-    const coLocatedChars = playerLocation ? processedRuntime.characterDistribution?.npcByLocation[playerLocation] ?? [] : [];
+    const coLocatedChars = playerLocation
+      ? (processedRuntime.characterDistribution?.npcByLocation[playerLocation] ?? [])
+      : [];
     const allNpcIds = _.keys(stat.chars);
     const remoteChars = _.difference(allNpcIds, coLocatedChars);
     const partitions = { coLocated: coLocatedChars, remote: remoteChars };
