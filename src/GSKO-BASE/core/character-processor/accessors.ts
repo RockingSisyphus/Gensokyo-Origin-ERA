@@ -26,6 +26,10 @@ export function getCharLocation(char: Character): string {
   return char[CHARACTER_FIELDS.currentLocation] ?? '';
 }
 
+export function getCharName(stat: Stat, charId: string): string {
+  return stat.chars[charId]?.name ?? charId;
+}
+
 export function setCharLocationInStat(stat: Stat, charId: string, location: string): void {
   stat.chars[charId]![CHARACTER_FIELDS.currentLocation] = location;
 }

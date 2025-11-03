@@ -135,11 +135,17 @@ export function makeActionDecisions({
     const action = chooseAction(charId, char, { runtime, stat });
 
     if (action) {
-      const finalAction = { ...action };
+      const finalAction: Action = { ...action };
+      const currentLocation = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+
       // 如果行动没有指定目的地，则默认为角色当前所在地
       if (!finalAction.to) {
-        finalAction.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+        finalAction.to = currentLocation;
       }
+
+      // 填充行动的起始地
+      finalAction.from = currentLocation;
+
       decisions[charId] = finalAction;
       logger.debug(funcName, `为角色 ${charId} 分配了行动 [${finalAction.do}]。`);
     } else {

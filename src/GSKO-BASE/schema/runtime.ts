@@ -23,6 +23,7 @@ export type IncidentRuntimeInfo = z.infer<typeof IncidentRuntimeInfoSchema>;
 const ActionSchema = z.object({
   do: z.string(),
   to: z.string().optional(),
+  from: z.string().optional(),
   source: z.string().optional(),
 });
 

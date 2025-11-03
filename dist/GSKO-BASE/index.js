@@ -1725,6 +1725,10 @@ function accessors_getCharLocation(char) {
   return char[CHARACTER_FIELDS.currentLocation] ?? "";
 }
 
+function getCharName(stat, charId) {
+  return stat.chars[charId]?.name ?? charId;
+}
+
 function setCharLocationInStat(stat, charId, location) {
   stat.chars[charId][CHARACTER_FIELDS.currentLocation] = location;
 }
@@ -2037,9 +2041,11 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
       const finalAction = {
         ...action
       };
+      const currentLocation = accessors_getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       if (!finalAction.to) {
-        finalAction.to = accessors_getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+        finalAction.to = currentLocation;
       }
+      finalAction.from = currentLocation;
       decisions[charId] = finalAction;
       action_processor_logger.debug(funcName, `为角色 ${charId} 分配了行动 [${finalAction.do}]。`);
     } else {
@@ -2477,6 +2483,7 @@ const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
 const runtime_ActionSchema = external_z_namespaceObject.z.object({
   do: external_z_namespaceObject.z.string(),
   to: external_z_namespaceObject.z.string().optional(),
+  from: external_z_namespaceObject.z.string().optional(),
   source: external_z_namespaceObject.z.string().optional()
 });
 
@@ -3160,6 +3167,35 @@ function normalizeLocationData({originalStat, runtime}) {
   };
 }
 
+const arriving_characters_logger = new Logger("GSKO-BASE/core/prompt-builder/arriving-characters");
+
+function buildArrivingCharactersPrompt({stat, runtime}) {
+  const funcName = "buildArrivingCharactersPrompt";
+  const characterRuntimes = runtime.character?.chars;
+  const playerLocation = accessors_getUserLocation(stat);
+  if (external_default().isEmpty(characterRuntimes) || !playerLocation) {
+    arriving_characters_logger.debug(funcName, "角色运行时信息或玩家位置为空，跳过。");
+    return "";
+  }
+  const arrivingCharactersPrompts = [];
+  external_default().forEach(characterRuntimes, (charRuntime, charId) => {
+    const decision = charRuntime.decision;
+    if (decision?.to === playerLocation || decision?.to === "HERO") {
+      const charName = getCharName(stat, charId);
+      const purpose = decision.do || "未知";
+      arrivingCharactersPrompts.push(`${charName}，为了“${purpose}”而来`);
+      arriving_characters_logger.debug(funcName, `检测到角色 ${charName} (${charId}) 抵达，目的: ${purpose}`);
+    }
+  });
+  if (arrivingCharactersPrompts.length === 0) {
+    return "";
+  }
+  const combinedPrompts = arrivingCharactersPrompts.join("；");
+  const prompt = `\n[EVENT] 以下角色刚刚抵达你所在的地区，你可以在剧情中引入他们：${combinedPrompts}。`;
+  arriving_characters_logger.debug(funcName, "成功生成抵达角色提示词。");
+  return prompt;
+}
+
 function formatNewsEntry(entry) {
   const time = formatTime(entry.clockAck);
   const location = entry.location;
@@ -3180,6 +3216,70 @@ function buildAyaNewsPrompt(runtime) {
   }
   const header = "本轮必须更新文文新闻，文文在过去的一天里的行程如下：";
   return `${header}\n${processedLines.join("\n")}`;
+}
+
+const co_located_characters_logger = new Logger("GSKO-BASE/core/prompt-builder/co-located-characters");
+
+function buildCoLocatedCharactersPrompt({stat, runtime}) {
+  const funcName = "buildCoLocatedCharactersPrompt";
+  const coLocatedCharIds = runtime.character?.partitions?.coLocated;
+  if (external_default().isEmpty(coLocatedCharIds)) {
+    co_located_characters_logger.debug(funcName, "没有同区角色，跳过提示词生成。");
+    return "";
+  }
+  const charactersInfo = {};
+  external_default().forEach(coLocatedCharIds, charId => {
+    const charData = stat.chars[charId];
+    if (!charData) {
+      co_located_characters_logger.warn(funcName, `在 stat.chars 中未找到同区角色 ${charId} 的数据。`);
+      return;
+    }
+    charactersInfo[charId] = {
+      name: charData.name,
+      好感度: charData.好感度,
+      所在地区: charData.所在地区,
+      居住地区: charData.居住地区,
+      目标: charData.目标
+    };
+  });
+  if (external_default().isEmpty(charactersInfo)) {
+    return "";
+  }
+  const charactersJson = JSON.stringify({
+    chars: charactersInfo
+  }, null, 2);
+  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态。\n\n\`\`\`json\n${charactersJson}\n\`\`\`\n`;
+  co_located_characters_logger.debug(funcName, "成功生成同区角色提示词。");
+  return prompt;
+}
+
+const companion_decision_logger = new Logger("GSKO-BASE/core/prompt-builder/companion-decision");
+
+function buildCompanionDecisionPrompt({stat, runtime}) {
+  const funcName = "buildCompanionDecisionPrompt";
+  const characterRuntimes = runtime.character?.chars;
+  if (external_default().isEmpty(characterRuntimes)) {
+    return "";
+  }
+  const prompts = [];
+  external_default().forEach(characterRuntimes, (charRuntime, charId) => {
+    const decision = charRuntime.companionDecision;
+    if (!decision || !decision.do) {
+      return;
+    }
+    const charName = getCharName(stat, charId);
+    companion_decision_logger.debug(funcName, `角色 ${charName} (${charId}) 存在相伴决策: ${decision.do}`);
+    let prompt = `${charName}似乎想做“${decision.do}”`;
+    if (decision.to) {
+      prompt += `，目标是“${decision.to}”`;
+    }
+    prompts.push(prompt);
+  });
+  if (prompts.length === 0) {
+    return "";
+  }
+  const combinedPrompts = prompts.join("；");
+  return `\n当前，${combinedPrompts}...但她们觉得和主角呆在一起似乎更有趣。`;
 }
 
 const festival_logger = new Logger("GSKO-BASE/core/prompt-builder/festival");
@@ -3332,6 +3432,27 @@ function buildPrompt({runtime, stat}) {
   const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
   if (ayaNewsPrompt) {
     prompts.push(ayaNewsPrompt);
+  }
+  const companionDecisionPrompt = buildCompanionDecisionPrompt({
+    runtime,
+    stat
+  });
+  if (companionDecisionPrompt) {
+    prompts.push(companionDecisionPrompt);
+  }
+  const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({
+    runtime,
+    stat
+  });
+  if (coLocatedCharactersPrompt) {
+    prompts.push(coLocatedCharactersPrompt);
+  }
+  const arrivingCharactersPrompt = buildArrivingCharactersPrompt({
+    runtime,
+    stat
+  });
+  if (arrivingCharactersPrompt) {
+    prompts.push(arrivingCharactersPrompt);
   }
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");

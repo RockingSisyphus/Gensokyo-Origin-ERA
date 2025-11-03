@@ -1,5 +1,8 @@
 import { Logger } from '../../utils/log';
 import { buildAyaNewsPrompt } from './aya-news';
+import { buildCharacterMovementPrompt } from './character-movement';
+import { buildCoLocatedCharactersPrompt } from './co-located-characters';
+import { buildCompanionDecisionPrompt } from './companion-decision';
 import { buildFestivalPrompt } from './festival';
 import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildRoutePrompt } from './route';
@@ -47,6 +50,24 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
   if (ayaNewsPrompt) {
     prompts.push(ayaNewsPrompt);
+  }
+
+  // 构建相伴角色决策提示词
+  const companionDecisionPrompt = buildCompanionDecisionPrompt({ runtime, stat });
+  if (companionDecisionPrompt) {
+    prompts.push(companionDecisionPrompt);
+  }
+
+  // 构建同区角色提示词
+  const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({ runtime, stat });
+  if (coLocatedCharactersPrompt) {
+    prompts.push(coLocatedCharactersPrompt);
+  }
+
+  // 构建角色移动提示词
+  const characterMovementPrompts = buildCharacterMovementPrompt({ runtime, stat });
+  if (characterMovementPrompts.length > 0) {
+    prompts.push(...characterMovementPrompts);
   }
 
   const finalPrompt = prompts.join('\n\n');
