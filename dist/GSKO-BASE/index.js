@@ -1910,7 +1910,7 @@ function applyCompanionDecisions({runtime, companionDecisions}) {
   });
 }
 
-function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanionDecisions}) {
+function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanionDecisions, partitions}) {
   const funcName = "aggregateResults";
   aggregator_logger.debug(funcName, "开始聚合角色决策结果...");
   const newStat = external_default().cloneDeep(stat);
@@ -1918,6 +1918,7 @@ function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanio
   const newCache = external_default().cloneDeep(cache);
   const changes = [];
   try {
+    setPartitions(newRuntime, partitions);
     applyCompanionDecisions({
       runtime: newRuntime,
       companionDecisions
@@ -2199,41 +2200,6 @@ function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
   }
 }
 
-const partitioner_logger = new Logger("GSKO-BASE/core/character-processor/partitioner");
-
-function partitionCharacters({stat}) {
-  const funcName = "partitionCharacters";
-  partitioner_logger.debug(funcName, "开始执行角色分组...");
-  try {
-    const userLocation = accessors_getUserLocation(stat);
-    partitioner_logger.debug(funcName, `主角当前位置: [${userLocation}]`);
-    const charIds = Object.keys(accessors_getChars(stat));
-    const partitions = external_default().partition(charIds, charId => {
-      const char = getChar(stat, charId);
-      if (!char) {
-        partitioner_logger.warn(funcName, `无法找到角色 ${charId} 的数据，将视为异区。`);
-        return false;
-      }
-      const charLocation = accessors_getCharLocation(char);
-      partitioner_logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation}]`);
-      return charLocation === userLocation;
-    });
-    const coLocatedChars = partitions[0];
-    const remoteChars = partitions[1];
-    partitioner_logger.debug(funcName, `分组完毕：同区角色 ${coLocatedChars.length} 人 [${coLocatedChars.join(", ")}], 异区角色 ${remoteChars.length} 人 [${remoteChars.join(", ")}]`);
-    return {
-      coLocatedChars,
-      remoteChars
-    };
-  } catch (e) {
-    partitioner_logger.error(funcName, "执行角色分组时发生错误:", e);
-    return {
-      coLocatedChars: [],
-      remoteChars: Object.keys(accessors_getChars(stat))
-    };
-  }
-}
-
 function getAffectionStage(char, globalAffectionStages) {
   const stages = char.affectionStages || globalAffectionStages;
   if (!stages || !Array.isArray(stages)) {
@@ -2327,34 +2293,54 @@ async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
   character_processor_logger.debug(funcName, "开始处理角色决策...");
   try {
-    const newStat = external_default().cloneDeep(stat);
-    const newRuntime = external_default().cloneDeep(runtime);
-    const cache = getCache(newStat);
-    preprocess({
-      runtime: newRuntime,
-      stat: newStat,
-      cache
+    if (runtime.incident?.isIncidentActive) {
+      character_processor_logger.debug(funcName, "检测到异变正在发生，跳过所有角色决策。");
+      const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
+        stat,
+        runtime,
+        cache: getCache(stat),
+        companionDecisions: {},
+        nonCompanionDecisions: {},
+        partitions: {
+          coLocated: [],
+          remote: []
+        }
+      });
+      applyCacheToStat(finalStat, finalCache);
+      return {
+        stat: finalStat,
+        runtime: finalRuntime,
+        changes: aggregateChanges
+      };
+    }
+    const initialCache = getCache(stat);
+    const {runtime: processedRuntime, cache: processedCache, changes: preprocessChanges} = preprocess({
+      runtime,
+      stat,
+      cache: initialCache
     });
-    const {coLocatedChars, remoteChars} = partitionCharacters({
-      stat: newStat
-    });
-    setPartitions(newRuntime, {
+    const playerLocation = processedRuntime.characterDistribution?.playerLocation;
+    const coLocatedChars = playerLocation ? processedRuntime.characterDistribution?.npcByLocation[playerLocation] ?? [] : [];
+    const allNpcIds = external_default().keys(stat.chars);
+    const remoteChars = external_default().difference(allNpcIds, coLocatedChars);
+    const partitions = {
       coLocated: coLocatedChars,
       remote: remoteChars
-    });
+    };
     const {companionDecisions, nonCompanionDecisions, newCache: decidedCache} = makeDecisions({
-      runtime: newRuntime,
-      stat: newStat,
-      cache,
+      runtime: processedRuntime,
+      stat,
+      cache: processedCache,
       coLocatedChars,
       remoteChars
     });
     const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
-      stat: newStat,
-      runtime: newRuntime,
+      stat,
+      runtime: processedRuntime,
       cache: decidedCache,
       companionDecisions,
-      nonCompanionDecisions
+      nonCompanionDecisions,
+      partitions
     });
     applyCacheToStat(finalStat, finalCache);
     character_processor_logger.debug(funcName, "角色决策处理完毕。");
@@ -3318,11 +3304,15 @@ function buildPrompt({runtime, stat}) {
   const funcName = "buildPrompt";
   prompt_builder_logger.debug(funcName, "开始构建提示词...");
   const prompts = [];
-  const timePrompt = buildTimePrompt(runtime);
+  const timePrompt = buildTimePrompt({
+    runtime
+  });
   if (timePrompt) {
     prompts.push(timePrompt);
   }
-  const festivalPrompts = buildFestivalPrompt(runtime);
+  const festivalPrompts = buildFestivalPrompt({
+    runtime
+  });
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
@@ -3333,7 +3323,9 @@ function buildPrompt({runtime, stat}) {
   if (routePrompt) {
     prompts.push(routePrompt);
   }
-  const legalLocationsPrompt = buildLegalLocationsPrompt(runtime);
+  const legalLocationsPrompt = buildLegalLocationsPrompt({
+    runtime
+  });
   if (legalLocationsPrompt) {
     prompts.push(legalLocationsPrompt);
   }

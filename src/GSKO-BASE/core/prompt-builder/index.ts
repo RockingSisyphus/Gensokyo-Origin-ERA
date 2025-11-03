@@ -20,13 +20,13 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const prompts: string[] = [];
 
   // 构建时间提示词
-  const timePrompt = buildTimePrompt(runtime);
+  const timePrompt = buildTimePrompt({ runtime });
   if (timePrompt) {
     prompts.push(timePrompt);
   }
 
   // 构建节日提示词
-  const festivalPrompts = buildFestivalPrompt(runtime);
+  const festivalPrompts = buildFestivalPrompt({ runtime });
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
@@ -38,7 +38,7 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   }
 
   // 构建合法地点提示词
-  const legalLocationsPrompt = buildLegalLocationsPrompt(runtime);
+  const legalLocationsPrompt = buildLegalLocationsPrompt({ runtime });
   if (legalLocationsPrompt) {
     prompts.push(legalLocationsPrompt);
   }

@@ -167,7 +167,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // [好感度处理器]：根据 AI 的输出（editLog）分析并更新角色的好感度。
+      // [好感度增加限制处理器]：根据 AI 的输出（editLog）分析并更新角色的好感度。
       const affectionResult = processAffectionDecisions({
         stat: currentStat,
         editLog: currentEditLog,

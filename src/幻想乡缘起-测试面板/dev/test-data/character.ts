@@ -55,7 +55,9 @@ charTest_S4_AllIdle.chars.sanae.routine = [];
 // 场景 5: 边缘情况 - 主角位置缺失
 // ==================================================================
 // 预期: 所有角色被视为 remote, reimu 不会相伴，而是执行 routine
-export const charTest_S5_NoUserLocation = _.omit(_.cloneDeep(baseTestData), 'user');
+export const charTest_S5_NoUserLocation = _.cloneDeep(baseTestData);
+// 通过将 user.所在地区设为 null 来模拟主角位置缺失
+_.set(charTest_S5_NoUserLocation, 'user.所在地区', null);
 _.set(charTest_S5_NoUserLocation, 'cache.character', {});
 
 // ==================================================================

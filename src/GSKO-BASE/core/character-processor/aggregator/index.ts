@@ -1,9 +1,8 @@
 import _ from 'lodash';
 import { Cache } from '../../../schema/cache';
 import { ChangeLogEntry } from '../../../schema/change-log-entry';
-import { Action } from '../../../schema/runtime';
+import { Action, Runtime } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
-import { Runtime } from '../../../schema/runtime';
 import { Logger } from '../../../utils/log';
 import {
   getUserLocation,
@@ -11,6 +10,7 @@ import {
   setCharLocationInStat,
   setCompanionDecisionInRuntime,
   setDecisionInRuntime,
+  setPartitions,
   setVisitCooling,
 } from '../accessors';
 import { PREDEFINED_ACTIONS } from '../constants';
@@ -116,12 +116,14 @@ export function aggregateResults({
   cache,
   companionDecisions,
   nonCompanionDecisions,
+  partitions,
 }: {
   stat: Stat;
   runtime: Runtime;
   cache: Cache;
   companionDecisions: Record<string, Action>;
   nonCompanionDecisions: Record<string, Action>;
+  partitions: { coLocated: string[]; remote: string[] };
 }): { stat: Stat; runtime: Runtime; cache: Cache; changes: ChangeLogEntry[] } {
   const funcName = 'aggregateResults';
   logger.debug(funcName, '开始聚合角色决策结果...');
@@ -132,10 +134,13 @@ export function aggregateResults({
   const changes: ChangeLogEntry[] = [];
 
   try {
-    // 1. 应用“相伴角色”的决策
+    // 1. 写入分区信息
+    setPartitions(newRuntime, partitions);
+
+    // 2. 应用“相伴角色”的决策
     applyCompanionDecisions({ runtime: newRuntime, companionDecisions });
 
-    // 2. 应用“非同伴角色”的决策
+    // 3. 应用“非同伴角色”的决策
     applyNonCompanionDecisions({ stat: newStat, runtime: newRuntime, cache: newCache, nonCompanionDecisions });
 
     // TODO: 在此添加其他聚合逻辑，如生成 changelog。

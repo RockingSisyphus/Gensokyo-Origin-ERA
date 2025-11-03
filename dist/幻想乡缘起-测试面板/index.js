@@ -1362,7 +1362,9 @@ charTest_S4_AllIdle.chars.sanae.specials = [];
 
 charTest_S4_AllIdle.chars.sanae.routine = [];
 
-const charTest_S5_NoUserLocation = external_default().omit(external_default().cloneDeep(stat_test_data_namespaceObject), "user");
+const charTest_S5_NoUserLocation = external_default().cloneDeep(stat_test_data_namespaceObject);
+
+external_default().set(charTest_S5_NoUserLocation, "user.所在地区", null);
 
 external_default().set(charTest_S5_NoUserLocation, "cache.character", {});
 

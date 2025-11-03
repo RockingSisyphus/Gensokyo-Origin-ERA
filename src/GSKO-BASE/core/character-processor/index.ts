@@ -1,13 +1,11 @@
 import _ from 'lodash';
 import { ChangeLogEntry } from '../../schema/change-log-entry';
-import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
 import { applyCacheToStat, getCache } from '../../utils/cache';
 import { Logger } from '../../utils/log';
-import { setPartitions } from './accessors';
 import { aggregateResults } from './aggregator';
 import { makeDecisions } from './decision-makers';
-import { partitionCharacters } from './partitioner';
 import { preprocess } from './preprocessor';
 
 const logger = new Logger();
@@ -33,44 +31,69 @@ export async function processCharacterDecisions({
   logger.debug(funcName, '开始处理角色决策...');
 
   try {
-    // 0. 准备数据：克隆 stat 和 runtime，提取 cache
-    const newStat = _.cloneDeep(stat);
-    const newRuntime = _.cloneDeep(runtime);
-    const cache = getCache(newStat);
+    // 如果当前有异变，则跳过所有角色决策，但仍需通过 aggregator 返回一个结构完整的 runtime
+    if (runtime.incident?.isIncidentActive) {
+      logger.debug(funcName, '检测到异变正在发生，跳过所有角色决策。');
+      const {
+        stat: finalStat,
+        runtime: finalRuntime,
+        cache: finalCache,
+        changes: aggregateChanges,
+      } = aggregateResults({
+        stat,
+        runtime,
+        cache: getCache(stat),
+        companionDecisions: {},
+        nonCompanionDecisions: {},
+        partitions: { coLocated: [], remote: [] },
+      });
+      applyCacheToStat(finalStat, finalCache);
+      return { stat: finalStat, runtime: finalRuntime, changes: aggregateChanges };
+    }
+    // 准备数据：cache 是从 stat 中提取的，不需要克隆
+    const initialCache = getCache(stat);
 
-    // 1. 预处理：就地修改 newRuntime 和 cache
-    preprocess({ runtime: newRuntime, stat: newStat, cache });
+    // 1. 预处理：计算好感度阶段、重置冷却，并返回更新后的 runtime 和 cache。
+    const {
+      runtime: processedRuntime,
+      cache: processedCache,
+      changes: preprocessChanges,
+    } = preprocess({ runtime, stat, cache: initialCache });
 
-    // 2. 角色分组
-    const { coLocatedChars, remoteChars } = partitionCharacters({ stat: newStat });
-    setPartitions(newRuntime, { coLocated: coLocatedChars, remote: remoteChars });
+    // 2. 角色分组：直接从 processedRuntime.characterDistribution 计算分区
+    const playerLocation = processedRuntime.characterDistribution?.playerLocation;
+    const coLocatedChars = playerLocation ? processedRuntime.characterDistribution?.npcByLocation[playerLocation] ?? [] : [];
+    const allNpcIds = _.keys(stat.chars);
+    const remoteChars = _.difference(allNpcIds, coLocatedChars);
+    const partitions = { coLocated: coLocatedChars, remote: remoteChars };
 
-    // 3. 决策制定
+    // 3. 决策制定 (只读)
     const {
       companionDecisions,
       nonCompanionDecisions,
       newCache: decidedCache,
     } = makeDecisions({
-      runtime: newRuntime,
-      stat: newStat,
-      cache,
+      runtime: processedRuntime,
+      stat,
+      cache: processedCache,
       coLocatedChars,
       remoteChars,
     });
 
-    // 4. 结果聚合
-    // 注意：aggregator 内部会再次克隆，以隔离其内部的修改。
+    // 4. 结果聚合 (写入)
+    // aggregator 内部会克隆 stat 和 runtime，以隔离副作用。
     const {
       stat: finalStat,
       runtime: finalRuntime,
       cache: finalCache,
       changes: aggregateChanges,
     } = aggregateResults({
-      stat: newStat,
-      runtime: newRuntime,
+      stat,
+      runtime: processedRuntime,
       cache: decidedCache,
       companionDecisions,
       nonCompanionDecisions,
+      partitions,
     });
 
     // 5. 将最终的缓存应用回 stat
