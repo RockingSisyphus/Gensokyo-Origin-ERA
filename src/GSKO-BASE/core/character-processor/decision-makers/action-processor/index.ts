@@ -1,9 +1,8 @@
 import _ from 'lodash';
 import { Character } from '../../../../schema/character';
-import { Entry } from '../../../../schema/character-settings';
-import { Action } from '../../../../schema/runtime';
-import { Stat } from '../../../../schema/stat';
+import { Action, Entry } from '../../../../schema/character-settings';
 import { Runtime } from '../../../../schema/runtime';
+import { Stat } from '../../../../schema/stat';
 import { Logger } from '../../../../utils/log';
 import { getChar, getCharLocation } from '../../accessors';
 import { DEFAULT_VALUES, ENTRY_KEYS } from '../../constants';

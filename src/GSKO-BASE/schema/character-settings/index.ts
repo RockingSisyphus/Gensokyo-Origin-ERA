@@ -73,6 +73,7 @@ export type AffectionStageWithForget = z.infer<typeof AffectionStageWithForgetSc
 const ActionSchema = z.object({
   do: z.string(),
   to: z.string().optional(),
+  from: z.string().optional(),
   source: z.string().optional(),
 });
 export type Action = z.infer<typeof ActionSchema>;
