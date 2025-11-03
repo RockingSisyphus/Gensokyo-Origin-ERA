@@ -18,6 +18,26 @@ export interface WriteDonePayload {
 }
 
 /**
+ * `era:queryResult` 事件中，单个查询结果的结构
+ */
+export interface QueryResultItem {
+  mk: string;
+  message_id: number;
+  is_user: boolean;
+  stat: any;
+  statWithoutMeta: any;
+}
+
+/**
+ * `era:queryResult` 事件的 `detail` 对象结构
+ */
+export interface QueryResultPayload {
+  queryType: string;
+  request: any;
+  result: QueryResultItem | QueryResultItem[] | null;
+}
+
+/**
  * 非破坏性地插入一个或多个变量。
  * 不会覆盖任何现有数据。
  * @param data - 要插入的对象。

@@ -3,6 +3,8 @@
  * @description 定义了所有与 ERA 框架交互的事件名称，分为请求事件和广播事件。
  */
 
+import { z } from 'zod';
+
 // =================================================================
 // API 请求事件 (外部 -> ERA)
 // =================================================================
@@ -96,10 +98,18 @@ export interface WriteDonePayload {
   consecutiveProcessingCount: number;
 }
 
+export const QueryResultItemSchema = z.object({
+  mk: z.string(),
+  message_id: z.number(),
+  is_user: z.boolean(),
+  stat: z.any(),
+  statWithoutMeta: z.any(),
+});
+
 /**
  * `era:queryResult` 事件中，单个查询结果的结构
  */
-export interface QueryResultItem {
+export interface QueryResultItem extends z.infer<typeof QueryResultItemSchema> {
   /** 该状态快照所对应的消息密钥 */
   mk: string;
   /** 该状态快照所对应的消息 ID */

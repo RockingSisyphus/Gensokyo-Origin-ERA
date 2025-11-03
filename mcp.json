@@ -5,6 +5,13 @@
       "args": [
         "@browsermcp/mcp"
       ]
+    },
+    "github.com/upstash/context7-mcp": {
+      "url": "https://mcp.context7.com/mcp",
+      "type": "streamableHttp",
+      "headers": {
+        "Authorization": "Bearer ctx7sk-4e93b25e-d7df-449e-99fb-b06d8c3b277d"
+      }
     }
   }
 }

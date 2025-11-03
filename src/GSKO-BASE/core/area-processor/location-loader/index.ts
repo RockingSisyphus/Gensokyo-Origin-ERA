@@ -1,20 +1,12 @@
 import _ from 'lodash';
-import { FullMapLeaf } from '../../../schema/world';
+import { FullMapLeaf, WORLD_DEFAULTS } from '../../../schema/world';
+import { USER_FIELDS } from '../../../schema/user';
 import { Stat } from '../../../schema/stat';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { Logger } from '../../../utils/log';
 import { matchMessages } from '../../../utils/message';
 
 const logger = new Logger();
 
-/**
- * @description 根据合法地区列表、最近消息、用户当前位置和相邻地区，处理并返回需要加载的地区。
- * @param {object} params
- * @param {Stat} params.stat - The stat object.
- * @param {FullMapLeaf[]} params.legalLocations - An array of legal location objects.
- * @param {string[]} params.neighbors - An array of neighboring locations.
- * @returns {Promise<string[]>} 需要加载的地区数组。
- */
 export async function loadLocations({
   stat,
   legalLocations,
@@ -29,47 +21,43 @@ export async function loadLocations({
 
   try {
     if (!legalLocations || legalLocations.length === 0) {
-      logger.debug(funcName, '传入的合法地区列表为空，无需加载。');
+      logger.debug(funcName, '合法地点列表为空，直接返回空数组。');
       return [];
     }
 
     const legalLocationNames = legalLocations.map(loc => loc.name);
 
-    // 1. 匹配最近消息
     const matched = await matchMessages(legalLocationNames, {
       depth: 5,
       includeSwipes: false,
-      tag: ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY,
+      tag: WORLD_DEFAULTS.mainStoryTag,
     });
     hits = Array.from(new Set(matched));
 
-    // 2. 获取用户当前所在地区并加入 HITS
-    const userLoc = stat.user?.所在地区?.trim() ?? '';
+    const userLoc = stat.user?.[USER_FIELDS.currentLocation]?.trim() ?? '';
     if (userLoc) {
-      logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
+      logger.debug(funcName, `获取到用户当前位置: ${userLoc}`);
       if (!hits.includes(userLoc) && legalLocationNames.includes(userLoc)) {
         hits.push(userLoc);
       }
     } else {
-      logger.debug(funcName, '在 stat.user.所在地区 中未找到用户位置');
+      logger.debug(funcName, 'stat.user 中没有当前位置数据。');
     }
 
-    // 3. 合并与当前位置相邻的地区
     if (neighbors && neighbors.length > 0) {
-      neighbors.forEach(neighbor => {
+      for (const neighbor of neighbors) {
         if (!hits.includes(neighbor) && legalLocationNames.includes(neighbor)) {
           hits.push(neighbor);
         }
-      });
-      logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
+      }
+      logger.debug(funcName, `合并邻居后地点列表: ${JSON.stringify(hits)}`);
     }
 
-    logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
-  } catch (e) {
-    logger.error(funcName, '处理加载地区时发生异常', e);
+    logger.debug(funcName, `最终命中地点: ${JSON.stringify(hits)}`);
+  } catch (error) {
+    logger.error(funcName, '加载地点信息时发生异常', error);
     hits = [];
   }
 
-  logger.debug(funcName, '模块退出，最终输出:', { hits });
   return _.uniq(hits);
 }

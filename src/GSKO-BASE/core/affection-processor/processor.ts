@@ -5,6 +5,7 @@
 
 import _ from 'lodash';
 import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { CHARACTER_FIELDS } from '../../schema/character';
 import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { createChangeLogEntry } from '../../utils/changeLog';
@@ -75,8 +76,9 @@ export function processAffection({ stat, editLog, runtime }: { stat: Stat; editL
           continue;
         }
 
+        const baseAffection = (character as any)[CHARACTER_FIELDS.affection];
         const hasOld = !(oldVal === null || oldVal === undefined);
-        const oldValueNum = hasOld ? Number(oldVal) : character.好感度;
+        const oldValueNum = hasOld ? Number(oldVal) : baseAffection;
         const newValueNum = Number(newVal);
 
         if (!Number.isFinite(oldValueNum) || !Number.isFinite(newValueNum)) {
@@ -129,7 +131,7 @@ export function processAffection({ stat, editLog, runtime }: { stat: Stat; editL
         const finalNewValue = _.round(oldValueNum + finalDelta);
 
         // 直接修改 stat 对象
-        character.好感度 = finalNewValue;
+        (character as any)[CHARACTER_FIELDS.affection] = finalNewValue;
 
         // 记录变更
         const changeEntry = createChangeLogEntry(

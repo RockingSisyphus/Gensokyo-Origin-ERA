@@ -1,17 +1,10 @@
-/**
- * @file 角色处理器 - 数据访问器
- * @description 集中了所有对 stat, runtime, cache 的读写操作，以确保路径统一和类型安全。
- */
-
-import { Cache, CharacterCache } from '../../schema/cache';
-import { Character } from '../../schema/character';
-import { AffectionStageWithForget } from '../../schema/character-settings';
-import { Action } from '../../schema/runtime';
-import { Stat } from '../../schema/stat';
-import { CharacterRuntime, Runtime } from '../../schema/runtime';
 import { z } from 'zod';
-
-// --- Stat Accessors ---
+import { Cache, CharacterCache } from '../../schema/cache';
+import { CHARACTER_FIELDS, type Character } from '../../schema/character';
+import { AffectionStageWithForget } from '../../schema/character-settings';
+import { Action, CharacterRuntime, Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
+import { USER_FIELDS } from '../../schema/user';
 
 export function getChars(stat: Stat): Stat['chars'] {
   return stat.chars;
@@ -26,24 +19,20 @@ export function getGlobalAffectionStages(stat: Stat): AffectionStageWithForget[]
 }
 
 export function getUserLocation(stat: Stat): string {
-  // 假定 user 和 所在地区 总是存在
-  return stat.user!.所在地区!;
+  return stat.user?.[USER_FIELDS.currentLocation] ?? '';
 }
 
 export function getCharLocation(char: Character): string {
-  // 假定 所在地区 总是存在
-  return char.所在地区!;
+  return char[CHARACTER_FIELDS.currentLocation] ?? '';
 }
 
 export function setCharLocationInStat(stat: Stat, charId: string, location: string): void {
-  stat.chars[charId]!.所在地区 = location;
+  stat.chars[charId]![CHARACTER_FIELDS.currentLocation] = location;
 }
 
 export function setCharGoalInStat(stat: Stat, charId: string, goal: string): void {
   stat.chars[charId]!.目标 = goal;
 }
-
-// --- Runtime Accessors ---
 
 function ensureCharacterRuntime(runtime: Runtime, charId: string) {
   if (!runtime.character) {
@@ -101,8 +90,6 @@ export function setPartitions(runtime: Runtime, partitions: { coLocated: string[
   }
   runtime.character.partitions = partitions;
 }
-
-// --- Cache Accessors ---
 
 function ensureCharacterCache(cache: Cache, charId: string) {
   if (!cache.character) {

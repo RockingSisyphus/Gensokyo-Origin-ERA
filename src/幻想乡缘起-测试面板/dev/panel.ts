@@ -1,6 +1,7 @@
 ﻿import { Logger } from '../utils/log';
 import { coreTestPayload, normalizerTestPayloads, timeTestPayloads } from './payloads';
 import * as affectionTestData from './test-data/affection';
+import * as affectionForgettingData from './test-data/affection-forgetting';
 import * as areaTestData from './test-data/area';
 import * as characterTestData from './test-data/character';
 import * as charLocTestData from './test-data/character-locations';
@@ -165,6 +166,23 @@ function createTestPanel() {
     border: '1px solid #7b1fa2',
     background: '#4a148c',
     color: '#f3e5f5',
+    borderRadius: '3px',
+    fontSize: '12px',
+  });
+
+  // --- 好感度遗忘模块测试 ---
+  const affectionForgettingTestConfigs: TestButtonConfig[] = [
+    { text: '遗忘-触发但同地点(不降)', payload: affectionForgettingData.Met_ShouldNotForget },
+    { text: '遗忘-触发且不同地点(应-10)', payload: affectionForgettingData.NotMet_ShouldForget },
+    { text: '遗忘-未触发(不降)', payload: affectionForgettingData.NoTrigger_ShouldNotForget },
+    { text: '遗忘-多规则触发(应-60)', payload: affectionForgettingData.MultiTriggers_ShouldForgetMore },
+  ];
+  addTestButtons(panel, '好感度遗忘模块测试', affectionForgettingTestConfigs, {
+    cursor: 'pointer',
+    padding: '5px 10px',
+    border: '1px solid #c62828',
+    background: '#8e0000',
+    color: '#ffcdd2',
     borderRadius: '3px',
     fontSize: '12px',
   });

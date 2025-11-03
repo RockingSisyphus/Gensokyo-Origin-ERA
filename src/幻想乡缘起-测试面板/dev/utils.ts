@@ -1,4 +1,5 @@
 import { Logger } from '../utils/log';
+import { setupSnapshotEmulator } from '../utils/snapshot-emulator';
 
 const logger = new Logger();
 
@@ -53,12 +54,22 @@ export function addTestButtons(
       .css(style)
       .on('click', async () => {
         logger.log('buttonClick', `触发测试: ${config.text}`);
+
+        // 根据 payload 设置快照模拟器
+        const cleanupEmulator = setupSnapshotEmulator(config.payload);
+
         if (config.beforeTest) {
           await config.beforeTest();
         }
+        
         const eventType = config.eventType || 'dev:fakeWriteDone';
-        eventEmit(eventType, config.payload);
-        toastr.success(`已发送测试事件: ${config.text}`);
+        // 确保在事件处理完后再清理模拟器
+        try {
+          await eventEmit(eventType, config.payload);
+          toastr.success(`已发送测试事件: ${config.text}`);
+        } finally {
+          cleanupEmulator();
+        }
       })
       .appendTo(buttonContainer);
   });

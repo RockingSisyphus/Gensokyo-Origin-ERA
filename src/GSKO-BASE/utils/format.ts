@@ -127,3 +127,21 @@ export function getStr(obj: object, path: string | string[], fallback: any = '')
   }
   return toText(rawValue);
 }
+
+/**
+ * @description 将未知输入安全地转换为有限数值。
+ * @param value - 输入值，可以是数字、字符串或任何其他类型。
+ * @returns {number | null} 如果转换成功，返回一个有限数值；否则返回 null。
+ */
+export function toFiniteNumber(value: unknown): number | null {
+  if (typeof value === 'number' && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === 'string' && value.trim().length > 0) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
+      return parsed;
+    }
+  }
+  return null;
+}

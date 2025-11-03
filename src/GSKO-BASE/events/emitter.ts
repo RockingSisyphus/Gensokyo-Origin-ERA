@@ -184,6 +184,19 @@ export function getSnapshotsBetweenMks(payload: { startMk?: string; endMk?: stri
   return performQuery('getSnapshotsBetweenMks', payload);
 }
 
+/**
+ * [伪造] 请求获取两个消息密钥（MK）之间（包含两者）的所有历史变量快照。
+ * 触发一个自定义事件，并等待一个伪造的响应。
+ */
+export function getSnapshotsBetweenMks_fake(payload: { startMk?: string; endMk?: string }): Promise<QueryResultPayload> {
+  return new Promise((resolve) => {
+    eventOnce('dev:fakeSnapshotsResponse', (response: { result: QueryResultPayload }) => {
+      resolve(response.result);
+    });
+    eventEmit('dev:getSnapshotsBetweenMks', payload);
+  });
+}
+
 /** 请求获取指定消息 ID 所在时间点的历史变量快照。 */
 export function getSnapshotAtMId(payload: { message_id: number }) {
   return performQuery('getSnapshotAtMId', payload);

@@ -1,27 +1,20 @@
 import _ from 'lodash';
-import { Stat } from '../../../schema';
 import { Route, RouteInfo, Runtime } from '../../../schema/runtime';
-import { DEFAULT_LOCATION } from '../../../utils/constants';
+import { Stat } from '../../../schema/stat';
+import { USER_FIELDS } from '../../../schema/user';
+import { WORLD_DEFAULTS } from '../../../schema/world';
 import { Logger } from '../../../utils/log';
 import { bfs } from '../utils';
 
 const logger = new Logger();
 
-/**
- * @description 处理路线计算，并将结果存入 runtime
- * @param {object} params
- * @param {Stat} params.stat - The stat object.
- * @param {Pick<Runtime, 'loadArea'>} params.runtime - The runtime object, only needing loadArea.
- * @param {Record<string, Record<string, boolean>>} params.graph - The pre-built graph.
- * @returns {RouteInfo} 路线信息对象
- */
 export function processRoute({
   stat,
   runtime,
   graph,
 }: {
   stat: Stat;
-  runtime: Pick<Runtime, 'loadArea'>;
+  runtime: Pick<Runtime, 'area'>;
   graph: Record<string, Record<string, boolean>>;
 }): RouteInfo {
   const funcName = 'processRoute';
@@ -31,57 +24,48 @@ export function processRoute({
   };
 
   try {
-    const currentUserLocation = stat.user?.所在地区 ?? DEFAULT_LOCATION;
+    const currentUserLocation = stat.user?.[USER_FIELDS.currentLocation] ?? WORLD_DEFAULTS.fallbackPlace;
     logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
 
     if (_.isEmpty(graph)) {
       logger.warn(funcName, '图为空，无法计算路线。');
       return defaultRouteInfo;
     }
-    logger.debug(funcName, '图已接收', { nodes: Object.keys(graph).length });
+    logger.debug(funcName, '图已准备', { nodes: Object.keys(graph).length });
 
-    // 从 runtime.loadArea 获取候选目标，此数组已由 area-loader 处理，包含了消息匹配和邻居
-    const candidates: string[] = _.cloneDeep(runtime.loadArea ?? []);
+    const candidates: string[] = _.cloneDeep(runtime.area?.loadArea ?? []);
 
-    logger.debug(funcName, `路线计算候选地点: ${candidates.join(', ')}`);
+    logger.debug(funcName, `路线候选地点: ${candidates.join(', ')}`);
 
     if (candidates.length === 0) {
-      logger.debug(funcName, '没有候选地点，无需计算路线。');
+      logger.debug(funcName, '没有候选地点，跳过路线计算。');
       return defaultRouteInfo;
     }
 
-    // 计算路线
     const routes: Route[] = [];
-    candidates.forEach((destination: string) => {
-      // 排除到自身的路线计算
+    for (const destination of candidates) {
       if (destination === currentUserLocation) {
-        logger.debug(funcName, `跳过到自身的路线计算: ${destination}`);
-        return;
+        logger.debug(funcName, `目的地与当前位置一致，跳过: ${destination}`);
+        continue;
       }
 
-      logger.debug(funcName, `正在计算路线: 从 ${currentUserLocation} 到 ${destination}`);
+      logger.debug(funcName, `计算路径: 从 ${currentUserLocation} 到 ${destination}`);
       const path = bfs(currentUserLocation, destination, graph);
 
       if (path) {
-        logger.debug(funcName, `找到路线: 从 ${currentUserLocation} 到 ${destination}`, { path });
-        routes.push({
-          destination,
-          path,
-        });
+        logger.debug(funcName, `找到路径: 从 ${currentUserLocation} 到 ${destination}`, { path });
+        routes.push({ destination, path });
       } else {
-        logger.debug(funcName, `未找到路线: 从 ${currentUserLocation} 到 ${destination}`);
+        logger.debug(funcName, `未找到路径: 从 ${currentUserLocation} 到 ${destination}`);
       }
-    });
+    }
 
-    const routeInfo = {
-      candidates,
-      routes,
-    };
+    const routeInfo = { candidates, routes };
 
     logger.debug(funcName, '路线计算完成', routeInfo);
     return routeInfo;
   } catch (error) {
-    logger.error(funcName, '处理路线时发生异常', error);
+    logger.error(funcName, '计算路线时发生异常', error);
     return defaultRouteInfo;
   }
 }

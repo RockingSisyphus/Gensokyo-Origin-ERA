@@ -1,23 +1,47 @@
-﻿import _ from 'lodash';
+﻿/**
+ * @file GSKO-BASE 核心脚本入口
+ * @description
+ * 该文件是整个幻想乡缘起核心数据处理逻辑的总调度中心。
+ * 它通过监听 ERA 框架的 `era:writeDone` 事件来触发一系列的处理器（processor），
+ * 形成一个数据处理流水线。每个处理器负责计算特定的数据片段（如时间、好感度、角色位置等），
+ * 并将结果写入一个临时的 `runtime` 对象。
+ *
+ * 数据流：
+ * 1. ERA 写入数据后，广播 `era:writeDone` 事件，携带最新的 `stat` 对象。
+ * 2. 本脚本监听到事件，启动 `handleWriteDone` 函数。
+ * 3. `handleWriteDone` 按预定顺序依次调用各个核心处理器。
+ * 4. 每个处理器接收当前的 `stat` 和 `runtime`，进行计算，并返回更新后的对象。
+ * 5. 所有处理器执行完毕后，将最终的 `stat` 变更和构建好的 `prompt` 通过 `sendData` 发回 ERA。
+ */
+
+import _ from 'lodash';
+
+// --- 核心处理器导入 ---
+import { processAffectionForgetting } from './core/affection-forgetting-processor';
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
+import { processCharacterLocations } from './core/character-locations-processor';
 import { processCharacterLog } from './core/character-log-processor';
 import { HISTORY_LENGTH } from './core/character-log-processor/constants';
 import { processCharacterDecisions } from './core/character-processor';
-import { processCharacterLocations } from './core/character-locations-processor';
 import { process as processCharacterSettings } from './core/character-settings-processor';
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
 import { processIncidentDecisions } from './core/incident-processor';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
-import { processTime } from './core/time-processor';
+import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
 import { processTimeChatMkSync } from './core/time-chat-mk-sync';
+import { processTime } from './core/time-processor';
+
+// --- 事件与 Schema 导入 ---
 import { QueryResultItem, WriteDonePayload } from './events/constants';
 import { getSnapshotsBetweenMIds } from './events/emitter';
 import { onWriteDone } from './events/receiver';
 import { Runtime } from './schema/runtime';
 import { Stat, StatSchema } from './schema/stat';
+
+// --- 工具函数导入 ---
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
@@ -46,27 +70,34 @@ function logState(
   logger.log('logState', title, data);
 }
 
-// 主程序入口
+// 主程序入口：当脚本被加载到 DOM 中时执行
 $(() => {
   logger.log('main', '后台数据处理脚本加载');
 
-  // 定义核心数据处理函数
-  const handleWriteDone = async (payload: WriteDonePayload) => {
+  /**
+   * 核心事件处理函数，在每次 ERA 数据写入完成后被调用。
+   * 这是所有数据处理逻辑的起点，它 orchestrates（编排）了所有核心处理器的执行。
+   * @param payload - 从 `era:writeDone` 事件中接收到的数据。
+   * @param isFakeEvent - 标志位，指示当前是否在处理一个伪造的测试事件。
+   */
+  const handleWriteDone = async (payload: WriteDonePayload, isFakeEvent = false) => {
     const { statWithoutMeta, mk, editLogs, selectedMks } = payload;
     logger.log('handleWriteDone', '接收到原始 stat 数据', statWithoutMeta);
 
-    // 使用酒馆助手 API 获取最新的消息
+    // --- 数据获取与验证 ---
+
+    // 使用酒馆助手 API 获取最新的消息，以确保我们有正确的 message_id 上下文
     const latestMessages = getChatMessages(-1);
     if (!latestMessages || latestMessages.length === 0) {
       logger.error('handleWriteDone', '无法获取到最新的聊天消息，中止执行。');
       return;
     }
-    // 使用最新的消息 ID
     const latestMessage = latestMessages[0];
     const message_id = latestMessage.message_id;
     logger.log('handleWriteDone', `使用最新的消息 ID: ${message_id}`);
 
-    // 使用 Zod 解析和验证 stat
+    // 使用 Zod Schema 对从 ERA 接收的 stat 数据进行严格的验证和解析。
+    // 这是确保数据类型安全和结构正确的第一道防线。
     const parseResult = StatSchema.safeParse(statWithoutMeta);
     if (!parseResult.success) {
       logger.error('handleWriteDone', 'Stat 数据结构验证失败。以下是详细错误:');
@@ -79,20 +110,21 @@ $(() => {
         );
       });
       logger.error('handleWriteDone', '完整的原始 Stat 数据:', statWithoutMeta);
-      return; // 中止执行
+      return; // 如果数据无效，则中止执行
     }
 
     try {
-      // --- 初始状态 ---
-      // 从这里开始，currentStat 就是经过验证和类型推断的
+      // --- 核心处理器流水线 ---
+      // 此处开始，`currentStat` 是经过 Zod 验证和类型推断的安全对象。
+      // `currentRuntime` 是一个临时的、每轮重新计算的对象，用于在处理器之间传递中间状态。
       let currentStat: Stat = parseResult.data;
       let currentRuntime: Runtime = getRuntimeObject();
       logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
 
-      // 根据当前 mk 获取对应的 editLog
+      // 根据当前消息的 mk 获取对应的 editLog，用于分析 AI 输出。
       const currentEditLog = (editLogs as any)?.[mk];
 
-      // 2.9. 地区处理
+      // [地区处理器]：加载地区数据，构建地区关系图，计算地区间的可达性。
       const areaResult = await processArea({
         stat: currentStat,
         runtime: currentRuntime,
@@ -105,7 +137,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 1. 数据规范化处理
+      // [数据规范化处理器]：统一和修正数据格式，例如将不规范的地点名称标准化。
       const normalizationResult = normalizeLocationData({ originalStat: currentStat, runtime: currentRuntime });
       currentStat = normalizationResult.stat;
       const normalizationChanges = normalizationResult.changes;
@@ -115,7 +147,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 角色位置处理
+      // [角色位置处理器]：根据角色的行动计划和当前状态，更新他们在地图上的位置。
       const locResult = processCharacterLocations({
         stat: currentStat,
         runtime: currentRuntime,
@@ -128,7 +160,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 1.2. 角色设置处理
+      // [角色设置处理器]：从 stat 中加载角色的配置信息（如好感度阶段、行动模式）到 runtime 中。
       currentRuntime = processCharacterSettings({ runtime: currentRuntime, stat: currentStat });
       logState('Character Settings Processor', 'runtime', {
         stat: currentStat,
@@ -136,7 +168,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 1.5. 好感度处理
+      // [好感度处理器]：根据 AI 的输出（editLog）分析并更新角色的好感度。
       const affectionResult = processAffectionDecisions({
         stat: currentStat,
         editLog: currentEditLog,
@@ -150,7 +182,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 2.5. 时间处理
+      // [时间处理器]：推进游戏内时间，并生成时间流逝的标志（flags）。
       const timeResult = await processTime({
         stat: currentStat,
         runtime: currentRuntime,
@@ -163,6 +195,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
+      // [时间-消息同步处理器]：将时间流逝的标志（如“新的一天”）与当前消息的 MK 关联起来，形成锚点。
       const mkSyncResult = processTimeChatMkSync({
         stat: currentStat,
         runtime: currentRuntime,
@@ -177,13 +210,33 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 2.8. 角色日志处理
-      const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
-      const snapshotPayload = await getSnapshotsBetweenMIds({
-        startId,
-        endId: message_id,
+      // [快照获取器]：根据时间标志，获取处理所需的所有历史快照。
+      currentRuntime = await fetchSnapshotsForTimeFlags({ runtime: currentRuntime, mk, isFake: isFakeEvent });
+      logState('Snapshot Fetcher', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
       });
-      const snapshots = (snapshotPayload.result as QueryResultItem[]) || [];
+
+      // [好感度遗忘处理器]：根据时间锚点，判断角色是否因长时间未与玩家互动而降低好感度。
+      const forgettingResult = await processAffectionForgetting({
+        stat: currentStat,
+        runtime: currentRuntime,
+        mk,
+        selectedMks,
+        currentMessageId: message_id,
+      });
+      currentStat = forgettingResult.stat;
+      currentRuntime = forgettingResult.runtime;
+      const forgettingChanges = forgettingResult.changes;
+      logState('Affection Forgetting Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [角色日志处理器]：获取最近的历史消息快照，为每个角色生成行动日志。
+      const snapshots = currentRuntime.snapshots ?? [];
       const charLogResult = processCharacterLog({ runtime: currentRuntime, snapshots, stat: currentStat });
       currentRuntime = charLogResult.runtime;
       logState('Character Log Processor', 'runtime', {
@@ -192,7 +245,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 2.8. 异变处理
+      // [异变处理器]：根据当前状态决定是否触发、推进或结束游戏中的“异变”事件。
       const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
       currentStat = incidentResult.stat;
       currentRuntime = incidentResult.runtime;
@@ -203,7 +256,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 3. 节日处理
+      // [节日处理器]：处理游戏中的节日逻辑。
       const festivalResult = await processFestival({
         stat: currentStat,
         runtime: currentRuntime,
@@ -216,7 +269,7 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 3.5. 角色决策处理
+      // [角色决策处理器]：根据所有上下文信息，为每个角色决定他们下一步的行动。
       const charResult = await processCharacterDecisions({
         stat: currentStat,
         runtime: currentRuntime,
@@ -230,13 +283,16 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // 4. 提示词构建
+      // [提示词构建器]：将 `runtime` 中的所有计算结果汇总，生成最终注入给 LLM 的提示词。
       const prompt = buildPrompt({ runtime: currentRuntime, stat: currentStat });
       logger.log('handleWriteDone', '提示词构建完毕:', prompt);
 
-      // 5. 数据写入/发送
-      // 合并所有 changes
-      const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
+      // [数据发送器]：将所有 `stat` 的变更和生成的提示词发送回 ERA 框架。
+      const allChanges = normalizationChanges
+        .concat(affectionChanges)
+        .concat(forgettingChanges)
+        .concat(incidentChanges)
+        .concat(charChanges);
       await sendData({
         stat: currentStat,
         runtime: currentRuntime,
@@ -255,36 +311,40 @@ $(() => {
     }
   };
 
-  // 监听 ERA 数据写入完成事件，并忽略由 API 写入触发的事件
+  // --- 事件监听器 ---
+
+  // 监听 ERA 框架的 `era:writeDone` 事件。这是脚本的主要触发点。
+  // `ignoreApiWrite: true` 选项是为了防止脚本响应由自身 API 调用（如 sendData）触发的 `writeDone` 事件，从而避免无限循环。
   onWriteDone(
     (detail: WriteDonePayload) => {
       logger.log('main', '接收到 era:writeDone 事件');
-      // 确保 handleWriteDone 中的任何未捕获的 Promise 拒绝都会被记录
-      handleWriteDone(detail).catch(error => {
+      // 确保 handleWriteDone 中的任何异步错误都能被捕获和记录。
+      handleWriteDone(detail, false).catch(error => {
         logger.error('onWriteDone', 'handleWriteDone 发生未处理的 Promise 拒绝:', error);
       });
     },
     { ignoreApiWrite: true },
   );
 
-  // 监听来自 dev ael 的伪造数据写入事件，用于测试
+  // 监听一个用于开发的伪造事件 `dev:fakeWriteDone`，方便在不实际与 AI 交互的情况下测试数据处理流程。
   eventOn('dev:fakeWriteDone', (detail: WriteDonePayload) => {
     logger.log('main', '接收到伪造的 dev:fakeWriteDone 事件');
-    // 确保 handleWriteDone 中的任何未捕获的 Promise 拒绝都会被记录
-    handleWriteDone(detail).catch(error => {
+    handleWriteDone(detail, true).catch(error => {
       logger.error('dev:fakeWriteDone', 'handleWriteDone 发生未处理的 Promise 拒绝:', error);
     });
   });
 
-  // 脚本卸载时的清理工作
+  // --- 脚本卸载处理 ---
+
+  // 监听 `pagehide` 事件，当脚本被卸载（例如关闭或刷新页面）时执行清理工作。
   $(window).on('pagehide.main', () => {
     logger.log('main', '后台数据处理脚本卸载');
 
-    // 在这里可以清理其他核心模块
+    // 在此可以添加其他核心模块的清理函数。
     // import { cleanupCore } from './core/main';
     // cleanupCore();
 
-    // 解除所有命名空间下的事件监听
+    // 使用命名空间 `.main` 来确保只解除本脚本添加的事件监听，避免影响其他脚本。
     $(window).off('.main');
   });
 });

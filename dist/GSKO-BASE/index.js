@@ -33,6 +33,39 @@ const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
 
+function pickAffectionStage(affection, stages) {
+  if (!stages || stages.length === 0) {
+    return undefined;
+  }
+  for (const stage of stages) {
+    if (affection >= stage.threshold) {
+      return stage;
+    }
+  }
+  return stages[stages.length - 1];
+}
+
+const external_z_namespaceObject = z;
+
+const ChangeLogEntrySchema = external_z_namespaceObject.z.object({
+  module: external_z_namespaceObject.z.string(),
+  path: external_z_namespaceObject.z.string(),
+  oldValue: external_z_namespaceObject.z.any(),
+  newValue: external_z_namespaceObject.z.any(),
+  reason: external_z_namespaceObject.z.string()
+});
+
+const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
+  const entry = {
+    module,
+    path,
+    oldValue,
+    newValue,
+    reason
+  };
+  return ChangeLogEntrySchema.parse(entry);
+};
+
 const PROJECT_NAME = "GSKO-BASE";
 
 const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
@@ -195,843 +228,105 @@ class Logger {
   }
 }
 
-const external_z_namespaceObject = z;
+const logger = new Logger("GSKO-BASE/utils/format");
 
-const ChangeLogEntrySchema = external_z_namespaceObject.z.object({
-  module: external_z_namespaceObject.z.string(),
-  path: external_z_namespaceObject.z.string(),
-  oldValue: external_z_namespaceObject.z.any(),
-  newValue: external_z_namespaceObject.z.any(),
-  reason: external_z_namespaceObject.z.string()
-});
+function firstVal(x) {
+  return Array.isArray(x) ? x.length ? x[0] : "" : x;
+}
 
-const createChangeLogEntry = (module, path, oldValue, newValue, reason) => {
-  const entry = {
-    module,
-    path,
-    oldValue,
-    newValue,
-    reason
-  };
-  return ChangeLogEntrySchema.parse(entry);
-};
-
-const logger = new Logger("GSKO-BASE/utils/editLog");
-
-function parseEditLogString(logString) {
+function get(obj, path, fallback = "") {
   try {
-    const parsed = JSON.parse(logString);
-    if (external_default().isArray(parsed)) {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        logger.debug("get", "未找到键，使用默认值。", {
+          路径: String(path),
+          缺失键: String(k),
+          默认值: fallback
+        });
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    const v = firstVal(cur);
+    if (v == null) {
+      logger.debug("get", "路径存在但值为空(null/undefined)，使用默认值。", {
+        路径: String(path),
+        默认值: fallback
+      });
+      return fallback;
+    }
+    return v;
+  } catch (e) {
+    logger.error("get", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function format_text(id, raw) {
+  const el = document.getElementById(id);
+  if (!el) {
+    logger.warn("text", "目标元素不存在，跳过写入。", {
+      元素ID: id
+    });
+    return;
+  }
+  el.textContent = toText(raw);
+}
+
+function getRaw(obj, path, fallback = null) {
+  try {
+    const ks = Array.isArray(path) ? path : String(path).split(".");
+    let cur = obj;
+    for (const k of ks) {
+      if (!cur || typeof cur !== "object" || !(k in cur)) {
+        return fallback;
+      }
+      cur = cur[k];
+    }
+    return cur == null ? fallback : cur;
+  } catch (e) {
+    logger.error("getRaw", "异常，使用默认值。", {
+      路径: String(path),
+      异常: String(e),
+      默认值: fallback
+    });
+    return fallback;
+  }
+}
+
+function toText(v) {
+  if (v == null || v === "") return "—";
+  if (Array.isArray(v)) return v.length ? v.join("；") : "—";
+  if (typeof v === "object") return JSON.stringify(v);
+  return String(v);
+}
+
+function getStr(obj, path, fallback = "") {
+  const rawValue = getRaw(obj, path, null);
+  if (rawValue === null) {
+    return toText(fallback);
+  }
+  return toText(rawValue);
+}
+
+function toFiniteNumber(value) {
+  if (typeof value === "number" && Number.isFinite(value)) {
+    return value;
+  }
+  if (typeof value === "string" && value.trim().length > 0) {
+    const parsed = Number(value);
+    if (Number.isFinite(parsed)) {
       return parsed;
-    }
-    logger.warn("parseEditLogString", "解析结果不是一个数组。", {
-      parsed
-    });
-    return null;
-  } catch (error) {
-    logger.error("parseEditLogString", "解析 editLog 字符串失败。", {
-      error: error.message
-    });
-    return null;
-  }
-}
-
-function getUpdateOps(logJson) {
-  return logJson.filter(op => op.op === "update");
-}
-
-function getInsertOps(logJson) {
-  return logJson.filter(op => op.op === "insert");
-}
-
-function getDeleteOps(logJson) {
-  return logJson.filter(op => op.op === "delete");
-}
-
-function flattenObject(obj, path = "") {
-  const flatMap = new Map;
-  if (!external_default().isObject(obj) || external_default().isArray(obj)) {
-    if (path) flatMap.set(path, obj);
-    return flatMap;
-  }
-  const recordObj = obj;
-  for (const key of Object.keys(recordObj)) {
-    const newPath = path ? `${path}.${key}` : key;
-    const nested = flattenObject(recordObj[key], newPath);
-    nested.forEach((value, p) => flatMap.set(p, value));
-  }
-  return flatMap;
-}
-
-function getAtomicChangesFromUpdate(updateOp) {
-  if (updateOp.op !== "update") return [];
-  const basePath = updateOp.path;
-  const oldVal = updateOp.value_old;
-  const newVal = updateOp.value_new;
-  if (!external_default().isObject(oldVal) && !external_default().isObject(newVal)) {
-    return [ {
-      path: basePath,
-      oldVal: oldVal ?? null,
-      newVal: newVal ?? null
-    } ];
-  }
-  const oldMap = flattenObject(oldVal);
-  const newMap = flattenObject(newVal);
-  const allKeys = external_default().union([ ...oldMap.keys() ], [ ...newMap.keys() ]);
-  const changes = [];
-  for (const key of allKeys) {
-    const fullPath = `${basePath}.${key}`;
-    const vOld = oldMap.has(key) ? oldMap.get(key) : null;
-    const vNew = newMap.has(key) ? newMap.get(key) : null;
-    if (!external_default().isEqual(vOld, vNew)) {
-      changes.push({
-        path: fullPath,
-        oldVal: vOld,
-        newVal: vNew
-      });
-    }
-  }
-  return changes;
-}
-
-function getAllAtomicChanges(logJson) {
-  const allChanges = [];
-  getUpdateOps(logJson).forEach(op => {
-    allChanges.push(...getAtomicChangesFromUpdate(op));
-  });
-  getInsertOps(logJson).forEach(op => {
-    const valueToInsert = op.value_new;
-    if (valueToInsert === undefined) return;
-    if (!_.isObject(valueToInsert)) {
-      allChanges.push({
-        path: op.path,
-        oldVal: null,
-        newVal: valueToInsert
-      });
-    } else {
-      const newMap = flattenObject(valueToInsert);
-      if (newMap.size === 0 && _.isObject(valueToInsert)) {
-        allChanges.push({
-          path: op.path,
-          oldVal: null,
-          newVal: valueToInsert
-        });
-      } else {
-        newMap.forEach((vNew, key) => {
-          allChanges.push({
-            path: `${op.path}.${key}`,
-            oldVal: null,
-            newVal: vNew
-          });
-        });
-      }
-    }
-  });
-  getDeleteOps(logJson).forEach(op => {
-    const valueToDelete = op.value_old;
-    if (valueToDelete === undefined) return;
-    if (!_.isObject(valueToDelete)) {
-      allChanges.push({
-        path: op.path,
-        oldVal: valueToDelete,
-        newVal: null
-      });
-    } else {
-      const oldMap = flattenObject(valueToDelete);
-      if (oldMap.size === 0 && _.isObject(valueToDelete)) {
-        allChanges.push({
-          path: op.path,
-          oldVal: valueToDelete,
-          newVal: null
-        });
-      } else {
-        oldMap.forEach((vOld, key) => {
-          allChanges.push({
-            path: `${op.path}.${key}`,
-            oldVal: vOld,
-            newVal: null
-          });
-        });
-      }
-    }
-  });
-  return allChanges;
-}
-
-function findChangeByPath(logJson, targetPath) {
-  const allChanges = getAllAtomicChanges(logJson);
-  for (let i = allChanges.length - 1; i >= 0; i--) {
-    if (allChanges[i].path === targetPath) {
-      return allChanges[i];
     }
   }
   return null;
 }
-
-const PATH_RE = /^chars\.[^.]+\.好感度$/;
-
-const isTarget = path => PATH_RE.test(String(path || ""));
-
-function getCurrentAffectionStage(affection, stages) {
-  if (!stages || stages.length === 0) {
-    return undefined;
-  }
-  for (const stage of stages) {
-    if (affection >= stage.threshold) {
-      return stage;
-    }
-  }
-  return stages[stages.length - 1];
-}
-
-const processor_logger = new Logger("GSKO-BASE/core/affection-processor/processor");
-
-function processAffection({stat, editLog, runtime}) {
-  const funcName = "processAffection";
-  const changes = [];
-  const internalLogs = [];
-  if (!editLog) {
-    processor_logger.debug(funcName, "editLog 不存在，跳过处理。");
-    return {
-      stat,
-      changes
-    };
-  }
-  const logJson = typeof editLog === "string" ? parseEditLogString(editLog) : editLog;
-  if (!logJson) {
-    processor_logger.warn(funcName, "解析 editLog 失败，跳过处理。");
-    return {
-      stat,
-      changes
-    };
-  }
-  const updateOps = getUpdateOps(logJson);
-  if (updateOps.length === 0) {
-    processor_logger.debug(funcName, "没有找到 update 操作，跳过处理。");
-    return {
-      stat,
-      changes
-    };
-  }
-  processor_logger.debug(funcName, `找到 ${updateOps.length} 条 update 操作，开始处理...`);
-  for (const op of updateOps) {
-    const atomicChanges = getAtomicChangesFromUpdate(op);
-    for (const change of atomicChanges) {
-      const {path, oldVal, newVal} = change;
-      try {
-        if (!isTarget(path)) {
-          continue;
-        }
-        const charId = path.split(".")[1];
-        if (!charId) {
-          continue;
-        }
-        const character = stat.chars[charId];
-        if (!character) {
-          internalLogs.push({
-            msg: "角色未在 stat.chars 中找到",
-            path,
-            charId
-          });
-          continue;
-        }
-        const hasOld = !(oldVal === null || oldVal === undefined);
-        const oldValueNum = hasOld ? Number(oldVal) : character.好感度;
-        const newValueNum = Number(newVal);
-        if (!Number.isFinite(oldValueNum) || !Number.isFinite(newValueNum)) {
-          internalLogs.push({
-            msg: "类型异常：old/new 不是有效数字，放弃处理",
-            path,
-            oldVal,
-            newVal
-          });
-          continue;
-        }
-        if (!hasOld) {
-          internalLogs.push({
-            msg: "提示：old 缺失，按 0 处理首次赋值",
-            path,
-            asOld: 0
-          });
-        }
-        const delta = newValueNum - oldValueNum;
-        const absDelta = Math.abs(delta);
-        let finalDelta = delta;
-        internalLogs.push({
-          msg: "捕获变量更新",
-          path,
-          old: oldValueNum,
-          new: newValueNum,
-          delta,
-          absDelta
-        });
-        const charSettings = runtime.characterSettings?.[charId];
-        const stages = charSettings?.affectionStages;
-        if (stages) {
-          const currentStage = getCurrentAffectionStage(oldValueNum, stages);
-          const limit = currentStage?.affectionGrowthLimit;
-          if (limit && absDelta > limit.max) {
-            const limitedAbsDelta = Math.max(absDelta / limit.divisor, limit.max);
-            finalDelta = limitedAbsDelta * Math.sign(delta);
-            internalLogs.push({
-              msg: "应用好感度变化软限制",
-              originalDelta: delta,
-              limit,
-              finalDelta
-            });
-          } else {
-            internalLogs.push({
-              msg: "不应用软限制（未超阈值或无配置）"
-            });
-          }
-        }
-        if (finalDelta === delta) {
-          internalLogs.push({
-            msg: "处理后值无变化，无需覆写"
-          });
-          continue;
-        }
-        const finalNewValue = external_default().round(oldValueNum + finalDelta);
-        character.好感度 = finalNewValue;
-        const changeEntry = createChangeLogEntry("affection-processor", path, oldValueNum, finalNewValue, `好感度处理：原始变化量 ${delta} 被软限制为 ${finalDelta}`);
-        changes.push(changeEntry);
-        internalLogs.push({
-          msg: "写入完成",
-          changeEntry
-        });
-      } catch (err) {
-        processor_logger.error(funcName, `处理路径 ${path} 时发生异常`, err.stack || err);
-        internalLogs.push({
-          msg: "处理异常",
-          path,
-          error: err.stack || err
-        });
-      }
-    }
-  }
-  if (changes.length > 0) {
-    processor_logger.debug(funcName, "好感度折算处理完毕。", {
-      summary: `共产生 ${changes.length} 条变更。`,
-      internalLogs
-    });
-  } else {
-    processor_logger.debug(funcName, "好感度折算处理完毕，无相关变更。");
-  }
-  return {
-    stat,
-    changes
-  };
-}
-
-const affection_processor_logger = new Logger("GSKO-BASE/core/affection-processor");
-
-function processAffectionDecisions({stat, editLog, runtime}) {
-  const funcName = "processAffectionDecisions";
-  affection_processor_logger.debug(funcName, "开始处理好感度...");
-  try {
-    const result = processAffection({
-      stat,
-      editLog,
-      runtime
-    });
-    affection_processor_logger.debug(funcName, "好感度处理完毕。");
-    return result;
-  } catch (e) {
-    affection_processor_logger.error(funcName, "处理好感度时发生意外错误:", e);
-    return {
-      stat,
-      changes: []
-    };
-  }
-}
-
-const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
-  if (typeof val === "string") {
-    try {
-      return JSON.parse(val);
-    } catch (e) {
-      return val;
-    }
-  }
-  return val;
-}, schema);
-
-const MapSizeSchema = external_z_namespaceObject.z.object({
-  width: external_z_namespaceObject.z.number(),
-  height: external_z_namespaceObject.z.number()
-});
-
-const MapPositionSchema = external_z_namespaceObject.z.object({
-  x: external_z_namespaceObject.z.number(),
-  y: external_z_namespaceObject.z.number()
-});
-
-const MapLeafSchema = external_z_namespaceObject.z.object({
-  pos: MapPositionSchema,
-  htmlEle: external_z_namespaceObject.z.string()
-}).passthrough();
-
-const MapTreeSchema = external_z_namespaceObject.z.lazy(() => external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.union([ MapLeafSchema, MapTreeSchema ])));
-
-const MapGraphSchema = external_z_namespaceObject.z.object({
-  mapSize: MapSizeSchema,
-  tree: MapTreeSchema,
-  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
-    a: external_z_namespaceObject.z.string(),
-    b: external_z_namespaceObject.z.string()
-  }))).optional(),
-  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
-});
-
-const WorldSchema = external_z_namespaceObject.z.object({
-  map_graph: MapGraphSchema.optional(),
-  fallbackPlace: external_z_namespaceObject.z.string().default("博丽神社")
-}).passthrough();
-
-const 世界Schema = external_z_namespaceObject.z.object({
-  timeProgress: external_z_namespaceObject.z.number()
-}).passthrough();
-
-const graph_builder_logger = new Logger("GSKO-BASE/core/area-processor/graph-builder");
-
-function buildGraph({stat}) {
-  const funcName = "buildGraph";
-  const graph = {};
-  const leafNodes = [];
-  const seenNodes = new Set;
-  try {
-    const mapData = stat.world?.map_graph;
-    if (!mapData?.tree) {
-      graph_builder_logger.warn(funcName, "stat.world.map_graph.tree 为空或不存在。");
-      return {
-        graph,
-        leafNodes
-      };
-    }
-    graph_builder_logger.debug(funcName, "stat.world.map_graph 获取成功");
-    const addEdge = (nodeA, nodeB) => {
-      if (nodeA === nodeB) return;
-      if (!graph[nodeA]) graph[nodeA] = {};
-      if (!graph[nodeB]) graph[nodeB] = {};
-      graph[nodeA][nodeB] = true;
-      graph[nodeB][nodeA] = true;
-    };
-    const walkTree = node => {
-      for (const key in node) {
-        const child = node[key];
-        const parseResult = MapLeafSchema.safeParse(child);
-        if (parseResult.success) {
-          if (!seenNodes.has(key)) {
-            leafNodes.push({
-              name: key,
-              ...parseResult.data
-            });
-            seenNodes.add(key);
-          }
-        } else if (child && typeof child === "object") {
-          walkTree(child);
-        }
-      }
-    };
-    walkTree(mapData.tree);
-    leafNodes.forEach(leaf => {
-      if (!graph[leaf.name]) {
-        graph[leaf.name] = {};
-      }
-    });
-    const edges = mapData.edges ?? [];
-    graph_builder_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
-    if (Array.isArray(edges)) {
-      edges.forEach(edge => {
-        if (edge && edge.a && edge.b) {
-          addEdge(edge.a, edge.b);
-        }
-      });
-    }
-  } catch (error) {
-    graph_builder_logger.error(funcName, "构建地图图谱时出错", error);
-  }
-  graph_builder_logger.debug(funcName, "graph 完成构建");
-  graph_builder_logger.debug(funcName, "leafNodes 完成构建");
-  return {
-    graph,
-    leafNodes
-  };
-}
-
-const DEFAULT_LOCATION = "博丽神社";
-
-const ERA_VARIABLE_PATH = {
-  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-  UI_THEME: "config.ui.theme",
-  MAP_ASCII: "world.map_ascii",
-  MAP_GRAPH: "world.map_graph",
-  FALLBACK_PLACE: "world.fallbackPlace",
-  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-  RUNTIME_PREFIX: "runtime.",
-  INCIDENT_COOLDOWN: "config.incident.cooldown",
-  TIME_PROGRESS: "世界.timeProgress",
-  FESTIVALS_LIST: "festivals_list",
-  NEWS_TEXT: "文文新闻",
-  EXTRA_MAIN: "附加正文",
-  GENSOKYO_MAIN_STORY: "gensokyo",
-  USER_LOCATION: "user.所在地区",
-  USER_HOME: "user.居住地区",
-  CHARS: "chars",
-  CHAR_HOME: "居住地区",
-  CHAR_LOCATION: "所在地区",
-  CHAR_AFFECTION: "好感度",
-  USER_DATA: "user",
-  USER_EVENTS: "重要经历",
-  USER_RELATIONSHIPS: "人际关系",
-  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-  UI_RIBBON_STEP: "config.ui.ribbonStep",
-  AFFECTION_STAGES: "config.affection.affectionStages",
-  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-  CONFIG_ROOT: "config"
-};
-
-const RUNTIME_PATH = {
-  CURRENT_FESTIVAL_NAME: "festival.current.name"
-};
-
-const log = new Logger("GSKO-BASE/utils/message");
-
-function getMessageContent(msg) {
-  if (!msg) return null;
-  let content = null;
-  if (typeof msg.mes === "string") {
-    content = msg.mes;
-  } else if (Array.isArray(msg.swipes)) {
-    const sid = Number(msg.swipe_id ?? 0);
-    content = msg.swipes[sid] || null;
-  } else if (typeof msg.message === "string") {
-    content = msg.message;
-  }
-  if (content === null) {
-    return null;
-  }
-  return content;
-}
-
-function escReg(s) {
-  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
-}
-
-function extractContentForMatching(messages, tagName = null) {
-  const segs = [];
-  for (const m of messages) {
-    const messageContent = getMessageContent(m);
-    if (messageContent === null) {
-      continue;
-    }
-    if (tagName) {
-      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi");
-      let match;
-      while ((match = re.exec(messageContent)) !== null) {
-        segs.push(match[1]);
-      }
-    } else {
-      segs.push(messageContent);
-    }
-  }
-  return segs.join("\n");
-}
-
-async function matchMessages(keywords, options = {}) {
-  const {depth = 5, includeSwipes = false, tag = null} = options;
-  const funcName = "matchMessages";
-  try {
-    if (typeof getChatMessages !== "function") {
-      log.warn(funcName, "getChatMessages 函数不可用，无法匹配消息。");
-      return [];
-    }
-    const last = getLastMessageId();
-    const begin = Math.max(0, last - (depth - 1));
-    const msgs = getChatMessages(`${begin}-${last}`, {
-      role: "all",
-      hide_state: "all",
-      include_swipes: includeSwipes
-    });
-    const pool = extractContentForMatching(msgs, tag);
-    if (!pool) {
-      return [];
-    }
-    log.debug(funcName, `待匹配的文本池: ${pool}`);
-    const hits = [];
-    for (const kw of keywords) {
-      if (!kw) continue;
-      const re = new RegExp(escReg(kw), "i");
-      if (re.test(pool)) {
-        hits.push(kw);
-      }
-    }
-    return hits;
-  } catch (e) {
-    log.error(funcName, "批量匹配消息时发生异常", e);
-    return [];
-  }
-}
-
-async function updateMessageContent(message, newContent) {
-  const oldContent = getMessageContent(message);
-  log.debug("updateMessageContent", "更新前的消息内容:", oldContent);
-  log.debug("updateMessageContent", "更新后的消息内容:", newContent);
-  const updatePayload = {
-    message_id: message.message_id
-  };
-  if (Array.isArray(message.swipes)) {
-    const sid = Number(message.swipe_id ?? 0);
-    const newSwipes = [ ...message.swipes ];
-    newSwipes[sid] = newContent;
-    updatePayload.swipes = newSwipes;
-  } else {
-    updatePayload.message = newContent;
-  }
-  await setChatMessages([ updatePayload ], {
-    refresh: "none"
-  });
-}
-
-const location_loader_logger = new Logger("GSKO-BASE/core/area-processor/location-loader");
-
-async function loadLocations({stat, legalLocations, neighbors}) {
-  const funcName = "loadLocations";
-  let hits = [];
-  try {
-    if (!legalLocations || legalLocations.length === 0) {
-      location_loader_logger.debug(funcName, "传入的合法地区列表为空，无需加载。");
-      return [];
-    }
-    const legalLocationNames = legalLocations.map(loc => loc.name);
-    const matched = await matchMessages(legalLocationNames, {
-      depth: 5,
-      includeSwipes: false,
-      tag: ERA_VARIABLE_PATH.GENSOKYO_MAIN_STORY
-    });
-    hits = Array.from(new Set(matched));
-    const userLoc = stat.user?.所在地区?.trim() ?? "";
-    if (userLoc) {
-      location_loader_logger.debug(funcName, `获取到用户当前地区: ${userLoc}`);
-      if (!hits.includes(userLoc) && legalLocationNames.includes(userLoc)) {
-        hits.push(userLoc);
-      }
-    } else {
-      location_loader_logger.debug(funcName, "在 stat.user.所在地区 中未找到用户位置");
-    }
-    if (neighbors && neighbors.length > 0) {
-      neighbors.forEach(neighbor => {
-        if (!hits.includes(neighbor) && legalLocationNames.includes(neighbor)) {
-          hits.push(neighbor);
-        }
-      });
-      location_loader_logger.debug(funcName, `合并邻居后: ${JSON.stringify(hits)}`);
-    }
-    location_loader_logger.debug(funcName, `处理完成，加载地区: ${JSON.stringify(hits)}`);
-  } catch (e) {
-    location_loader_logger.error(funcName, "处理加载地区时发生异常", e);
-    hits = [];
-  }
-  location_loader_logger.debug(funcName, "模块退出，最终输出:", {
-    hits
-  });
-  return external_default().uniq(hits);
-}
-
-const neighbor_loader_logger = new Logger("GSKO-BASE/core/area-processor/neighbor-loader");
-
-function processNeighbors({stat, graph}) {
-  const funcName = "processNeighbors";
-  try {
-    const currentUserLocation = stat.user?.所在地区 ?? "";
-    if (!currentUserLocation) {
-      neighbor_loader_logger.debug(funcName, "用户当前位置未知，无法获取邻居。");
-      return [];
-    }
-    if (external_default().isEmpty(graph) || !graph[currentUserLocation]) {
-      neighbor_loader_logger.debug(funcName, `图中没有节点 ${currentUserLocation} 或该节点没有邻居。`);
-      return [];
-    }
-    const neighbors = Object.keys(graph[currentUserLocation]);
-    neighbor_loader_logger.debug(funcName, `找到 ${currentUserLocation} 的邻居: ${neighbors.join(", ")}`);
-    return neighbors;
-  } catch (error) {
-    neighbor_loader_logger.error(funcName, "获取相邻地区时发生异常", error);
-    return [];
-  }
-}
-
-const utils_logger = new Logger("GSKO-BASE/core/area-processor/utils");
-
-function bfs(source, destination, graph) {
-  const funcName = "bfs";
-  if (!graph[source] || !graph[destination]) return null;
-  const queue = [ source ];
-  const previousNode = {
-    [source]: null
-  };
-  let head = 0;
-  while (head < queue.length) {
-    const currentNode = queue[head++];
-    if (currentNode === destination) break;
-    const neighbors = graph[currentNode] || {};
-    for (const neighbor in neighbors) {
-      if (previousNode[neighbor] !== undefined) continue;
-      previousNode[neighbor] = currentNode;
-      queue.push(neighbor);
-    }
-  }
-  if (previousNode[destination] === undefined) return null;
-  const steps = [];
-  let currentNode = destination;
-  let guard = 0;
-  while (previousNode[currentNode] != null && guard < 1e3) {
-    steps.push({
-      from: previousNode[currentNode],
-      to: currentNode
-    });
-    currentNode = previousNode[currentNode];
-    guard++;
-  }
-  if (guard >= 1e3) {
-    utils_logger.error(funcName, `BFS路径回溯时陷入死循环, destination=${destination}`);
-    return null;
-  }
-  steps.reverse();
-  return {
-    hops: steps.length,
-    steps
-  };
-}
-
-const route_logger = new Logger("GSKO-BASE/core/area-processor/route");
-
-function processRoute({stat, runtime, graph}) {
-  const funcName = "processRoute";
-  const defaultRouteInfo = {
-    candidates: [],
-    routes: []
-  };
-  try {
-    const currentUserLocation = stat.user?.所在地区 ?? DEFAULT_LOCATION;
-    route_logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
-    if (external_default().isEmpty(graph)) {
-      route_logger.warn(funcName, "图为空，无法计算路线。");
-      return defaultRouteInfo;
-    }
-    route_logger.debug(funcName, "图已接收", {
-      nodes: Object.keys(graph).length
-    });
-    const candidates = external_default().cloneDeep(runtime.loadArea ?? []);
-    route_logger.debug(funcName, `路线计算候选地点: ${candidates.join(", ")}`);
-    if (candidates.length === 0) {
-      route_logger.debug(funcName, "没有候选地点，无需计算路线。");
-      return defaultRouteInfo;
-    }
-    const routes = [];
-    candidates.forEach(destination => {
-      if (destination === currentUserLocation) {
-        route_logger.debug(funcName, `跳过到自身的路线计算: ${destination}`);
-        return;
-      }
-      route_logger.debug(funcName, `正在计算路线: 从 ${currentUserLocation} 到 ${destination}`);
-      const path = bfs(currentUserLocation, destination, graph);
-      if (path) {
-        route_logger.debug(funcName, `找到路线: 从 ${currentUserLocation} 到 ${destination}`, {
-          path
-        });
-        routes.push({
-          destination,
-          path
-        });
-      } else {
-        route_logger.debug(funcName, `未找到路线: 从 ${currentUserLocation} 到 ${destination}`);
-      }
-    });
-    const routeInfo = {
-      candidates,
-      routes
-    };
-    route_logger.debug(funcName, "路线计算完成", routeInfo);
-    return routeInfo;
-  } catch (error) {
-    route_logger.error(funcName, "处理路线时发生异常", error);
-    return defaultRouteInfo;
-  }
-}
-
-const area_processor_logger = new Logger("GSKO-BASE/core/area-processor");
-
-async function processArea({stat, runtime}) {
-  const funcName = "processArea";
-  area_processor_logger.debug(funcName, "开始处理地区...");
-  const output = {
-    graph: {},
-    legal_locations: [],
-    neighbors: [],
-    loadArea: [],
-    route: {
-      candidates: [],
-      routes: []
-    },
-    mapSize: undefined
-  };
-  try {
-    output.mapSize = stat.world?.map_graph?.mapSize;
-    const {graph, leafNodes: fullLeafNodes} = buildGraph({
-      stat
-    });
-    output.graph = graph;
-    area_processor_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
-    output.legal_locations = fullLeafNodes;
-    area_processor_logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
-    output.neighbors = processNeighbors({
-      stat,
-      graph
-    });
-    area_processor_logger.debug(funcName, `获取到 ${output.neighbors.length} 个相邻地区`);
-    output.loadArea = await loadLocations({
-      stat,
-      legalLocations: output.legal_locations,
-      neighbors: output.neighbors
-    });
-    area_processor_logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
-    const tempRuntimeForRoute = {
-      loadArea: output.loadArea
-    };
-    output.route = processRoute({
-      stat,
-      runtime: tempRuntimeForRoute,
-      graph
-    });
-    area_processor_logger.debug(funcName, "路线计算完成");
-  } catch (e) {
-    area_processor_logger.error(funcName, "处理地区时发生异常", e);
-  }
-  runtime.area = output;
-  area_processor_logger.debug(funcName, "地区处理完成");
-  return {
-    stat,
-    runtime
-  };
-}
-
-const character_log_processor_logger = new Logger("GSKO-BASE/core/character-log-processor");
-
-function processCharacterLog({runtime, snapshots, stat}) {
-  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
-    snapshotCount: snapshots.length
-  });
-  return {
-    runtime
-  };
-}
-
-const HISTORY_LENGTH = 20;
 
 const mkValueSchema = external_z_namespaceObject.z.string().nullable();
 
@@ -1196,6 +491,1132 @@ const EMPTY_FLAGS = {
   newYear: false
 };
 
+const MODULE_NAME = "affection-forgetting-processor";
+
+const clockFlagKeys = ClockFlagsSchema.keyof().enum;
+
+const TRIGGER_FLAG_PREFIX_KEYS = {
+  BY_PERIOD: clockFlagKeys.byPeriod,
+  BY_SEASON: clockFlagKeys.bySeason
+};
+
+const FLAG_PREFIX = {
+  BY_PERIOD: `${TRIGGER_FLAG_PREFIX_KEYS.BY_PERIOD}.`,
+  BY_SEASON: `${TRIGGER_FLAG_PREFIX_KEYS.BY_SEASON}.`
+};
+
+const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
+  }
+  return val;
+}, schema);
+
+const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+
+const ForgettingRuleSchema = external_z_namespaceObject.z.object({
+  triggerFlag: external_z_namespaceObject.z.string(),
+  decrease: external_z_namespaceObject.z.number()
+});
+
+const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
+  threshold: external_z_namespaceObject.z.number(),
+  name: external_z_namespaceObject.z.string(),
+  describe: external_z_namespaceObject.z.string().nullable().optional(),
+  patienceUnit: TimeUnitSchema.optional(),
+  visit: external_z_namespaceObject.z.object({
+    enabled: external_z_namespaceObject.z.boolean().optional(),
+    probBase: external_z_namespaceObject.z.number().optional(),
+    probK: external_z_namespaceObject.z.number().optional(),
+    coolUnit: TimeUnitSchema.optional()
+  }).optional(),
+  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
+  affectionGrowthLimit: external_z_namespaceObject.z.object({
+    max: external_z_namespaceObject.z.number(),
+    divisor: external_z_namespaceObject.z.number()
+  }).optional()
+}).passthrough();
+
+const ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const EntrySchema = external_z_namespaceObject.z.object({
+  when: external_z_namespaceObject.z.any(),
+  action: ActionSchema,
+  priority: external_z_namespaceObject.z.number().optional()
+});
+
+const CharacterSettingsSchema = external_z_namespaceObject.z.object({
+  id: external_z_namespaceObject.z.string(),
+  name: external_z_namespaceObject.z.string(),
+  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema),
+  specials: external_z_namespaceObject.z.array(EntrySchema),
+  routine: external_z_namespaceObject.z.array(EntrySchema)
+});
+
+const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSettingsSchema);
+
+const CharacterSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  好感度: external_z_namespaceObject.z.number(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable(),
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
+  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  目标: external_z_namespaceObject.z.string().optional()
+});
+
+const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
+
+const CHARACTER_FIELDS = {
+  affection: "好感度",
+  currentLocation: "所在地区",
+  home: "居住地区"
+};
+
+const UserSchema = external_z_namespaceObject.z.object({
+  姓名: external_z_namespaceObject.z.string().nullable(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable()
+});
+
+const USER_FIELDS = {
+  name: "姓名",
+  currentLocation: "所在地区",
+  home: "居住地区"
+};
+
+const getClock = runtime => runtime.clock;
+
+const getClockFlags = runtime => runtime.clock?.flags;
+
+const getMkAnchors = runtime => runtime.clock?.mkAnchors;
+
+const getCharacterSettings = runtime => runtime.characterSettings;
+
+const getClockFlagValue = (runtime, flagKey) => {
+  const flags = getClockFlags(runtime);
+  if (!flags) {
+    return false;
+  }
+  return external_default().get(flags, flagKey) === true;
+};
+
+const getAnchorMkByFlag = (runtime, flagKey) => {
+  const mkAnchors = getMkAnchors(runtime);
+  if (!mkAnchors) {
+    return null;
+  }
+  if (flagKey.startsWith(FLAG_PREFIX.BY_PERIOD)) {
+    const periodKey = flagKey.slice(FLAG_PREFIX.BY_PERIOD.length);
+    return external_default().get(mkAnchors, [ TRIGGER_FLAG_PREFIX_KEYS.BY_PERIOD, periodKey ]) ?? null;
+  }
+  if (flagKey.startsWith(FLAG_PREFIX.BY_SEASON)) {
+    const seasonKey = flagKey.slice(FLAG_PREFIX.BY_SEASON.length);
+    return external_default().get(mkAnchors, [ TRIGGER_FLAG_PREFIX_KEYS.BY_SEASON, seasonKey ]) ?? null;
+  }
+  const rootFlagKey = flagKey;
+  if (rootFlagKey in mkAnchors) {
+    const mk = mkAnchors[rootFlagKey];
+    return typeof mk === "string" ? mk : null;
+  }
+  return null;
+};
+
+const getCharacters = stat => stat.chars;
+
+const getCharacter = (stat, charId) => stat.chars?.[charId];
+
+const getCharacterAffection = (stat, charId) => {
+  const char = getCharacter(stat, charId);
+  return toFiniteNumber(char?.[CHARACTER_FIELDS.affection]);
+};
+
+const getUser = stat => stat.user;
+
+const getUserLocation = stat => getUser(stat)?.[USER_FIELDS.currentLocation];
+
+const getCharacterLocation = (stat, charId) => {
+  const char = getCharacter(stat, charId);
+  return char?.[CHARACTER_FIELDS.currentLocation];
+};
+
+const getSnapshotUserLocation = snapshot => {
+  const state = snapshot.statWithoutMeta ?? snapshot.stat;
+  if (!state) return undefined;
+  return getUserLocation(state);
+};
+
+const getSnapshotCharacterLocation = (snapshot, charId) => {
+  const state = snapshot.statWithoutMeta ?? snapshot.stat;
+  if (!state) return undefined;
+  return getCharacterLocation(state, charId);
+};
+
+const parseForgettingRule = entry => {
+  const result = ForgettingRuleSchema.safeParse(entry);
+  return result.success ? result.data : null;
+};
+
+const processor_logger = new Logger("GSKO-BASE/core/affection-forgetting-processor/processor");
+
+const hasSharedLocation = (snapshots, charId) => snapshots.some(snapshot => {
+  const userLocation = getSnapshotUserLocation(snapshot);
+  const charLocation = getSnapshotCharacterLocation(snapshot, charId);
+  return userLocation && charLocation && userLocation === charLocation;
+});
+
+const sumDecrease = rules => external_default().sumBy(rules, entry => {
+  const value = toFiniteNumber(entry.rule.decrease);
+  return value && value > 0 ? value : 0;
+});
+
+async function processAffectionForgettingInternal({stat, runtime, mk, selectedMks}) {
+  const funcName = "processAffectionForgetting";
+  processor_logger.debug(funcName, "--- 开始好感度遗忘处理 ---", {
+    mk
+  });
+  const changes = [];
+  const clock = getClock(runtime);
+  const characterSettings = getCharacterSettings(runtime);
+  if (!clock?.flags || !clock.mkAnchors) {
+    processor_logger.debug(funcName, "缺少 clock 数据，跳过遗忘处理。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  if (!characterSettings || !stat.chars) {
+    processor_logger.debug(funcName, "缺少角色配置或 stat 数据，跳过遗忘处理。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  if (!mk || !selectedMks) {
+    processor_logger.debug(funcName, "缺少 mk / selectedMks 信息，跳过遗忘处理。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  const validSelectedMks = new Set((selectedMks ?? []).filter(value => typeof value === "string" && value.length > 0));
+  if (validSelectedMks.size === 0) {
+    processor_logger.debug(funcName, "selectedMks 中没有任何有效 MK，跳过遗忘处理。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  const activeCharacters = [];
+  const requiredFlags = new Set;
+  for (const [charId, settings] of Object.entries(characterSettings)) {
+    const affectionValue = getCharacterAffection(stat, charId);
+    if (affectionValue == null) continue;
+    const stage = pickAffectionStage(affectionValue, settings.affectionStages);
+    const parsedRules = (stage?.forgettingSpeed ?? []).map(parseForgettingRule).filter(rule => Boolean(rule));
+    if (parsedRules.length === 0) continue;
+    const rules = [];
+    for (const rule of parsedRules) {
+      if (!getClockFlagValue(runtime, rule.triggerFlag)) continue;
+      rules.push({
+        flagKey: rule.triggerFlag,
+        rule
+      });
+      requiredFlags.add(rule.triggerFlag);
+    }
+    if (rules.length > 0) {
+      activeCharacters.push({
+        charId,
+        affection: affectionValue,
+        rules
+      });
+    }
+  }
+  if (activeCharacters.length === 0 || requiredFlags.size === 0) {
+    processor_logger.debug(funcName, "当前没有角色触发遗忘规则。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  processor_logger.debug(funcName, `[步骤2] 收集到 ${activeCharacters.length} 个待处理角色。`);
+  const snapshots = runtime.snapshots ?? [];
+  if (snapshots.length === 0) {
+    processor_logger.debug(funcName, "runtime.snapshots 为空，无法判定同地区情况。");
+    return {
+      stat,
+      runtime,
+      changes
+    };
+  }
+  processor_logger.debug(funcName, `[步骤3] 从 runtime 获取到 ${snapshots.length} 个历史快照。`);
+  for (const context of activeCharacters) {
+    const {charId, affection, rules} = context;
+    const anchorMk = getAnchorMkByFlag(runtime, rules[0].flagKey);
+    if (!anchorMk || !validSelectedMks.has(anchorMk)) {
+      processor_logger.debug(funcName, `角色 ${charId} 的锚点无效或不在主干消息链中，跳过。`);
+      continue;
+    }
+    const shared = hasSharedLocation(snapshots, charId);
+    processor_logger.debug(funcName, `[步骤4] 检查角色 ${charId} 与玩家的位置...`, {
+      hasSharedLocation: shared
+    });
+    if (shared) {
+      processor_logger.debug(funcName, `角色 ${charId} 在跨度内与玩家同地区，跳过遗忘。`);
+      continue;
+    }
+    const decreaseValue = sumDecrease(rules);
+    if (decreaseValue <= 0) continue;
+    const newAffection = Math.round(affection - decreaseValue);
+    const char = stat.chars?.[charId];
+    if (!char) continue;
+    char[CHARACTER_FIELDS.affection] = newAffection;
+    const reason = `在 ${rules.map(item => item.flagKey).join(", ")} 跨度内未与玩家同地区，按遗忘规则降低好感度 ${decreaseValue}`;
+    const path = `chars.${charId}.${CHARACTER_FIELDS.affection}`;
+    changes.push(createChangeLogEntry("affection-forgetting-processor", path, affection, newAffection, reason));
+    processor_logger.debug(funcName, "应用遗忘规则降低好感度。", {
+      charId,
+      oldAffection: affection,
+      newAffection,
+      decreaseValue,
+      activeFlags: rules.map(item => item.flagKey)
+    });
+  }
+  processor_logger.debug(funcName, "--- 好感度遗忘处理完毕 ---");
+  return {
+    stat,
+    runtime,
+    changes
+  };
+}
+
+async function processAffectionForgetting({stat, runtime, mk, selectedMks, currentMessageId}) {
+  return processAffectionForgettingInternal({
+    stat,
+    runtime,
+    mk,
+    selectedMks,
+    currentMessageId
+  });
+}
+
+const editLog_logger = new Logger("GSKO-BASE/utils/editLog");
+
+function parseEditLogString(logString) {
+  try {
+    const parsed = JSON.parse(logString);
+    if (external_default().isArray(parsed)) {
+      return parsed;
+    }
+    editLog_logger.warn("parseEditLogString", "解析结果不是一个数组。", {
+      parsed
+    });
+    return null;
+  } catch (error) {
+    editLog_logger.error("parseEditLogString", "解析 editLog 字符串失败。", {
+      error: error.message
+    });
+    return null;
+  }
+}
+
+function getUpdateOps(logJson) {
+  return logJson.filter(op => op.op === "update");
+}
+
+function getInsertOps(logJson) {
+  return logJson.filter(op => op.op === "insert");
+}
+
+function getDeleteOps(logJson) {
+  return logJson.filter(op => op.op === "delete");
+}
+
+function flattenObject(obj, path = "") {
+  const flatMap = new Map;
+  if (!external_default().isObject(obj) || external_default().isArray(obj)) {
+    if (path) flatMap.set(path, obj);
+    return flatMap;
+  }
+  const recordObj = obj;
+  for (const key of Object.keys(recordObj)) {
+    const newPath = path ? `${path}.${key}` : key;
+    const nested = flattenObject(recordObj[key], newPath);
+    nested.forEach((value, p) => flatMap.set(p, value));
+  }
+  return flatMap;
+}
+
+function getAtomicChangesFromUpdate(updateOp) {
+  if (updateOp.op !== "update") return [];
+  const basePath = updateOp.path;
+  const oldVal = updateOp.value_old;
+  const newVal = updateOp.value_new;
+  if (!external_default().isObject(oldVal) && !external_default().isObject(newVal)) {
+    return [ {
+      path: basePath,
+      oldVal: oldVal ?? null,
+      newVal: newVal ?? null
+    } ];
+  }
+  const oldMap = flattenObject(oldVal);
+  const newMap = flattenObject(newVal);
+  const allKeys = external_default().union([ ...oldMap.keys() ], [ ...newMap.keys() ]);
+  const changes = [];
+  for (const key of allKeys) {
+    const fullPath = `${basePath}.${key}`;
+    const vOld = oldMap.has(key) ? oldMap.get(key) : null;
+    const vNew = newMap.has(key) ? newMap.get(key) : null;
+    if (!external_default().isEqual(vOld, vNew)) {
+      changes.push({
+        path: fullPath,
+        oldVal: vOld,
+        newVal: vNew
+      });
+    }
+  }
+  return changes;
+}
+
+function getAllAtomicChanges(logJson) {
+  const allChanges = [];
+  getUpdateOps(logJson).forEach(op => {
+    allChanges.push(...getAtomicChangesFromUpdate(op));
+  });
+  getInsertOps(logJson).forEach(op => {
+    const valueToInsert = op.value_new;
+    if (valueToInsert === undefined) return;
+    if (!_.isObject(valueToInsert)) {
+      allChanges.push({
+        path: op.path,
+        oldVal: null,
+        newVal: valueToInsert
+      });
+    } else {
+      const newMap = flattenObject(valueToInsert);
+      if (newMap.size === 0 && _.isObject(valueToInsert)) {
+        allChanges.push({
+          path: op.path,
+          oldVal: null,
+          newVal: valueToInsert
+        });
+      } else {
+        newMap.forEach((vNew, key) => {
+          allChanges.push({
+            path: `${op.path}.${key}`,
+            oldVal: null,
+            newVal: vNew
+          });
+        });
+      }
+    }
+  });
+  getDeleteOps(logJson).forEach(op => {
+    const valueToDelete = op.value_old;
+    if (valueToDelete === undefined) return;
+    if (!_.isObject(valueToDelete)) {
+      allChanges.push({
+        path: op.path,
+        oldVal: valueToDelete,
+        newVal: null
+      });
+    } else {
+      const oldMap = flattenObject(valueToDelete);
+      if (oldMap.size === 0 && _.isObject(valueToDelete)) {
+        allChanges.push({
+          path: op.path,
+          oldVal: valueToDelete,
+          newVal: null
+        });
+      } else {
+        oldMap.forEach((vOld, key) => {
+          allChanges.push({
+            path: `${op.path}.${key}`,
+            oldVal: vOld,
+            newVal: null
+          });
+        });
+      }
+    }
+  });
+  return allChanges;
+}
+
+function findChangeByPath(logJson, targetPath) {
+  const allChanges = getAllAtomicChanges(logJson);
+  for (let i = allChanges.length - 1; i >= 0; i--) {
+    if (allChanges[i].path === targetPath) {
+      return allChanges[i];
+    }
+  }
+  return null;
+}
+
+const PATH_RE = new RegExp(`^chars.[^.]+.${CHARACTER_FIELDS.affection}$`);
+
+const isTarget = path => PATH_RE.test(String(path || ""));
+
+function getCurrentAffectionStage(affection, stages) {
+  return pickAffectionStage(affection, stages);
+}
+
+const affection_processor_processor_logger = new Logger("GSKO-BASE/core/affection-processor/processor");
+
+function processAffection({stat, editLog, runtime}) {
+  const funcName = "processAffection";
+  const changes = [];
+  const internalLogs = [];
+  if (!editLog) {
+    affection_processor_processor_logger.debug(funcName, "editLog 不存在，跳过处理。");
+    return {
+      stat,
+      changes
+    };
+  }
+  const logJson = typeof editLog === "string" ? parseEditLogString(editLog) : editLog;
+  if (!logJson) {
+    affection_processor_processor_logger.warn(funcName, "解析 editLog 失败，跳过处理。");
+    return {
+      stat,
+      changes
+    };
+  }
+  const updateOps = getUpdateOps(logJson);
+  if (updateOps.length === 0) {
+    affection_processor_processor_logger.debug(funcName, "没有找到 update 操作，跳过处理。");
+    return {
+      stat,
+      changes
+    };
+  }
+  affection_processor_processor_logger.debug(funcName, `找到 ${updateOps.length} 条 update 操作，开始处理...`);
+  for (const op of updateOps) {
+    const atomicChanges = getAtomicChangesFromUpdate(op);
+    for (const change of atomicChanges) {
+      const {path, oldVal, newVal} = change;
+      try {
+        if (!isTarget(path)) {
+          continue;
+        }
+        const charId = path.split(".")[1];
+        if (!charId) {
+          continue;
+        }
+        const character = stat.chars[charId];
+        if (!character) {
+          internalLogs.push({
+            msg: "角色未在 stat.chars 中找到",
+            path,
+            charId
+          });
+          continue;
+        }
+        const baseAffection = character[CHARACTER_FIELDS.affection];
+        const hasOld = !(oldVal === null || oldVal === undefined);
+        const oldValueNum = hasOld ? Number(oldVal) : baseAffection;
+        const newValueNum = Number(newVal);
+        if (!Number.isFinite(oldValueNum) || !Number.isFinite(newValueNum)) {
+          internalLogs.push({
+            msg: "类型异常：old/new 不是有效数字，放弃处理",
+            path,
+            oldVal,
+            newVal
+          });
+          continue;
+        }
+        if (!hasOld) {
+          internalLogs.push({
+            msg: "提示：old 缺失，按 0 处理首次赋值",
+            path,
+            asOld: 0
+          });
+        }
+        const delta = newValueNum - oldValueNum;
+        const absDelta = Math.abs(delta);
+        let finalDelta = delta;
+        internalLogs.push({
+          msg: "捕获变量更新",
+          path,
+          old: oldValueNum,
+          new: newValueNum,
+          delta,
+          absDelta
+        });
+        const charSettings = runtime.characterSettings?.[charId];
+        const stages = charSettings?.affectionStages;
+        if (stages) {
+          const currentStage = getCurrentAffectionStage(oldValueNum, stages);
+          const limit = currentStage?.affectionGrowthLimit;
+          if (limit && absDelta > limit.max) {
+            const limitedAbsDelta = Math.max(absDelta / limit.divisor, limit.max);
+            finalDelta = limitedAbsDelta * Math.sign(delta);
+            internalLogs.push({
+              msg: "应用好感度变化软限制",
+              originalDelta: delta,
+              limit,
+              finalDelta
+            });
+          } else {
+            internalLogs.push({
+              msg: "不应用软限制（未超阈值或无配置）"
+            });
+          }
+        }
+        if (finalDelta === delta) {
+          internalLogs.push({
+            msg: "处理后值无变化，无需覆写"
+          });
+          continue;
+        }
+        const finalNewValue = external_default().round(oldValueNum + finalDelta);
+        character[CHARACTER_FIELDS.affection] = finalNewValue;
+        const changeEntry = createChangeLogEntry("affection-processor", path, oldValueNum, finalNewValue, `好感度处理：原始变化量 ${delta} 被软限制为 ${finalDelta}`);
+        changes.push(changeEntry);
+        internalLogs.push({
+          msg: "写入完成",
+          changeEntry
+        });
+      } catch (err) {
+        affection_processor_processor_logger.error(funcName, `处理路径 ${path} 时发生异常`, err.stack || err);
+        internalLogs.push({
+          msg: "处理异常",
+          path,
+          error: err.stack || err
+        });
+      }
+    }
+  }
+  if (changes.length > 0) {
+    affection_processor_processor_logger.debug(funcName, "好感度折算处理完毕。", {
+      summary: `共产生 ${changes.length} 条变更。`,
+      internalLogs
+    });
+  } else {
+    affection_processor_processor_logger.debug(funcName, "好感度折算处理完毕，无相关变更。");
+  }
+  return {
+    stat,
+    changes
+  };
+}
+
+const affection_processor_logger = new Logger("GSKO-BASE/core/affection-processor");
+
+function processAffectionDecisions({stat, editLog, runtime}) {
+  const funcName = "processAffectionDecisions";
+  affection_processor_logger.debug(funcName, "开始处理好感度...");
+  try {
+    const result = processAffection({
+      stat,
+      editLog,
+      runtime
+    });
+    affection_processor_logger.debug(funcName, "好感度处理完毕。");
+    return result;
+  } catch (e) {
+    affection_processor_logger.error(funcName, "处理好感度时发生意外错误:", e);
+    return {
+      stat,
+      changes: []
+    };
+  }
+}
+
+const MapSizeSchema = external_z_namespaceObject.z.object({
+  width: external_z_namespaceObject.z.number(),
+  height: external_z_namespaceObject.z.number()
+});
+
+const MapPositionSchema = external_z_namespaceObject.z.object({
+  x: external_z_namespaceObject.z.number(),
+  y: external_z_namespaceObject.z.number()
+});
+
+const MapLeafSchema = external_z_namespaceObject.z.object({
+  pos: MapPositionSchema,
+  htmlEle: external_z_namespaceObject.z.string()
+}).passthrough();
+
+const MapTreeSchema = external_z_namespaceObject.z.lazy(() => external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.union([ MapLeafSchema, MapTreeSchema ])));
+
+const MapGraphSchema = external_z_namespaceObject.z.object({
+  mapSize: MapSizeSchema,
+  tree: MapTreeSchema,
+  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
+    a: external_z_namespaceObject.z.string(),
+    b: external_z_namespaceObject.z.string()
+  }))).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
+});
+
+const WORLD_DEFAULTS = {
+  fallbackPlace: "博丽神社",
+  mainStoryTag: "gensokyo"
+};
+
+const WorldSchema = external_z_namespaceObject.z.object({
+  map_graph: MapGraphSchema.optional(),
+  fallbackPlace: external_z_namespaceObject.z.string().default(WORLD_DEFAULTS.fallbackPlace)
+}).passthrough();
+
+const 世界Schema = external_z_namespaceObject.z.object({
+  timeProgress: external_z_namespaceObject.z.number()
+}).passthrough();
+
+const graph_builder_logger = new Logger("GSKO-BASE/core/area-processor/graph-builder");
+
+function buildGraph({stat}) {
+  const funcName = "buildGraph";
+  const graph = {};
+  const leafNodes = [];
+  const seenNodes = new Set;
+  try {
+    const mapData = stat.world?.map_graph;
+    if (!mapData?.tree) {
+      graph_builder_logger.warn(funcName, "stat.world.map_graph.tree 为空或不存在。");
+      return {
+        graph,
+        leafNodes
+      };
+    }
+    graph_builder_logger.debug(funcName, "stat.world.map_graph 获取成功");
+    const addEdge = (nodeA, nodeB) => {
+      if (nodeA === nodeB) return;
+      if (!graph[nodeA]) graph[nodeA] = {};
+      if (!graph[nodeB]) graph[nodeB] = {};
+      graph[nodeA][nodeB] = true;
+      graph[nodeB][nodeA] = true;
+    };
+    const walkTree = node => {
+      for (const key in node) {
+        const child = node[key];
+        const parseResult = MapLeafSchema.safeParse(child);
+        if (parseResult.success) {
+          if (!seenNodes.has(key)) {
+            leafNodes.push({
+              name: key,
+              ...parseResult.data
+            });
+            seenNodes.add(key);
+          }
+        } else if (child && typeof child === "object") {
+          walkTree(child);
+        }
+      }
+    };
+    walkTree(mapData.tree);
+    leafNodes.forEach(leaf => {
+      if (!graph[leaf.name]) {
+        graph[leaf.name] = {};
+      }
+    });
+    const edges = mapData.edges ?? [];
+    graph_builder_logger.debug(funcName, "从 mapData 中提取的 edges:", edges);
+    if (Array.isArray(edges)) {
+      edges.forEach(edge => {
+        if (edge && edge.a && edge.b) {
+          addEdge(edge.a, edge.b);
+        }
+      });
+    }
+  } catch (error) {
+    graph_builder_logger.error(funcName, "构建地图图谱时出错", error);
+  }
+  graph_builder_logger.debug(funcName, "graph 完成构建");
+  graph_builder_logger.debug(funcName, "leafNodes 完成构建");
+  return {
+    graph,
+    leafNodes
+  };
+}
+
+const log = new Logger("GSKO-BASE/utils/message");
+
+function getMessageContent(msg) {
+  if (!msg) return null;
+  let content = null;
+  if (typeof msg.mes === "string") {
+    content = msg.mes;
+  } else if (Array.isArray(msg.swipes)) {
+    const sid = Number(msg.swipe_id ?? 0);
+    content = msg.swipes[sid] || null;
+  } else if (typeof msg.message === "string") {
+    content = msg.message;
+  }
+  if (content === null) {
+    return null;
+  }
+  return content;
+}
+
+function escReg(s) {
+  return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+}
+
+function extractContentForMatching(messages, tagName = null) {
+  const segs = [];
+  for (const m of messages) {
+    const messageContent = getMessageContent(m);
+    if (messageContent === null) {
+      continue;
+    }
+    if (tagName) {
+      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi");
+      let match;
+      while ((match = re.exec(messageContent)) !== null) {
+        segs.push(match[1]);
+      }
+    } else {
+      segs.push(messageContent);
+    }
+  }
+  return segs.join("\n");
+}
+
+async function matchMessages(keywords, options = {}) {
+  const {depth = 5, includeSwipes = false, tag = null} = options;
+  const funcName = "matchMessages";
+  try {
+    if (typeof getChatMessages !== "function") {
+      log.warn(funcName, "getChatMessages 函数不可用，无法匹配消息。");
+      return [];
+    }
+    const last = getLastMessageId();
+    const begin = Math.max(0, last - (depth - 1));
+    const msgs = getChatMessages(`${begin}-${last}`, {
+      role: "all",
+      hide_state: "all",
+      include_swipes: includeSwipes
+    });
+    const pool = extractContentForMatching(msgs, tag);
+    if (!pool) {
+      return [];
+    }
+    log.debug(funcName, `待匹配的文本池: ${pool}`);
+    const hits = [];
+    for (const kw of keywords) {
+      if (!kw) continue;
+      const re = new RegExp(escReg(kw), "i");
+      if (re.test(pool)) {
+        hits.push(kw);
+      }
+    }
+    return hits;
+  } catch (e) {
+    log.error(funcName, "批量匹配消息时发生异常", e);
+    return [];
+  }
+}
+
+async function updateMessageContent(message, newContent) {
+  const oldContent = getMessageContent(message);
+  log.debug("updateMessageContent", "更新前的消息内容:", oldContent);
+  log.debug("updateMessageContent", "更新后的消息内容:", newContent);
+  const updatePayload = {
+    message_id: message.message_id
+  };
+  if (Array.isArray(message.swipes)) {
+    const sid = Number(message.swipe_id ?? 0);
+    const newSwipes = [ ...message.swipes ];
+    newSwipes[sid] = newContent;
+    updatePayload.swipes = newSwipes;
+  } else {
+    updatePayload.message = newContent;
+  }
+  await setChatMessages([ updatePayload ], {
+    refresh: "none"
+  });
+}
+
+const location_loader_logger = new Logger("GSKO-BASE/core/area-processor/location-loader");
+
+async function loadLocations({stat, legalLocations, neighbors}) {
+  const funcName = "loadLocations";
+  let hits = [];
+  try {
+    if (!legalLocations || legalLocations.length === 0) {
+      location_loader_logger.debug(funcName, "合法地点列表为空，直接返回空数组。");
+      return [];
+    }
+    const legalLocationNames = legalLocations.map(loc => loc.name);
+    const matched = await matchMessages(legalLocationNames, {
+      depth: 5,
+      includeSwipes: false,
+      tag: WORLD_DEFAULTS.mainStoryTag
+    });
+    hits = Array.from(new Set(matched));
+    const userLoc = stat.user?.[USER_FIELDS.currentLocation]?.trim() ?? "";
+    if (userLoc) {
+      location_loader_logger.debug(funcName, `获取到用户当前位置: ${userLoc}`);
+      if (!hits.includes(userLoc) && legalLocationNames.includes(userLoc)) {
+        hits.push(userLoc);
+      }
+    } else {
+      location_loader_logger.debug(funcName, "stat.user 中没有当前位置数据。");
+    }
+    if (neighbors && neighbors.length > 0) {
+      for (const neighbor of neighbors) {
+        if (!hits.includes(neighbor) && legalLocationNames.includes(neighbor)) {
+          hits.push(neighbor);
+        }
+      }
+      location_loader_logger.debug(funcName, `合并邻居后地点列表: ${JSON.stringify(hits)}`);
+    }
+    location_loader_logger.debug(funcName, `最终命中地点: ${JSON.stringify(hits)}`);
+  } catch (error) {
+    location_loader_logger.error(funcName, "加载地点信息时发生异常", error);
+    hits = [];
+  }
+  return external_default().uniq(hits);
+}
+
+const neighbor_loader_logger = new Logger("GSKO-BASE/core/area-processor/neighbor-loader");
+
+function processNeighbors({stat, graph}) {
+  const funcName = "processNeighbors";
+  try {
+    const currentUserLocation = stat.user?.[USER_FIELDS.currentLocation] ?? "";
+    if (!currentUserLocation) {
+      neighbor_loader_logger.debug(funcName, "用户当前位置未知，无法获取邻居。");
+      return [];
+    }
+    if (external_default().isEmpty(graph) || !graph[currentUserLocation]) {
+      neighbor_loader_logger.debug(funcName, `图中没有节点 ${currentUserLocation} 或缺少邻居。`);
+      return [];
+    }
+    const neighbors = Object.keys(graph[currentUserLocation]);
+    neighbor_loader_logger.debug(funcName, `找到 ${currentUserLocation} 的邻居: ${neighbors.join(", ")}`);
+    return neighbors;
+  } catch (error) {
+    neighbor_loader_logger.error(funcName, "获取邻居时发生异常", error);
+    return [];
+  }
+}
+
+const utils_logger = new Logger("GSKO-BASE/core/area-processor/utils");
+
+function bfs(source, destination, graph) {
+  const funcName = "bfs";
+  if (!graph[source] || !graph[destination]) return null;
+  const queue = [ source ];
+  const previousNode = {
+    [source]: null
+  };
+  let head = 0;
+  while (head < queue.length) {
+    const currentNode = queue[head++];
+    if (currentNode === destination) break;
+    const neighbors = graph[currentNode] || {};
+    for (const neighbor in neighbors) {
+      if (previousNode[neighbor] !== undefined) continue;
+      previousNode[neighbor] = currentNode;
+      queue.push(neighbor);
+    }
+  }
+  if (previousNode[destination] === undefined) return null;
+  const steps = [];
+  let currentNode = destination;
+  let guard = 0;
+  while (previousNode[currentNode] != null && guard < 1e3) {
+    steps.push({
+      from: previousNode[currentNode],
+      to: currentNode
+    });
+    currentNode = previousNode[currentNode];
+    guard++;
+  }
+  if (guard >= 1e3) {
+    utils_logger.error(funcName, `BFS路径回溯时陷入死循环, destination=${destination}`);
+    return null;
+  }
+  steps.reverse();
+  return {
+    hops: steps.length,
+    steps
+  };
+}
+
+const route_logger = new Logger("GSKO-BASE/core/area-processor/route");
+
+function processRoute({stat, runtime, graph}) {
+  const funcName = "processRoute";
+  const defaultRouteInfo = {
+    candidates: [],
+    routes: []
+  };
+  try {
+    const currentUserLocation = stat.user?.[USER_FIELDS.currentLocation] ?? WORLD_DEFAULTS.fallbackPlace;
+    route_logger.debug(funcName, `当前用户位置: ${currentUserLocation}`);
+    if (external_default().isEmpty(graph)) {
+      route_logger.warn(funcName, "图为空，无法计算路线。");
+      return defaultRouteInfo;
+    }
+    route_logger.debug(funcName, "图已准备", {
+      nodes: Object.keys(graph).length
+    });
+    const candidates = external_default().cloneDeep(runtime.area?.loadArea ?? []);
+    route_logger.debug(funcName, `路线候选地点: ${candidates.join(", ")}`);
+    if (candidates.length === 0) {
+      route_logger.debug(funcName, "没有候选地点，跳过路线计算。");
+      return defaultRouteInfo;
+    }
+    const routes = [];
+    for (const destination of candidates) {
+      if (destination === currentUserLocation) {
+        route_logger.debug(funcName, `目的地与当前位置一致，跳过: ${destination}`);
+        continue;
+      }
+      route_logger.debug(funcName, `计算路径: 从 ${currentUserLocation} 到 ${destination}`);
+      const path = bfs(currentUserLocation, destination, graph);
+      if (path) {
+        route_logger.debug(funcName, `找到路径: 从 ${currentUserLocation} 到 ${destination}`, {
+          path
+        });
+        routes.push({
+          destination,
+          path
+        });
+      } else {
+        route_logger.debug(funcName, `未找到路径: 从 ${currentUserLocation} 到 ${destination}`);
+      }
+    }
+    const routeInfo = {
+      candidates,
+      routes
+    };
+    route_logger.debug(funcName, "路线计算完成", routeInfo);
+    return routeInfo;
+  } catch (error) {
+    route_logger.error(funcName, "计算路线时发生异常", error);
+    return defaultRouteInfo;
+  }
+}
+
+const area_processor_logger = new Logger("GSKO-BASE/core/area-processor");
+
+async function processArea({stat, runtime}) {
+  const funcName = "processArea";
+  area_processor_logger.debug(funcName, "开始处理地区...");
+  const output = {
+    graph: {},
+    legal_locations: [],
+    neighbors: [],
+    loadArea: [],
+    route: {
+      candidates: [],
+      routes: []
+    },
+    mapSize: undefined
+  };
+  try {
+    output.mapSize = stat.world?.map_graph?.mapSize;
+    const {graph, leafNodes: fullLeafNodes} = buildGraph({
+      stat
+    });
+    output.graph = graph;
+    area_processor_logger.debug(funcName, `图构建完成，包含 ${Object.keys(graph).length} 个节点。`);
+    output.legal_locations = fullLeafNodes;
+    area_processor_logger.debug(funcName, `获取到 ${output.legal_locations.length} 个合法地区`);
+    output.neighbors = processNeighbors({
+      stat,
+      graph
+    });
+    area_processor_logger.debug(funcName, `获取到 ${output.neighbors.length} 个相邻地区`);
+    output.loadArea = await loadLocations({
+      stat,
+      legalLocations: output.legal_locations,
+      neighbors: output.neighbors
+    });
+    area_processor_logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
+    const tempRuntimeForRoute = {
+      loadArea: output.loadArea
+    };
+    output.route = processRoute({
+      stat,
+      runtime: tempRuntimeForRoute,
+      graph
+    });
+    area_processor_logger.debug(funcName, "路线计算完成");
+  } catch (e) {
+    area_processor_logger.error(funcName, "处理地区时发生异常", e);
+  }
+  runtime.area = output;
+  area_processor_logger.debug(funcName, "地区处理完成");
+  return {
+    stat,
+    runtime
+  };
+}
+
+const character_locations_processor_logger = new Logger("GSKO-BASE/core/character-locations-processor");
+
+function processCharacterLocations({stat, runtime}) {
+  const funcName = "processCharacterLocations";
+  character_locations_processor_logger.debug(funcName, "开始处理角色分布...");
+  try {
+    const playerLocation = String(character_locations_processor_getUserLocation(stat) ?? "").trim() || null;
+    const npcByLocation = {};
+    const chars = getChars(stat);
+    Object.entries(chars).forEach(([charId, charObj]) => {
+      const key = String(getCharLocation(charObj) ?? "").trim() || "未知";
+      if (!npcByLocation[key]) npcByLocation[key] = [];
+      npcByLocation[key].push(charId);
+    });
+    runtime.characterDistribution = {
+      playerLocation,
+      npcByLocation
+    };
+    character_locations_processor_logger.debug(funcName, "角色分布处理完成。", runtime.characterDistribution);
+  } catch (error) {
+    character_locations_processor_logger.error(funcName, "处理角色分布时发生异常", error);
+    runtime.characterDistribution = {
+      playerLocation: null,
+      npcByLocation: {}
+    };
+  }
+  return {
+    stat,
+    runtime
+  };
+}
+
+function character_locations_processor_getUserLocation(stat) {
+  return stat.user?.[USER_FIELDS.currentLocation] ?? null;
+}
+
+function getChars(stat) {
+  return stat.chars ?? {};
+}
+
+function getCharLocation(charObj) {
+  return String(charObj[CHARACTER_FIELDS.currentLocation] ?? "").trim();
+}
+
+const character_log_processor_logger = new Logger("GSKO-BASE/core/character-log-processor");
+
+function processCharacterLog({runtime, snapshots, stat}) {
+  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
+    snapshotCount: snapshots.length
+  });
+  return {
+    runtime
+  };
+}
+
 const CharacterCacheSchema = external_z_namespaceObject.z.object({
   visit: external_z_namespaceObject.z.object({
     cooling: external_z_namespaceObject.z.boolean().optional()
@@ -1225,7 +1646,7 @@ function applyCacheToStat(stat, cache) {
   stat.cache = cache;
 }
 
-function getChars(stat) {
+function accessors_getChars(stat) {
   return stat.chars;
 }
 
@@ -1237,16 +1658,16 @@ function getGlobalAffectionStages(stat) {
   return stat.config.affection.affectionStages;
 }
 
-function getUserLocation(stat) {
-  return stat.user.所在地区;
+function accessors_getUserLocation(stat) {
+  return stat.user?.[USER_FIELDS.currentLocation] ?? "";
 }
 
-function getCharLocation(char) {
-  return char.所在地区;
+function accessors_getCharLocation(char) {
+  return char[CHARACTER_FIELDS.currentLocation] ?? "";
 }
 
 function setCharLocationInStat(stat, charId, location) {
-  stat.chars[charId].所在地区 = location;
+  stat.chars[charId][CHARACTER_FIELDS.currentLocation] = location;
 }
 
 function setCharGoalInStat(stat, charId, goal) {
@@ -1389,7 +1810,7 @@ const aggregator_logger = new Logger("GSKO-BASE/core/character-processor/aggrega
 
 function resolveTargetLocation(to, stat) {
   if (!to || to === "HERO") {
-    return getUserLocation(stat);
+    return accessors_getUserLocation(stat);
   }
   return to;
 }
@@ -1547,7 +1968,7 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
         ...action
       };
       if (!finalAction.to) {
-        finalAction.to = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+        finalAction.to = accessors_getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       }
       decisions[charId] = finalAction;
       action_processor_logger.debug(funcName, `为角色 ${charId} 分配了行动 [${finalAction.do}]。`);
@@ -1715,16 +2136,16 @@ function partitionCharacters({stat}) {
   const funcName = "partitionCharacters";
   partitioner_logger.debug(funcName, "开始执行角色分组...");
   try {
-    const userLocation = getUserLocation(stat);
+    const userLocation = accessors_getUserLocation(stat);
     partitioner_logger.debug(funcName, `主角当前位置: [${userLocation}]`);
-    const charIds = Object.keys(getChars(stat));
+    const charIds = Object.keys(accessors_getChars(stat));
     const partitions = external_default().partition(charIds, charId => {
       const char = getChar(stat, charId);
       if (!char) {
         partitioner_logger.warn(funcName, `无法找到角色 ${charId} 的数据，将视为异区。`);
         return false;
       }
-      const charLocation = getCharLocation(char);
+      const charLocation = accessors_getCharLocation(char);
       partitioner_logger.debug(funcName, `检查角色 ${charId}: 位置 [${charLocation}]`);
       return charLocation === userLocation;
     });
@@ -1739,7 +2160,7 @@ function partitionCharacters({stat}) {
     partitioner_logger.error(funcName, "执行角色分组时发生错误:", e);
     return {
       coLocatedChars: [],
-      remoteChars: Object.keys(getChars(stat))
+      remoteChars: Object.keys(accessors_getChars(stat))
     };
   }
 }
@@ -1792,7 +2213,7 @@ function preprocess({runtime, stat, cache}) {
     const newRuntime = external_default().cloneDeep(runtime);
     const newCache = external_default().cloneDeep(cache);
     const changes = [];
-    const charIds = Object.keys(getChars(stat));
+    const charIds = Object.keys(accessors_getChars(stat));
     const globalAffectionStages = getGlobalAffectionStages(stat);
     for (const charId of charIds) {
       const char = getChar(stat, charId);
@@ -1883,50 +2304,6 @@ async function processCharacterDecisions({stat, runtime}) {
   }
 }
 
-const character_locations_processor_logger = new Logger("GSKO-BASE/core/character-locations-processor");
-
-function processCharacterLocations({stat, runtime}) {
-  const funcName = "processCharacterLocations";
-  character_locations_processor_logger.debug(funcName, "开始计算角色分布...");
-  try {
-    const playerLocation = String(getUserLocationLocal(stat) ?? "").trim() || null;
-    const npcByLocation = {};
-    const chars = getCharsLocal(stat);
-    Object.entries(chars).forEach(([charId, charObj]) => {
-      const key = String(getCharLocationLocal(charObj) ?? "").trim() || "未知";
-      if (!npcByLocation[key]) npcByLocation[key] = [];
-      npcByLocation[key].push(charId);
-    });
-    runtime.characterDistribution = {
-      playerLocation,
-      npcByLocation
-    };
-    character_locations_processor_logger.debug(funcName, "角色分布计算完成");
-  } catch (e) {
-    character_locations_processor_logger.error(funcName, "计算角色分布时发生异常", e);
-    runtime.characterDistribution = {
-      playerLocation: null,
-      npcByLocation: {}
-    };
-  }
-  return {
-    stat,
-    runtime
-  };
-}
-
-function getUserLocationLocal(stat) {
-  return stat.user?.所在地区 ?? null;
-}
-
-function getCharsLocal(stat) {
-  return stat.chars ?? {};
-}
-
-function getCharLocationLocal(charObj) {
-  return String(charObj.所在地区 ?? "").trim();
-}
-
 function accessors_getGlobalAffectionStages(stat) {
   return stat.config?.affection?.affectionStages ?? [];
 }
@@ -1980,52 +2357,33 @@ function process({runtime, stat}) {
   return newRuntime;
 }
 
-const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+const constants_ERA_EVENT_NAMES = {
+  INSERT_BY_OBJECT: "era:insertByObject",
+  UPDATE_BY_OBJECT: "era:updateByObject",
+  INSERT_BY_PATH: "era:insertByPath",
+  UPDATE_BY_PATH: "era:updateByPath",
+  DELETE_BY_OBJECT: "era:deleteByObject",
+  DELETE_BY_PATH: "era:deleteByPath",
+  GET_CURRENT_VARS: "era:getCurrentVars",
+  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
+  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
+  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
+  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
+  REQUEST_WRITE_DONE: "era:requestWriteDone"
+};
 
-const ForgettingRuleSchema = external_z_namespaceObject.z.object({
-  triggerFlag: external_z_namespaceObject.z.string(),
-  decrease: external_z_namespaceObject.z.number()
+const constants_ERA_BROADCAST_EVENT_NAMES = {
+  WRITE_DONE: "era:writeDone",
+  QUERY_RESULT: "era:queryResult"
+};
+
+const QueryResultItemSchema = external_z_namespaceObject.z.object({
+  mk: external_z_namespaceObject.z.string(),
+  message_id: external_z_namespaceObject.z.number(),
+  is_user: external_z_namespaceObject.z.boolean(),
+  stat: external_z_namespaceObject.z.any(),
+  statWithoutMeta: external_z_namespaceObject.z.any()
 });
-
-const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
-  threshold: external_z_namespaceObject.z.number(),
-  name: external_z_namespaceObject.z.string(),
-  describe: external_z_namespaceObject.z.string().nullable().optional(),
-  patienceUnit: TimeUnitSchema.optional(),
-  visit: external_z_namespaceObject.z.object({
-    enabled: external_z_namespaceObject.z.boolean().optional(),
-    probBase: external_z_namespaceObject.z.number().optional(),
-    probK: external_z_namespaceObject.z.number().optional(),
-    coolUnit: TimeUnitSchema.optional()
-  }).optional(),
-  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
-  affectionGrowthLimit: external_z_namespaceObject.z.object({
-    max: external_z_namespaceObject.z.number(),
-    divisor: external_z_namespaceObject.z.number()
-  }).optional()
-}).passthrough();
-
-const ActionSchema = external_z_namespaceObject.z.object({
-  do: external_z_namespaceObject.z.string(),
-  to: external_z_namespaceObject.z.string().optional(),
-  source: external_z_namespaceObject.z.string().optional()
-});
-
-const EntrySchema = external_z_namespaceObject.z.object({
-  when: external_z_namespaceObject.z.any(),
-  action: ActionSchema,
-  priority: external_z_namespaceObject.z.number().optional()
-});
-
-const CharacterSettingsSchema = external_z_namespaceObject.z.object({
-  id: external_z_namespaceObject.z.string(),
-  name: external_z_namespaceObject.z.string(),
-  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema),
-  specials: external_z_namespaceObject.z.array(EntrySchema),
-  routine: external_z_namespaceObject.z.array(EntrySchema)
-});
-
-const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSettingsSchema);
 
 const IncidentDetailSchema = external_z_namespaceObject.z.object({
   异变细节: external_z_namespaceObject.z.string(),
@@ -2135,7 +2493,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
     })
   }).optional(),
   characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
-  characterSettings: CharacterSettingsMapSchema.optional()
+  characterSettings: CharacterSettingsMapSchema.optional(),
+  snapshots: external_z_namespaceObject.z.array(QueryResultItemSchema).optional()
 });
 
 const runtime_logger = new Logger("GSKO-BASE/utils/runtime");
@@ -2146,33 +2505,31 @@ function getRuntimeObject() {
 
 async function setRuntimeObject(runtimeObject, options) {
   const funcName = "setRuntimeObject";
-  const {mode = "replace"} = options || {};
+  const {mode = "replace"} = options ?? {};
   try {
     if (typeof updateVariablesWith !== "function") {
-      runtime_logger.error(funcName, "updateVariablesWith 函数不可用。");
+      runtime_logger.error(funcName, "updateVariablesWith is not available.");
       return false;
     }
-    const runtimePrefix = ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1);
-    runtime_logger.debug(funcName, `准备设置 chat.runtime (mode: ${mode})`, {
+    runtime_logger.debug(funcName, `Writing to chat.runtime (mode: ${mode})`, {
       runtimeObject
     });
     await updateVariablesWith(vars => {
       const chatVars = vars || {};
       if (mode === "replace") {
-        external_default().set(chatVars, runtimePrefix, runtimeObject);
+        chatVars.runtime = runtimeObject;
       } else {
-        const existingRuntime = external_default().get(chatVars, runtimePrefix, {});
-        external_default().merge(existingRuntime, runtimeObject);
-        external_default().set(chatVars, runtimePrefix, existingRuntime);
+        const existingRuntime = chatVars.runtime ?? {};
+        chatVars.runtime = external_default().merge({}, existingRuntime, runtimeObject);
       }
       return chatVars;
     }, {
       type: "chat"
     });
-    runtime_logger.debug(funcName, "成功设置 chat.runtime");
+    runtime_logger.debug(funcName, "chat.runtime written successfully");
     return true;
   } catch (error) {
-    runtime_logger.error(funcName, "设置 runtime 对象失败", error);
+    runtime_logger.error(funcName, "Failed to write runtime", error);
     return false;
   }
 }
@@ -2626,13 +2983,13 @@ function normalizeLocationData({originalStat, runtime}) {
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
     const legalLocations = new Set(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
     if (legalLocations.size === 0) {
-      location_logger.warn(funcName, "runtime.area.legal_locations 为空，跳过地点规范化");
+      location_logger.warn(funcName, "合法地点列表为空，跳过地点规范化。");
       return {
         stat,
         changes
       };
     }
-    const fallbackLocation = stat.world?.fallbackPlace ?? "";
+    const fallbackLocation = stat.world?.fallbackPlace ?? WORLD_DEFAULTS.fallbackPlace;
     const normalize = (rawLocation, defaultLocation, options) => {
       const {keepOnInvalid = false} = options || {};
       const locationString = String(Array.isArray(rawLocation) ? rawLocation[0] || "" : rawLocation || "").trim();
@@ -2656,50 +3013,50 @@ function normalizeLocationData({originalStat, runtime}) {
         fixedLocation: defaultLocation
       };
     };
-    let userHome = stat.user.居住地区;
-    let userLocation = stat.user.所在地区;
+    let userHome = stat.user[USER_FIELDS.home];
+    let userLocation = stat.user[USER_FIELDS.currentLocation];
     if (userHome == null) {
       const oldValue = userHome;
       userHome = fallbackLocation;
-      stat.user.居住地区 = userHome;
-      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHome, "补全用户居住地区"));
+      stat.user[USER_FIELDS.home] = userHome;
+      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHome, "补全用户居住地区"));
     }
     if (userLocation == null) {
       const oldValue = userLocation;
       userLocation = userHome;
-      stat.user.所在地区 = userLocation;
-      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocation, "补全用户所在地区"));
+      stat.user[USER_FIELDS.currentLocation] = userLocation;
+      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.currentLocation}`, oldValue, userLocation, "补全用户当前位置"));
     }
     const userHomeNormalization = normalize(userHome, fallbackLocation);
     const userLocationFallback = userHomeNormalization.isOk ? userHomeNormalization.fixedLocation : fallbackLocation;
     const userLocationNormalization = normalize(userLocation, userLocationFallback);
     if (userHomeNormalization.fixedLocation !== userHome) {
-      const oldValue = stat.user.居住地区;
-      stat.user.居住地区 = userHomeNormalization.fixedLocation;
-      changes.push(createChangeLogEntry(funcName, "user.居住地区", oldValue, userHomeNormalization.fixedLocation, "修正用户居住地区"));
+      const oldValue = stat.user[USER_FIELDS.home];
+      stat.user[USER_FIELDS.home] = userHomeNormalization.fixedLocation;
+      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHomeNormalization.fixedLocation, "修正用户居住地区"));
     }
     if (userLocationNormalization.fixedLocation !== userLocation) {
-      const oldValue = stat.user.所在地区;
-      stat.user.所在地区 = userLocationNormalization.fixedLocation;
-      changes.push(createChangeLogEntry(funcName, "user.所在地区", oldValue, userLocationNormalization.fixedLocation, "修正用户所在地区"));
+      const oldValue = stat.user[USER_FIELDS.currentLocation];
+      stat.user[USER_FIELDS.currentLocation] = userLocationNormalization.fixedLocation;
+      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.currentLocation}`, oldValue, userLocationNormalization.fixedLocation, "修正用户当前位置"));
     }
     for (const charName in stat.chars) {
       if (!Object.prototype.hasOwnProperty.call(stat.chars, charName)) continue;
       const charObject = stat.chars[charName];
       if (charName.startsWith("$") || !charObject) continue;
-      let charHome = charObject.居住地区;
-      let charLocation = charObject.所在地区;
+      let charHome = charObject[CHARACTER_FIELDS.home];
+      let charLocation = charObject[CHARACTER_FIELDS.currentLocation];
       if (charHome == null) {
         const oldValue = charHome;
         charHome = fallbackLocation;
-        charObject.居住地区 = charHome;
-        changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHome, `补全角色[${charName}]居住地区`));
+        charObject[CHARACTER_FIELDS.home] = charHome;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.${CHARACTER_FIELDS.home}`, oldValue, charHome, `补全角色[${charName}]居住地区`));
       }
       if (charLocation == null) {
         const oldValue = charLocation;
         charLocation = charHome;
-        charObject.所在地区 = charLocation;
-        changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocation, `补全角色[${charName}]所在地区`));
+        charObject[CHARACTER_FIELDS.currentLocation] = charLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.${CHARACTER_FIELDS.currentLocation}`, oldValue, charLocation, `补全角色[${charName}]当前位置`));
       }
       const charHomeNormalization = normalize(charHome, fallbackLocation, {
         keepOnInvalid: true
@@ -2709,19 +3066,21 @@ function normalizeLocationData({originalStat, runtime}) {
         keepOnInvalid: true
       });
       if (charHomeNormalization.fixedLocation !== charHome) {
-        const oldValue = charObject.居住地区;
-        charObject.居住地区 = charHomeNormalization.fixedLocation;
-        changes.push(createChangeLogEntry(funcName, `chars.${charName}.居住地区`, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
+        const oldValue = charObject[CHARACTER_FIELDS.home];
+        charObject[CHARACTER_FIELDS.home] = charHomeNormalization.fixedLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.${CHARACTER_FIELDS.home}`, oldValue, charHomeNormalization.fixedLocation, `修正角色[${charName}]居住地区`));
       }
       if (charLocationNormalization.fixedLocation !== charLocation) {
-        const oldValue = charObject.所在地区;
-        charObject.所在地区 = charLocationNormalization.fixedLocation;
-        changes.push(createChangeLogEntry(funcName, `chars.${charName}.所在地区`, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]所在地区`));
+        const oldValue = charObject[CHARACTER_FIELDS.currentLocation];
+        charObject[CHARACTER_FIELDS.currentLocation] = charLocationNormalization.fixedLocation;
+        changes.push(createChangeLogEntry(funcName, `chars.${charName}.${CHARACTER_FIELDS.currentLocation}`, oldValue, charLocationNormalization.fixedLocation, `修正角色[${charName}]当前位置`));
       }
     }
-    location_logger.debug(funcName, "地点规范化完成");
-  } catch (e) {
-    location_logger.error(funcName, "执行地点规范化时发生异常，返回原始数据", e);
+    location_logger.debug(funcName, "地点规范化完成。", {
+      changes
+    });
+  } catch (error) {
+    location_logger.error(funcName, "执行地点规范化时发生异常，将保留原始数据", error);
   }
   return {
     stat,
@@ -2781,27 +3140,27 @@ function formatPath(path) {
   if (!path || !path.steps || path.steps.length === 0) {
     return "";
   }
-  return path.steps.map(step => `${step.from}->${step.to}`).join("；");
+  return path.steps.map(step => `${step.from}->${step.to}`).join("→");
 }
 
 function buildRoutePrompt({runtime, stat}) {
   const funcName = "buildRoutePrompt";
   const routeInfo = runtime.area?.route;
-  const currentUserLocation = stat.user?.所在地区 ?? "博丽神社";
-  const characterName = stat.user?.姓名 ?? "你";
+  const currentUserLocation = stat.user?.[USER_FIELDS.currentLocation] ?? WORLD_DEFAULTS.fallbackPlace;
+  const characterName = stat.user?.[USER_FIELDS.name] ?? "你";
   if (!routeInfo || external_default().isEmpty(routeInfo.routes)) {
-    return `【路线提示】：${characterName}当前位于${currentUserLocation}。最近消息未检测到目的地或不可达。`;
+    return `【路线提示】${characterName} 当前位于 ${currentUserLocation}，暂未检测到可前往的目的地。`;
   }
   const lines = routeInfo.routes.map(route => {
     const pathString = formatPath(route.path);
     if (!pathString) return "";
-    return `${route.destination}：最短路线(${route.path.hops}步)：${pathString}`;
+    return `${route.destination} 的路线（${route.path.hops} 步）：${pathString}`;
   }).filter(Boolean);
   if (lines.length === 0) {
-    return `【路线提示】：${characterName}当前位于${currentUserLocation}。最近消息未检测到目的地或不可达。`;
+    return `【路线提示】${characterName} 当前位于 ${currentUserLocation}，暂未检测到可前往的目的地。`;
   }
-  const prompt = `【最短路线】：${characterName}当前位于${currentUserLocation}。若要前往下列地点，**必须按以下路线**：\n- ${lines.join("\n- ")}`;
-  prompt_builder_route_logger.debug(funcName, "生成的路线提示词:", prompt);
+  const prompt = `【路线提示】请按照以下路线行进（当前位置：${currentUserLocation}）：\n- ${lines.join("\n- ")}`;
+  prompt_builder_route_logger.debug(funcName, "生成的路线提示:", prompt);
   return prompt;
 }
 
@@ -2881,248 +3240,165 @@ function buildPrompt({runtime, stat}) {
   return finalPrompt;
 }
 
-function getTimeConfig(stat) {
-  return stat.config.time;
+function emitAndListen({emitEventName, emitPayload, listenEventName, filter}) {
+  return new Promise(resolve => {
+    const listener = detail => {
+      if (filter(detail)) {
+        eventRemoveListener(listenEventName, listener);
+        resolve(detail);
+      }
+    };
+    eventOn(listenEventName, listener);
+    eventEmit(emitEventName, emitPayload);
+  });
 }
 
-function accessors_getTimeProgress(stat) {
-  return stat.世界.timeProgress;
-}
-
-function getClockAck(cache) {
-  return cache.time?.clockAck;
-}
-
-function getClock(runtime) {
-  return runtime.clock;
-}
-
-function writeTimeProcessorResult({runtime, cache, result}) {
-  if (result.clock) {
-    runtime.clock = result.clock;
-  }
-  if (!cache.time) {
-    cache.time = {};
-  }
-  cache.time.clockAck = result.newClockAck ?? undefined;
-}
-
-const PAD2 = n => n < 10 ? "0" + n : "" + n;
-
-const ymdID = d => d.getUTCFullYear() * 1e4 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
-
-const ymID = d => d.getUTCFullYear() * 100 + (d.getUTCMonth() + 1);
-
-const weekStart = (d, weekStartsOn) => {
-  const w = Number(weekStartsOn) >= 0 && Number(weekStartsOn) <= 6 ? Number(weekStartsOn) : 1;
-  const dow = d.getUTCDay();
-  const diff = (dow - w + 7) % 7;
-  const x = new Date(d.getTime() - diff * 864e5);
-  x.setUTCHours(0, 0, 0, 0);
-  return x;
+const WRITE_EVENT_MAP = {
+  insertByObject: constants_ERA_EVENT_NAMES.INSERT_BY_OBJECT,
+  updateByObject: constants_ERA_EVENT_NAMES.UPDATE_BY_OBJECT,
+  insertByPath: constants_ERA_EVENT_NAMES.INSERT_BY_PATH,
+  updateByPath: constants_ERA_EVENT_NAMES.UPDATE_BY_PATH,
+  deleteByObject: constants_ERA_EVENT_NAMES.DELETE_BY_OBJECT,
+  deleteByPath: constants_ERA_EVENT_NAMES.DELETE_BY_PATH
 };
 
-function periodIndexOf(mins) {
-  if (mins < 300) return 7;
-  if (mins < 420) return 0;
-  if (mins < 690) return 1;
-  if (mins < 780) return 2;
-  if (mins < 1020) return 3;
-  if (mins < 1140) return 4;
-  if (mins < 1320) return 5;
-  return 6;
-}
-
-function seasonIndexOf(m) {
-  if (m >= 3 && m <= 5) return 0;
-  if (m >= 6 && m <= 8) return 1;
-  if (m >= 9 && m <= 11) return 2;
-  return 3;
-}
-
-const time_processor_processor_logger = new Logger("GSKO-BASE/core/time-processor/processor");
-
-function processTime({stat, prevClockAck}) {
-  const funcName = "processTime";
-  try {
-    time_processor_processor_logger.debug(funcName, `开始时间计算...`);
-    const prev = prevClockAck;
-    time_processor_processor_logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
-    const timeConfig = getTimeConfig(stat);
-    const {epochISO} = timeConfig;
-    const tpMin = accessors_getTimeProgress(stat);
-    time_processor_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
-    const weekStartsOn = 1;
-    const epochMS = Date.parse(epochISO);
-    if (Number.isNaN(epochMS)) {
-      time_processor_processor_logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
-    }
-    const baseMS = Number.isNaN(epochMS) ? 0 : epochMS;
-    let tzMin = 0;
-    const tzMatch = String(epochISO).match(/(?:([+-])(\d{2}):?(\d{2})|Z)$/);
-    if (tzMatch && tzMatch[0] !== "Z") {
-      tzMin = (tzMatch[1] === "-" ? -1 : 1) * (parseInt(tzMatch[2], 10) * 60 + parseInt(tzMatch[3], 10));
-    }
-    const nowUTCms = baseMS + tpMin * 6e4;
-    const local = new Date(nowUTCms + tzMin * 6e4);
-    const year = local.getUTCFullYear();
-    const month = local.getUTCMonth() + 1;
-    const day = local.getUTCDate();
-    const seasonIdx = seasonIndexOf(month);
-    const seasonName = TIME_SEASON_NAMES[seasonIdx];
-    const seasonID = year * 10 + seasonIdx;
-    const ws = weekStart(local, weekStartsOn);
-    const dayID = ymdID(local);
-    const weekID = ymdID(ws);
-    const monthID = ymID(local);
-    const yearID = year;
-    const weekdayIdx = (local.getUTCDay() - 1 + 7) % 7;
-    const weekdayName = TIME_WEEK_NAMES[weekdayIdx] || `周?(${weekdayIdx})`;
-    const sign = tzMin >= 0 ? "+" : "-";
-    const offH = ("0" + Math.floor(Math.abs(tzMin) / 60)).slice(-2);
-    const offM = ("0" + Math.abs(tzMin) % 60).slice(-2);
-    const iso = `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}T` + `${("0" + local.getUTCHours()).slice(-2)}:${("0" + local.getUTCMinutes()).slice(-2)}:${("0" + local.getUTCSeconds()).slice(-2)}` + `${sign}${offH}:${offM}`;
-    const minutesSinceMidnight = local.getUTCHours() * 60 + local.getUTCMinutes();
-    const periodIdx = periodIndexOf(minutesSinceMidnight);
-    const periodName = TIME_PERIOD_NAMES[periodIdx];
-    const periodKey = TIME_PERIOD_KEYS[periodIdx];
-    const periodID = dayID * 10 + periodIdx;
-    time_processor_processor_logger.debug(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
-    time_processor_processor_logger.debug(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
-    time_processor_processor_logger.debug(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
-    let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
-    if (prev) {
-      const d = prev.dayID !== dayID;
-      const w = prev.weekID !== weekID;
-      const m = prev.monthID !== monthID;
-      const y = prev.yearID !== yearID;
-      const s = prev.seasonID !== seasonID;
-      const p = prev.periodID !== periodID;
-      newYear = y;
-      newSeason = newYear || s;
-      newMonth = newSeason || m;
-      newWeek = newMonth || w;
-      newDay = newWeek || d;
-      newPeriod = newDay || p;
-      time_processor_processor_logger.debug(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
-    } else {
-      time_processor_processor_logger.debug(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
-    }
-    const newClockAck = {
-      dayID,
-      weekID,
-      monthID,
-      yearID,
-      periodID,
-      periodIdx,
-      seasonID,
-      seasonIdx
-    };
-    const now = {
-      iso,
-      year,
-      month,
-      day,
-      weekdayIndex: weekdayIdx,
-      weekdayName,
-      periodName,
-      periodIdx,
-      minutesSinceMidnight,
-      seasonName,
-      seasonIdx,
-      hour: Math.floor(minutesSinceMidnight / 60),
-      minute: minutesSinceMidnight % 60,
-      hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ":" + PAD2(minutesSinceMidnight % 60)
-    };
-    const byPeriod = {
-      newDawn: false,
-      newMorning: false,
-      newNoon: false,
-      newAfternoon: false,
-      newDusk: false,
-      newNight: false,
-      newFirstHalfNight: false,
-      newSecondHalfNight: false
-    };
-    if (newPeriod) {
-      const keyToSet = BY_PERIOD_KEYS[periodIdx];
-      if (keyToSet) {
-        byPeriod[keyToSet] = true;
-      }
-    }
-    const bySeason = {
-      newSpring: false,
-      newSummer: false,
-      newAutumn: false,
-      newWinter: false
-    };
-    if (newSeason) {
-      const keyToSet = BY_SEASON_KEYS[seasonIdx];
-      if (keyToSet) {
-        bySeason[keyToSet] = true;
-      }
-    }
-    const flags = {
-      newPeriod,
-      byPeriod,
-      newDay,
-      newWeek,
-      newMonth,
-      newSeason,
-      bySeason,
-      newYear
-    };
-    const result = {
-      clock: {
-        now,
-        flags
-      },
-      newClockAck
-    };
-    time_processor_processor_logger.debug(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
-    return result;
-  } catch (err) {
-    time_processor_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
-    return {
-      clock: {
-        now: EMPTY_NOW,
-        flags: EMPTY_FLAGS
-      },
-      newClockAck: null
-    };
+async function performWrite(operation, payload, waitForResponse = false) {
+  const eventName = WRITE_EVENT_MAP[operation];
+  if (waitForResponse) {
+    return emitAndListen({
+      emitEventName: eventName,
+      emitPayload: payload,
+      listenEventName: ERA_BROADCAST_EVENT_NAMES.WRITE_DONE,
+      filter: p => p.actions.apiWrite
+    });
+  } else {
+    eventEmit(eventName, payload);
+    return Promise.resolve();
   }
 }
 
-const time_processor_logger = new Logger("GSKO-BASE/core/time-processor");
+function insertByObject(payload, waitForResponse) {
+  return performWrite("insertByObject", payload, waitForResponse);
+}
 
-async function time_processor_processTime({stat, runtime}) {
-  const funcName = "processTime";
-  time_processor_logger.debug(funcName, "开始处理时间...");
-  try {
-    const cache = getCache(stat);
-    const prevClockAck = getClockAck(cache);
-    const timeResult = processTime({
-      stat,
-      prevClockAck: prevClockAck ?? null
+function updateByObject(payload, waitForResponse) {
+  return performWrite("updateByObject", payload, waitForResponse);
+}
+
+function insertByPath(payload, waitForResponse) {
+  return performWrite("insertByPath", payload, waitForResponse);
+}
+
+function updateByPath(payload, waitForResponse) {
+  return performWrite("updateByPath", payload, waitForResponse);
+}
+
+function deleteByObject(payload, waitForResponse) {
+  return performWrite("deleteByObject", payload, waitForResponse);
+}
+
+function deleteByPath(payload, waitForResponse) {
+  return performWrite("deleteByPath", payload, waitForResponse);
+}
+
+const QUERY_EVENT_MAP = {
+  getCurrentVars: constants_ERA_EVENT_NAMES.GET_CURRENT_VARS,
+  getSnapshotAtMk: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MK,
+  getSnapshotsBetweenMks: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MKS,
+  getSnapshotAtMId: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MID,
+  getSnapshotsBetweenMIds: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MIDS
+};
+
+function performQuery(operation, payload) {
+  const eventName = QUERY_EVENT_MAP[operation];
+  const queryType = operation;
+  return emitAndListen({
+    emitEventName: eventName,
+    emitPayload: payload,
+    listenEventName: constants_ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT,
+    filter: p => p.queryType === queryType && external_default().isEqual(p.request, payload)
+  });
+}
+
+function getCurrentVars() {
+  return performQuery("getCurrentVars", {});
+}
+
+function getSnapshotAtMk(payload) {
+  return performQuery("getSnapshotAtMk", payload);
+}
+
+function getSnapshotsBetweenMks(payload) {
+  return performQuery("getSnapshotsBetweenMks", payload);
+}
+
+function getSnapshotsBetweenMks_fake(payload) {
+  return new Promise(resolve => {
+    eventOnce("dev:fakeSnapshotsResponse", response => {
+      resolve(response.result);
     });
-    writeTimeProcessorResult({
-      runtime,
-      cache,
-      result: timeResult
-    });
-    applyCacheToStat(stat, cache);
-    time_processor_logger.debug(funcName, "时间处理完毕。");
-    return {
-      stat,
-      runtime
-    };
-  } catch (e) {
-    time_processor_logger.error(funcName, "处理时间时发生意外错误:", e);
-    return {
-      stat,
-      runtime
-    };
+    eventEmit("dev:getSnapshotsBetweenMks", payload);
+  });
+}
+
+function getSnapshotAtMId(payload) {
+  return performQuery("getSnapshotAtMId", payload);
+}
+
+function getSnapshotsBetweenMIds(payload) {
+  return performQuery("getSnapshotsBetweenMIds", payload);
+}
+
+function requestWriteDone() {
+  eventEmit(ERA_EVENT_NAMES.REQUEST_WRITE_DONE, {});
+}
+
+const snapshot_fetcher_logger = new Logger("GSKO-BASE/core/snapshot-fetcher");
+
+async function fetchSnapshotsForTimeFlags({runtime, mk, isFake}) {
+  const funcName = "fetchSnapshotsForTimeFlags";
+  if (!mk) {
+    snapshot_fetcher_logger.debug(funcName, "缺少当前 mk，跳过获取。");
+    return runtime;
   }
+  const {clock} = runtime;
+  if (!clock?.flags || !clock.mkAnchors) {
+    snapshot_fetcher_logger.debug(funcName, "缺少 clock 数据，跳过获取。");
+    return runtime;
+  }
+  let highestFlag = null;
+  for (const key of CLOCK_ROOT_FLAG_KEYS) {
+    if (clock.flags[key]) {
+      highestFlag = key;
+    }
+  }
+  if (!highestFlag) {
+    snapshot_fetcher_logger.debug(funcName, "没有激活的时间 flag，无需获取快照。");
+    return runtime;
+  }
+  const startMk = clock.mkAnchors[highestFlag];
+  if (!startMk) {
+    snapshot_fetcher_logger.warn(funcName, `找到了激活的 flag "${highestFlag}"，但缺少对应的 startMk。`);
+    return runtime;
+  }
+  const endMk = mk;
+  snapshot_fetcher_logger.debug(funcName, `准备获取快照，范围: [${startMk}, ${endMk}]`);
+  try {
+    const snapshotPayload = isFake ? await getSnapshotsBetweenMks_fake({
+      startMk,
+      endMk
+    }) : await getSnapshotsBetweenMks({
+      startMk,
+      endMk
+    });
+    const snapshots = snapshotPayload.result || [];
+    runtime.snapshots = snapshots;
+    snapshot_fetcher_logger.debug(funcName, `成功获取并存储了 ${snapshots.length} 条快照到 runtime。`);
+  } catch (error) {
+    snapshot_fetcher_logger.error(funcName, "获取快照时发生错误:", error);
+    runtime.snapshots = [];
+  }
+  return runtime;
 }
 
 const anchor_limiter_logger = new Logger("GSKO-BASE/core/time-chat-mk-sync/anchor-limiter");
@@ -3481,128 +3757,248 @@ function processTimeChatMkSync({stat, runtime, mk, selectedMks}) {
   };
 }
 
-const constants_ERA_EVENT_NAMES = {
-  INSERT_BY_OBJECT: "era:insertByObject",
-  UPDATE_BY_OBJECT: "era:updateByObject",
-  INSERT_BY_PATH: "era:insertByPath",
-  UPDATE_BY_PATH: "era:updateByPath",
-  DELETE_BY_OBJECT: "era:deleteByObject",
-  DELETE_BY_PATH: "era:deleteByPath",
-  GET_CURRENT_VARS: "era:getCurrentVars",
-  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
-  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
-  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
-  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
-  REQUEST_WRITE_DONE: "era:requestWriteDone"
-};
-
-const constants_ERA_BROADCAST_EVENT_NAMES = {
-  WRITE_DONE: "era:writeDone",
-  QUERY_RESULT: "era:queryResult"
-};
-
-function emitAndListen({emitEventName, emitPayload, listenEventName, filter}) {
-  return new Promise(resolve => {
-    const listener = detail => {
-      if (filter(detail)) {
-        eventRemoveListener(listenEventName, listener);
-        resolve(detail);
-      }
-    };
-    eventOn(listenEventName, listener);
-    eventEmit(emitEventName, emitPayload);
-  });
+function getTimeConfig(stat) {
+  return stat.config.time;
 }
 
-const WRITE_EVENT_MAP = {
-  insertByObject: constants_ERA_EVENT_NAMES.INSERT_BY_OBJECT,
-  updateByObject: constants_ERA_EVENT_NAMES.UPDATE_BY_OBJECT,
-  insertByPath: constants_ERA_EVENT_NAMES.INSERT_BY_PATH,
-  updateByPath: constants_ERA_EVENT_NAMES.UPDATE_BY_PATH,
-  deleteByObject: constants_ERA_EVENT_NAMES.DELETE_BY_OBJECT,
-  deleteByPath: constants_ERA_EVENT_NAMES.DELETE_BY_PATH
+function accessors_getTimeProgress(stat) {
+  return stat.世界.timeProgress;
+}
+
+function getClockAck(cache) {
+  return cache.time?.clockAck;
+}
+
+function accessors_getClock(runtime) {
+  return runtime.clock;
+}
+
+function writeTimeProcessorResult({runtime, cache, result}) {
+  if (result.clock) {
+    runtime.clock = result.clock;
+  }
+  if (!cache.time) {
+    cache.time = {};
+  }
+  cache.time.clockAck = result.newClockAck ?? undefined;
+}
+
+const PAD2 = n => n < 10 ? "0" + n : "" + n;
+
+const ymdID = d => d.getUTCFullYear() * 1e4 + (d.getUTCMonth() + 1) * 100 + d.getUTCDate();
+
+const ymID = d => d.getUTCFullYear() * 100 + (d.getUTCMonth() + 1);
+
+const weekStart = (d, weekStartsOn) => {
+  const w = Number(weekStartsOn) >= 0 && Number(weekStartsOn) <= 6 ? Number(weekStartsOn) : 1;
+  const dow = d.getUTCDay();
+  const diff = (dow - w + 7) % 7;
+  const x = new Date(d.getTime() - diff * 864e5);
+  x.setUTCHours(0, 0, 0, 0);
+  return x;
 };
 
-async function performWrite(operation, payload, waitForResponse = false) {
-  const eventName = WRITE_EVENT_MAP[operation];
-  if (waitForResponse) {
-    return emitAndListen({
-      emitEventName: eventName,
-      emitPayload: payload,
-      listenEventName: ERA_BROADCAST_EVENT_NAMES.WRITE_DONE,
-      filter: p => p.actions.apiWrite
-    });
-  } else {
-    eventEmit(eventName, payload);
-    return Promise.resolve();
+function periodIndexOf(mins) {
+  if (mins < 300) return 7;
+  if (mins < 420) return 0;
+  if (mins < 690) return 1;
+  if (mins < 780) return 2;
+  if (mins < 1020) return 3;
+  if (mins < 1140) return 4;
+  if (mins < 1320) return 5;
+  return 6;
+}
+
+function seasonIndexOf(m) {
+  if (m >= 3 && m <= 5) return 0;
+  if (m >= 6 && m <= 8) return 1;
+  if (m >= 9 && m <= 11) return 2;
+  return 3;
+}
+
+const time_processor_processor_logger = new Logger("GSKO-BASE/core/time-processor/processor");
+
+function processTime({stat, prevClockAck}) {
+  const funcName = "processTime";
+  try {
+    time_processor_processor_logger.debug(funcName, `开始时间计算...`);
+    const prev = prevClockAck;
+    time_processor_processor_logger.debug(funcName, `从缓存读取上一楼 ACK:`, prev);
+    const timeConfig = getTimeConfig(stat);
+    const {epochISO} = timeConfig;
+    const tpMin = accessors_getTimeProgress(stat);
+    time_processor_processor_logger.debug(funcName, `配置: epochISO=${epochISO}, timeProgress=${tpMin}min`);
+    const weekStartsOn = 1;
+    const epochMS = Date.parse(epochISO);
+    if (Number.isNaN(epochMS)) {
+      time_processor_processor_logger.warn(funcName, `epochISO 解析失败，使用 1970-01-01Z；原值=${epochISO}`);
+    }
+    const baseMS = Number.isNaN(epochMS) ? 0 : epochMS;
+    let tzMin = 0;
+    const tzMatch = String(epochISO).match(/(?:([+-])(\d{2}):?(\d{2})|Z)$/);
+    if (tzMatch && tzMatch[0] !== "Z") {
+      tzMin = (tzMatch[1] === "-" ? -1 : 1) * (parseInt(tzMatch[2], 10) * 60 + parseInt(tzMatch[3], 10));
+    }
+    const nowUTCms = baseMS + tpMin * 6e4;
+    const local = new Date(nowUTCms + tzMin * 6e4);
+    const year = local.getUTCFullYear();
+    const month = local.getUTCMonth() + 1;
+    const day = local.getUTCDate();
+    const seasonIdx = seasonIndexOf(month);
+    const seasonName = TIME_SEASON_NAMES[seasonIdx];
+    const seasonID = year * 10 + seasonIdx;
+    const ws = weekStart(local, weekStartsOn);
+    const dayID = ymdID(local);
+    const weekID = ymdID(ws);
+    const monthID = ymID(local);
+    const yearID = year;
+    const weekdayIdx = (local.getUTCDay() - 1 + 7) % 7;
+    const weekdayName = TIME_WEEK_NAMES[weekdayIdx] || `周?(${weekdayIdx})`;
+    const sign = tzMin >= 0 ? "+" : "-";
+    const offH = ("0" + Math.floor(Math.abs(tzMin) / 60)).slice(-2);
+    const offM = ("0" + Math.abs(tzMin) % 60).slice(-2);
+    const iso = `${year}-${("0" + month).slice(-2)}-${("0" + day).slice(-2)}T` + `${("0" + local.getUTCHours()).slice(-2)}:${("0" + local.getUTCMinutes()).slice(-2)}:${("0" + local.getUTCSeconds()).slice(-2)}` + `${sign}${offH}:${offM}`;
+    const minutesSinceMidnight = local.getUTCHours() * 60 + local.getUTCMinutes();
+    const periodIdx = periodIndexOf(minutesSinceMidnight);
+    const periodName = TIME_PERIOD_NAMES[periodIdx];
+    const periodKey = TIME_PERIOD_KEYS[periodIdx];
+    const periodID = dayID * 10 + periodIdx;
+    time_processor_processor_logger.debug(funcName, `计算: nowLocal=${iso}, dayID=${dayID}, weekID=${weekID}, monthID=${monthID}, yearID=${yearID}`);
+    time_processor_processor_logger.debug(funcName, `时段: ${periodName} (idx=${periodIdx}, mins=${minutesSinceMidnight})`);
+    time_processor_processor_logger.debug(funcName, `季节: ${seasonName} (idx=${seasonIdx})`);
+    let newDay = false, newWeek = false, newMonth = false, newYear = false, newPeriod = false, newSeason = false;
+    if (prev) {
+      const d = prev.dayID !== dayID;
+      const w = prev.weekID !== weekID;
+      const m = prev.monthID !== monthID;
+      const y = prev.yearID !== yearID;
+      const s = prev.seasonID !== seasonID;
+      const p = prev.periodID !== periodID;
+      newYear = y;
+      newSeason = newYear || s;
+      newMonth = newSeason || m;
+      newWeek = newMonth || w;
+      newDay = newWeek || d;
+      newPeriod = newDay || p;
+      time_processor_processor_logger.debug(funcName, `比较: raw={d:${d},w:${w},m:${m},y:${y},s:${s},p:${p}} -> cascade={day:${newDay},week:${newWeek},month:${newMonth},year:${newYear},season:${newSeason},period:${newPeriod}}`);
+    } else {
+      time_processor_processor_logger.debug(funcName, "首次或上一楼无 ACK: 不触发 new* (全部 false)");
+    }
+    const newClockAck = {
+      dayID,
+      weekID,
+      monthID,
+      yearID,
+      periodID,
+      periodIdx,
+      seasonID,
+      seasonIdx
+    };
+    const now = {
+      iso,
+      year,
+      month,
+      day,
+      weekdayIndex: weekdayIdx,
+      weekdayName,
+      periodName,
+      periodIdx,
+      minutesSinceMidnight,
+      seasonName,
+      seasonIdx,
+      hour: Math.floor(minutesSinceMidnight / 60),
+      minute: minutesSinceMidnight % 60,
+      hm: PAD2(Math.floor(minutesSinceMidnight / 60)) + ":" + PAD2(minutesSinceMidnight % 60)
+    };
+    const byPeriod = {
+      newDawn: false,
+      newMorning: false,
+      newNoon: false,
+      newAfternoon: false,
+      newDusk: false,
+      newNight: false,
+      newFirstHalfNight: false,
+      newSecondHalfNight: false
+    };
+    if (newPeriod) {
+      const keyToSet = BY_PERIOD_KEYS[periodIdx];
+      if (keyToSet) {
+        byPeriod[keyToSet] = true;
+      }
+    }
+    const bySeason = {
+      newSpring: false,
+      newSummer: false,
+      newAutumn: false,
+      newWinter: false
+    };
+    if (newSeason) {
+      const keyToSet = BY_SEASON_KEYS[seasonIdx];
+      if (keyToSet) {
+        bySeason[keyToSet] = true;
+      }
+    }
+    const flags = {
+      newPeriod,
+      byPeriod,
+      newDay,
+      newWeek,
+      newMonth,
+      newSeason,
+      bySeason,
+      newYear
+    };
+    const result = {
+      clock: {
+        now,
+        flags
+      },
+      newClockAck
+    };
+    time_processor_processor_logger.debug(funcName, "时间数据处理完成，返回待写入 runtime 的数据。");
+    return result;
+  } catch (err) {
+    time_processor_processor_logger.error(funcName, "运行失败: " + (err?.message || String(err)), err);
+    return {
+      clock: {
+        now: EMPTY_NOW,
+        flags: EMPTY_FLAGS
+      },
+      newClockAck: null
+    };
   }
 }
 
-function insertByObject(payload, waitForResponse) {
-  return performWrite("insertByObject", payload, waitForResponse);
-}
+const time_processor_logger = new Logger("GSKO-BASE/core/time-processor");
 
-function updateByObject(payload, waitForResponse) {
-  return performWrite("updateByObject", payload, waitForResponse);
-}
-
-function insertByPath(payload, waitForResponse) {
-  return performWrite("insertByPath", payload, waitForResponse);
-}
-
-function updateByPath(payload, waitForResponse) {
-  return performWrite("updateByPath", payload, waitForResponse);
-}
-
-function deleteByObject(payload, waitForResponse) {
-  return performWrite("deleteByObject", payload, waitForResponse);
-}
-
-function deleteByPath(payload, waitForResponse) {
-  return performWrite("deleteByPath", payload, waitForResponse);
-}
-
-const QUERY_EVENT_MAP = {
-  getCurrentVars: constants_ERA_EVENT_NAMES.GET_CURRENT_VARS,
-  getSnapshotAtMk: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MK,
-  getSnapshotsBetweenMks: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MKS,
-  getSnapshotAtMId: constants_ERA_EVENT_NAMES.GET_SNAPSHOT_AT_MID,
-  getSnapshotsBetweenMIds: constants_ERA_EVENT_NAMES.GET_SNAPSHOTS_BETWEEN_MIDS
-};
-
-function performQuery(operation, payload) {
-  const eventName = QUERY_EVENT_MAP[operation];
-  const queryType = operation;
-  return emitAndListen({
-    emitEventName: eventName,
-    emitPayload: payload,
-    listenEventName: constants_ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT,
-    filter: p => p.queryType === queryType && external_default().isEqual(p.request, payload)
-  });
-}
-
-function getCurrentVars() {
-  return performQuery("getCurrentVars", {});
-}
-
-function getSnapshotAtMk(payload) {
-  return performQuery("getSnapshotAtMk", payload);
-}
-
-function getSnapshotsBetweenMks(payload) {
-  return performQuery("getSnapshotsBetweenMks", payload);
-}
-
-function getSnapshotAtMId(payload) {
-  return performQuery("getSnapshotAtMId", payload);
-}
-
-function getSnapshotsBetweenMIds(payload) {
-  return performQuery("getSnapshotsBetweenMIds", payload);
-}
-
-function requestWriteDone() {
-  eventEmit(ERA_EVENT_NAMES.REQUEST_WRITE_DONE, {});
+async function time_processor_processTime({stat, runtime}) {
+  const funcName = "processTime";
+  time_processor_logger.debug(funcName, "开始处理时间...");
+  try {
+    const cache = getCache(stat);
+    const prevClockAck = getClockAck(cache);
+    const timeResult = processTime({
+      stat,
+      prevClockAck: prevClockAck ?? null
+    });
+    writeTimeProcessorResult({
+      runtime,
+      cache,
+      result: timeResult
+    });
+    applyCacheToStat(stat, cache);
+    time_processor_logger.debug(funcName, "时间处理完毕。");
+    return {
+      stat,
+      runtime
+    };
+  } catch (e) {
+    time_processor_logger.error(funcName, "处理时间时发生意外错误:", e);
+    return {
+      stat,
+      runtime
+    };
+  }
 }
 
 function onWriteDone(listener, options = {}) {
@@ -3625,19 +4021,6 @@ function onQueryResult(listener) {
     eventRemoveListener(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
   };
 }
-
-const CharacterSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
-  好感度: external_z_namespaceObject.z.number(),
-  所在地区: external_z_namespaceObject.z.string().nullable(),
-  居住地区: external_z_namespaceObject.z.string().nullable(),
-  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
-  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  目标: external_z_namespaceObject.z.string().optional()
-});
-
-const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
 
 const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
@@ -3718,12 +4101,6 @@ const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
 
 const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
 
-const UserSchema = external_z_namespaceObject.z.object({
-  姓名: external_z_namespaceObject.z.string().nullable(),
-  所在地区: external_z_namespaceObject.z.string().nullable(),
-  居住地区: external_z_namespaceObject.z.string().nullable()
-});
-
 const StatSchema = external_z_namespaceObject.z.object({
   config: ConfigSchema,
   chars: CharsSchema,
@@ -3749,7 +4126,7 @@ function logState(moduleName, modified, {stat, runtime, cache}) {
 
 $(() => {
   GSKO_BASE_logger.log("main", "后台数据处理脚本加载");
-  const handleWriteDone = async payload => {
+  const handleWriteDone = async (payload, isFakeEvent = false) => {
     const {statWithoutMeta, mk, editLogs, selectedMks} = payload;
     GSKO_BASE_logger.log("handleWriteDone", "接收到原始 stat 数据", statWithoutMeta);
     const latestMessages = getChatMessages(-1);
@@ -3858,12 +4235,32 @@ $(() => {
         runtime: currentRuntime,
         cache: getCache(currentStat)
       });
-      const startId = message_id < HISTORY_LENGTH ? 0 : message_id - HISTORY_LENGTH;
-      const snapshotPayload = await getSnapshotsBetweenMIds({
-        startId,
-        endId: message_id
+      currentRuntime = await fetchSnapshotsForTimeFlags({
+        runtime: currentRuntime,
+        mk,
+        isFake: isFakeEvent
       });
-      const snapshots = snapshotPayload.result || [];
+      logState("Snapshot Fetcher", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const forgettingResult = await processAffectionForgetting({
+        stat: currentStat,
+        runtime: currentRuntime,
+        mk,
+        selectedMks,
+        currentMessageId: message_id
+      });
+      currentStat = forgettingResult.stat;
+      currentRuntime = forgettingResult.runtime;
+      const forgettingChanges = forgettingResult.changes;
+      logState("Affection Forgetting Processor", "stat", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const snapshots = currentRuntime.snapshots ?? [];
       const charLogResult = processCharacterLog({
         runtime: currentRuntime,
         snapshots,
@@ -3915,7 +4312,7 @@ $(() => {
         stat: currentStat
       });
       GSKO_BASE_logger.log("handleWriteDone", "提示词构建完毕:", prompt);
-      const allChanges = normalizationChanges.concat(affectionChanges, incidentChanges, charChanges);
+      const allChanges = normalizationChanges.concat(affectionChanges).concat(forgettingChanges).concat(incidentChanges).concat(charChanges);
       await sendData({
         stat: currentStat,
         runtime: currentRuntime,
@@ -3934,7 +4331,7 @@ $(() => {
   };
   onWriteDone(detail => {
     GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件");
-    handleWriteDone(detail).catch(error => {
+    handleWriteDone(detail, false).catch(error => {
       GSKO_BASE_logger.error("onWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
     });
   }, {
@@ -3942,7 +4339,7 @@ $(() => {
   });
   eventOn("dev:fakeWriteDone", detail => {
     GSKO_BASE_logger.log("main", "接收到伪造的 dev:fakeWriteDone 事件");
-    handleWriteDone(detail).catch(error => {
+    handleWriteDone(detail, true).catch(error => {
       GSKO_BASE_logger.error("dev:fakeWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
     });
   });

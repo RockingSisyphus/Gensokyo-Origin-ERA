@@ -55,6 +55,19 @@ __webpack_require__.d(affection_namespaceObject, {
   objectUpdate: () => objectUpdate
 });
 
+var affection_forgetting_namespaceObject = {};
+
+__webpack_require__.r(affection_forgetting_namespaceObject);
+
+__webpack_require__.d(affection_forgetting_namespaceObject, {
+  Anchor_Day_Payload: () => Anchor_Day_Payload,
+  Anchor_Week_Payload: () => Anchor_Week_Payload,
+  Met_ShouldNotForget: () => Met_ShouldNotForget,
+  MultiTriggers_ShouldForgetMore: () => MultiTriggers_ShouldForgetMore,
+  NoTrigger_ShouldNotForget: () => NoTrigger_ShouldNotForget,
+  NotMet_ShouldForget: () => NotMet_ShouldForget
+});
+
 var area_namespaceObject = {};
 
 __webpack_require__.r(area_namespaceObject);
@@ -1092,6 +1105,205 @@ const objectUpdate = (() => {
   };
 })();
 
+const PREV_DAY_ACK = {
+  dayID: 20251023,
+  weekID: 20251020,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510237,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const PREV_WEEK_ACK = {
+  dayID: 20251019,
+  weekID: 20251013,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510197,
+  periodIdx: 7,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const NO_CHANGE_ACK = {
+  dayID: 20251024,
+  weekID: 20251020,
+  monthID: 202510,
+  yearID: 2025,
+  periodID: 202510240,
+  periodIdx: 0,
+  seasonID: 20252,
+  seasonIdx: 2
+};
+
+const ANCHOR_MK_DAY = "mk-anchor-day";
+
+const ANCHOR_MK_WEEK = "mk-anchor-week";
+
+const PREV_ANCHORS = {
+  newDay: ANCHOR_MK_DAY,
+  newWeek: ANCHOR_MK_WEEK,
+  newMonth: ANCHOR_MK_WEEK,
+  newYear: ANCHOR_MK_WEEK,
+  newSeason: ANCHOR_MK_WEEK,
+  newPeriod: ANCHOR_MK_DAY
+};
+
+function createBaseStatForForgetting() {
+  const stat = external_default().cloneDeep(stat_test_data_namespaceObject);
+  if (!stat.cache) stat.cache = {};
+  if (!stat.cache.timeChatMkSync) stat.cache.timeChatMkSync = {
+    anchors: {}
+  };
+  if (!stat.cache.time) stat.cache.time = {
+    clockAck: {}
+  };
+  stat.chars.reimu.affectionStages = [ {
+    threshold: 0,
+    name: "陌生",
+    patienceUnit: "day",
+    forgettingSpeed: [ {
+      triggerFlag: "newDay",
+      decrease: 10
+    }, {
+      triggerFlag: "newWeek",
+      decrease: 50
+    } ]
+  } ];
+  stat.chars.reimu.好感度 = 500;
+  return stat;
+}
+
+const Anchor_Day_Payload = (() => {
+  const stat = external_default().cloneDeep(stat_test_data_namespaceObject);
+  if (!stat.cache) stat.cache = {};
+  if (!stat.cache.timeChatMkSync) stat.cache.timeChatMkSync = {
+    anchors: {}
+  };
+  if (!stat.cache.time) stat.cache.time = {
+    clockAck: {}
+  };
+  stat.cache.time.clockAck = PREV_DAY_ACK;
+  stat.user.所在地区 = "人间之里";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  return {
+    mk: ANCHOR_MK_DAY,
+    message_id: 100,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_DAY ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
+const Anchor_Week_Payload = (() => {
+  const stat = external_default().cloneDeep(stat_test_data_namespaceObject);
+  if (!stat.cache) stat.cache = {};
+  if (!stat.cache.timeChatMkSync) stat.cache.timeChatMkSync = {
+    anchors: {}
+  };
+  if (!stat.cache.time) stat.cache.time = {
+    clockAck: {}
+  };
+  stat.cache.time.clockAck = PREV_WEEK_ACK;
+  stat.user.所在地区 = "魔法森林";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  return {
+    mk: ANCHOR_MK_WEEK,
+    message_id: 99,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_WEEK ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
+const Met_ShouldNotForget = (() => {
+  const stat = createBaseStatForForgetting();
+  stat.世界.timeProgress = 24 * 60;
+  stat.cache.time.clockAck = PREV_DAY_ACK;
+  stat.cache.timeChatMkSync.anchors = PREV_ANCHORS;
+  stat.user.所在地区 = "博丽神社";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  const currentMk = "aff-forget-met";
+  return {
+    mk: currentMk,
+    message_id: 101,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_DAY, currentMk ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
+const NotMet_ShouldForget = (() => {
+  const stat = createBaseStatForForgetting();
+  stat.世界.timeProgress = 24 * 60;
+  stat.cache.time.clockAck = PREV_DAY_ACK;
+  stat.cache.timeChatMkSync.anchors = PREV_ANCHORS;
+  stat.user.所在地区 = "人间之里";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  const currentMk = "aff-forget-not-met";
+  return {
+    mk: currentMk,
+    message_id: 102,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_DAY, currentMk ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
+const NoTrigger_ShouldNotForget = (() => {
+  const stat = createBaseStatForForgetting();
+  stat.世界.timeProgress = 10;
+  stat.cache.time.clockAck = NO_CHANGE_ACK;
+  stat.cache.timeChatMkSync.anchors = PREV_ANCHORS;
+  stat.user.所在地区 = "人间之里";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  const currentMk = "aff-forget-no-trigger";
+  return {
+    mk: currentMk,
+    message_id: 103,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_DAY, currentMk ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
+const MultiTriggers_ShouldForgetMore = (() => {
+  const stat = createBaseStatForForgetting();
+  stat.世界.timeProgress = 8 * 24 * 60;
+  stat.cache.time.clockAck = PREV_WEEK_ACK;
+  stat.cache.timeChatMkSync.anchors = PREV_ANCHORS;
+  stat.user.所在地区 = "人间之里";
+  stat.chars.reimu.所在地区 = "博丽神社";
+  const currentMk = "aff-forget-multi-trigger";
+  return {
+    mk: currentMk,
+    message_id: 104,
+    actions: {},
+    stat,
+    statWithoutMeta: stat,
+    editLogs: {},
+    selectedMks: [ ANCHOR_MK_WEEK, ANCHOR_MK_DAY, currentMk ],
+    consecutiveProcessingCount: 1
+  };
+})();
+
 const statUserAtKnownLocation = external_default().cloneDeep(stat_test_data_namespaceObject);
 
 const statUserAtUnknownLocation = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), {
@@ -1584,7 +1796,84 @@ const incidentTestData = {
   }
 };
 
-const logger = new Logger("幻想乡缘起-测试面板/dev/utils");
+const logger = new Logger("幻想乡缘起-测试面板/utils/snapshot-emulator");
+
+const allTestDataByMk = new Map;
+
+const allTestDataOrdered = [];
+
+let isAllDataCollected = false;
+
+function collectAllTestData() {
+  if (isAllDataCollected) return;
+  const combinedData = [ ...Object.values(affection_namespaceObject), ...Object.values(affection_forgetting_namespaceObject) ];
+  combinedData.forEach(p => {
+    if (p.mk) {
+      allTestDataByMk.set(p.mk, p);
+      allTestDataOrdered.push(p);
+    }
+  });
+  allTestDataOrdered.sort((a, b) => a.message_id - b.message_id);
+  logger.log("dev:snapshotEmulator", "已收集并排序所有测试数据", {
+    count: allTestDataOrdered.length,
+    mks: allTestDataOrdered.map(p => p.mk)
+  });
+  isAllDataCollected = true;
+}
+
+function setupSnapshotEmulator(activeScenarioPayload) {
+  collectAllTestData();
+  const listener = detail => {
+    const scenarioMks = activeScenarioPayload.selectedMks || [];
+    const scenarioSpecificData = scenarioMks.map(mk => mk ? allTestDataByMk.get(mk) : undefined).filter(p => p !== undefined);
+    const {startMk, endMk} = detail;
+    logger.log("dev:snapshotEmulator", `[模拟] 开始默认逻辑筛选，范围: [${startMk}, ${endMk}]`);
+    logger.log("dev:snapshotEmulator", `[模拟] 当前场景的历史链:`, scenarioMks);
+    const startIndex = startMk ? scenarioSpecificData.findIndex(p => p.mk === startMk) : 0;
+    const endIndex = endMk ? scenarioSpecificData.findIndex(p => p.mk === endMk) : scenarioSpecificData.length - 1;
+    logger.log("dev:snapshotEmulator", `[模拟] 计算索引范围: [${startIndex}, ${endIndex}]`);
+    if (startIndex === -1 || endIndex === -1) {
+      logger.error("dev:snapshotEmulator", `[模拟] 无法在当前场景的历史链中找到 startMk 或 endMk`, {
+        startMk,
+        endMk,
+        scenarioMks
+      });
+      eventEmit("dev:fakeSnapshotsResponse", {
+        result: {
+          queryType: "getSnapshotsBetweenMks",
+          request: detail,
+          result: []
+        }
+      });
+      return;
+    }
+    const results = scenarioSpecificData.slice(startIndex, endIndex + 1);
+    logger.log("dev:snapshotEmulator", `[模拟] 切片结果`, {
+      mks: results.map(p => p.mk)
+    });
+    const queryResult = {
+      queryType: "getSnapshotsBetweenMks",
+      request: detail,
+      result: results.map(p => ({
+        mk: p.mk,
+        message_id: p.message_id,
+        is_user: false,
+        stat: p.stat,
+        statWithoutMeta: p.statWithoutMeta
+      }))
+    };
+    logger.log("dev:snapshotEmulator", `[模拟] 使用默认逻辑，找到 ${results.length} 个匹配`, queryResult);
+    eventEmit("dev:fakeSnapshotsResponse", {
+      result: queryResult
+    });
+  };
+  eventOn("dev:getSnapshotsBetweenMks", listener);
+  return () => {
+    eventRemoveListener("dev:getSnapshotsBetweenMks", listener);
+  };
+}
+
+const utils_logger = new Logger("幻想乡缘起-测试面板/dev/utils");
 
 function addTestButtons(panel, title, configs, style) {
   const details = $("<details>").css({
@@ -1604,13 +1893,18 @@ function addTestButtons(panel, title, configs, style) {
   });
   configs.forEach(config => {
     $("<button>").text(config.text).css(style).on("click", async () => {
-      logger.log("buttonClick", `触发测试: ${config.text}`);
+      utils_logger.log("buttonClick", `触发测试: ${config.text}`);
+      const cleanupEmulator = setupSnapshotEmulator(config.payload);
       if (config.beforeTest) {
         await config.beforeTest();
       }
       const eventType = config.eventType || "dev:fakeWriteDone";
-      eventEmit(eventType, config.payload);
-      toastr.success(`已发送测试事件: ${config.text}`);
+      try {
+        await eventEmit(eventType, config.payload);
+        toastr.success(`已发送测试事件: ${config.text}`);
+      } finally {
+        cleanupEmulator();
+      }
     }).appendTo(buttonContainer);
   });
   details.append(buttonContainer);
@@ -1772,6 +2066,28 @@ function createTestPanel() {
     borderRadius: "3px",
     fontSize: "12px"
   });
+  const affectionForgettingTestConfigs = [ {
+    text: "遗忘-触发但同地点(不降)",
+    payload: Met_ShouldNotForget
+  }, {
+    text: "遗忘-触发且不同地点(应-10)",
+    payload: NotMet_ShouldForget
+  }, {
+    text: "遗忘-未触发(不降)",
+    payload: NoTrigger_ShouldNotForget
+  }, {
+    text: "遗忘-多规则触发(应-60)",
+    payload: MultiTriggers_ShouldForgetMore
+  } ];
+  addTestButtons(panel, "好感度遗忘模块测试", affectionForgettingTestConfigs, {
+    cursor: "pointer",
+    padding: "5px 10px",
+    border: "1px solid #c62828",
+    background: "#8e0000",
+    color: "#ffcdd2",
+    borderRadius: "3px",
+    fontSize: "12px"
+  });
   const festivalTestConfigs = Object.entries(festival_namespaceObject).map(([key, statData]) => ({
     text: key.replace("festivalTest_", ""),
     payload: {
@@ -1839,9 +2155,28 @@ function cleanupDevPanel() {
 
 const _logger = new Logger("幻想乡缘起-测试面板");
 
+const _allTestDataByMk = new Map;
+
+[ ...Object.values(affection_namespaceObject), ...Object.values(affection_forgetting_namespaceObject) ].forEach(p => {
+  if (p.mk) {
+    _allTestDataByMk.set(p.mk, p);
+  }
+});
+
+function setupFakeSnapshotProvider() {
+  eventOn("dev:requestFakeSnapshots", () => {
+    _logger.log("dev:snapshotProvider", "收到伪快照请求，发送所有测试数据...");
+    eventEmit("dev:fakeSnapshotsResponse", {
+      snapshots: _allTestDataByMk
+    });
+  });
+}
+
 $(() => {
   _logger.log("main", "测试面板脚本加载");
   initDevPanel();
+  setupFakeSnapshotProvider();
+  _logger.log("main", "伪快照提供者已启动");
   $(window).on("pagehide.testpanel", () => {
     _logger.log("main", "测试面板脚本卸载");
     cleanupDevPanel();

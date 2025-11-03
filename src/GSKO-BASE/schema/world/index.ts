@@ -1,5 +1,5 @@
-import { z } from 'zod';
-import { PreprocessStringifiedObject } from '../../utils/zod';
+import { z } from "zod";
+import { PreprocessStringifiedObject } from "../../utils/zod";
 
 export const MapSizeSchema = z.object({
   width: z.number(),
@@ -19,7 +19,6 @@ export const MapLeafSchema = z
   .passthrough();
 export type MapLeaf = z.infer<typeof MapLeafSchema>;
 
-// 定义包含地名和完整属性的叶节点类型
 export type FullMapLeaf = MapLeaf & { name: string };
 
 export interface MapTreeNode {
@@ -47,11 +46,15 @@ export const MapGraphSchema = z.object({
 });
 export type MapGraph = z.infer<typeof MapGraphSchema>;
 
+export const WORLD_DEFAULTS = {
+  fallbackPlace: "博丽神社" as const,
+  mainStoryTag: "gensokyo" as const,
+} as const;
+
 export const WorldSchema = z
   .object({
     map_graph: MapGraphSchema.optional(),
-    fallbackPlace: z.string().default('博丽神社'),
-    // allow other unknown properties for forward compatibility
+    fallbackPlace: z.string().default(WORLD_DEFAULTS.fallbackPlace),
   })
   .passthrough();
 
