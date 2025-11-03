@@ -553,6 +553,7 @@ const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
 const ActionSchema = external_z_namespaceObject.z.object({
   do: external_z_namespaceObject.z.string(),
   to: external_z_namespaceObject.z.string().optional(),
+  from: external_z_namespaceObject.z.string().optional(),
   source: external_z_namespaceObject.z.string().optional()
 });
 
