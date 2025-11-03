@@ -1,3 +1,4 @@
+import { TIME_PERIOD_NAMES } from '../schema/time/constants';
 import { Logger } from './log';
 
 const logger = new Logger();
@@ -126,6 +127,30 @@ export function getStr(obj: object, path: string | string[], fallback: any = '')
     return toText(fallback);
   }
   return toText(rawValue);
+}
+
+/**
+ * @description 格式化时间戳对象为可读的年月日和时间段字符串。
+ * @param clock - 时间戳对象。
+ * @returns {string} 格式化后的时间字符串，例如 "1 年 10 月 28 日，清晨"。
+ */
+export function formatTime(clock: {
+  yearID: number;
+  monthID: number;
+  dayID: number;
+  periodIdx: number;
+}): string {
+  if (!clock) return '未知时间';
+
+  const year = clock.yearID;
+  // monthID 格式为 YYYYMM，从中提取月份
+  const month = clock.monthID % 100;
+  // dayID 格式为 YYYYMMDD，从中提取日期
+  const day = clock.dayID % 100;
+
+  const periodName = TIME_PERIOD_NAMES[clock.periodIdx] || '未知时段';
+
+  return `${year} 年 ${month} 月 ${day} 日，${periodName}`;
 }
 
 /**

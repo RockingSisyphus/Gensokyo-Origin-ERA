@@ -21,9 +21,22 @@ const logger = new Logger();
  * 解析决策中的目标地点。
  * @param to - 目标地点的语法字符串。
  * @param stat - The stat object.
+ * @param runtime - The runtime object.
  * @returns 解析后的实际地点名称。
  */
-function resolveTargetLocation(to: string | undefined, stat: Stat): string {
+function resolveTargetLocation(to: string | undefined, stat: Stat, runtime: Runtime): string {
+  if (to === 'RANDOM') {
+    const legalLocations = runtime.area?.legal_locations;
+    if (legalLocations && legalLocations.length > 0) {
+      const sampled = _.sample(legalLocations);
+      if (typeof sampled === 'string') {
+        return sampled;
+      }
+    }
+    // 如果没有合法地点列表或采样结果不是字符串，则退回到玩家位置
+    return getUserLocation(stat);
+  }
+
   if (!to || to === 'HERO') {
     return getUserLocation(stat);
   }
@@ -52,7 +65,7 @@ function applyNonCompanionDecisions({
     logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
 
     // 1. 更新 stat
-    const newLocation = resolveTargetLocation(decision.to, stat);
+    const newLocation = resolveTargetLocation(decision.to, stat, runtime);
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
     logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);

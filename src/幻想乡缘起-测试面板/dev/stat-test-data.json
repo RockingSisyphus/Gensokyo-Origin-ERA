@@ -194,6 +194,33 @@
       "specials": [],
       "routine": [],
       "目标": ""
+    },
+    "aya": {
+      "name": "射命丸文",
+      "好感度": 30,
+      "所在地区": "博丽神社",
+      "居住地区": "妖怪之山",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": { "byNow": { "period": "夜晚" } },
+          "action": { "do": "回家睡觉", "to": "妖怪之山" }
+        },
+        {
+          "when": { "byNow": { "period": "上半夜" } },
+          "action": { "do": "在家里休息", "to": "妖怪之山" }
+        },
+        {
+          "when": { "byNow": { "period": "下半夜" } },
+          "action": { "do": "在家里休息", "to": "妖怪之山" }
+        },
+        {
+          "when": { "byFlag": ["newPeriod"] },
+          "action": { "do": "寻找大新闻", "to": "RANDOM" }
+        }
+      ],
+      "目标": "寻找大新闻"
     }
   },
   "user": {

@@ -22,7 +22,6 @@ import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
 import { processCharacterLocations } from './core/character-locations-processor';
 import { processCharacterLog } from './core/character-log-processor';
-import { HISTORY_LENGTH } from './core/character-log-processor/constants';
 import { processCharacterDecisions } from './core/character-processor';
 import { process as processCharacterSettings } from './core/character-settings-processor';
 import { sendData } from './core/data-sender';
@@ -33,10 +32,10 @@ import { buildPrompt } from './core/prompt-builder';
 import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
 import { processTimeChatMkSync } from './core/time-chat-mk-sync';
 import { processTime } from './core/time-processor';
+import { ayaNewsProcessor } from './subsidiary/aya-news-processor';
 
 // --- 事件与 Schema 导入 ---
-import { QueryResultItem, WriteDonePayload } from './events/constants';
-import { getSnapshotsBetweenMIds } from './events/emitter';
+import { WriteDonePayload } from './events/constants';
 import { onWriteDone } from './events/receiver';
 import { Runtime } from './schema/runtime';
 import { Stat, StatSchema } from './schema/stat';
@@ -236,10 +235,16 @@ $(() => {
       });
 
       // [角色日志处理器]：获取最近的历史消息快照，为每个角色生成行动日志。
-      const snapshots = currentRuntime.snapshots ?? [];
-      const charLogResult = processCharacterLog({ runtime: currentRuntime, snapshots, stat: currentStat });
-      currentRuntime = charLogResult.runtime;
+      currentRuntime = processCharacterLog(currentRuntime);
       logState('Character Log Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [文文新闻处理器]：在新的一天开始时，生成文文新闻。
+      currentRuntime = ayaNewsProcessor(currentRuntime);
+      logState('Aya News Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

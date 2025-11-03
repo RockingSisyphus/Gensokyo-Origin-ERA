@@ -1,4 +1,5 @@
 import { Logger } from '../../utils/log';
+import { buildAyaNewsPrompt } from './aya-news';
 import { buildFestivalPrompt } from './festival';
 import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildRoutePrompt } from './route';
@@ -19,13 +20,13 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const prompts: string[] = [];
 
   // 构建时间提示词
-  const timePrompt = buildTimePrompt({ runtime });
+  const timePrompt = buildTimePrompt(runtime);
   if (timePrompt) {
     prompts.push(timePrompt);
   }
 
   // 构建节日提示词
-  const festivalPrompts = buildFestivalPrompt({ runtime });
+  const festivalPrompts = buildFestivalPrompt(runtime);
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
@@ -37,9 +38,15 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   }
 
   // 构建合法地点提示词
-  const legalLocationsPrompt = buildLegalLocationsPrompt({ runtime });
+  const legalLocationsPrompt = buildLegalLocationsPrompt(runtime);
   if (legalLocationsPrompt) {
     prompts.push(legalLocationsPrompt);
+  }
+
+  // 构建文文新闻提示词
+  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
+  if (ayaNewsPrompt) {
+    prompts.push(ayaNewsPrompt);
   }
 
   const finalPrompt = prompts.join('\n\n');

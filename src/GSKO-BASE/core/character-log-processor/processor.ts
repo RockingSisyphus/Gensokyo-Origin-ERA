@@ -24,6 +24,12 @@ export function processCharacterLogs(runtime: Runtime): Runtime {
     return runtime;
   }
 
+  // 为了高效查找，将快照数组转换为 MK -> 索引的 Map
+  const mkToIndexMap = new Map<string, number>();
+  snapshots.forEach((snapshot, index) => {
+    mkToIndexMap.set(snapshot.mk, index);
+  });
+
   const newCharacterLog: FullCharacterLog = {};
 
   // 遍历所有根 flag
@@ -34,10 +40,10 @@ export function processCharacterLogs(runtime: Runtime): Runtime {
         continue;
       }
 
-      // 找到 startMk 在 snapshots 中的索引
-      const startIndex = snapshots.findIndex(s => s.mk === startMk);
+      // 使用 Map O(1) 复杂度查找索引
+      const startIndex = mkToIndexMap.get(startMk);
 
-      if (startIndex === -1) {
+      if (startIndex === undefined) {
         continue;
       }
 
@@ -49,7 +55,7 @@ export function processCharacterLogs(runtime: Runtime): Runtime {
       // 遍历快照，为每个角色生成日志
       for (const snapshot of relevantSnapshots) {
         const stat = snapshot.statWithoutMeta;
-        const cache = snapshot.stat?.$meta?.cache; // 从包含 meta 的 stat 中获取 cache
+        const cache = stat.cache; // cache 是 stat 的顶层属性
         if (!stat?.chars || !cache?.clockAck) {
           continue;
         }

@@ -2,6 +2,7 @@
  * @file Runtime 对象的 Zod Schema 定义
  */
 import { z } from 'zod';
+import { AyaNewsSchema } from './aya-news';
 import { QueryResultItemSchema } from '../events/constants';
 import { AffectionStageWithForgetSchema, CharacterSettingsMapSchema, type Action } from './character-settings';
 import { ClockSchema, type Clock } from './clock';
@@ -126,6 +127,7 @@ export const RuntimeSchema = z.object({
   characterLog: z.object({}).passthrough().optional(),
   characterSettings: CharacterSettingsMapSchema.optional(),
   snapshots: z.array(QueryResultItemSchema).optional(),
+  ayaNews: AyaNewsSchema.optional(),
 });
 
 // 从 Schema 推断出 TypeScript 类型

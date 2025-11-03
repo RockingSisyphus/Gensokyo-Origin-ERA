@@ -228,6 +228,16 @@ class Logger {
   }
 }
 
+const TIME_PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
+
+const TIME_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
+
+const TIME_SEASON_NAMES = [ "春", "夏", "秋", "冬" ];
+
+const TIME_SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
+
+const TIME_WEEK_NAMES = [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ];
+
 const logger = new Logger("GSKO-BASE/utils/format");
 
 function firstVal(x) {
@@ -315,6 +325,15 @@ function getStr(obj, path, fallback = "") {
   return toText(rawValue);
 }
 
+function formatTime(clock) {
+  if (!clock) return "未知时间";
+  const year = clock.yearID;
+  const month = clock.monthID % 100;
+  const day = clock.dayID % 100;
+  const periodName = TIME_PERIOD_NAMES[clock.periodIdx] || "未知时段";
+  return `${year} 年 ${month} 月 ${day} 日，${periodName}`;
+}
+
 function toFiniteNumber(value) {
   if (typeof value === "number" && Number.isFinite(value)) {
     return value;
@@ -372,16 +391,6 @@ const TimeChatMkSyncRuntimeSchema = external_z_namespaceObject.z.object({
 }).optional().default(() => ({
   anchors: createEmptyAnchors()
 }));
-
-const TIME_PERIOD_NAMES = [ "清晨", "上午", "中午", "下午", "黄昏", "夜晚", "上半夜", "下半夜" ];
-
-const TIME_PERIOD_KEYS = [ "newDawn", "newMorning", "newNoon", "newAfternoon", "newDusk", "newNight", "newFirstHalfNight", "newSecondHalfNight" ];
-
-const TIME_SEASON_NAMES = [ "春", "夏", "秋", "冬" ];
-
-const TIME_SEASON_KEYS = [ "newSpring", "newSummer", "newAutumn", "newWinter" ];
-
-const TIME_WEEK_NAMES = [ "周一", "周二", "周三", "周四", "周五", "周六", "周日" ];
 
 const BY_PERIOD_KEYS = TIME_PERIOD_KEYS;
 
@@ -1606,15 +1615,65 @@ function getCharLocation(charObj) {
   return String(charObj[CHARACTER_FIELDS.currentLocation] ?? "").trim();
 }
 
+function processCharacterLogs(runtime) {
+  const {snapshots, clock} = runtime;
+  if (!snapshots || snapshots.length === 0 || !clock?.flags || !clock.mkAnchors) {
+    return runtime;
+  }
+  const mkToIndexMap = new Map;
+  snapshots.forEach((snapshot, index) => {
+    mkToIndexMap.set(snapshot.mk, index);
+  });
+  const newCharacterLog = {};
+  for (const flag of CLOCK_ROOT_FLAG_KEYS) {
+    if (clock.flags[flag]) {
+      const startMk = clock.mkAnchors[flag];
+      if (!startMk) {
+        continue;
+      }
+      const startIndex = mkToIndexMap.get(startMk);
+      if (startIndex === undefined) {
+        continue;
+      }
+      const relevantSnapshots = snapshots.slice(startIndex);
+      const flagLog = {};
+      for (const snapshot of relevantSnapshots) {
+        const stat = snapshot.statWithoutMeta;
+        const cache = stat.cache;
+        if (!stat?.chars || !cache?.clockAck) {
+          continue;
+        }
+        for (const charName in stat.chars) {
+          if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
+            const charData = stat.chars[charName];
+            const location = charData.所在地区;
+            const target = charData.目标;
+            const clockAck = cache.clockAck;
+            if (location && target) {
+              if (!flagLog[charName]) {
+                flagLog[charName] = [];
+              }
+              flagLog[charName].push({
+                location,
+                target,
+                clockAck
+              });
+            }
+          }
+        }
+      }
+      newCharacterLog[flag] = flagLog;
+    }
+  }
+  runtime.characterLog = newCharacterLog;
+  return runtime;
+}
+
 const character_log_processor_logger = new Logger("GSKO-BASE/core/character-log-processor");
 
-function processCharacterLog({runtime, snapshots, stat}) {
-  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...", {
-    snapshotCount: snapshots.length
-  });
-  return {
-    runtime
-  };
+function processCharacterLog(runtime) {
+  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...");
+  return processCharacterLogs(runtime);
 }
 
 const CharacterCacheSchema = external_z_namespaceObject.z.object({
@@ -2357,6 +2416,22 @@ function process({runtime, stat}) {
   return newRuntime;
 }
 
+const OtherCharacterInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  target: external_z_namespaceObject.z.string()
+});
+
+const AyaNewsEntrySchema = external_z_namespaceObject.z.object({
+  location: external_z_namespaceObject.z.string(),
+  otherCharacters: external_z_namespaceObject.z.array(OtherCharacterInfoSchema),
+  target: external_z_namespaceObject.z.string(),
+  clockAck: ClockAckSchema
+});
+
+const AyaNewsSchema = external_z_namespaceObject.z.object({
+  entries: external_z_namespaceObject.z.array(AyaNewsEntrySchema)
+});
+
 const constants_ERA_EVENT_NAMES = {
   INSERT_BY_OBJECT: "era:insertByObject",
   UPDATE_BY_OBJECT: "era:updateByObject",
@@ -2494,7 +2569,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
   }).optional(),
   characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
   characterSettings: CharacterSettingsMapSchema.optional(),
-  snapshots: external_z_namespaceObject.z.array(QueryResultItemSchema).optional()
+  snapshots: external_z_namespaceObject.z.array(QueryResultItemSchema).optional(),
+  ayaNews: AyaNewsSchema.optional()
 });
 
 const runtime_logger = new Logger("GSKO-BASE/utils/runtime");
@@ -3088,6 +3164,28 @@ function normalizeLocationData({originalStat, runtime}) {
   };
 }
 
+function formatNewsEntry(entry) {
+  const time = formatTime(entry.clockAck);
+  const location = entry.location;
+  const ayaTarget = `文文正在${entry.target}`;
+  const otherChars = entry.otherCharacters.length > 0 ? "遇到了：" + entry.otherCharacters.map(char => `${char.name}(${char.target})`).join("、") : "没有遇到其他人";
+  return `${time}；在【${location}】；${ayaTarget}；${otherChars}。`;
+}
+
+function buildAyaNewsPrompt(runtime) {
+  const ayaNews = AyaNewsSchema.safeParse(runtime.ayaNews);
+  if (!ayaNews.success || external_default().isEmpty(ayaNews.data.entries)) {
+    return null;
+  }
+  const promptLines = ayaNews.data.entries.map(formatNewsEntry);
+  const processedLines = external_default().chain(promptLines).uniq().value();
+  if (external_default().isEmpty(processedLines)) {
+    return null;
+  }
+  const header = "本轮必须更新文文新闻，文文在过去的一天里的行程如下：";
+  return `${header}\n${processedLines.join("\n")}`;
+}
+
 const festival_logger = new Logger("GSKO-BASE/core/prompt-builder/festival");
 
 function buildFestivalPrompt({runtime}) {
@@ -3210,15 +3308,11 @@ function buildPrompt({runtime, stat}) {
   const funcName = "buildPrompt";
   prompt_builder_logger.debug(funcName, "开始构建提示词...");
   const prompts = [];
-  const timePrompt = buildTimePrompt({
-    runtime
-  });
+  const timePrompt = buildTimePrompt(runtime);
   if (timePrompt) {
     prompts.push(timePrompt);
   }
-  const festivalPrompts = buildFestivalPrompt({
-    runtime
-  });
+  const festivalPrompts = buildFestivalPrompt(runtime);
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
@@ -3229,11 +3323,13 @@ function buildPrompt({runtime, stat}) {
   if (routePrompt) {
     prompts.push(routePrompt);
   }
-  const legalLocationsPrompt = buildLegalLocationsPrompt({
-    runtime
-  });
+  const legalLocationsPrompt = buildLegalLocationsPrompt(runtime);
   if (legalLocationsPrompt) {
     prompts.push(legalLocationsPrompt);
+  }
+  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
+  if (ayaNewsPrompt) {
+    prompts.push(ayaNewsPrompt);
   }
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");
@@ -4001,6 +4097,69 @@ async function time_processor_processTime({stat, runtime}) {
   }
 }
 
+const AYA_NAME = "射命丸文";
+
+function processAyaNews(runtime) {
+  const {snapshots, clock} = runtime;
+  if (!snapshots || snapshots.length === 0 || !clock?.mkAnchors) {
+    return runtime;
+  }
+  const startMk = clock.mkAnchors.newDay;
+  if (!startMk) {
+    return runtime;
+  }
+  const startIndex = snapshots.findIndex(s => s.mk === startMk);
+  if (startIndex === -1) {
+    return runtime;
+  }
+  const relevantSnapshots = snapshots.slice(startIndex);
+  const newsEntries = [];
+  for (const snapshot of relevantSnapshots) {
+    const stat = snapshot.statWithoutMeta;
+    const cache = stat.cache;
+    const ayaCharData = stat.chars?.[AYA_NAME];
+    if (!ayaCharData || !cache?.clockAck) {
+      continue;
+    }
+    const ayaLocation = ayaCharData.所在地区;
+    const ayaTarget = ayaCharData.目标;
+    const {clockAck} = cache;
+    if (!ayaLocation || !ayaTarget) {
+      continue;
+    }
+    const otherCharactersInfo = [];
+    for (const charName in stat.chars) {
+      if (charName === AYA_NAME) continue;
+      if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
+        const otherCharData = stat.chars[charName];
+        if (otherCharData.所在地区 === ayaLocation) {
+          otherCharactersInfo.push({
+            name: charName,
+            target: otherCharData.目标 || "不明"
+          });
+        }
+      }
+    }
+    newsEntries.push({
+      location: ayaLocation,
+      otherCharacters: otherCharactersInfo,
+      target: ayaTarget,
+      clockAck
+    });
+  }
+  runtime.ayaNews = {
+    entries: newsEntries
+  };
+  return runtime;
+}
+
+function ayaNewsProcessor(runtime) {
+  if (runtime.clock?.flags?.newDay) {
+    return processAyaNews(runtime);
+  }
+  return runtime;
+}
+
 function onWriteDone(listener, options = {}) {
   const {ignoreApiWrite = false} = options;
   const wrappedListener = payload => {
@@ -4260,14 +4419,14 @@ $(() => {
         runtime: currentRuntime,
         cache: getCache(currentStat)
       });
-      const snapshots = currentRuntime.snapshots ?? [];
-      const charLogResult = processCharacterLog({
-        runtime: currentRuntime,
-        snapshots,
-        stat: currentStat
-      });
-      currentRuntime = charLogResult.runtime;
+      currentRuntime = processCharacterLog(currentRuntime);
       logState("Character Log Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = ayaNewsProcessor(currentRuntime);
+      logState("Aya News Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)
