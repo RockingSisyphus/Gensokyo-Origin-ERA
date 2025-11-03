@@ -37,12 +37,13 @@ function pickAffectionStage(affection, stages) {
   if (!stages || stages.length === 0) {
     return undefined;
   }
-  for (const stage of stages) {
+  const sortedStages = external_default().orderBy(stages, [ "threshold" ], [ "desc" ]);
+  for (const stage of sortedStages) {
     if (affection >= stage.threshold) {
       return stage;
     }
   }
-  return stages[stages.length - 1];
+  return sortedStages[sortedStages.length - 1];
 }
 
 const external_z_namespaceObject = z;
@@ -3248,6 +3249,51 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
   return prompt;
 }
 
+const co_located_characters_affection_logger = new Logger("GSKO-BASE/core/prompt-builder/co-located-characters-affection");
+
+function buildCoLocatedCharsAffectionPrompt({stat, runtime}) {
+  const funcName = "buildCoLocatedCharsAffectionPrompt";
+  const coLocatedCharIds = runtime.character?.partitions?.coLocated;
+  if (external_default().isEmpty(coLocatedCharIds)) {
+    co_located_characters_affection_logger.debug(funcName, "没有同区角色，跳过提示词生成。");
+    return "";
+  }
+  const charactersInfo = {};
+  external_default().forEach(coLocatedCharIds, charId => {
+    const charData = stat.chars[charId];
+    const charSettings = runtime.characterSettings?.[charId];
+    if (!charData) {
+      co_located_characters_affection_logger.warn(funcName, `在 stat.chars 中未找到同区角色 ${charId} 的数据。`);
+      return;
+    }
+    if (!charSettings) {
+      co_located_characters_affection_logger.warn(funcName, `在 runtime.characterSettings 中未找到角色 ${charId} 的设置。`);
+      return;
+    }
+    const affection = charData.好感度;
+    const affectionStages = charSettings.affectionStages;
+    const currentStage = pickAffectionStage(affection, affectionStages);
+    if (!currentStage) {
+      co_located_characters_affection_logger.warn(funcName, `无法确定角色 ${charId} 的好感度阶段。`);
+      return;
+    }
+    charactersInfo[charId] = {
+      name: charData.name,
+      好感度等级: currentStage.name,
+      好感度说明: currentStage.describe
+    };
+  });
+  if (external_default().isEmpty(charactersInfo)) {
+    return "";
+  }
+  const charactersJson = JSON.stringify({
+    chars: charactersInfo
+  }, null, 2);
+  const prompt = `\n以下是当前场景中角色的好感度信息。\n\n\`\`\`json\n${charactersJson}\n\`\`\`\n`;
+  co_located_characters_affection_logger.debug(funcName, "成功生成同区角色好感度提示词。");
+  return prompt;
+}
+
 const companion_decision_logger = new Logger("GSKO-BASE/core/prompt-builder/companion-decision");
 
 function buildCompanionDecisionPrompt({stat, runtime}) {
@@ -3441,6 +3487,13 @@ function buildPrompt({runtime, stat}) {
   });
   if (coLocatedCharactersPrompt) {
     prompts.push(coLocatedCharactersPrompt);
+  }
+  const coLocatedCharsAffectionPrompt = buildCoLocatedCharsAffectionPrompt({
+    runtime,
+    stat
+  });
+  if (coLocatedCharsAffectionPrompt) {
+    prompts.push(coLocatedCharsAffectionPrompt);
   }
   const characterMovementPrompts = buildCharacterMovementPrompt({
     runtime,

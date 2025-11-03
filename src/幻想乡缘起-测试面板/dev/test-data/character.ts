@@ -78,3 +78,46 @@ charTest_S6_CompanionPriority.user.所在地区 = '博丽神社';
 _.set(charTest_S6_CompanionPriority, 'cache.character', {});
 // 确保 clockAck 保持不变，这样 time-processor 才能检测到时间变化
 charTest_S6_CompanionPriority.cache.time = baseTestData.cache.time;
+
+// ==================================================================
+// 场景 7: 角色移动提示测试
+// ==================================================================
+// 预期: 琪露诺进入主角所在地，大妖精离开主角所在地
+export const charTest_S7_MovementPrompt = _.cloneDeep(baseTestData);
+// 添加新角色
+(charTest_S7_MovementPrompt.chars as any)['cirno'] = {
+  name: '琪露诺',
+  好感度: 15,
+  所在地区: '雾之湖',
+  居住地区: '雾之湖',
+  affectionStages: [],
+  specials: [],
+  routine: [
+    {
+      when: { byNow: { periodName: '夜晚' } },
+      action: { do: '恶作剧', to: '博丽神社' },
+    },
+  ],
+  目标: '',
+};
+(charTest_S7_MovementPrompt.chars as any)['daiyousei'] = {
+  name: '大妖精',
+  好感度: 25,
+  所在地区: '博丽神社',
+  居住地区: '雾之湖',
+  affectionStages: [],
+  specials: [],
+  routine: [
+    {
+      when: { byNow: { periodName: '夜晚' } },
+      action: { do: '回家', to: '雾之湖' },
+    },
+  ],
+  目标: '',
+};
+// 推进时间到夜晚 (假设当前是 8:00, 推进 12 小时即 720 分钟)
+charTest_S7_MovementPrompt.世界.timeProgress = 120 + 720;
+// 重置 cache
+_.set(charTest_S7_MovementPrompt, 'cache.character', {});
+// 确保 clockAck 保持不变
+charTest_S7_MovementPrompt.cache.time = baseTestData.cache.time;

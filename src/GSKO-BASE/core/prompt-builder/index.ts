@@ -2,6 +2,7 @@ import { Logger } from '../../utils/log';
 import { buildAyaNewsPrompt } from './aya-news';
 import { buildCharacterMovementPrompt } from './character-movement';
 import { buildCoLocatedCharactersPrompt } from './co-located-characters';
+import { buildCoLocatedCharsAffectionPrompt } from './co-located-characters-affection';
 import { buildCompanionDecisionPrompt } from './companion-decision';
 import { buildFestivalPrompt } from './festival';
 import { buildLegalLocationsPrompt } from './legal-locations';
@@ -62,6 +63,12 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({ runtime, stat });
   if (coLocatedCharactersPrompt) {
     prompts.push(coLocatedCharactersPrompt);
+  }
+
+  // 构建同区角色好感度提示词
+  const coLocatedCharsAffectionPrompt = buildCoLocatedCharsAffectionPrompt({ runtime, stat });
+  if (coLocatedCharsAffectionPrompt) {
+    prompts.push(coLocatedCharsAffectionPrompt);
   }
 
   // 构建角色移动提示词

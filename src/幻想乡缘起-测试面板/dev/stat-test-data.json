@@ -204,15 +204,15 @@
       "specials": [],
       "routine": [
         {
-          "when": { "byNow": { "period": "夜晚" } },
+          "when": { "byNow": { "periodName": "夜晚" } },
           "action": { "do": "回家睡觉", "to": "妖怪之山" }
         },
         {
-          "when": { "byNow": { "period": "上半夜" } },
+          "when": { "byNow": { "periodName": "上半夜" } },
           "action": { "do": "在家里休息", "to": "妖怪之山" }
         },
         {
-          "when": { "byNow": { "period": "下半夜" } },
+          "when": { "byNow": { "periodName": "下半夜" } },
           "action": { "do": "在家里休息", "to": "妖怪之山" }
         },
         {
