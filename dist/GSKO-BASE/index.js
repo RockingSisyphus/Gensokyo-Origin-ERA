@@ -3167,35 +3167,6 @@ function normalizeLocationData({originalStat, runtime}) {
   };
 }
 
-const arriving_characters_logger = new Logger("GSKO-BASE/core/prompt-builder/arriving-characters");
-
-function buildArrivingCharactersPrompt({stat, runtime}) {
-  const funcName = "buildArrivingCharactersPrompt";
-  const characterRuntimes = runtime.character?.chars;
-  const playerLocation = accessors_getUserLocation(stat);
-  if (external_default().isEmpty(characterRuntimes) || !playerLocation) {
-    arriving_characters_logger.debug(funcName, "角色运行时信息或玩家位置为空，跳过。");
-    return "";
-  }
-  const arrivingCharactersPrompts = [];
-  external_default().forEach(characterRuntimes, (charRuntime, charId) => {
-    const decision = charRuntime.decision;
-    if (decision?.to === playerLocation || decision?.to === "HERO") {
-      const charName = getCharName(stat, charId);
-      const purpose = decision.do || "未知";
-      arrivingCharactersPrompts.push(`${charName}，为了“${purpose}”而来`);
-      arriving_characters_logger.debug(funcName, `检测到角色 ${charName} (${charId}) 抵达，目的: ${purpose}`);
-    }
-  });
-  if (arrivingCharactersPrompts.length === 0) {
-    return "";
-  }
-  const combinedPrompts = arrivingCharactersPrompts.join("；");
-  const prompt = `\n[EVENT] 以下角色刚刚抵达你所在的地区，你可以在剧情中引入他们：${combinedPrompts}。`;
-  arriving_characters_logger.debug(funcName, "成功生成抵达角色提示词。");
-  return prompt;
-}
-
 function formatNewsEntry(entry) {
   const time = formatTime(entry.clockAck);
   const location = entry.location;
@@ -3216,6 +3187,29 @@ function buildAyaNewsPrompt(runtime) {
   }
   const header = "本轮必须更新文文新闻，文文在过去的一天里的行程如下：";
   return `${header}\n${processedLines.join("\n")}`;
+}
+
+function buildCharacterMovementPrompt({runtime, stat}) {
+  const playerLocation = runtime.characterDistribution?.playerLocation;
+  if (!playerLocation) return [];
+  const allChars = runtime.character?.chars;
+  if (!allChars) return [];
+  const prompts = [];
+  for (const charId in allChars) {
+    const charRuntime = allChars[charId];
+    const decision = charRuntime.decision;
+    if (!decision) continue;
+    const {from, to, do: action} = decision;
+    if (!from || !to || from === to) continue;
+    const charName = getCharName(stat, charId);
+    if (to === playerLocation && from !== playerLocation) {
+      prompts.push(`[${charName}从${from}来到了这里，目的是${action}]`);
+    }
+    if (from === playerLocation && to !== playerLocation) {
+      prompts.push(`[${charName}离开了这里，前往${to}，目的是${action}]`);
+    }
+  }
+  return prompts;
 }
 
 const co_located_characters_logger = new Logger("GSKO-BASE/core/prompt-builder/co-located-characters");
@@ -3447,12 +3441,12 @@ function buildPrompt({runtime, stat}) {
   if (coLocatedCharactersPrompt) {
     prompts.push(coLocatedCharactersPrompt);
   }
-  const arrivingCharactersPrompt = buildArrivingCharactersPrompt({
+  const characterMovementPrompts = buildCharacterMovementPrompt({
     runtime,
     stat
   });
-  if (arrivingCharactersPrompt) {
-    prompts.push(arrivingCharactersPrompt);
+  if (characterMovementPrompts.length > 0) {
+    prompts.push(...characterMovementPrompts);
   }
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");
