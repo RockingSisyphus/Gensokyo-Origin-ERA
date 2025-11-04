@@ -42,6 +42,18 @@
             <div>魔理沙：实验中🧪</div>
           </div>
         </div>
+
+        <!-- 主角 -->
+        <div
+          v-if="mainRoleMarker"
+          class="marker main-role-marker pulsate"
+          v-html="mainRoleMarker.htmlEle"
+          :style="{
+            left: mainRoleMarker.position.x * mapState.zoom + mapState.offsetX + 'px',
+            top: mainRoleMarker.position.y * mapState.zoom + mapState.offsetY + 'px',
+            transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
+          }"
+        ></div>
       </div>
     </div>
   </div>
@@ -57,7 +69,7 @@ const exampleMapSize = {
 };
 
 const markersData: MapMarker[] = [
-  { name: '博丽神社', position: { x: 100, y: 100 }, htmlEle: "<div class='test'>博丽神社⚓️</div>" },
+  { name: '博丽神社', position: { x: 100, y: 100 }, htmlEle: '<div>博丽神社</div>' },
   { name: '永远亭', position: { x: 300, y: 150 }, htmlEle: '<div>永远亭</div>' },
   { name: '白玉楼', position: { x: 500, y: 500 }, htmlEle: '<div>白玉楼</div>' },
 ];
@@ -80,6 +92,11 @@ let mapState = ref<MapState>({
   mapHeight: exampleMapSize.height,
 });
 let selectedMarker = ref<MapMarker | null>(null);
+let mainRoleMarker = ref<MapMarker | null>({
+  name: '主角',
+  position: { x: 300, y: 150 },
+  htmlEle: '<div>📍</div>',
+});
 
 function selectLocation(markerData: MapMarker) {
   selectedMarker.value = markerData;
@@ -303,19 +320,19 @@ onMounted(() => {
     50%,
     80%,
     100% {
-      transform: translateY(0);
+      transform: translate(-50%, -100%);
     }
 
     40% {
-      transform: translateY(-30px);
+      transform: translate(-50%, calc(-100% - 30px));
     }
 
     60% {
-      transform: translateY(-15px);
+      transform: translate(-50%, calc(-100% - 15px));
     }
   }
 
-  .test {
+  .pulsate {
     animation: bounce 2s infinite;
   }
 
@@ -352,6 +369,12 @@ onMounted(() => {
     border: 12px solid transparent;
     border-top-color: #fff;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  .main-role-marker {
+    transform-origin: bottom center;
+    font-size: 24px;
+    z-index: 10;
   }
 }
 </style>
