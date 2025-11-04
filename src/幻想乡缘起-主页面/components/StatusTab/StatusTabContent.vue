@@ -24,8 +24,8 @@
       </div>
 
       <!-- 世界 Tab (WorldMap) -->
-      <div id="content_status" class="status-tab-content" :class="{ active: activeTab === 'status' }">
-        <WorldMap ref="worldMap" />
+      <div id="content_status" class="status-tab-content" v-if="activeTab === 'status'" :class="{ active: activeTab === 'status' }">
+        <Map />
       </div>
 
       <!-- 异变 Tab -->
@@ -61,7 +61,7 @@ import ContentBio from './tabs/ContentBio.vue';
 import ContentOthers from './tabs/ContentOthers.vue';
 import ContentSettings from './tabs/ContentSettings.vue';
 import Incidents from './tabs/Incidents.vue';
-import WorldMap from './tabs/WorldMap.vue';
+import Map from '../../components/Map/Map.vue';
 // [重构] FontSizeControls 已移入 tabs 文件夹内
 import FontSizeControls from './tabs/FontSizeControls.vue';
 
