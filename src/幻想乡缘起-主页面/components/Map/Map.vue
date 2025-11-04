@@ -25,6 +25,23 @@
           }"
           @click="selectLocation(marker)"
         ></div>
+
+        <!-- 点击marker的tip弹出 -->
+        <div
+          v-if="selectedMarker"
+          class="tip-container"
+          :style="{
+            left: selectedMarker.position.x * mapState.zoom + mapState.offsetX + 'px',
+            top: selectedMarker.position.y * mapState.zoom + mapState.offsetY - 10 + 'px',
+            transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
+          }"
+        >
+          <div class="dialog">
+            <h2 class="location-name">{{ selectedMarker.name }}</h2>
+            <div>博丽灵梦：喝茶中🍵</div>
+            <div>魔理沙：实验中🧪</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -62,9 +79,10 @@ let mapState = ref<MapState>({
   mapWidth: exampleMapSize.width,
   mapHeight: exampleMapSize.height,
 });
+let selectedMarker = ref<MapMarker | null>(null);
 
-function selectLocation(e: any) {
-  console.log(e);
+function selectLocation(markerData: MapMarker) {
+  selectedMarker.value = markerData;
 }
 
 onMounted(() => {
@@ -238,11 +256,11 @@ onMounted(() => {
     position: relative;
     width: 100%;
     height: 100%;
-    overflow: hidden;
     background: #f0f0f0;
   }
 
   .map-container {
+    white-space: nowrap;
     position: absolute;
     top: 0;
     left: 0;
@@ -261,6 +279,11 @@ onMounted(() => {
     position: absolute;
     transform: translate(-50%, -50%);
     cursor: pointer;
+  }
+
+  .container {
+    position: absolute;
+    transform: translate(-50%, -100%);
   }
 
   .map-info {
@@ -294,6 +317,41 @@ onMounted(() => {
 
   .test {
     animation: bounce 2s infinite;
+  }
+
+  .tip-container {
+    position: absolute;
+    transform-origin: bottom center;
+    z-index: 20;
+  }
+
+  .dialog {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    color: #333333;
+    position: relative;
+    border: 1px solid #fff;
+
+    .location-name {
+      font-size: 16px;
+      font-weight: bold;
+      border-bottom: 1px solid #333333;
+      padding-bottom: 6px;
+      margin-bottom: 6px;
+    }
+  }
+
+  .dialog::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border: 12px solid transparent;
+    border-top-color: #fff;
+    filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
   }
 }
 </style>
