@@ -24,7 +24,12 @@
       </div>
 
       <!-- 世界 Tab (WorldMap) -->
-      <div id="content_status" class="status-tab-content" v-if="activeTab === 'status'" :class="{ active: activeTab === 'status' }">
+      <div
+        id="content_status"
+        class="status-tab-content"
+        v-if="activeTab === 'status'"
+        :class="{ active: activeTab === 'status' }"
+      >
         <Map />
       </div>
 

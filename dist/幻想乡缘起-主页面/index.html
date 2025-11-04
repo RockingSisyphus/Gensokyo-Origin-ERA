@@ -1324,244 +1324,231 @@ const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_tr
 
 const Incidents = Incidents_exports_;
 
-const WorldMapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "WorldMap",
-  setup(__props, {expose: __expose}) {
-    const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/tabs/WorldMap");
-    const mapText = (0, external_Vue_namespaceObject.ref)("");
-    const mapGraph = (0, external_Vue_namespaceObject.ref)(null);
-    function escHtml(s) {
-      const AMP = "&" + "amp;", LT = "&" + "lt;", GT = "&" + "gt;", QUOT = "&" + "quot;", SQT = "&" + "#39;";
-      let out = String(s);
-      out = out.replace(/&/g, AMP);
-      out = out.replace(/</g, LT).replace(/>/g, GT);
-      out = out.replace(/"/g, QUOT).replace(/'/g, SQT);
-      return out;
-    }
-    function findAll(text, token, cap = 200) {
-      const T = String(text || ""), K = String(token || "");
-      if (!K) return [];
-      const out = [];
-      let i = 0;
-      while (true) {
-        const p = T.indexOf(K, i);
-        if (p < 0) break;
-        out.push(p);
-        i = p + Math.max(1, K.length);
-        if (out.length >= cap) {
-          logger.warn("findAll", `查找“${K}”时达到上限 ${cap} 次，可能存在过多匹配项。`);
-          break;
-        }
-      }
-      return out;
-    }
-    function buildAdjacencyMap(graph) {
-      const adj = new Map;
-      if (!graph) return adj;
-      const edges = getRaw(graph, "edges") || [];
-      if (!Array.isArray(edges)) {
-        logger.warn("buildAdjacencyMap", '图谱中的 "edges" 不是一个数组，无法构建邻接表。', edges);
-        return adj;
-      }
-      for (const e of edges) {
-        const a = String(e?.a || "").trim();
-        const b = String(e?.b || "").trim();
-        if (!a || !b || a === b) continue;
-        if (!adj.has(a)) adj.set(a, new Set);
-        if (!adj.has(b)) adj.set(b, new Set);
-        adj.get(a).add(b);
-        adj.get(b).add(a);
-      }
-      return adj;
-    }
-    async function computeHighlightedHtml(state, {animate = true} = {}) {
-      const funcName = "computeHighlightedHtml";
-      if (!mapText.value) {
-        logger.warn(funcName, "地图文本为空，无法计算高亮。");
-        return {
-          ok: true,
-          found: false,
-          html: '<span class="map-loading">（未找到地图文本）</span>'
-        };
-      }
-      const text = mapText.value;
-      const fallbackPlace = get(state, ERA_VARIABLE_PATH.FALLBACK_PLACE, "博丽神社");
-      const keyword = get(state, ERA_VARIABLE_PATH.USER_LOCATION, fallbackPlace).trim();
-      logger.log(funcName, `当前高亮关键字: ${keyword}`);
-      let nearNames = [];
-      try {
-        const adj = buildAdjacencyMap(mapGraph.value);
-        nearNames = Array.from(adj.get(keyword) || []);
-        logger.log(funcName, `找到 ${nearNames.length} 个邻近地区`, nearNames);
-      } catch (e) {
-        logger.error(funcName, "邻接计算失败", e);
-      }
-      const hits = [];
-      const push = (token, cls) => {
-        if (!token) return;
-        for (const at of findAll(text, token)) hits.push({
-          at,
-          len: token.length,
-          cls,
-          pri: cls === "hit" ? 2 : 1
-        });
-      };
-      push(keyword, "hit");
-      nearNames.forEach(n => push(n, "near"));
-      if (!hits.length) {
-        logger.log(funcName, "未在地图上找到任何可高亮的地区。");
-        return {
-          ok: true,
-          found: false,
-          html: escHtml(text)
-        };
-      }
-      hits.sort((a, b) => a.at - b.at || b.pri - a.pri || b.len - a.len);
-      let out = "", cur = 0;
-      for (const h of hits) {
-        if (h.at < cur) continue;
-        out += escHtml(text.slice(cur, h.at));
-        const mid = text.slice(h.at, h.at + h.len);
-        const cls = (h.cls === "hit" ? "map-hit" : "map-near") + (animate ? "" : " paused");
-        const title = (h.cls === "hit" ? "当前位置：" : "附近地区：") + mid;
-        out += `<span class="${cls}" ${h.cls === "hit" ? 'data-hit="1"' : 'data-near="1"'} title="${escHtml(title)}">${escHtml(mid)}</span>`;
-        cur = h.at + h.len;
-      }
-      out += escHtml(text.slice(cur));
-      logger.log(funcName, `高亮HTML构建完成，共处理 ${hits.length} 个高亮区域。`);
-      return {
-        ok: true,
-        found: true,
-        html: out
-      };
-    }
-    const update = async statWithoutMeta => {
-      const funcName = "update";
-      logger.log(funcName, "接收到更新请求，开始更新世界地图组件。");
-      mapText.value = get(statWithoutMeta, ERA_VARIABLE_PATH.MAP_ASCII, "");
-      mapGraph.value = get(statWithoutMeta, ERA_VARIABLE_PATH.MAP_GRAPH, null);
-      if (!mapText.value) {
-        logger.warn(funcName, "地图文本(world.map_ascii)为空，无法渲染地图。");
-      }
-      if (!mapGraph.value) {
-        logger.warn(funcName, "地图图谱(world.map_graph)为空，无法计算邻近地区。");
-      }
-      const host = document.getElementById("world-map");
-      if (!host) {
-        logger.error(funcName, "未找到 #world-map 容器，无法渲染地图。");
-        return false;
-      }
-      const res = await computeHighlightedHtml(statWithoutMeta);
-      host.innerHTML = res.html || '<span class="map-loading">（空）</span>';
-      logger.log(funcName, "地图高亮渲染完成。");
-      const nearbyPlacesEl = document.getElementById("nearby-places");
-      if (nearbyPlacesEl) {
-        const fallbackPlace = get(statWithoutMeta, ERA_VARIABLE_PATH.FALLBACK_PLACE, "博丽神社");
-        const base = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_LOCATION, fallbackPlace);
-        try {
-          const adj = buildAdjacencyMap(mapGraph.value);
-          const neighbors = Array.from(adj.get(base) || []);
-          nearbyPlacesEl.textContent = neighbors.length > 0 ? neighbors.join("；") : "—";
-          logger.log(funcName, `“附近地区”已更新为: ${nearbyPlacesEl.textContent}`);
-        } catch (e) {
-          nearbyPlacesEl.textContent = "—";
-          logger.error(funcName, "更新“附近地区”时发生错误", e);
-        }
-      }
-      logger.log(funcName, "世界地图组件更新流程结束。");
-      return true;
+const Mapvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "map-component",
+  id: "mapComponent"
+};
+
+const Mapvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "map-wrapper"
+};
+
+const Mapvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "map-info",
+  ref: "mapInfo"
+};
+
+const Mapvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  id: "coords"
+};
+
+const Mapvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  class: "map-container",
+  id: "mapContainer"
+};
+
+const Mapvue_type_script_setup_true_lang_ts_hoisted_6 = [ "innerHTML", "onClick" ];
+
+const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "Map",
+  setup(__props) {
+    const exampleMapSize = {
+      width: 800,
+      height: 600
     };
+    const markersData = [ {
+      name: "博丽神社",
+      position: {
+        x: 100,
+        y: 100
+      },
+      htmlEle: "<div class='test'>博丽神社⚓️</div>"
+    }, {
+      name: "永远亭",
+      position: {
+        x: 300,
+        y: 150
+      },
+      htmlEle: "<div>永远亭</div>"
+    }, {
+      name: "白玉楼",
+      position: {
+        x: 500,
+        y: 500
+      },
+      htmlEle: "<div>白玉楼</div>"
+    } ];
+    const exampleRoads = [ {
+      start: {
+        x: 100,
+        y: 100
+      },
+      end: {
+        x: 300,
+        y: 150
+      }
+    }, {
+      start: {
+        x: 100,
+        y: 100
+      },
+      end: {
+        x: 500,
+        y: 500
+      }
+    } ];
+    let markers = (0, external_Vue_namespaceObject.ref)(markersData);
+    let mapState = (0, external_Vue_namespaceObject.ref)({
+      offsetX: 0,
+      offsetY: 0,
+      zoom: 1,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      mapWidth: exampleMapSize.width,
+      mapHeight: exampleMapSize.height
+    });
+    function selectLocation(e) {
+      console.log(e);
+    }
     (0, external_Vue_namespaceObject.onMounted)(() => {
-      const funcName = "onMounted";
-      const btnReload = document.getElementById("map-reload");
-      if (btnReload) {
-        btnReload.onclick = () => {
-          logger.log(funcName, "用户点击“重新加载”按钮，派发 era:requestFullUpdate 事件。");
-          window.dispatchEvent(new CustomEvent("era:requestFullUpdate", {
-            detail: {
-              reason: "map-reload"
-            }
-          }));
-        };
+      const mapComponent = document.getElementById("mapComponent");
+      const mapContainer = document.getElementById("mapContainer");
+      const canvas = document.getElementById("mapCanvas");
+      const ctx = canvas.getContext("2d");
+      mapComponent.style.width = `${mapState.value.mapWidth}px`;
+      mapComponent.style.height = `${mapState.value.mapHeight}px`;
+      function generateMap() {
+        try {
+          resetView();
+          canvas.width = mapState.value.mapWidth;
+          canvas.height = mapState.value.mapHeight;
+          drawMap();
+        } catch (error) {
+          alert("数据格式错误，请检查输入数据：" + error.message);
+        }
       }
-      const btnAnim = document.getElementById("map-toggle-anim");
-      if (btnAnim) {
-        btnAnim.onclick = () => {
-          const host = document.getElementById("world-map");
-          if (!host) return;
-          const nodes = host.querySelectorAll(".map-hit, .map-near");
-          if (!nodes.length) return;
-          const willPlay = nodes[0].classList.contains("paused");
-          nodes.forEach(n => n.classList.toggle("paused", !willPlay));
-          logger.log(funcName, `切换地图动画为: ${willPlay ? "播放" : "暂停"}`);
-        };
+      function drawMap() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(mapState.value.offsetX, mapState.value.offsetY);
+        ctx.scale(mapState.value.zoom, mapState.value.zoom);
+        drawMapBackground();
+        drawRoads();
+        ctx.restore();
       }
-      const btnCopy = document.getElementById("map-copy");
-      if (btnCopy) {
-        btnCopy.onclick = async () => {
-          if (mapText.value) {
-            await navigator.clipboard.writeText(mapText.value);
-            logger.log(funcName, "地图原始文本已复制到剪贴板。");
-          } else {
-            logger.warn(funcName, "复制失败，因为地图文本为空。");
-          }
-        };
+      function drawMapBackground() {
+        ctx.fillStyle = "#7f8c8d";
+        ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
       }
-      const dimChk = document.getElementById("map-dim-others");
-      if (dimChk) {
-        dimChk.onchange = () => {
-          const host = document.getElementById("world-map");
-          if (host) {
-            host.classList.toggle("dim-others", dimChk.checked);
-            logger.log(funcName, `切换“弱化非高亮”为: ${dimChk.checked}`);
-          }
-        };
+      function drawRoads() {
+        try {
+          const roads = exampleRoads;
+          ctx.strokeStyle = "#333";
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          roads.forEach(road => {
+            ctx.beginPath();
+            ctx.moveTo(road.start.x, road.start.y);
+            ctx.lineTo(road.end.x, road.end.y);
+            ctx.stroke();
+          });
+        } catch (error) {
+          console.error("道路数据格式错误:", error);
+        }
       }
-      logger.log(funcName, "地图工具栏按钮事件已成功绑定。");
+      function resetView() {
+        mapState.value = {
+          ...mapState.value,
+          zoom: 1,
+          offsetX: (mapContainer.clientWidth - mapState.value.mapWidth) / 2,
+          offsetY: (mapContainer.clientHeight - mapState.value.mapHeight) / 2
+        };
+        drawMap();
+      }
+      mapContainer.addEventListener("mousedown", e => {
+        mapState.value = {
+          ...mapState.value,
+          isDragging: true,
+          lastMouseX: e.clientX,
+          lastMouseY: e.clientY
+        };
+        mapContainer.style.cursor = "grabbing";
+      });
+      mapContainer.addEventListener("mousemove", e => {
+        if (mapState.value.isDragging) {
+          const deltaX = e.clientX - mapState.value.lastMouseX;
+          const deltaY = e.clientY - mapState.value.lastMouseY;
+          mapState.value.offsetX += deltaX;
+          mapState.value.offsetY += deltaY;
+          mapState.value.lastMouseX = e.clientX;
+          mapState.value.lastMouseY = e.clientY;
+          drawMap();
+        }
+      });
+      mapContainer.addEventListener("mouseup", () => {
+        mapState.value.isDragging = false;
+        mapContainer.style.cursor = "grab";
+      });
+      mapContainer.addEventListener("mouseleave", () => {
+        mapState.value.isDragging = false;
+        mapContainer.style.cursor = "grab";
+      });
+      mapContainer.addEventListener("wheel", e => {
+        e.preventDefault();
+        const zoomFactor = e.deltaY > 0 ? .9 : 1.1;
+        const newZoom = mapState.value.zoom * zoomFactor;
+        if (newZoom >= .2 && newZoom <= 5) {
+          const rect = mapContainer.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          const worldX = (mouseX - mapState.value.offsetX) / mapState.value.zoom;
+          const worldY = (mouseY - mapState.value.offsetY) / mapState.value.zoom;
+          mapState.value = {
+            ...mapState.value,
+            zoom: newZoom,
+            offsetX: mouseX - worldX * mapState.value.zoom,
+            offsetY: mouseY - worldY * mapState.value.zoom
+          };
+          drawMap();
+        }
+      });
+      generateMap();
     });
-    __expose({
-      update
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" ===== 世界地图（ASCII）容器 ===== "), _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("hr", {
-      class: "dashed"
-    }, null, -1)), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "🗺️"), (0, external_Vue_namespaceObject.createTextVNode)("世界地图（文字）") ], -1)), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 地图工具栏，包含刷新、动画切换、复制和弱化非高亮区域的选项 "), _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div id="world-map-toolbar" class="map-toolbar" aria-label="地图工具条" data-v-7467c71a><button id="map-reload" class="font-size-btn" title="请求ERA核心重新读取所有数据并重绘UI" data-v-7467c71a>⟳</button><button id="map-toggle-anim" class="font-size-btn" title="切换高亮动画" data-v-7467c71a>🎞️</button><button id="map-copy" class="font-size-btn" title="复制原始地图文本" data-v-7467c71a>📋</button><span class="debug-switch" data-v-7467c71a><input id="map-dim-others" type="checkbox" data-v-7467c71a> 弱化非高亮</span></div>', 1)), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 用于显示ASCII地图的 <pre> 元素 "), _cache[3] || (_cache[3] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("pre", {
-      id: "world-map",
-      class: "ascii-map",
-      "aria-live": "polite"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "map-loading"
-    }, "（等待数据更新……）") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 地图图例，解释高亮颜色 "), _cache[4] || (_cache[4] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      id: "world-map-legend",
-      class: "map-legend"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "swatch swatch-hit"
-    }), (0, external_Vue_namespaceObject.createTextVNode)("当前位置 "), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "swatch swatch-near"
-    }), (0, external_Vue_namespaceObject.createTextVNode)("附近地区 ") ], -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 显示附近地区的段落 "), _cache[5] || (_cache[5] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("p", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "label"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "🏛️"), (0, external_Vue_namespaceObject.createTextVNode)("附近地区:") ]), (0, external_Vue_namespaceObject.createTextVNode)(), (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "nearby-places"
-    }, "—") ], -1)) ]));
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_3, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 缩放: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)((0, external_Vue_namespaceObject.unref)(mapState).zoom.toFixed(1)), 1), _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" x | 坐标: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", Mapvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, external_Vue_namespaceObject.unref)(mapState).offsetX / (0, 
+    external_Vue_namespaceObject.unref)(mapState).zoom)) + ", " + (0, external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, 
+    external_Vue_namespaceObject.unref)(mapState).offsetY / (0, external_Vue_namespaceObject.unref)(mapState).zoom)), 1) ], 512), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_5, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("canvas", {
+      id: "mapCanvas"
+    }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 动态生成marker "), ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)((0, external_Vue_namespaceObject.unref)(markers), (marker, index) => ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: index,
+      class: "marker",
+      innerHTML: marker.htmlEle,
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        left: marker.position.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
+        top: marker.position.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
+        transform: `translate(-50%, -50%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+      }),
+      onClick: $event => selectLocation(marker)
+    }, null, 12, Mapvue_type_script_setup_true_lang_ts_hoisted_6))), 128)) ]) ]) ]));
   }
 });
 
-const WorldMap_exports_ = (0, exportHelper.A)(WorldMapvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7467c71a" ] ]);
+const Map_exports_ = Mapvue_type_script_setup_true_lang_ts;
 
-const WorldMap = WorldMap_exports_;
+const Map = Map_exports_;
 
 const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "font-size-controls"
@@ -1769,17 +1756,15 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       }) ]), _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
         id: "main-extra",
         class: "preserve-format"
-      }, null, -1)) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 世界 Tab (WorldMap) "), (0, 
-      external_Vue_namespaceObject.createElementVNode)("div", {
+      }, null, -1)) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 世界 Tab (WorldMap) "), activeTab.value === "status" ? ((0, 
+      external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+        key: 0,
         id: "content_status",
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
           active: activeTab.value === "status"
         } ])
-      }, [ (0, external_Vue_namespaceObject.createVNode)(WorldMap, {
-        ref_key: "worldMap",
-        ref: worldMap
-      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 异变 Tab "), (0, 
-      external_Vue_namespaceObject.createElementVNode)("div", {
+      }, [ (0, external_Vue_namespaceObject.createVNode)(Map) ], 2)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
+      external_Vue_namespaceObject.createCommentVNode)(" 异变 Tab "), (0, external_Vue_namespaceObject.createElementVNode)("div", {
         id: "content_incidents",
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
           active: activeTab.value === "incidents"
@@ -1819,7 +1804,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-85b52c0a" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-2632f696" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -3042,9 +3027,9 @@ h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .GensokyoOrigin-ContentOthers-debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}.GensokyoOrigin-ContentOthers-incident-list{display:flex;flex-direction:column;gap:12px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;position:relative}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed{padding-bottom:8px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-body{display:none}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-card-header{margin-bottom:0;padding-bottom:6px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-debug-switch{background:hsla(0,0%,100%,.05)}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{box-shadow:0 2px 12px rgba(0,0,0,.35)}
 [data-v-851a0cc6] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-851a0cc6] input[type="text"],[data-v-851a0cc6] input[type="number"],[data-v-851a0cc6] textarea,[data-v-851a0cc6] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-851a0cc6] input:focus,[data-v-851a0cc6] textarea:focus,[data-v-851a0cc6] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-851a0cc6] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-851a0cc6] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-851a0cc6] button:hover{background:var(--btn-accent-hover)}[data-v-851a0cc6] button:active{transform:translateY(1px)}[data-v-851a0cc6] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-851a0cc6] .muted-btn:hover{filter:brightness(0.97)}[data-v-851a0cc6] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-851a0cc6] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-851a0cc6] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-851a0cc6] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
 #content_incidents h4[data-v-382a017e]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-382a017e]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-382a017e]{margin-bottom:15px}.debug-select[data-v-382a017e],.debug-switch[data-v-382a017e]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-382a017e]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-382a017e] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-382a017e] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-382a017e] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-name{font-weight:700}.incident-list[data-v-382a017e] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-line{margin:6px 0;font-size:.9em}
-.ascii-map[data-v-7467c71a]{margin:10px 0;padding:12px;border:1px solid var(--line);border-radius:6px;background:var(--paper);color:var(--ink);line-height:1.35;white-space:pre;overflow:auto;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;font-size:13.5px}.ascii-map .map-loading[data-v-7467c71a]{color:var(--muted)}.map-toolbar[data-v-7467c71a]{display:flex;align-items:center;gap:6px;margin:6px 0 10px}.map-legend[data-v-7467c71a]{display:flex;align-items:center;gap:12px;font-size:.85em;color:var(--muted)}.map-legend .swatch[data-v-7467c71a]{display:inline-block;width:12px;height:12px;border-radius:3px;border:1px solid var(--line);vertical-align:middle;margin-right:6px}.swatch-hit[data-v-7467c71a]{background:linear-gradient(90deg,#ffa94d,#ffd27f)}.swatch-near[data-v-7467c71a]{background:linear-gradient(90deg,#8ec5ff,#d6e9ff)}[data-v-7467c71a] .map-hit{background:linear-gradient(90deg,#ffa94d,#ffd27f);border-radius:4px;padding:0 3px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 1px rgba(0,0,0,.35);outline:1px solid rgba(120,60,0,.35);box-shadow:0 0 0 1px rgba(255,170,90,.45) inset,0 0 0 3px rgba(255,230,180,.9) inset,0 0 18px rgba(255,140,40,.75);animation:mapPulse-7467c71a 1.2s ease-in-out infinite}[data-v-7467c71a] .map-hit.paused{animation:none}@keyframes mapPulse-7467c71a{0%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}50%{box-shadow:0 0 0 1px rgba(255,170,90,.6) inset,0 0 0 4px #ffebbe inset,0 0 20px rgba(255,140,40,.9)}100%{box-shadow:0 0 0 1px rgba(255,170,90,.35) inset,0 0 0 2px rgba(255,220,170,.7) inset,0 0 10px rgba(255,150,60,.35)}}[data-v-7467c71a] .map-near{background:linear-gradient(90deg,#8ec5ff,#d6e9ff);border-radius:3px;padding:0 2px;box-decoration-break:clone;-webkit-box-decoration-break:clone;text-shadow:0 0 .8px rgba(0,0,0,.25);outline:1px solid rgba(4,62,130,.25);box-shadow:0 0 0 1px rgba(110,160,220,.35) inset,0 0 8px rgba(120,170,230,.45)}.ascii-map.dim-others[data-v-7467c71a]{color:#7d6d5f}[data-v-7467c71a] .ascii-map.dim-others .map-hit{color:#2b1e12}:root[data-theme="dark"]{background:var(--paper);color:var(--ink)}@media (max-width:768px){.ascii-map[data-v-7467c71a]{font-size:12.5px}}
+.map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;overflow:hidden;background:#f0f0f0}.map-component .map-container{position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translateY(0)}40%{transform:translateY(-30px)}60%{transform:translateY(-15px)}}.map-component .test{animation:bounce 2s infinite}
 .font-size-controls[data-v-7fbcf727]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-7fbcf727]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-85b52c0a]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-85b52c0a]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-85b52c0a]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-85b52c0a]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-85b52c0a]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-85b52c0a]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-85b52c0a]{padding:15px}}[data-v-85b52c0a] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-85b52c0a] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-85b52c0a] .incident-list{display:flex;flex-direction:column;gap:12px}
+.status-tabs[data-v-2632f696]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-2632f696]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-2632f696]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-2632f696]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-2632f696]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-2632f696]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-2632f696]{padding:15px}}[data-v-2632f696] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-2632f696] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-2632f696] .incident-list{display:flex;flex-direction:column;gap:12px}
 .GensokyoOrigin-RoleCard-wrapper{position:relative;flex:0 0 220px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;scroll-snap-align:start;cursor:pointer;transition:background .2s ease}.GensokyoOrigin-RoleCard-wrapper:hover{background:color-mix(in srgb,var(--bg) 90%,var(--ink) 10%)}.GensokyoOrigin-RoleCard-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-RoleCard-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-RoleCard-name{font-weight:700;font-size:.95em}.GensokyoOrigin-RoleCard-meta{font-size:.8em;color:var(--muted)}
 .GensokyoOrigin-RoleDetailPopup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}.GensokyoOrigin-RoleDetailPopup-popup{position:relative;width:90vw;max-width:600px;max-height:80vh;overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.2)}.GensokyoOrigin-RoleDetailPopup-close-btn{position:absolute;top:12px;right:12px;width:30px;height:30px;border:none;background:rgba(0,0,0,0);font-size:24px;cursor:pointer;color:var(--muted)}.GensokyoOrigin-RoleDetailPopup-header{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}.GensokyoOrigin-RoleDetailPopup-avatar{width:60px;height:60px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-size:24px;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-RoleDetailPopup-name{font-size:1.5em;font-weight:700}.GensokyoOrigin-RoleDetailPopup-meta{font-size:1em;color:var(--muted)}.GensokyoOrigin-RoleDetailPopup-details-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}.GensokyoOrigin-RoleDetailPopup-detail-item{background:var(--bg);padding:8px;border-radius:4px;font-size:.95em}.GensokyoOrigin-RoleDetailPopup-detail-item strong{color:var(--muted);margin-right:8px}.GensokyoOrigin-RoleDetailPopup-detail-item.full-width{grid-column:1/-1}
 .role-ribbon-container[data-v-8ed81600]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-8ed81600]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-8ed81600]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-8ed81600]{left:8px}.ribbon-arrow.right[data-v-8ed81600]{right:8px}.role-card-placeholder[data-v-8ed81600]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}
