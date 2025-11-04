@@ -1,0 +1,326 @@
+{
+  "incident": {
+    "decision": "string ('continue' | 'start_new' | 'daily')",
+    "current": {
+      "name": "string",
+      "detail": "string",
+      "solver": ["string"],
+      "mainLoc": ["string"],
+      "isFinished": "boolean",
+      "raw": {
+        "异变细节": "string",
+        "主要地区": ["string"],
+        "异变退治者": "string | string[]",
+        "异变已结束": "boolean"
+      }
+    },
+    "spawn": {
+      "name": "string",
+      "detail": "string",
+      "solver": ["string"],
+      "mainLoc": ["string"],
+      "isFinished": "boolean",
+      "raw": {
+        "异变细节": "string",
+        "主要地区": ["string"],
+        "异变退治者": "string | string[]",
+        "异变已结束": "boolean"
+      }
+    },
+    "remainingCooldown": "number",
+    "isIncidentActive": "boolean"
+  },
+  "clock": {
+    "now": {
+      "iso": "string",
+      "year": "number",
+      "month": "number",
+      "day": "number",
+      "weekdayIndex": "number",
+      "weekdayName": "string",
+      "periodName": "string",
+      "periodIdx": "number",
+      "minutesSinceMidnight": "number",
+      "seasonName": "string",
+      "seasonIdx": "number",
+      "hour": "number",
+      "minute": "number",
+      "hm": "string"
+    },
+    "flags": {
+      "newPeriod": "boolean",
+      "byPeriod": {
+        "newDawn": "boolean",
+        "newMorning": "boolean",
+        "newNoon": "boolean",
+        "newAfternoon": "boolean",
+        "newDusk": "boolean",
+        "newNight": "boolean",
+        "newFirstHalfNight": "boolean",
+        "newSecondHalfNight": "boolean"
+      },
+      "newDay": "boolean",
+      "newWeek": "boolean",
+      "newMonth": "boolean",
+      "newSeason": "boolean",
+      "bySeason": {
+        "newSpring": "boolean",
+        "newSummer": "boolean",
+        "newAutumn": "boolean",
+        "newWinter": "boolean"
+      },
+      "newYear": "boolean"
+    },
+    "mkAnchors": {
+      "anchors": {
+        "newPeriod": "string | null",
+        "newDay": "string | null",
+        "newWeek": "string | null",
+        "newMonth": "string | null",
+        "newSeason": "string | null",
+        "newYear": "string | null",
+        "period": {
+          "newDawn": "string | null",
+          "newMorning": "string | null",
+          "newNoon": "string | null",
+          "newAfternoon": "string | null",
+          "newDusk": "string | null",
+          "newNight": "string | null",
+          "newFirstHalfNight": "string | null",
+          "newSecondHalfNight": "string | null"
+        },
+        "season": {
+          "newSpring": "string | null",
+          "newSummer": "string | null",
+          "newAutumn": "string | null",
+          "newWinter": "string | null"
+        }
+      }
+    },
+    "previousMkAnchors": {
+      "anchors": {
+        "newPeriod": "string | null",
+        "newDay": "string | null",
+        "newWeek": "string | null",
+        "newMonth": "string | null",
+        "newSeason": "string | null",
+        "newYear": "string | null",
+        "period": {
+          "newDawn": "string | null",
+          "newMorning": "string | null",
+          "newNoon": "string | null",
+          "newAfternoon": "string | null",
+          "newDusk": "string | null",
+          "newNight": "string | null",
+          "newFirstHalfNight": "string | null",
+          "newSecondHalfNight": "string | null"
+        },
+        "season": {
+          "newSpring": "string | null",
+          "newSummer": "string | null",
+          "newAutumn": "string | null",
+          "newWinter": "string | null"
+        }
+      }
+    }
+  },
+  "area": {
+    "graph": {
+      "[locationName]": {
+        "[neighborName]": "boolean"
+      }
+    },
+    "legal_locations": [
+      {
+        "name": "string",
+        "pos": {
+          "x": "number",
+          "y": "number"
+        },
+        "htmlEle": "string"
+      }
+    ],
+    "neighbors": ["string"],
+    "loadArea": ["string"],
+    "route": {
+      "candidates": ["string"],
+      "routes": [
+        {
+          "destination": "string",
+          "path": {
+            "hops": "number",
+            "steps": [
+              {
+                "from": "string",
+                "to": "string"
+              }
+            ]
+          }
+        }
+      ]
+    },
+    "mapSize": {
+      "width": "number",
+      "height": "number"
+    }
+  },
+  "festival": {
+    "ongoing": "boolean",
+    "upcoming": "boolean",
+    "current": {
+      "name": "string",
+      "host": "string",
+      "customs": ["string"],
+      "month": "number",
+      "start_day": "number",
+      "end_day": "number"
+    },
+    "next": {
+      "name": "string",
+      "host": "string",
+      "customs": ["string"],
+      "month": "number",
+      "start_day": "number",
+      "end_day": "number",
+      "days_until": "number"
+    }
+  },
+  "characterDistribution": {
+    "playerLocation": "string | null",
+    "npcByLocation": {
+      "[locationName]": ["characterId"]
+    }
+  },
+  "character": {
+    "chars": {
+      "[characterId]": {
+        "affectionStage": {
+          "threshold": "number",
+          "name": "string",
+          "describe": "string | null",
+          "patienceUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')",
+          "visit": {
+            "enabled": "boolean",
+            "probBase": "number",
+            "probK": "number",
+            "coolUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "string",
+              "decrease": "number"
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": "number",
+            "divisor": "number"
+          }
+        },
+        "decision": {
+          "do": "string",
+          "to": "string",
+          "from": "string",
+          "source": "string"
+        },
+        "companionDecision": {
+          "do": "string",
+          "to": "string",
+          "from": "string",
+          "source": "string"
+        }
+      }
+    },
+    "partitions": {
+      "coLocated": ["characterId"],
+      "remote": ["characterId"]
+    }
+  },
+  "characterLog": {},
+  "characterSettings": {
+    "[characterId]": {
+      "id": "string",
+      "name": "string",
+      "affectionStages": [
+        {
+          "threshold": "number",
+          "name": "string",
+          "describe": "string | null",
+          "patienceUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')",
+          "visit": {
+            "enabled": "boolean",
+            "probBase": "number",
+            "probK": "number",
+            "coolUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "string",
+              "decrease": "number"
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": "number",
+            "divisor": "number"
+          }
+        }
+      ],
+      "specials": [
+        {
+          "when": "any",
+          "action": {
+            "do": "string",
+            "to": "string",
+            "from": "string",
+            "source": "string"
+          },
+          "priority": "number"
+        }
+      ],
+      "routine": [
+        {
+          "when": "any",
+          "action": {
+            "do": "string",
+            "to": "string",
+            "from": "string",
+            "source": "string"
+          },
+          "priority": "number"
+        }
+      ]
+    }
+  },
+  "snapshots": [
+    {
+      "mk": "string",
+      "message_id": "number",
+      "is_user": "boolean",
+      "stat": "any",
+      "statWithoutMeta": "any"
+    }
+  ],
+  "ayaNews": {
+    "entries": [
+      {
+        "location": "string",
+        "otherCharacters": [
+          {
+            "name": "string",
+            "target": "string"
+          }
+        ],
+        "target": "string",
+        "clockAck": {
+          "dayID": "number",
+          "weekID": "number",
+          "monthID": "number",
+          "yearID": "number",
+          "periodID": "number",
+          "periodIdx": "number",
+          "seasonID": "number",
+          "seasonIdx": "number"
+        }
+      }
+    ]
+  }
+}

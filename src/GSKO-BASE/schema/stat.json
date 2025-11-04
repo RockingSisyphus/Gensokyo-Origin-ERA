@@ -1,0 +1,232 @@
+{
+  "config": {
+    "affection": {
+      "affectionStages": [
+        {
+          "threshold": "number",
+          "name": "string",
+          "describe": "string | null",
+          "patienceUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')",
+          "visit": {
+            "enabled": "boolean",
+            "probBase": "number",
+            "probK": "number",
+            "coolUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "string",
+              "decrease": "number"
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": "number",
+            "divisor": "number"
+          }
+        }
+      ]
+    },
+    "time": {
+      "epochISO": "string (datetime)",
+      "flagHistoryLimits": {
+        "newPeriod": "number",
+        "newDay": "number",
+        "newWeek": "number",
+        "newMonth": "number",
+        "newSeason": "number",
+        "newYear": "number",
+        "period": {
+          "newDawn": "number",
+          "newMorning": "number",
+          "newNoon": "number",
+          "newAfternoon": "number",
+          "newDusk": "number",
+          "newNight": "number",
+          "newFirstHalfNight": "number",
+          "newSecondHalfNight": "number"
+        },
+        "season": {
+          "newSpring": "number",
+          "newSummer": "number",
+          "newAutumn": "number",
+          "newWinter": "number"
+        }
+      }
+    },
+    "incident": {
+      "cooldownMinutes": "number",
+      "forceTrigger": "boolean",
+      "isRandomPool": "boolean",
+      "pool": [
+        {
+          "name": "string",
+          "detail": "string",
+          "mainLoc": "string | string[]"
+        }
+      ],
+      "randomCore": ["string"],
+      "randomType": ["string"]
+    }
+  },
+  "chars": {
+    "[characterId]": {
+      "name": "string",
+      "好感度": "number",
+      "所在地区": "string | null",
+      "居住地区": "string | null",
+      "affectionStages": [
+        {
+          "threshold": "number",
+          "name": "string",
+          "describe": "string | null",
+          "patienceUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')",
+          "visit": {
+            "enabled": "boolean",
+            "probBase": "number",
+            "probK": "number",
+            "coolUnit": "string ('period' | 'day' | 'week' | 'month' | 'season' | 'year')"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "string",
+              "decrease": "number"
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": "number",
+            "divisor": "number"
+          }
+        }
+      ],
+      "specials": [
+        {
+          "when": "any",
+          "action": {
+            "do": "string",
+            "to": "string",
+            "from": "string",
+            "source": "string"
+          },
+          "priority": "number"
+        }
+      ],
+      "routine": [
+        {
+          "when": "any",
+          "action": {
+            "do": "string",
+            "to": "string",
+            "from": "string",
+            "source": "string"
+          },
+          "priority": "number"
+        }
+      ],
+      "目标": "string"
+    }
+  },
+  "user": {
+    "姓名": "string | null",
+    "所在地区": "string | null",
+    "居住地区": "string | null"
+  },
+  "world": {
+    "map_graph": {
+      "mapSize": {
+        "width": "number",
+        "height": "number"
+      },
+      "tree": {
+        "[nodeName]": {
+          "pos": {
+            "x": "number",
+            "y": "number"
+          },
+          "htmlEle": "string"
+        }
+      },
+      "edges": [
+        {
+          "a": "string",
+          "b": "string"
+        }
+      ],
+      "aliases": {
+        "[aliasName]": ["string"]
+      }
+    },
+    "fallbackPlace": "string"
+  },
+  "世界": {
+    "timeProgress": "number"
+  },
+  "cache": {
+    "time": {
+      "clockAck": {
+        "dayID": "number",
+        "weekID": "number",
+        "monthID": "number",
+        "yearID": "number",
+        "periodID": "number",
+        "periodIdx": "number",
+        "seasonID": "number",
+        "seasonIdx": "number"
+      }
+    },
+    "incident": {
+      "incidentCooldownAnchor": "number | null"
+    },
+    "character": {
+      "[characterId]": {
+        "visit": {
+          "cooling": "boolean"
+        }
+      }
+    },
+    "timeChatMkSync": {
+      "anchors": {
+        "newPeriod": "string | null",
+        "newDay": "string | null",
+        "newWeek": "string | null",
+        "newMonth": "string | null",
+        "newSeason": "string | null",
+        "newYear": "string | null",
+        "period": {
+          "newDawn": "string | null",
+          "newMorning": "string | null",
+          "newNoon": "string | null",
+          "newAfternoon": "string | null",
+          "newDusk": "string | null",
+          "newNight": "string | null",
+          "newFirstHalfNight": "string | null",
+          "newSecondHalfNight": "string | null"
+        },
+        "season": {
+          "newSpring": "string | null",
+          "newSummer": "string | null",
+          "newAutumn": "string | null",
+          "newWinter": "string | null"
+        }
+      }
+    }
+  },
+  "incidents": {
+    "[incidentName]": {
+      "异变细节": "string",
+      "主要地区": ["string"],
+      "异变退治者": "string | string[]",
+      "异变已结束": "boolean"
+    }
+  },
+  "festivals_list": [
+    {
+      "name": "string",
+      "month": "number",
+      "start_day": "number",
+      "end_day": "number",
+      "host": "string",
+      "customs": ["string"]
+    }
+  ],
+  "文文新闻": "string"
+}
