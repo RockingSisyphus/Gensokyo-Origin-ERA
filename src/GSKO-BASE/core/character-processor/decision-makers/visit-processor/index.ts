@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { Cache } from '../../../../schema/cache';
-import { Action } from '../../../../schema/runtime';
+import { ChangeLog } from '../../../../schema/change-log';
+import { Action, Runtime } from '../../../../schema/runtime';
 import { Stat } from '../../../../schema/stat';
-import { Runtime } from '../../../../schema/runtime';
 import { Logger } from '../../../../utils/log';
 import { getAffectionStageFromRuntime, getChar, isVisitCooling, setVisitCooling } from '../../accessors';
 import { PREDEFINED_ACTIONS } from '../../constants';
@@ -39,11 +39,13 @@ export function makeVisitDecisions({
   decisions: Record<string, Action>;
   decidedChars: string[];
   newCache: Cache;
+  changeLog: ChangeLog;
 } {
   const funcName = 'makeVisitDecisions';
   const decisions: Record<string, Action> = {};
   const decidedChars: string[] = [];
   const newCache = _.cloneDeep(cache);
+  const changeLog: ChangeLog = [];
 
   for (const charId of remoteChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
@@ -64,12 +66,22 @@ export function makeVisitDecisions({
     if (passed) {
       decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
       decidedChars.push(charId);
+
+      const oldValue = _.get(newCache, `character.${charId}.visit.cooling`);
       setVisitCooling(newCache, charId, true);
+      changeLog.push({
+        module: funcName,
+        path: `cache.character.${charId}.visit.cooling`,
+        oldValue,
+        newValue: true,
+        reason: `角色 ${charId} 决定前来拜访，进入冷却。`,
+      });
+
       logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
     } else {
       logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
     }
   }
 
-  return { decisions, decidedChars, newCache };
+  return { decisions, decidedChars, newCache, changeLog };
 }

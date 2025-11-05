@@ -27,6 +27,7 @@ import { process as processCharacterSettings } from './core/character-settings-p
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
 import { processIncidentDecisions } from './core/incident-processor';
+import { writeChangesToEra } from './io';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
@@ -117,6 +118,7 @@ $(() => {
       // 此处开始，`currentStat` 是经过 Zod 验证和类型推断的安全对象。
       // `currentRuntime` 是一个临时的、每轮重新计算的对象，用于在处理器之间传递中间状态。
       let currentStat: Stat = parseResult.data;
+      const initialStat = _.cloneDeep(currentStat);
       let currentRuntime: Runtime = getRuntimeObject();
       logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
 
@@ -266,7 +268,6 @@ $(() => {
         stat: currentStat,
         runtime: currentRuntime,
       });
-      currentStat = festivalResult.stat;
       currentRuntime = festivalResult.runtime;
       logState('Festival Processor', 'runtime', {
         stat: currentStat,
@@ -300,6 +301,10 @@ $(() => {
         .concat(forgettingChanges)
         .concat(incidentChanges)
         .concat(charChanges);
+
+      // [IO模块]：将所有 stat 的变更写入 ERA
+      await writeChangesToEra({ changes: allChanges, stat: initialStat });
+
       await sendData({
         stat: currentStat,
         runtime: currentRuntime,

@@ -74,6 +74,7 @@ export async function processCharacterDecisions({
       companionDecisions,
       nonCompanionDecisions,
       newCache: decidedCache,
+      changeLog: decisionChangeLog,
     } = makeDecisions({
       runtime: processedRuntime,
       stat,
@@ -103,7 +104,7 @@ export async function processCharacterDecisions({
 
     logger.debug(funcName, '角色决策处理完毕。');
 
-    const allChanges = preprocessChanges.concat(aggregateChanges);
+    const allChanges = [...preprocessChanges, ...decisionChangeLog, ...aggregateChanges];
 
     return { stat: finalStat, runtime: finalRuntime, changes: allChanges };
   } catch (e) {

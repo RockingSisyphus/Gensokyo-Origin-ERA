@@ -1,5 +1,6 @@
 import _ from 'lodash';
 import { Cache } from '../../../schema/cache';
+import { ChangeLog } from '../../../schema/change-log';
 import { Action } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
 import { Runtime } from '../../../schema/runtime';
@@ -36,6 +37,7 @@ export function makeDecisions({
   companionDecisions: Record<string, Action>;
   nonCompanionDecisions: Record<string, Action>;
   newCache: Cache;
+  changeLog: ChangeLog;
 } {
   const funcName = 'makeDecisions';
   logger.debug(funcName, '开始为所有角色制定决策...');
@@ -47,6 +49,7 @@ export function makeDecisions({
       decisions: visitDecisions,
       decidedChars: visitingChars,
       newCache,
+      changeLog: visitChangeLog,
     } = makeVisitDecisions({
       runtime,
       stat,
@@ -94,10 +97,11 @@ export function makeDecisions({
       companionDecisions: companionActionDecisions,
       nonCompanionDecisions,
       newCache,
+      changeLog: visitChangeLog,
     };
   } catch (e) {
     logger.error(funcName, '执行决策制定时发生错误:', e);
     // 发生错误时，返回一个空决策表，以防止流程中断
-    return { companionDecisions: {}, nonCompanionDecisions: {}, newCache: cache };
+    return { companionDecisions: {}, nonCompanionDecisions: {}, newCache: cache, changeLog: [] };
   }
 }
