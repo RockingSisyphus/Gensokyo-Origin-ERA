@@ -25,7 +25,7 @@ export function getTimeProgress(stat: Stat): number {
 
 // Runtime Accessors
 export function getLegalLocations(runtime: Runtime): string[] {
-  return runtime.area?.legal_locations?.map((location) => location.name) ?? ['博丽神社'];
+  return runtime.area?.legal_locations?.map(location => location.name) ?? ['博丽神社'];
 }
 
 // Cache Accessors

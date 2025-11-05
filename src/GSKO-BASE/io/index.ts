@@ -27,8 +27,7 @@ export async function writeChangesToEra({ changes, stat }: { changes: ChangeLogE
         path: entry.path,
         value: entry.newValue,
       });
-    }
-    else {
+    } else {
       // 如果路径不存在，则调用 era:insertByPath
       eventEmit('era:insertByPath', {
         path: entry.path,

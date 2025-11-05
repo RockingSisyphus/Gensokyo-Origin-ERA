@@ -103,7 +103,11 @@ export function syncTimeChatMkAnchors({ stat, runtime, mk }: SyncParams): SyncRe
     const nextPeriodAnchors = (nextAnchors.period = nextAnchors.period ?? {});
     for (const key of BY_PERIOD_KEYS) {
       if (flags.byPeriod[key] && nextPeriodAnchors[key] !== currentMk) {
-        appendAnchorChange(`period.${key}`, currentAnchors.period?.[key], `flag byPeriod.${key} triggered anchor update`);
+        appendAnchorChange(
+          `period.${key}`,
+          currentAnchors.period?.[key],
+          `flag byPeriod.${key} triggered anchor update`,
+        );
         nextPeriodAnchors[key] = currentMk;
         logger.debug(funcName, '时段标志触发 -> 更新锚点', { periodKey: key, mk: currentMk });
       }

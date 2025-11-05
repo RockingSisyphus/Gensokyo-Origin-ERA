@@ -54,7 +54,9 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       const oldValue = userHome;
       userHome = fallbackLocation;
       stat.user[USER_FIELDS.home] = userHome;
-      changeLog.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHome, '补全用户居住地区'));
+      changeLog.push(
+        createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHome, '补全用户居住地区'),
+      );
     }
     if (userLocation == null) {
       const oldValue = userLocation;
