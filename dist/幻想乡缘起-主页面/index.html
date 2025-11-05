@@ -596,6 +596,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,
+  weather: external_z_namespaceObject.z.string().optional(),
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
 
@@ -3086,26 +3087,31 @@ const WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
 const WeatherContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WeatherContainer",
   props: {
-    weather: {}
+    stat: {
+      type: Object,
+      required: true
+    }
   },
   setup(__props) {
+    const props = __props;
     const weatherVisible = (0, external_Vue_namespaceObject.ref)(false);
+    const weather = (0, external_Vue_namespaceObject.computed)(() => props.stat?.weather ?? null);
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !weatherVisible.value ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(WeatherButtonClosed, {
       key: 0,
       onOpenWeather: _cache[0] || (_cache[0] = $event => weatherVisible.value = true),
-      weather: __props.weather
+      weather: weather.value
     }, null, 8, [ "weather" ])) : ((0, external_Vue_namespaceObject.openBlock)(), (0, 
     external_Vue_namespaceObject.createBlock)(WeatherButtonOpen, {
       key: 1,
       onCloseWeather: _cache[1] || (_cache[1] = $event => weatherVisible.value = false)
     })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(WeatherContent, {
-      weather: __props.weather
+      weather: weather.value
     }, null, 8, [ "weather" ]), [ [ external_Vue_namespaceObject.vShow, weatherVisible.value ] ]) ]));
   }
 });
 
-const WeatherContainer_exports_ = (0, exportHelper.A)(WeatherContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-cb64d90a" ] ]);
+const WeatherContainer_exports_ = (0, exportHelper.A)(WeatherContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0c8bdfda" ] ]);
 
 const WeatherContainer = WeatherContainer_exports_;
 
@@ -3120,7 +3126,6 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
     const logger = new Logger("幻想乡缘起-主页面/components/StatusBanner/StatusBannerContent");
     const statData = (0, external_Vue_namespaceObject.ref)(null);
     const runtimeData = (0, external_Vue_namespaceObject.ref)(null);
-    const weather = (0, external_Vue_namespaceObject.ref)(null);
     const update = ({statWithoutMeta, runtime}) => {
       const funcName = "update";
       logger.log(funcName, "状态横幅内容区开始更新，接收到的数据：", {
@@ -3157,8 +3162,8 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
       "aria-hidden": "true"
     }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 天气组件 "), (0, 
     external_Vue_namespaceObject.createVNode)(WeatherContainer, {
-      weather: weather.value
-    }, null, 8, [ "weather" ]) ]) ], 2112));
+      stat: statData.value
+    }, null, 8, [ "stat" ]) ]) ], 2112));
   }
 });
 
@@ -3667,7 +3672,7 @@ h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .banner-chip[data-v-11b37370]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-11b37370]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-11b37370]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-11b37370]{margin-right:0;font-size:1.1em}
 .banner-chip-open[data-v-1a6d77c8]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-1a6d77c8]{font-size:1.2em;margin-right:8px}.close-icon[data-v-1a6d77c8]{font-size:.9em;color:var(--ink)}
 .weather-content[data-v-16c06ed4]{position:static;width:100%;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--ink)}p[data-v-16c06ed4]{margin:4px 0}em[data-v-16c06ed4]{color:var(--muted);font-size:.9em}
-.weather-container[data-v-cb64d90a]{position:relative}
+.weather-container[data-v-0c8bdfda]{position:relative}
 
 .emoji[data-v-6c84e5b2]{margin-right:8px;font-size:1.1em}.status-banner[data-v-6c84e5b2]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-6c84e5b2]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-6c84e5b2]{margin-right:0}.banner-sep[data-v-6c84e5b2]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}

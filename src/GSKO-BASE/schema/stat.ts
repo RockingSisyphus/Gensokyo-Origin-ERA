@@ -17,6 +17,7 @@ export const StatSchema = z.object({
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,
+  weather: z.string().optional(),
   文文新闻: z.string().optional(),
 });
 

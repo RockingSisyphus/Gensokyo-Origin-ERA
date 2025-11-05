@@ -4515,6 +4515,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,
+  weather: external_z_namespaceObject.z.string().optional(),
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
 

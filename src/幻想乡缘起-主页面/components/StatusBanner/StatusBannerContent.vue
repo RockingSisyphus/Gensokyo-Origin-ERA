@@ -9,7 +9,7 @@
     <span class="banner-sep" aria-hidden="true"></span>
 
     <!-- 天气组件 -->
-    <WeatherContainer :weather="weather" />
+    <WeatherContainer :stat="statData" />
   </div>
 </template>
 
@@ -26,7 +26,6 @@ const logger = new Logger();
 // 状态
 const statData = ref<Stat | null>(null);
 const runtimeData = ref<any>(null);
-const weather = ref<string | null>(null);
 
 /**
  * @description 【暴露给外部的唯一入口】更新整个状态横幅。
@@ -43,9 +42,6 @@ const update = ({ statWithoutMeta, runtime }: { statWithoutMeta: Stat; runtime: 
   // 更新内部状态
   statData.value = statWithoutMeta;
   runtimeData.value = runtime;
-
-  // 更新天气显示
-  // weather.value = statWithoutMeta.世界?.天气 ?? '—';
 };
 
 // 暴露 update 方法给父组件
