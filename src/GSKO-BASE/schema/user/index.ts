@@ -8,8 +8,14 @@ export const UserSchema = z.object({
   特殊能力: z.string().nullable(),
   所在地区: z.string().nullable(),
   居住地区: z.string().nullable(),
-  重要经历: z.union([z.string(), z.array(z.string())]).optional().nullable(),
-  人际关系: z.union([z.string(), z.array(z.string())]).optional().nullable(),
+  重要经历: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .nullable(),
+  人际关系: z
+    .union([z.string(), z.array(z.string())])
+    .optional()
+    .nullable(),
 });
 
 export const USER_FIELDS = {
