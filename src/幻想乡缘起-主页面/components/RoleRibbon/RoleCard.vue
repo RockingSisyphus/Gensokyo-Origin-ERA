@@ -47,12 +47,8 @@ const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
 
 // --- 数据计算 (与粒子效果相关) ---
 const affectionValue = computed(() => props.character?.好感度 || 0);
-const loveThreshold = computed(
-  () => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100,
-);
-const hateThreshold = computed(
-  () => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100,
-);
+const loveThreshold = computed(() => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100);
+const hateThreshold = computed(() => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100);
 
 const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {
   if (affectionValue.value >= loveThreshold.value) return 'love';
