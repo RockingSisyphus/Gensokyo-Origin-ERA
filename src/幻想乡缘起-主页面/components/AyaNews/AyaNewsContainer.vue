@@ -8,7 +8,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import type { StatWithoutMeta } from '../../utils/constants';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import AyaNewsButtonClosed from './AyaNewsButtonClosed.vue';
 import AyaNewsButtonOpen from './AyaNewsButtonOpen.vue';
 import AyaNewsPopup from './AyaNewsPopup.vue';
@@ -18,8 +18,8 @@ const ayaNewsPopup = ref<InstanceType<typeof AyaNewsPopup> | null>(null);
 
 // 暴露内部 popup 的 ref，以便 app.vue 可以调用 updateNews
 defineExpose({
-  updateNews: (state: StatWithoutMeta) => {
-    ayaNewsPopup.value?.updateNews(state);
+  updateNews: (stat: Stat) => {
+    ayaNewsPopup.value?.updateNews(stat);
   },
 });
 </script>

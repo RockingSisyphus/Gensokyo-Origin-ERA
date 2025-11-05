@@ -104,7 +104,7 @@ $(() => {
       try {
         if (ayaNews && typeof ayaNews.updateNews === 'function') {
           logger.debug(funcName, '调用 AyaNews.updateNews');
-          ayaNews.updateNews(context);
+          ayaNews.updateNews(parsedStat);
           logger.debug(funcName, 'AyaNews.updateNews 执行完毕');
         } else {
           logger.warn(funcName, 'AyaNews 组件缺少 updateNews 方法。');

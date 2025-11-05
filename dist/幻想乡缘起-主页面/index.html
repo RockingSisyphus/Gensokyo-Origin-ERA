@@ -2660,14 +2660,14 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   emits: [ "close" ],
   setup(__props, {expose: __expose}) {
     const logger = new Logger("幻想乡缘起-主页面/components/AyaNews/AyaNewsPopup");
-    const updateNews = statWithoutMeta => {
+    const updateNews = stat => {
       const funcName = "updateNews";
-      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
+      if (!stat || typeof stat !== "object") {
+        logger.warn(funcName, "调用失败：传入的 stat 无效。", stat);
         return;
       }
       try {
-        const newsContent = get(statWithoutMeta, ERA_VARIABLE_PATH.NEWS_TEXT, "");
+        const newsContent = stat.文文新闻 ?? "";
         logger.log(funcName, "将更新新闻文本", {
           preview: String(newsContent).slice(0, 50)
         });
@@ -2692,7 +2692,7 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   }
 });
 
-const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-36e7fa95" ] ]);
+const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-08972433" ] ]);
 
 const AyaNewsPopup = AyaNewsPopup_exports_;
 
@@ -2706,8 +2706,8 @@ const AyaNewsContainervue_type_script_setup_true_lang_ts = (0, external_Vue_name
     const newsVisible = (0, external_Vue_namespaceObject.ref)(false);
     const ayaNewsPopup = (0, external_Vue_namespaceObject.ref)(null);
     __expose({
-      updateNews: state => {
-        ayaNewsPopup.value?.updateNews(state);
+      updateNews: stat => {
+        ayaNewsPopup.value?.updateNews(stat);
       }
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", AyaNewsContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !newsVisible.value ? ((0, 
@@ -2724,7 +2724,7 @@ const AyaNewsContainervue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const AyaNewsContainer_exports_ = (0, exportHelper.A)(AyaNewsContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-313602e6" ] ]);
+const AyaNewsContainer_exports_ = (0, exportHelper.A)(AyaNewsContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-dfff4c24" ] ]);
 
 const AyaNewsContainer = AyaNewsContainer_exports_;
 
@@ -3621,7 +3621,7 @@ $(() => {
       try {
         if (ayaNews && typeof ayaNews.updateNews === "function") {
           logger.debug(funcName, "调用 AyaNews.updateNews");
-          ayaNews.updateNews(context);
+          ayaNews.updateNews(parsedStat);
           logger.debug(funcName, "AyaNews.updateNews 执行完毕");
         } else {
           logger.warn(funcName, "AyaNews 组件缺少 updateNews 方法。");
@@ -3686,8 +3686,8 @@ h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .emoji[data-v-d441cb92]{margin-right:8px;font-size:1.1em}.status-banner[data-v-d441cb92]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-d441cb92]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-d441cb92]{margin-right:0}.banner-sep[data-v-d441cb92]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
-.aya-news-popup[data-v-36e7fa95]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-36e7fa95]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-36e7fa95]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-36e7fa95]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
-.aya-news-container[data-v-313602e6]{position:relative}
+.aya-news-popup[data-v-08972433]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-08972433]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-08972433]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-08972433]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.aya-news-container[data-v-dfff4c24]{position:relative}
 
 .user-state-button-closed[data-v-89abe3c0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.user-state-button-closed[data-v-89abe3c0]:hover{background-color:var(--paper)}
 .user-state-button-open[data-v-682280a6]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.user-state-button-open[data-v-682280a6]:hover{background-color:var(--paper)}

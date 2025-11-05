@@ -7,24 +7,24 @@
 
 <script setup lang="ts">
 import { defineExpose, onMounted } from 'vue';
-import { ERA_VARIABLE_PATH, type StatWithoutMeta } from '../../utils/constants';
-import { get, text } from '../../utils/format';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import { text } from '../../utils/format';
 import { Logger } from '../../utils/log';
 
 defineEmits(['close']);
 
 const logger = new Logger();
 
-const updateNews = (statWithoutMeta: StatWithoutMeta) => {
+const updateNews = (stat: Stat) => {
   const funcName = 'updateNews';
 
-  if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。', statWithoutMeta);
+  if (!stat || typeof stat !== 'object') {
+    logger.warn(funcName, '调用失败：传入的 stat 无效。', stat);
     return;
   }
 
   try {
-    const newsContent = get(statWithoutMeta, ERA_VARIABLE_PATH.NEWS_TEXT, '');
+    const newsContent = stat.文文新闻 ?? '';
     logger.log(funcName, '将更新新闻文本', { preview: String(newsContent).slice(0, 50) });
     text('aya-news-content-popup', newsContent);
     logger.debug(funcName, '新闻文本已写入 DOM 完成');
