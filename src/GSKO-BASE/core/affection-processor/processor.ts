@@ -4,7 +4,7 @@
  */
 
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { CHARACTER_FIELDS } from '../../schema/character';
 import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
@@ -134,9 +134,10 @@ export function processAffection({ stat, editLog, runtime }: { stat: Stat; editL
         (character as any)[CHARACTER_FIELDS.affection] = finalNewValue;
 
         // 记录变更
+        const atomicPath = `chars.${charId}.${CHARACTER_FIELDS.affection}`;
         const changeEntry = createChangeLogEntry(
           'affection-processor',
-          path,
+          atomicPath,
           oldValueNum,
           finalNewValue,
           `好感度处理：原始变化量 ${delta} 被软限制为 ${finalDelta}`,

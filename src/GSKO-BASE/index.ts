@@ -128,7 +128,6 @@ $(() => {
         stat: currentStat,
         runtime: currentRuntime,
       });
-      currentStat = areaResult.stat;
       currentRuntime = areaResult.runtime;
       logState('Area Processor', 'runtime', {
         stat: currentStat,
@@ -139,19 +138,18 @@ $(() => {
       // [数据规范化处理器]：统一和修正数据格式，例如将不规范的地点名称标准化。
       const normalizationResult = normalizeLocationData({ originalStat: currentStat, runtime: currentRuntime });
       currentStat = normalizationResult.stat;
-      const normalizationChanges = normalizationResult.changes;
+      const normalizationChanges = normalizationResult.changeLog;
       logState('Normalizer Processor', 'stat', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),
       });
 
-      // [角色位置处理器]：根据角色的行动计划和当前状态，更新他们在地图上的位置。
+      // [角色位置处理器]：根据角色的行动计划和当前状态，将他们在地图上的位置读取到runtime中。
       const locResult = processCharacterLocations({
         stat: currentStat,
         runtime: currentRuntime,
       });
-      currentStat = locResult.stat;
       currentRuntime = locResult.runtime;
       logState('Character Locations Processor', 'runtime', {
         stat: currentStat,
@@ -188,6 +186,7 @@ $(() => {
       });
       currentStat = timeResult.stat;
       currentRuntime = timeResult.runtime;
+      const timeChanges = timeResult.changes;
       logState('Time Processor', 'stat (cache), runtime', {
         stat: currentStat,
         runtime: currentRuntime,
@@ -203,6 +202,7 @@ $(() => {
       });
       currentStat = mkSyncResult.stat;
       currentRuntime = mkSyncResult.runtime;
+      const mkSyncChanges = mkSyncResult.changeLog;
       logState('Time Chat MK Sync', 'stat (cache), runtime', {
         stat: currentStat,
         runtime: currentRuntime,
@@ -295,6 +295,8 @@ $(() => {
       // [数据发送器]：将所有 `stat` 的变更和生成的提示词发送回 ERA 框架。
       const allChanges = normalizationChanges
         .concat(affectionChanges)
+        .concat(timeChanges)
+        .concat(mkSyncChanges)
         .concat(forgettingChanges)
         .concat(incidentChanges)
         .concat(charChanges);

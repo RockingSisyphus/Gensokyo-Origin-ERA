@@ -1,9 +1,7 @@
-import { z } from 'zod';
-import { ClockAckSchema } from './clock';
-import { ClockSchema } from './runtime';
+import type { ClockAck } from './clock';
+import type { Clock } from './runtime';
 
-export const TimeProcessorResultSchema = z.object({
-  clock: ClockSchema,
-  newClockAck: ClockAckSchema.nullable(),
-});
-export type TimeProcessorResult = z.infer<typeof TimeProcessorResultSchema>;
+export interface TimeProcessorResult {
+  clock: Clock;
+  newClockAck: ClockAck | null;
+}

@@ -20,3 +20,13 @@ export const ChangeLogEntrySchema = z.object({
  * @description 从 Schema 推断出的变更日志条目类型。
  */
 export type ChangeLogEntry = z.infer<typeof ChangeLogEntrySchema>;
+
+/**
+ * @description 变更日志，由多个变更条目组成的数组。
+ */
+export const ChangeLogSchema = z.array(ChangeLogEntrySchema);
+
+/**
+ * @description 从 Schema 推断出的变更日志类型。
+ */
+export type ChangeLog = z.infer<typeof ChangeLogSchema>;

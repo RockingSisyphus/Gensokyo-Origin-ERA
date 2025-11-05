@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLog } from '../../schema/change-log';
 import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
 import { CHARACTER_FIELDS } from '../../schema/character';
@@ -12,20 +12,20 @@ const logger = new Logger();
 
 export function normalizeLocationData({ originalStat, runtime }: { originalStat: Stat; runtime: Runtime }): {
   stat: Stat;
-  changes: ChangeLogEntry[];
+  changeLog: ChangeLog;
 } {
   const funcName = 'normalizeLocationData';
   logger.debug(funcName, '开始进行地点规范化...');
 
   const stat = _.cloneDeep(originalStat);
-  const changes: ChangeLogEntry[] = [];
+  const changeLog: ChangeLog = [];
 
   try {
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
     const legalLocations = new Set<string>(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
     if (legalLocations.size === 0) {
       logger.warn(funcName, '合法地点列表为空，跳过地点规范化。');
-      return { stat, changes };
+      return { stat, changeLog };
     }
     const fallbackLocation = stat.world?.fallbackPlace ?? WORLD_DEFAULTS.fallbackPlace;
 
@@ -54,13 +54,13 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       const oldValue = userHome;
       userHome = fallbackLocation;
       stat.user[USER_FIELDS.home] = userHome;
-      changes.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHome, '补全用户居住地区'));
+      changeLog.push(createChangeLogEntry(funcName, `user.${USER_FIELDS.home}`, oldValue, userHome, '补全用户居住地区'));
     }
     if (userLocation == null) {
       const oldValue = userLocation;
       userLocation = userHome;
       stat.user[USER_FIELDS.currentLocation] = userLocation;
-      changes.push(
+      changeLog.push(
         createChangeLogEntry(
           funcName,
           `user.${USER_FIELDS.currentLocation}`,
@@ -76,7 +76,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
     if (userHomeNormalization.fixedLocation !== userHome) {
       const oldValue = stat.user[USER_FIELDS.home];
       stat.user[USER_FIELDS.home] = userHomeNormalization.fixedLocation;
-      changes.push(
+      changeLog.push(
         createChangeLogEntry(
           funcName,
           `user.${USER_FIELDS.home}`,
@@ -89,7 +89,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
     if (userLocationNormalization.fixedLocation !== userLocation) {
       const oldValue = stat.user[USER_FIELDS.currentLocation];
       stat.user[USER_FIELDS.currentLocation] = userLocationNormalization.fixedLocation;
-      changes.push(
+      changeLog.push(
         createChangeLogEntry(
           funcName,
           `user.${USER_FIELDS.currentLocation}`,
@@ -112,7 +112,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
         const oldValue = charHome;
         charHome = fallbackLocation;
         charObject[CHARACTER_FIELDS.home] = charHome;
-        changes.push(
+        changeLog.push(
           createChangeLogEntry(
             funcName,
             `chars.${charName}.${CHARACTER_FIELDS.home}`,
@@ -126,7 +126,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
         const oldValue = charLocation;
         charLocation = charHome;
         charObject[CHARACTER_FIELDS.currentLocation] = charLocation;
-        changes.push(
+        changeLog.push(
           createChangeLogEntry(
             funcName,
             `chars.${charName}.${CHARACTER_FIELDS.currentLocation}`,
@@ -144,7 +144,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       if (charHomeNormalization.fixedLocation !== charHome) {
         const oldValue = charObject[CHARACTER_FIELDS.home];
         charObject[CHARACTER_FIELDS.home] = charHomeNormalization.fixedLocation;
-        changes.push(
+        changeLog.push(
           createChangeLogEntry(
             funcName,
             `chars.${charName}.${CHARACTER_FIELDS.home}`,
@@ -157,7 +157,7 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       if (charLocationNormalization.fixedLocation !== charLocation) {
         const oldValue = charObject[CHARACTER_FIELDS.currentLocation];
         charObject[CHARACTER_FIELDS.currentLocation] = charLocationNormalization.fixedLocation;
-        changes.push(
+        changeLog.push(
           createChangeLogEntry(
             funcName,
             `chars.${charName}.${CHARACTER_FIELDS.currentLocation}`,
@@ -169,10 +169,10 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       }
     }
 
-    logger.debug(funcName, '地点规范化完成。', { changes });
+    logger.debug(funcName, '地点规范化完成。', { changeLog });
   } catch (error) {
     logger.error(funcName, '执行地点规范化时发生异常，将保留原始数据', error);
   }
 
-  return { stat, changes };
+  return { stat, changeLog };
 }

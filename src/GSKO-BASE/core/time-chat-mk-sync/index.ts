@@ -23,5 +23,5 @@ export function processTimeChatMkSync({
     mk,
   });
 
-  return { stat: syncResult.stat, runtime: finalRuntime };
+  return { stat: syncResult.stat, runtime: finalRuntime, changeLog: syncResult.changeLog };
 }

@@ -1,16 +1,17 @@
 import { z } from 'zod';
-import { ClockAck } from '../../schema/clock';
-import { BY_PERIOD_KEYS, BY_SEASON_KEYS, ClockFlags, EMPTY_FLAGS, EMPTY_NOW, NowSchema } from '../../schema/clock';
+import {
+  BY_PERIOD_KEYS,
+  BY_SEASON_KEYS,
+  ClockAck,
+  ClockFlags,
+  EMPTY_FLAGS,
+  EMPTY_NOW,
+  NowSchema,
+} from '../../schema/clock';
 import { Stat } from '../../schema/stat';
 import { TimeProcessorResult } from '../../schema/time-processor-result';
+import { TIME_PERIOD_KEYS, TIME_PERIOD_NAMES, TIME_SEASON_NAMES, TIME_WEEK_NAMES } from '../../schema/time/constants';
 import { Logger } from '../../utils/log';
-import {
-  TIME_PERIOD_KEYS,
-  TIME_PERIOD_NAMES,
-  TIME_SEASON_KEYS,
-  TIME_SEASON_NAMES,
-  TIME_WEEK_NAMES,
-} from '../../schema/time/constants';
 import { getTimeConfig, getTimeProgress } from './accessors';
 import { PAD2, periodIndexOf, seasonIndexOf, weekStart, ymID, ymdID } from './utils';
 

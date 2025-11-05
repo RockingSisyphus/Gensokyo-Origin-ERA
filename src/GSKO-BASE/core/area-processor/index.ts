@@ -1,4 +1,4 @@
-import { AreaRuntimeInfo, RouteInfo, Runtime } from '../../schema/runtime';
+import { AreaRuntimeInfo, Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { Logger } from '../../utils/log';
 import { buildGraph } from './graph-builder';
@@ -12,15 +12,9 @@ const logger = new Logger();
  * @description 地区处理总入口。构建图，提取合法地区，获取邻居，确定加载地区，并计算路线。
  * @param {Stat} stat - 不含 $meta 的纯净变量对象。
  * @param {Runtime} runtime - 当前的 runtime 对象。
- * @returns {Promise<{ stat: Stat; runtime: Runtime }>} - 返回一个包含更新后 stat 和 runtime 的对象。
+ * @returns {Promise<{ runtime: Runtime }>} - 返回一个包含更新后 runtime 的对象。
  */
-export async function processArea({
-  stat,
-  runtime,
-}: {
-  stat: Stat;
-  runtime: Runtime;
-}): Promise<{ stat: Stat; runtime: Runtime }> {
+export async function processArea({ stat, runtime }: { stat: Stat; runtime: Runtime }): Promise<{ runtime: Runtime }> {
   const funcName = 'processArea';
   logger.debug(funcName, '开始处理地区...');
 
@@ -60,7 +54,7 @@ export async function processArea({
     logger.debug(funcName, `需要加载 ${output.loadArea.length} 个地区`);
 
     // 5. 基于加载的地区计算路线
-    const tempRuntimeForRoute = { loadArea: output.loadArea };
+    const tempRuntimeForRoute = { area: output };
     output.route = processRoute({ stat, runtime: tempRuntimeForRoute, graph });
     logger.debug(funcName, '路线计算完成');
   } catch (e) {
@@ -72,5 +66,5 @@ export async function processArea({
   runtime.area = output;
 
   logger.debug(funcName, '地区处理完成');
-  return { stat, runtime };
+  return { runtime };
 }

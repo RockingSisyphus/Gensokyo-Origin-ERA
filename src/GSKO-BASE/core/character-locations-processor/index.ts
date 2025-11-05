@@ -1,13 +1,12 @@
-import { Stat } from '../../schema/stat';
-import { Runtime } from '../../schema/runtime';
-import { USER_FIELDS } from '../../schema/user';
 import { CHARACTER_FIELDS, type Character } from '../../schema/character';
+import { Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
+import { USER_FIELDS } from '../../schema/user';
 import { Logger } from '../../utils/log';
 
 const logger = new Logger();
 
 export function processCharacterLocations({ stat, runtime }: { stat: Stat; runtime: Runtime }): {
-  stat: Stat;
   runtime: Runtime;
 } {
   const funcName = 'processCharacterLocations';
@@ -38,7 +37,7 @@ export function processCharacterLocations({ stat, runtime }: { stat: Stat; runti
     };
   }
 
-  return { stat, runtime };
+  return { runtime };
 }
 
 function getUserLocation(stat: Stat): string | null {

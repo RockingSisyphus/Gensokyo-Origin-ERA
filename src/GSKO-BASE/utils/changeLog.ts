@@ -1,7 +1,7 @@
 /**
  * @file 变更日志（ChangeLog）相关的工具函数
  */
-import { ChangeLogEntry, ChangeLogEntrySchema } from '../schema/change-log-entry';
+import { ChangeLogEntry, ChangeLogEntrySchema } from '../schema/change-log';
 
 /**
  * @description 创建一个经过验证的标准格式的变更日志条目。

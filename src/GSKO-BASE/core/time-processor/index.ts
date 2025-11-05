@@ -1,6 +1,8 @@
-import { Stat } from '../../schema/stat';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
 import { applyCacheToStat, getCache } from '../../utils/cache';
+import { createChangeLogEntry } from '../../utils/changeLog';
 import { Logger } from '../../utils/log';
 import { getClockAck, writeTimeProcessorResult } from './accessors';
 import { processTime as processor } from './processor';
@@ -8,12 +10,12 @@ import { processTime as processor } from './processor';
 const logger = new Logger();
 
 /**
- * 时间处理器主函数。
+ * ʱ�䴦������������
  *
- * @param {object} params - 参数对象。
- * @param {Stat} params.stat - 完整的持久层数据。
- * @param {Runtime} params.runtime - 完整的易失层数据。
- * @returns {Promise<{ stat: Stat; runtime: Runtime }>} - 返回一个包含更新后 stat 和 runtime 的对象。
+ * @param {object} params - ��������
+ * @param {Stat} params.stat - �����ĳ־ò����ݡ�
+ * @param {Runtime} params.runtime - ��������ʧ�����ݡ�
+ * @returns {Promise<{ stat: Stat; runtime: Runtime; changes: ChangeLogEntry[] }>} - ����һ���������º� stat �� runtime �Ķ���
  */
 export async function processTime({
   stat,
@@ -21,32 +23,50 @@ export async function processTime({
 }: {
   stat: Stat;
   runtime: Runtime;
-}): Promise<{ stat: Stat; runtime: Runtime }> {
+}): Promise<{ stat: Stat; runtime: Runtime; changes: ChangeLogEntry[] }> {
   const funcName = 'processTime';
-  logger.debug(funcName, '开始处理时间...');
+  logger.debug(funcName, '��ʼ����ʱ��...');
 
   try {
-    // 1. 提取缓存
+    // 1. ��ȡ����
     const cache = getCache(stat);
 
-    // 2. 使用 accessor 读取上一轮的 clockAck
+    // 2. ʹ�� accessor ��ȡ��һ�ֵ� clockAck
     const prevClockAck = getClockAck(cache);
 
-    // 3. 调用核心处理器
+    // 3. ���ú��Ĵ�����
     const timeResult = processor({ stat, prevClockAck: prevClockAck ?? null });
 
-    // 4. 使用 accessor 将结果写入 runtime 和 cache
+    const changes: ChangeLogEntry[] = [];
+    const normalizedNewClockAck = timeResult.newClockAck ?? undefined;
+    const normalizedPrevClockAck = prevClockAck ?? undefined;
+    const clockAckChanged =
+      JSON.stringify(normalizedPrevClockAck ?? null) !== JSON.stringify(normalizedNewClockAck ?? null);
+
+    if (clockAckChanged) {
+      changes.push(
+        createChangeLogEntry(
+          'time-processor',
+          'cache.time.clockAck',
+          normalizedPrevClockAck,
+          normalizedNewClockAck,
+          '更新时间处理器的 clockAck 缓存',
+        ),
+      );
+    }
+
+    // 4. ʹ�� accessor �����д�� runtime �� cache
     writeTimeProcessorResult({ runtime, cache, result: timeResult });
 
-    // 5. 将最终的缓存应用回 stat
+    // 5. �����յĻ���Ӧ�û� stat
     applyCacheToStat(stat, cache);
 
-    logger.debug(funcName, '时间处理完毕。');
+    logger.debug(funcName, 'ʱ�䴦����ϡ�');
 
-    return { stat, runtime };
+    return { stat, runtime, changes };
   } catch (e) {
-    logger.error(funcName, '处理时间时发生意外错误:', e);
-    // 发生严重错误时，返回原始数据以确保主流程稳定
-    return { stat, runtime };
+    logger.error(funcName, '����ʱ��ʱ�����������:', e);
+    // �������ش���ʱ������ԭʼ������ȷ���������ȶ�
+    return { stat, runtime, changes: [] };
   }
 }
