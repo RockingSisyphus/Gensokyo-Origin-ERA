@@ -29,7 +29,8 @@
 
 <script setup lang="ts">
 import { defineExpose, ref } from 'vue';
-import { get, text } from '../../utils/format';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import { text } from '../../utils/format';
 import { Logger } from '../../utils/log';
 
 defineEmits(['close']);
@@ -43,33 +44,34 @@ const positionPopup = (_anchorEl: HTMLElement) => {
   style.value = {}; // 清空内联样式，遵循文档流
 };
 
-const updateUserStatus = (userData: object, anchorEl?: HTMLElement) => {
+const updateUserStatus = (stat: Stat, anchorEl?: HTMLElement) => {
   if (anchorEl) {
     positionPopup(anchorEl);
   }
   const funcName = 'updateUserStatus';
-  logger.debug(funcName, '函数入口，接收到的 userData:', userData);
+  logger.debug(funcName, '函数入口，接收到的 stat:', stat);
 
-  if (!userData || typeof userData !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 userData 无效。', userData);
+  if (!stat || typeof stat !== 'object' || !stat.user) {
+    logger.warn(funcName, '调用失败：传入的 stat 无效或缺少 user 属性。', stat);
     return;
   }
 
-  const map = [
-    ['user-name-popup', '姓名'],
-    ['user-identity-popup', '身份'],
-    ['user-gender-popup', '性别'],
-    ['user-age-popup', '年龄'],
-    ['user-abilities-popup', '特殊能力'],
-    ['user-location-popup', '所在地区'],
-    ['user-home-popup', '居住地区'],
+  const { user } = stat;
+
+  const map: [string, string | null | undefined][] = [
+    ['user-name-popup', user.姓名],
+    ['user-identity-popup', user.身份],
+    ['user-gender-popup', user.性别],
+    ['user-age-popup', user.年龄],
+    ['user-abilities-popup', user.特殊能力],
+    ['user-location-popup', user.所在地区],
+    ['user-home-popup', user.居住地区],
   ];
 
-  map.forEach(([id, key]) => {
-    const value = get(userData, key, '—');
-    logger.debug(funcName, `[数据获取] 从 key '${key}' 获取到 value:`, value);
-    logger.debug(funcName, `[写入DOM] 准备向 #${id} 写入内容:`, value);
-    text(id, value);
+  map.forEach(([id, value]) => {
+    const displayValue = value ?? '—';
+    logger.debug(funcName, `[写入DOM] 准备向 #${id} 写入内容:`, displayValue);
+    text(id, displayValue);
   });
   logger.debug(funcName, '所有字段更新完成。');
 };

@@ -8,6 +8,7 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import { Logger } from '../../utils/log';
 import UserStateButtonClosed from './UserStateButtonClosed.vue';
 import UserStateButtonOpen from './UserStateButtonOpen.vue';
@@ -19,9 +20,9 @@ const userStatePopup = ref<InstanceType<typeof UserStatePopup> | null>(null);
 
 // 暴露内部 popup 的 ref，以便 app.vue 可以调用 updateUserStatus
 defineExpose({
-  updateUserStatus: (userData: object) => {
-    logger.debug('updateUserStatus', '更新用户状态数据', userData);
-    userStatePopup.value?.updateUserStatus(userData);
+  updateUserStatus: (stat: Stat) => {
+    logger.debug('updateUserStatus', '更新用户状态数据', stat);
+    userStatePopup.value?.updateUserStatus(stat);
   },
 });
 </script>

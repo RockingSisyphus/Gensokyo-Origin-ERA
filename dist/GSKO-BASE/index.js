@@ -597,12 +597,20 @@ const FLAG_PREFIX = {
 
 const UserSchema = external_z_namespaceObject.z.object({
   姓名: external_z_namespaceObject.z.string().nullable(),
+  身份: external_z_namespaceObject.z.string().nullable(),
+  性别: external_z_namespaceObject.z.string().nullable(),
+  年龄: external_z_namespaceObject.z.string().nullable(),
+  特殊能力: external_z_namespaceObject.z.string().nullable(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable()
 });
 
 const USER_FIELDS = {
   name: "姓名",
+  identity: "身份",
+  gender: "性别",
+  age: "年龄",
+  abilities: "特殊能力",
   currentLocation: "所在地区",
   home: "居住地区"
 };

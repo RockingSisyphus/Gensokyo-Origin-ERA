@@ -60,9 +60,6 @@ $(() => {
 
       const context = { statWithoutMeta: parsedStat, runtime: parsedRuntime };
       logger.debug(funcName, '传给各子模块的上下文对象:', context);
-      // 事件处理流程安全读取所需信息
-      const userData = get(parsedStat, ERA_VARIABLE_PATH.USER_DATA, {});
-      logger.debug(funcName, '读取到的 userData:', userData);
 
       // 获取 Vue 组件实例引用
       const { themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon } = appInstance as any;
@@ -83,7 +80,7 @@ $(() => {
       try {
         if (userState && typeof userState.updateUserStatus === 'function') {
           logger.debug(funcName, '调用 UserState.updateUserStatus');
-          userState.updateUserStatus(userData);
+          userState.updateUserStatus(parsedStat);
           logger.debug(funcName, 'UserState.updateUserStatus 执行完毕');
         } else {
           logger.warn(funcName, 'UserState 组件缺少 updateUserStatus 方法。');
