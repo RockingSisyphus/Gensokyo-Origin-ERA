@@ -27,12 +27,12 @@ import { process as processCharacterSettings } from './core/character-settings-p
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
 import { processIncidentDecisions } from './core/incident-processor';
-import { writeChangesToEra } from './io';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
 import { processTimeChatMkSync } from './core/time-chat-mk-sync';
 import { processTime } from './core/time-processor';
+import { writeChangesToEra } from './io';
 import { ayaNewsProcessor } from './subsidiary/aya-news-processor';
 
 // --- 事件与 Schema 导入 ---
@@ -330,6 +330,12 @@ $(() => {
   onWriteDone(
     (detail: WriteDonePayload) => {
       logger.log('main', '接收到 era:writeDone 事件');
+      // 如果是 apiWrite 触发的，说明正在执行写入，避免循环
+      if (detail?.actions?.apiWrite === true) {
+        logger.log('onWriteDone', '检测到 apiWrite 标记事件，跳过刷新逻辑');
+        return;
+      }
+
       // 确保 handleWriteDone 中的任何异步错误都能被捕获和记录。
       handleWriteDone(detail, false).catch(error => {
         logger.error('onWriteDone', 'handleWriteDone 发生未处理的 Promise 拒绝:', error);

@@ -5,6 +5,8 @@ import './style.scss';
 import { ERA_VARIABLE_PATH } from './utils/constants';
 import { get } from './utils/format';
 import { Logger, logContext } from './utils/log';
+import { RuntimeSchema } from '../GSKO-BASE/schema/runtime';
+import { StatSchema } from '../GSKO-BASE/schema/stat';
 
 // ===============================================================
 // 应用入口：负责 Vue 初始化、以及监听 era:writeDone 事件后刷新 UI/后台流水线
@@ -52,10 +54,14 @@ $(() => {
         // 注意：不要因此终止流程，因为某些场景不会返回 runtime
       }
 
-      const context = { statWithoutMeta, runtime };
+      // 使用 Zod Schema 解析和验证 stat 和 runtime
+      const parsedStat = StatSchema.parse(statWithoutMeta);
+      const parsedRuntime = RuntimeSchema.parse(runtime);
+
+      const context = { statWithoutMeta: parsedStat, runtime: parsedRuntime };
       logger.debug(funcName, '传给各子模块的上下文对象:', context);
       // 事件处理流程安全读取所需信息
-      const userData = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_DATA, {});
+      const userData = get(parsedStat, ERA_VARIABLE_PATH.USER_DATA, {});
       logger.debug(funcName, '读取到的 userData:', userData);
 
       // 获取 Vue 组件实例引用

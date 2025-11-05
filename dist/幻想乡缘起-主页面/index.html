@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  441: (__unused_webpack_module, exports) => {
+  42: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -400,7 +400,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(441);
+var exportHelper = __webpack_require__(42);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7256a290" ] ]);
 
@@ -2960,6 +2960,560 @@ const app_exports_ = appvue_type_script_setup_true_lang_ts;
 
 const _app = app_exports_;
 
+const external_z_namespaceObject = z;
+
+const mkValueSchema = external_z_namespaceObject.z.string().nullable();
+
+const PeriodAnchorSchema = external_z_namespaceObject.z.object({
+  newDawn: mkValueSchema,
+  newMorning: mkValueSchema,
+  newNoon: mkValueSchema,
+  newAfternoon: mkValueSchema,
+  newDusk: mkValueSchema,
+  newNight: mkValueSchema,
+  newFirstHalfNight: mkValueSchema,
+  newSecondHalfNight: mkValueSchema
+}).partial().default({});
+
+const SeasonAnchorSchema = external_z_namespaceObject.z.object({
+  newSpring: mkValueSchema,
+  newSummer: mkValueSchema,
+  newAutumn: mkValueSchema,
+  newWinter: mkValueSchema
+}).partial().default({});
+
+const TimeChatMkAnchorsSchema = external_z_namespaceObject.z.object({
+  newPeriod: mkValueSchema,
+  period: PeriodAnchorSchema,
+  newDay: mkValueSchema,
+  newWeek: mkValueSchema,
+  newMonth: mkValueSchema,
+  newSeason: mkValueSchema,
+  season: SeasonAnchorSchema,
+  newYear: mkValueSchema
+}).partial().default({});
+
+const createEmptyAnchors = () => ({});
+
+const TimeChatMkSyncCacheSchema = external_z_namespaceObject.z.object({
+  anchors: TimeChatMkAnchorsSchema.optional()
+}).optional().default(() => ({
+  anchors: createEmptyAnchors()
+}));
+
+const TimeChatMkSyncRuntimeSchema = external_z_namespaceObject.z.object({
+  anchors: TimeChatMkAnchorsSchema.optional()
+}).optional().default(() => ({
+  anchors: createEmptyAnchors()
+}));
+
+const BY_PERIOD_KEYS = null && TIME_PERIOD_KEYS;
+
+const BY_SEASON_KEYS = null && TIME_SEASON_KEYS;
+
+const ClockAckSchema = external_z_namespaceObject.z.object({
+  dayID: external_z_namespaceObject.z.number(),
+  weekID: external_z_namespaceObject.z.number(),
+  monthID: external_z_namespaceObject.z.number(),
+  yearID: external_z_namespaceObject.z.number(),
+  periodID: external_z_namespaceObject.z.number(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  seasonID: external_z_namespaceObject.z.number(),
+  seasonIdx: external_z_namespaceObject.z.number()
+});
+
+const NowSchema = external_z_namespaceObject.z.object({
+  iso: external_z_namespaceObject.z.string(),
+  year: external_z_namespaceObject.z.number(),
+  month: external_z_namespaceObject.z.number(),
+  day: external_z_namespaceObject.z.number(),
+  weekdayIndex: external_z_namespaceObject.z.number(),
+  weekdayName: external_z_namespaceObject.z.string(),
+  periodName: external_z_namespaceObject.z.string(),
+  periodIdx: external_z_namespaceObject.z.number(),
+  minutesSinceMidnight: external_z_namespaceObject.z.number(),
+  seasonName: external_z_namespaceObject.z.string(),
+  seasonIdx: external_z_namespaceObject.z.number(),
+  hour: external_z_namespaceObject.z.number(),
+  minute: external_z_namespaceObject.z.number(),
+  hm: external_z_namespaceObject.z.string()
+});
+
+const ClockFlagsSchema = external_z_namespaceObject.z.object({
+  newPeriod: external_z_namespaceObject.z.boolean(),
+  byPeriod: external_z_namespaceObject.z.object({
+    newDawn: external_z_namespaceObject.z.boolean(),
+    newMorning: external_z_namespaceObject.z.boolean(),
+    newNoon: external_z_namespaceObject.z.boolean(),
+    newAfternoon: external_z_namespaceObject.z.boolean(),
+    newDusk: external_z_namespaceObject.z.boolean(),
+    newNight: external_z_namespaceObject.z.boolean(),
+    newFirstHalfNight: external_z_namespaceObject.z.boolean(),
+    newSecondHalfNight: external_z_namespaceObject.z.boolean()
+  }),
+  newDay: external_z_namespaceObject.z.boolean(),
+  newWeek: external_z_namespaceObject.z.boolean(),
+  newMonth: external_z_namespaceObject.z.boolean(),
+  newSeason: external_z_namespaceObject.z.boolean(),
+  bySeason: external_z_namespaceObject.z.object({
+    newSpring: external_z_namespaceObject.z.boolean(),
+    newSummer: external_z_namespaceObject.z.boolean(),
+    newAutumn: external_z_namespaceObject.z.boolean(),
+    newWinter: external_z_namespaceObject.z.boolean()
+  }),
+  newYear: external_z_namespaceObject.z.boolean()
+});
+
+const CLOCK_ROOT_FLAG_KEYS = null && [ "newPeriod", "newDay", "newWeek", "newMonth", "newSeason", "newYear" ];
+
+const ClockSchema = external_z_namespaceObject.z.object({
+  now: NowSchema,
+  flags: ClockFlagsSchema,
+  mkAnchors: TimeChatMkAnchorsSchema.optional(),
+  previousMkAnchors: TimeChatMkAnchorsSchema.optional()
+});
+
+const EMPTY_NOW = {
+  iso: "",
+  year: 0,
+  month: 0,
+  day: 0,
+  weekdayIndex: 0,
+  weekdayName: "",
+  periodName: "",
+  periodIdx: 0,
+  minutesSinceMidnight: 0,
+  seasonName: "",
+  seasonIdx: 0,
+  hour: 0,
+  minute: 0,
+  hm: ""
+};
+
+const EMPTY_FLAGS = {
+  newPeriod: false,
+  byPeriod: {
+    newDawn: false,
+    newMorning: false,
+    newNoon: false,
+    newAfternoon: false,
+    newDusk: false,
+    newNight: false,
+    newFirstHalfNight: false,
+    newSecondHalfNight: false
+  },
+  newDay: false,
+  newWeek: false,
+  newMonth: false,
+  newSeason: false,
+  bySeason: {
+    newSpring: false,
+    newSummer: false,
+    newAutumn: false,
+    newWinter: false
+  },
+  newYear: false
+};
+
+const OtherCharacterInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  target: external_z_namespaceObject.z.string()
+});
+
+const AyaNewsEntrySchema = external_z_namespaceObject.z.object({
+  location: external_z_namespaceObject.z.string(),
+  otherCharacters: external_z_namespaceObject.z.array(OtherCharacterInfoSchema),
+  target: external_z_namespaceObject.z.string(),
+  clockAck: ClockAckSchema
+});
+
+const AyaNewsSchema = external_z_namespaceObject.z.object({
+  entries: external_z_namespaceObject.z.array(AyaNewsEntrySchema)
+});
+
+const ERA_EVENT_NAMES = {
+  INSERT_BY_OBJECT: "era:insertByObject",
+  UPDATE_BY_OBJECT: "era:updateByObject",
+  INSERT_BY_PATH: "era:insertByPath",
+  UPDATE_BY_PATH: "era:updateByPath",
+  DELETE_BY_OBJECT: "era:deleteByObject",
+  DELETE_BY_PATH: "era:deleteByPath",
+  GET_CURRENT_VARS: "era:getCurrentVars",
+  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
+  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
+  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
+  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
+  REQUEST_WRITE_DONE: "era:requestWriteDone"
+};
+
+const ERA_BROADCAST_EVENT_NAMES = {
+  WRITE_DONE: "era:writeDone",
+  QUERY_RESULT: "era:queryResult"
+};
+
+const QueryResultItemSchema = external_z_namespaceObject.z.object({
+  mk: external_z_namespaceObject.z.string(),
+  message_id: external_z_namespaceObject.z.number(),
+  is_user: external_z_namespaceObject.z.boolean(),
+  stat: external_z_namespaceObject.z.any(),
+  statWithoutMeta: external_z_namespaceObject.z.any()
+});
+
+const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
+  if (typeof val === "string") {
+    try {
+      return JSON.parse(val);
+    } catch (e) {
+      return val;
+    }
+  }
+  return val;
+}, schema);
+
+const TimeUnitSchema = external_z_namespaceObject.z.enum([ "period", "day", "week", "month", "season", "year" ]);
+
+const ForgettingRuleSchema = external_z_namespaceObject.z.object({
+  triggerFlag: external_z_namespaceObject.z.string(),
+  decrease: external_z_namespaceObject.z.number()
+});
+
+const AffectionStageWithForgetSchema = external_z_namespaceObject.z.object({
+  threshold: external_z_namespaceObject.z.number(),
+  name: external_z_namespaceObject.z.string(),
+  describe: external_z_namespaceObject.z.string().nullable().optional(),
+  patienceUnit: TimeUnitSchema.optional(),
+  visit: external_z_namespaceObject.z.object({
+    enabled: external_z_namespaceObject.z.boolean().optional(),
+    probBase: external_z_namespaceObject.z.number().optional(),
+    probK: external_z_namespaceObject.z.number().optional(),
+    coolUnit: TimeUnitSchema.optional()
+  }).optional(),
+  forgettingSpeed: external_z_namespaceObject.z.array(PreprocessStringifiedObject(ForgettingRuleSchema)).optional(),
+  affectionGrowthLimit: external_z_namespaceObject.z.object({
+    max: external_z_namespaceObject.z.number(),
+    divisor: external_z_namespaceObject.z.number()
+  }).optional()
+}).passthrough();
+
+const ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  from: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const EntrySchema = external_z_namespaceObject.z.object({
+  when: external_z_namespaceObject.z.any(),
+  action: ActionSchema,
+  priority: external_z_namespaceObject.z.number().optional()
+});
+
+const CharacterSettingsSchema = external_z_namespaceObject.z.object({
+  id: external_z_namespaceObject.z.string(),
+  name: external_z_namespaceObject.z.string(),
+  affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema),
+  specials: external_z_namespaceObject.z.array(EntrySchema),
+  routine: external_z_namespaceObject.z.array(EntrySchema)
+});
+
+const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSettingsSchema);
+
+const IncidentDetailSchema = external_z_namespaceObject.z.object({
+  异变细节: external_z_namespaceObject.z.string(),
+  主要地区: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  异变退治者: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional(),
+  异变已结束: external_z_namespaceObject.z.boolean()
+});
+
+const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
+
+const MapSizeSchema = external_z_namespaceObject.z.object({
+  width: external_z_namespaceObject.z.number(),
+  height: external_z_namespaceObject.z.number()
+});
+
+const MapPositionSchema = external_z_namespaceObject.z.object({
+  x: external_z_namespaceObject.z.number(),
+  y: external_z_namespaceObject.z.number()
+});
+
+const MapLeafSchema = external_z_namespaceObject.z.object({
+  pos: MapPositionSchema,
+  htmlEle: external_z_namespaceObject.z.string()
+}).passthrough();
+
+const MapTreeSchema = external_z_namespaceObject.z.lazy(() => external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.union([ MapLeafSchema, MapTreeSchema ])));
+
+const MapGraphSchema = external_z_namespaceObject.z.object({
+  mapSize: MapSizeSchema,
+  tree: MapTreeSchema,
+  edges: external_z_namespaceObject.z.array(PreprocessStringifiedObject(external_z_namespaceObject.z.object({
+    a: external_z_namespaceObject.z.string(),
+    b: external_z_namespaceObject.z.string()
+  }))).optional(),
+  aliases: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())).optional()
+});
+
+const WORLD_DEFAULTS = {
+  fallbackPlace: "博丽神社",
+  mainStoryTag: "gensokyo"
+};
+
+const WorldSchema = external_z_namespaceObject.z.object({
+  map_graph: MapGraphSchema.optional(),
+  fallbackPlace: external_z_namespaceObject.z.string().default(WORLD_DEFAULTS.fallbackPlace)
+}).passthrough();
+
+const 世界Schema = external_z_namespaceObject.z.object({
+  timeProgress: external_z_namespaceObject.z.number()
+}).passthrough();
+
+const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  detail: external_z_namespaceObject.z.string(),
+  solver: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  mainLoc: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  isFinished: external_z_namespaceObject.z.boolean(),
+  raw: IncidentDetailSchema
+});
+
+const runtime_ActionSchema = external_z_namespaceObject.z.object({
+  do: external_z_namespaceObject.z.string(),
+  to: external_z_namespaceObject.z.string().optional(),
+  from: external_z_namespaceObject.z.string().optional(),
+  source: external_z_namespaceObject.z.string().optional()
+});
+
+const IncidentSchema = external_z_namespaceObject.z.object({
+  decision: external_z_namespaceObject.z.enum([ "continue", "start_new", "daily" ]),
+  current: IncidentRuntimeInfoSchema.optional(),
+  spawn: IncidentRuntimeInfoSchema.optional(),
+  remainingCooldown: external_z_namespaceObject.z.number().optional(),
+  isIncidentActive: external_z_namespaceObject.z.boolean()
+});
+
+const CurrentFestivalInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  host: external_z_namespaceObject.z.string(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  month: external_z_namespaceObject.z.number(),
+  start_day: external_z_namespaceObject.z.number(),
+  end_day: external_z_namespaceObject.z.number()
+});
+
+const NextFestivalInfoSchema = CurrentFestivalInfoSchema.extend({
+  days_until: external_z_namespaceObject.z.number()
+});
+
+const FestivalSchema = external_z_namespaceObject.z.object({
+  ongoing: external_z_namespaceObject.z.boolean(),
+  upcoming: external_z_namespaceObject.z.boolean(),
+  current: CurrentFestivalInfoSchema.nullable(),
+  next: NextFestivalInfoSchema.nullable()
+});
+
+const CharacterDistributionSchema = external_z_namespaceObject.z.object({
+  playerLocation: external_z_namespaceObject.z.string().nullable(),
+  npcByLocation: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()))
+});
+
+const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
+  affectionStage: AffectionStageWithForgetSchema.optional(),
+  decision: runtime_ActionSchema.optional(),
+  companionDecision: runtime_ActionSchema.optional()
+});
+
+const BfsPathSchema = external_z_namespaceObject.z.object({
+  hops: external_z_namespaceObject.z.number(),
+  steps: external_z_namespaceObject.z.array(external_z_namespaceObject.z.object({
+    from: external_z_namespaceObject.z.string(),
+    to: external_z_namespaceObject.z.string()
+  }))
+});
+
+const RouteSchema = external_z_namespaceObject.z.object({
+  destination: external_z_namespaceObject.z.string(),
+  path: BfsPathSchema
+});
+
+const RouteInfoSchema = external_z_namespaceObject.z.object({
+  candidates: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  routes: external_z_namespaceObject.z.array(RouteSchema)
+});
+
+const FullMapLeafSchema = MapLeafSchema.extend({
+  name: external_z_namespaceObject.z.string()
+});
+
+const AreaRuntimeInfoSchema = external_z_namespaceObject.z.object({
+  graph: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.boolean())),
+  legal_locations: external_z_namespaceObject.z.array(FullMapLeafSchema),
+  neighbors: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  loadArea: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  route: RouteInfoSchema,
+  mapSize: MapSizeSchema.optional()
+});
+
+const RuntimeSchema = external_z_namespaceObject.z.object({
+  incident: IncidentSchema.optional(),
+  clock: ClockSchema.optional(),
+  area: AreaRuntimeInfoSchema.optional(),
+  festival: FestivalSchema.optional(),
+  characterDistribution: CharacterDistributionSchema.optional(),
+  character: external_z_namespaceObject.z.object({
+    chars: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterRuntimeSchema),
+    partitions: external_z_namespaceObject.z.object({
+      coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+      remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+    })
+  }).optional(),
+  characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
+  characterSettings: CharacterSettingsMapSchema.optional(),
+  snapshots: external_z_namespaceObject.z.array(QueryResultItemSchema).optional(),
+  ayaNews: AyaNewsSchema.optional()
+});
+
+const CharacterCacheSchema = external_z_namespaceObject.z.object({
+  visit: external_z_namespaceObject.z.object({
+    cooling: external_z_namespaceObject.z.boolean().optional()
+  }).optional()
+});
+
+const IncidentCacheSchema = external_z_namespaceObject.z.object({
+  incidentCooldownAnchor: external_z_namespaceObject.z.number().nullable().optional()
+});
+
+const CacheSchema = external_z_namespaceObject.z.object({
+  time: external_z_namespaceObject.z.object({
+    clockAck: ClockAckSchema.optional()
+  }).optional().default({}),
+  incident: IncidentCacheSchema.optional().default({}),
+  character: external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterCacheSchema).optional().default({}),
+  timeChatMkSync: TimeChatMkSyncCacheSchema.optional().default({})
+});
+
+const CharacterSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  好感度: external_z_namespaceObject.z.number(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable(),
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
+  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  目标: external_z_namespaceObject.z.string().optional()
+});
+
+const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
+
+const CHARACTER_FIELDS = {
+  affection: "好感度",
+  currentLocation: "所在地区",
+  home: "居住地区"
+};
+
+const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  detail: external_z_namespaceObject.z.string(),
+  mainLoc: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ])
+});
+
+const IncidentConfigSchema = external_z_namespaceObject.z.object({
+  cooldownMinutes: external_z_namespaceObject.z.number(),
+  forceTrigger: external_z_namespaceObject.z.boolean(),
+  isRandomPool: external_z_namespaceObject.z.boolean(),
+  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
+  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+});
+
+const FlagHistoryLimitSchema = external_z_namespaceObject.z.number().int().min(0);
+
+const PeriodFlagHistoryLimitSchema = external_z_namespaceObject.z.object({
+  newDawn: FlagHistoryLimitSchema,
+  newMorning: FlagHistoryLimitSchema,
+  newNoon: FlagHistoryLimitSchema,
+  newAfternoon: FlagHistoryLimitSchema,
+  newDusk: FlagHistoryLimitSchema,
+  newNight: FlagHistoryLimitSchema,
+  newFirstHalfNight: FlagHistoryLimitSchema,
+  newSecondHalfNight: FlagHistoryLimitSchema
+}).partial().default({});
+
+const SeasonFlagHistoryLimitSchema = external_z_namespaceObject.z.object({
+  newSpring: FlagHistoryLimitSchema,
+  newSummer: FlagHistoryLimitSchema,
+  newAutumn: FlagHistoryLimitSchema,
+  newWinter: FlagHistoryLimitSchema
+}).partial().default({});
+
+const TimeFlagHistoryLimitsSchema = external_z_namespaceObject.z.object({
+  newPeriod: FlagHistoryLimitSchema.optional(),
+  newDay: FlagHistoryLimitSchema.optional(),
+  newWeek: FlagHistoryLimitSchema.optional(),
+  newMonth: FlagHistoryLimitSchema.optional(),
+  newSeason: FlagHistoryLimitSchema.optional(),
+  newYear: FlagHistoryLimitSchema.optional(),
+  period: PeriodFlagHistoryLimitSchema.optional(),
+  season: SeasonFlagHistoryLimitSchema.optional()
+}).default({});
+
+const TimeConfigSchema = external_z_namespaceObject.z.object({
+  epochISO: external_z_namespaceObject.z.string().datetime({
+    message: "无效的 ISO 8601 日期时间格式"
+  }),
+  flagHistoryLimits: TimeFlagHistoryLimitsSchema
+}).passthrough();
+
+const DEFAULT_TIME_CONFIG = {
+  epochISO: "2025-10-24T06:00:00+09:00",
+  flagHistoryLimits: {}
+};
+
+const AffectionConfigSchema = external_z_namespaceObject.z.object({
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
+});
+
+const ConfigSchema = external_z_namespaceObject.z.object({
+  affection: AffectionConfigSchema,
+  time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
+  incident: IncidentConfigSchema.optional()
+}).passthrough();
+
+const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  month: external_z_namespaceObject.z.number(),
+  start_day: external_z_namespaceObject.z.number(),
+  end_day: external_z_namespaceObject.z.number(),
+  host: external_z_namespaceObject.z.string().optional(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
+});
+
+const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
+
+const UserSchema = external_z_namespaceObject.z.object({
+  姓名: external_z_namespaceObject.z.string().nullable(),
+  所在地区: external_z_namespaceObject.z.string().nullable(),
+  居住地区: external_z_namespaceObject.z.string().nullable()
+});
+
+const USER_FIELDS = {
+  name: "姓名",
+  currentLocation: "所在地区",
+  home: "居住地区"
+};
+
+const StatSchema = external_z_namespaceObject.z.object({
+  config: ConfigSchema,
+  chars: CharsSchema,
+  user: UserSchema,
+  world: WorldSchema.optional(),
+  世界: 世界Schema,
+  cache: CacheSchema.optional(),
+  incidents: IncidentsSchema.default({}),
+  festivals_list: FestivalsListSchema,
+  文文新闻: external_z_namespaceObject.z.string().optional()
+});
+
 $(() => {
   const app = (0, external_Vue_namespaceObject.createApp)(_app);
   const appInstance = app.mount("#app");
@@ -2987,12 +3541,14 @@ $(() => {
       if (!runtime) {
         logger.warn(funcName, "事件中未找到 runtime 数据，界面渲染可能不完整。");
       }
+      const parsedStat = StatSchema.parse(statWithoutMeta);
+      const parsedRuntime = RuntimeSchema.parse(runtime);
       const context = {
-        statWithoutMeta,
-        runtime
+        statWithoutMeta: parsedStat,
+        runtime: parsedRuntime
       };
       logger.debug(funcName, "传给各子模块的上下文对象:", context);
-      const userData = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_DATA, {});
+      const userData = get(parsedStat, ERA_VARIABLE_PATH.USER_DATA, {});
       logger.debug(funcName, "读取到的 userData:", userData);
       const {themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
       try {
@@ -3106,5 +3662,5 @@ h4[data-v-7256a290]{display:flex;align-items:center;font-size:1.1em;color:var(--
 
 .theme-toggle[data-v-3137ed48]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-3137ed48]:active{transform:translateY(1px)}.theme-toggle[data-v-3137ed48]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
-/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+/*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

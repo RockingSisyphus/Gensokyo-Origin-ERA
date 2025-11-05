@@ -3071,33 +3071,6 @@ async function processIncidentDecisions({stat, runtime}) {
   }
 }
 
-const io_logger = new Logger("IOModule");
-
-async function writeChangesToEra({changes, stat}) {
-  const funcName = "writeChangesToEra";
-  io_logger.debug(funcName, `开始将 ${changes.length} 条变更写入 ERA...`, {
-    stat
-  });
-  if (!changes || changes.length === 0) {
-    io_logger.debug(funcName, "变更日志为空，无需写入。");
-    return;
-  }
-  for (const entry of changes) {
-    if (external_default().has(stat, entry.path)) {
-      eventEmit("era:updateByPath", {
-        path: entry.path,
-        value: entry.newValue
-      });
-    } else {
-      eventEmit("era:insertByPath", {
-        path: entry.path,
-        value: entry.newValue
-      });
-    }
-  }
-  io_logger.debug(funcName, "所有变更已提交至 ERA。");
-}
-
 const location_logger = new Logger("GSKO-BASE/core/normalizer-processor/location");
 
 function normalizeLocationData({originalStat, runtime}) {
@@ -4330,6 +4303,33 @@ async function time_processor_processTime({stat, runtime}) {
   }
 }
 
+const io_logger = new Logger("IOModule");
+
+async function writeChangesToEra({changes, stat}) {
+  const funcName = "writeChangesToEra";
+  io_logger.debug(funcName, `开始将 ${changes.length} 条变更写入 ERA...`, {
+    stat
+  });
+  if (!changes || changes.length === 0) {
+    io_logger.debug(funcName, "变更日志为空，无需写入。");
+    return;
+  }
+  for (const entry of changes) {
+    if (external_default().has(stat, entry.path)) {
+      eventEmit("era:updateByPath", {
+        path: entry.path,
+        value: entry.newValue
+      });
+    } else {
+      eventEmit("era:insertByPath", {
+        path: entry.path,
+        value: entry.newValue
+      });
+    }
+  }
+  io_logger.debug(funcName, "所有变更已提交至 ERA。");
+}
+
 const AYA_NAME = "射命丸文";
 
 function processAyaNews(runtime) {
@@ -4728,6 +4728,10 @@ $(() => {
   };
   onWriteDone(detail => {
     GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件");
+    if (detail?.actions?.apiWrite === true) {
+      GSKO_BASE_logger.log("onWriteDone", "检测到 apiWrite 标记事件，跳过刷新逻辑");
+      return;
+    }
     handleWriteDone(detail, false).catch(error => {
       GSKO_BASE_logger.error("onWriteDone", "handleWriteDone 发生未处理的 Promise 拒绝:", error);
     });

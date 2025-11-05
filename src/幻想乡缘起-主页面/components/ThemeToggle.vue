@@ -7,9 +7,7 @@
 
 <script setup lang="ts">
 import { computed, defineExpose, onMounted, ref } from 'vue';
-import { ERA_VARIABLE_PATH } from '../utils/constants';
-import { updateEraVariable } from '../utils/eraWriter';
-import { get } from '../utils/format';
+import { updateEraVariableByObject } from '../utils/eraWriter';
 import { Logger } from '../utils/log';
 
 // 初始化日志记录器
@@ -64,10 +62,10 @@ const updateTheme = (context: { statWithoutMeta: any }) => {
     return;
   }
 
-  // 从 statWithoutMeta.config.ui.theme 读取主题设置，如果不存在则默认为 'light'
-  const newTheme = get(statWithoutMeta, ERA_VARIABLE_PATH.UI_THEME, LIGHT);
+  // 直接从 statWithoutMeta.config.ui.theme 读取主题设置
+  const newTheme = statWithoutMeta.config?.ui?.theme;
 
-  // 校验主题值是否合法
+  // 校验主题值是否合法，如果不存在或无效，则默认为 'light'
   const validatedTheme = newTheme === DARK ? DARK : LIGHT;
 
   // 更新组件内部状态
@@ -94,9 +92,18 @@ onMounted(() => {
       currentTheme.value = nextTheme;
       applyThemeToDOM(nextTheme);
 
-      // 通过 eraWriter 发送事件，请求后端更新世界书中的变量
-      updateEraVariable(ERA_VARIABLE_PATH.UI_THEME, nextTheme);
-      logger.log(`${funcName}:onclick`, `已通过 eraWriter 请求更新主题变量为: ${nextTheme}`);
+      // 构建更新对象
+      const updateObject = {
+        config: {
+          ui: {
+            theme: nextTheme,
+          },
+        },
+      };
+
+      // 通过 eraWriter 发送事件，请求后端更新变量
+      updateEraVariableByObject(updateObject);
+      logger.log(`${funcName}:onclick`, `已通过 eraWriter 请求更新主题变量为:`, updateObject);
     };
     logger.log(funcName, '主题切换按钮的点击事件已成功绑定。');
   } else {

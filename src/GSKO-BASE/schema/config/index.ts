@@ -4,6 +4,7 @@
 import { z } from 'zod';
 import { PreprocessStringifiedObject } from '../../utils/zod';
 import { AffectionStageWithForgetSchema } from '../character-settings';
+import { UiConfigSchema } from '../ui';
 
 // --- Incident Config ---
 const IncidentPoolItemSchema = z.object({
@@ -103,6 +104,7 @@ export const ConfigSchema = z
     affection: AffectionConfigSchema,
     time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
     incident: IncidentConfigSchema.optional(),
+    ui: UiConfigSchema,
   })
   .passthrough();
 export type Config = z.infer<typeof ConfigSchema>;
