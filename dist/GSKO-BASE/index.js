@@ -4414,6 +4414,10 @@ function onQueryResult(listener) {
   };
 }
 
+const UiConfigSchema = external_z_namespaceObject.z.object({
+  theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light")
+});
+
 const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
   detail: external_z_namespaceObject.z.string(),
@@ -4479,7 +4483,8 @@ const AffectionConfigSchema = external_z_namespaceObject.z.object({
 const ConfigSchema = external_z_namespaceObject.z.object({
   affection: AffectionConfigSchema,
   time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
-  incident: IncidentConfigSchema.optional()
+  incident: IncidentConfigSchema.optional(),
+  ui: UiConfigSchema
 }).passthrough();
 
 const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
