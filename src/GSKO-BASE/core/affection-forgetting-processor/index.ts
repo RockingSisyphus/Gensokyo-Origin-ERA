@@ -1,6 +1,6 @@
+import type { ChangeLogEntry } from '../../schema/change-log';
 import type { Runtime } from '../../schema/runtime';
 import type { Stat } from '../../schema/stat';
-import type { ChangeLogEntry } from '../../schema/change-log-entry';
 import { processAffectionForgettingInternal } from './processor';
 
 export interface ProcessAffectionForgettingParams {

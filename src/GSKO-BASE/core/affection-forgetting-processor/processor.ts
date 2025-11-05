@@ -1,13 +1,14 @@
 import _ from 'lodash';
+import { QueryResultItem } from '../../events/constants';
+import type { ChangeLogEntry } from '../../schema/change-log';
+import { CHARACTER_FIELDS } from '../../schema/character';
 import type { ForgettingRule } from '../../schema/character-settings';
-import type { ChangeLogEntry } from '../../schema/change-log-entry';
 import type { Runtime } from '../../schema/runtime';
 import type { Stat } from '../../schema/stat';
-import { QueryResultItem } from '../../events/constants';
 import { pickAffectionStage } from '../../utils/accessor/affection';
 import { createChangeLogEntry } from '../../utils/changeLog';
-import { Logger } from '../../utils/log';
 import { toFiniteNumber } from '../../utils/format';
+import { Logger } from '../../utils/log';
 import {
   getAnchorMkByFlag,
   getCharacterAffection,
@@ -18,7 +19,6 @@ import {
   getSnapshotUserLocation,
   parseForgettingRule,
 } from './accessors';
-import { CHARACTER_FIELDS } from '../../schema/character';
 
 interface ProcessParams {
   stat: Stat;

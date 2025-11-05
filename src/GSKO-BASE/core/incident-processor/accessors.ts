@@ -1,8 +1,8 @@
 import { Cache, IncidentCache } from '../../schema/cache';
 import { IncidentConfig } from '../../schema/config';
 import { Incidents } from '../../schema/incident';
-import { Stat } from '../../schema/stat';
 import { Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
 import { DEFAULT_INCIDENT_CONFIG } from './constants';
 
 // Stat Accessors
@@ -25,7 +25,7 @@ export function getTimeProgress(stat: Stat): number {
 
 // Runtime Accessors
 export function getLegalLocations(runtime: Runtime): string[] {
-  return runtime.legal_locations ?? ['博丽神社'];
+  return runtime.area?.legal_locations?.map((location) => location.name) ?? ['博丽神社'];
 }
 
 // Cache Accessors

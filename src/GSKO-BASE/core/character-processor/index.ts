@@ -1,5 +1,5 @@
 import _ from 'lodash';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { applyCacheToStat, getCache } from '../../utils/cache';
@@ -103,7 +103,9 @@ export async function processCharacterDecisions({
 
     logger.debug(funcName, '角色决策处理完毕。');
 
-    return { stat: finalStat, runtime: finalRuntime, changes: aggregateChanges };
+    const allChanges = preprocessChanges.concat(aggregateChanges);
+
+    return { stat: finalStat, runtime: finalRuntime, changes: allChanges };
   } catch (e) {
     logger.error(funcName, '处理角色决策时发生意外错误:', e);
     // 发生严重错误时，返回原始数据以确保主流程稳定

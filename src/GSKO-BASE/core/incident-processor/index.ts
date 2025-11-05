@@ -1,5 +1,5 @@
 import { Cache } from '../../schema/cache';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { applyCacheToStat, getCache } from '../../utils/cache';

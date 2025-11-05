@@ -1,4 +1,4 @@
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { Logger } from '../../utils/log';
 import { setRuntimeObject } from '../../utils/runtime';
 

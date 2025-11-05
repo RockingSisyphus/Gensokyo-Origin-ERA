@@ -1,10 +1,10 @@
 import _ from 'lodash';
 import { Cache } from '../../schema/cache';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { IncidentConfig } from '../../schema/config';
 import { IncidentDetail } from '../../schema/incident';
-import { Stat } from '../../schema/stat';
 import { IncidentRuntimeInfo, Runtime } from '../../schema/runtime';
+import { Stat } from '../../schema/stat';
 import { createChangeLogEntry } from '../../utils/changeLog';
 import { Logger } from '../../utils/log';
 import {
@@ -13,7 +13,6 @@ import {
   getIncidents,
   getLegalLocations,
   getTimeProgress,
-  setIncidentCache,
   setIncidents,
 } from './accessors';
 import { asArray, pick } from './utils';
@@ -250,7 +249,7 @@ export function processIncident({ runtime, stat, cache }: { runtime: Runtime; st
 
   // 使用深拷贝，确保所有操作都发生在一个独立的副本上
   const newStat = _.cloneDeep(stat);
-  const newCache = _.cloneDeep(cache);
+  const newCache: Cache = _.cloneDeep(cache);
   const config = getIncidentConfig(newStat);
 
   try {
@@ -284,8 +283,26 @@ export function processIncident({ runtime, stat, cache }: { runtime: Runtime; st
       isIncidentActive: !!currentIncident,
     };
 
-    // 更新 cache
-    setIncidentCache(newCache, { incidentCooldownAnchor: newAnchor ?? null });
+    // 更新 cache 并记录 changeLog
+    const oldAnchor = getIncidentCache(cache).incidentCooldownAnchor;
+    const finalAnchor = newAnchor ?? null;
+    if (oldAnchor !== finalAnchor) {
+      // 直接、安全地更新 newCache
+      if (!newCache.incident) {
+        newCache.incident = {};
+      }
+      newCache.incident.incidentCooldownAnchor = finalAnchor;
+
+      changes.push(
+        createChangeLogEntry(
+          'incident-processor',
+          'cache.incident.incidentCooldownAnchor',
+          oldAnchor,
+          finalAnchor,
+          '更新异变冷却锚点',
+        ),
+      );
+    }
 
     logger.debug(funcName, '异变处理完成, runtime.incident=', runtime.incident);
     return { runtime, stat: newStat, changes, cache: newCache };
