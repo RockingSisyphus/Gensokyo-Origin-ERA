@@ -94,6 +94,9 @@
         }
       ]
     },
+    "ui": {
+      "theme": "light"
+    },
     "time": {
       "epochISO": "2025-10-24T06:00:00Z",
       "flagHistoryLimits": {
