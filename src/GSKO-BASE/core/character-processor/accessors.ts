@@ -18,6 +18,10 @@ export function getGlobalAffectionStages(stat: Stat): AffectionStageWithForget[]
   return stat.config.affection.affectionStages;
 }
 
+export function getCharAffectionStages(runtime: Runtime, charId: string): AffectionStageWithForget[] | undefined {
+  return runtime.characterSettings?.[charId]?.affectionStages;
+}
+
 export function getUserLocation(stat: Stat): string {
   return stat.user?.[USER_FIELDS.currentLocation] ?? '';
 }

@@ -1,15 +1,15 @@
 import _ from 'lodash';
 import { Cache } from '../../../schema/cache';
-import { ChangeLogEntry } from '../../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../../schema/change-log';
+import { TimeUnit } from '../../../schema/character-settings';
 import { ClockFlags } from '../../../schema/clock';
 import { Runtime } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
-import { TimeUnit } from '../../../schema/character-settings';
 import { Logger } from '../../../utils/log';
 import {
   getChar,
+  getCharAffectionStages,
   getChars,
-  getGlobalAffectionStages,
   isVisitCooling,
   setAffectionStageInRuntime,
   setVisitCooling,
@@ -58,14 +58,22 @@ export function preprocess({ runtime, stat, cache }: { runtime: Runtime; stat: S
     const changes: ChangeLogEntry[] = [];
 
     const charIds = Object.keys(getChars(stat));
-    const globalAffectionStages = getGlobalAffectionStages(stat);
 
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
 
       // 1. 解析好感度等级并存入 runtime
-      const affectionStage = getAffectionStage(char, globalAffectionStages);
+      // character-processor 只信任 runtime.characterSettings 中的数据
+      const charAffectionStages = getCharAffectionStages(newRuntime, charId);
+
+      // 如果角色没有好感度等级表，则无法处理，直接跳过
+      if (!charAffectionStages || charAffectionStages.length === 0) {
+        logger.debug(funcName, `角色 ${charId} 在 runtime.characterSettings 中没有找到好感度等级表，跳过处理。`);
+        continue;
+      }
+
+      const affectionStage = getAffectionStage(char, charAffectionStages);
 
       if (affectionStage) {
         setAffectionStageInRuntime(newRuntime, charId, affectionStage);

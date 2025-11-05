@@ -31,25 +31,6 @@ export async function processCharacterDecisions({
   logger.debug(funcName, '开始处理角色决策...');
 
   try {
-    // 如果当前有异变，则跳过所有角色决策，但仍需通过 aggregator 返回一个结构完整的 runtime
-    if (runtime.incident?.isIncidentActive) {
-      logger.debug(funcName, '检测到异变正在发生，跳过所有角色决策。');
-      const {
-        stat: finalStat,
-        runtime: finalRuntime,
-        cache: finalCache,
-        changes: aggregateChanges,
-      } = aggregateResults({
-        stat,
-        runtime,
-        cache: getCache(stat),
-        companionDecisions: {},
-        nonCompanionDecisions: {},
-        partitions: { coLocated: [], remote: [] },
-      });
-      applyCacheToStat(finalStat, finalCache);
-      return { stat: finalStat, runtime: finalRuntime, changes: aggregateChanges };
-    }
     // 准备数据：cache 是从 stat 中提取的，不需要克隆
     const initialCache = getCache(stat);
 
@@ -68,6 +49,26 @@ export async function processCharacterDecisions({
     const allNpcIds = _.keys(stat.chars);
     const remoteChars = _.difference(allNpcIds, coLocatedChars);
     const partitions = { coLocated: coLocatedChars, remote: remoteChars };
+
+    // 如果当前有异变，则跳过所有角色决策，但其他部分照常处理
+    if (runtime.incident?.isIncidentActive) {
+      logger.debug(funcName, '检测到异变正在发生，跳过所有角色决策。');
+      const {
+        stat: finalStat,
+        runtime: finalRuntime,
+        cache: finalCache,
+        changes: aggregateChanges,
+      } = aggregateResults({
+        stat,
+        runtime: processedRuntime,
+        cache: processedCache,
+        companionDecisions: {},
+        nonCompanionDecisions: {},
+        partitions,
+      });
+      applyCacheToStat(finalStat, finalCache);
+      return { stat: finalStat, runtime: finalRuntime, changes: [...preprocessChanges, ...aggregateChanges] };
+    }
 
     // 3. 决策制定 (只读)
     const {

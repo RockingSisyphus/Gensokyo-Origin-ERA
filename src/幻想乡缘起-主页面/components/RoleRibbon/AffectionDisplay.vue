@@ -15,11 +15,11 @@
 </template>
 
 <script setup lang="ts">
-import { computed } from 'vue';
 import type { PropType } from 'vue';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import { computed } from 'vue';
 import type { Character } from '../../../GSKO-BASE/schema/character';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import StyledProgressBar from '../common/StyledProgressBar.vue';
 
 const props = defineProps({

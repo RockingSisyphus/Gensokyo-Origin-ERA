@@ -18,13 +18,13 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
 import type { PropType } from 'vue';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import { computed, ref, watch } from 'vue';
 import type { Character } from '../../../GSKO-BASE/schema/character';
-import AffectionDisplay from './AffectionDisplay.vue';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import ParticleEmitter from '../common/ParticleEmitter.vue';
+import AffectionDisplay from './AffectionDisplay.vue';
 
 const props = defineProps({
   character: {

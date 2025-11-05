@@ -42,13 +42,24 @@ const selectedCharacter = ref<any | null>(null);
 const ribbonScrollStep = 320;
 
 const nearbyCharacters = computed<(Character & { name: string })[]>(() => {
-  const userLocation = state.stat?.user?.所在地区;
-  if (!userLocation || !state.stat?.chars) {
+  const coLocatedIds = state.runtime?.character?.partitions?.coLocated;
+  if (!coLocatedIds || !state.stat?.chars || !state.runtime?.character?.chars) {
     return [];
   }
-  return Object.entries(state.stat.chars)
-    .filter(([, char]) => char && String(char.所在地区 || '').trim() === userLocation)
-    .map(([name, char]) => ({ ...char, name }));
+
+  return coLocatedIds
+    .map((charId) => {
+      const charStat = state.stat?.chars?.[charId];
+      const charRuntime = state.runtime?.character?.chars?.[charId];
+      if (!charStat) return null;
+
+      return {
+        ...charStat,
+        name: charId,
+        ...charRuntime,
+      };
+    })
+    .filter(Boolean) as (Character & { name: string })[];
 });
 
 const scroll = (direction: number) => {

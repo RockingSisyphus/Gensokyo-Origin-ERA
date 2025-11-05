@@ -1,5 +1,4 @@
-import _ from 'lodash';
-import { ChangeLogEntry } from '../../schema/change-log-entry';
+import { ChangeLogEntry } from '../../schema/change-log';
 import { Runtime } from '../../schema/runtime';
 import { Stat } from '../../schema/stat';
 import { Logger } from '../../utils/log';

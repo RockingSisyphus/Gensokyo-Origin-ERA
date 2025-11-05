@@ -10,31 +10,38 @@
         </div>
       </div>
       <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
-        <!-- <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-          <strong>年龄:</strong> {{ toText(character['年龄']) }}
-        </div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-          <strong>性别:</strong> {{ toText(character['性别']) }}
-        </div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-          <strong>身份:</strong> {{ toText(character['身份']) }}
-        </div> -->
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
           <strong>居住地:</strong> {{ toText(character.居住地区) }}
         </div>
-        <!-- <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>性格:</strong> {{ toText(character['性格']) }}
-        </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>外貌:</strong> {{ toText(character['外貌']) }}
-        </div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>人际关系:</strong> {{ toText(character['人际关系']) }}
-        </div> -->
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>当前目标:</strong> {{ toText(character.目标) }}
+          <strong>当前决策:</strong> {{ decisionText }}
         </div>
       </div>
+
+      <!-- Affection Details -->
+      <div v-if="affectionStageInfo" class="GensokyoOrigin-RoleDetailPopup-section">
+        <h3 class="GensokyoOrigin-RoleDetailPopup-section-title">好感度阶段: {{ affectionStageInfo.name }}</h3>
+        <p class="GensokyoOrigin-RoleDetailPopup-section-desc">{{ affectionStageInfo.describe }}</p>
+        <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
+          <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+            <strong>耐心值:</strong> {{ toText(affectionStageInfo.patienceUnit) }}
+          </div>
+          <div v-if="affectionStageInfo.affectionGrowthLimit" class="GensokyoOrigin-RoleDetailPopup-detail-item">
+            <strong>好感增长上限:</strong> 软上限 {{ affectionStageInfo.affectionGrowthLimit.max }}, 超出后除以 {{ affectionStageInfo.affectionGrowthLimit.divisor }}
+          </div>
+          <div v-if="affectionStageInfo.visit" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+            <strong>拜访规则:</strong>
+            {{ affectionStageInfo.visit.enabled ? '会' : '不会' }}拜访。基础概率 {{ ((affectionStageInfo.visit.probBase ?? 0) * 100).toFixed(0) }}%, 好感影响 {{ ((affectionStageInfo.visit.probK ?? 0) * 100).toFixed(0) }}%。冷却刷新于 {{ affectionStageInfo.visit.coolUnit }}
+          </div>
+          <div v-if="affectionStageInfo.forgettingSpeed?.length" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+            <strong>遗忘规则:</strong>
+            <span v-for="(rule, index) in affectionStageInfo.forgettingSpeed" :key="index">
+              于 {{ rule.triggerFlag }} 触发, 降低 {{ rule.decrease }} 点好感。
+            </span>
+          </div>
+        </div>
+      </div>
+
       <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="large" />
       <ParticleEmitter
         ref="particleEmitter"
@@ -73,6 +80,29 @@ const props = defineProps({
 defineEmits(['close']);
 
 const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
+
+const charRuntimeData = computed(() => {
+  if (!props.runtime?.character?.chars || !props.character.name) return null;
+  return props.runtime.character.chars[props.character.name];
+});
+
+const affectionStageInfo = computed(() => charRuntimeData.value?.affectionStage);
+
+const decisionText = computed(() => {
+  const decision = charRuntimeData.value?.decision;
+  const companionDecision = charRuntimeData.value?.companionDecision;
+
+  if (decision) {
+    let text = `正在 ${toText(decision.do)}`;
+    if (decision.to) text += ` 前往 ${toText(decision.to)}`;
+    if (decision.from) text += ` (从 ${toText(decision.from)} 出发)`;
+    return text;
+  }
+  if (companionDecision) {
+    return `原本计划 ${toText(companionDecision.do)}, 但因与你同行而暂缓。`;
+  }
+  return '—';
+});
 
 const toText = (v: any) => {
   if (Array.isArray(v)) return v.length ? v.join('；') : '—';
@@ -181,6 +211,24 @@ watch(affectionState, (newState, oldState) => {
   grid-template-columns: repeat(2, 1fr);
   gap: 12px;
   margin-bottom: 16px;
+}
+
+.GensokyoOrigin-RoleDetailPopup-section {
+  margin-top: 20px;
+  padding-top: 16px;
+  border-top: 1px dashed var(--line);
+}
+
+.GensokyoOrigin-RoleDetailPopup-section-title {
+  font-size: 1.1em;
+  font-weight: 700;
+  margin-bottom: 8px;
+}
+
+.GensokyoOrigin-RoleDetailPopup-section-desc {
+  font-size: 0.9em;
+  color: var(--muted);
+  margin-bottom: 12px;
 }
 
 .GensokyoOrigin-RoleDetailPopup-detail-item {

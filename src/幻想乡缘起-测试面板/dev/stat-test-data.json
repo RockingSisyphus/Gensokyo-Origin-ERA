@@ -125,7 +125,7 @@
       }
     },
     "incident": {
-      "cooldownMinutes": 100,
+      "cooldownMinutes": 10000,
       "forceTrigger": false,
       "isRandomPool": false,
       "pool": [
@@ -387,7 +387,7 @@
     "fallbackPlace": "博丽神社"
   },
   "世界": {
-    "timeProgress": 120
+    "timeProgress": 400
   },
   "cache": {
     "time": {

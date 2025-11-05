@@ -1,8 +1,8 @@
 /**
  * @file 访问器函数，用于从 stat 对象中安全地获取角色设置相关数据。
  */
-import type { Stat } from '../../schema/stat';
 import type { AffectionStageWithForget, Entry } from '../../schema/character-settings';
+import type { Stat } from '../../schema/stat';
 
 /**
  * 获取全局默认的好感度等级表。

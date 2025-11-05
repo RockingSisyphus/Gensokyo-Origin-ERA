@@ -1732,6 +1732,10 @@ function getGlobalAffectionStages(stat) {
   return stat.config.affection.affectionStages;
 }
 
+function getCharAffectionStages(runtime, charId) {
+  return runtime.characterSettings?.[charId]?.affectionStages;
+}
+
 function accessors_getUserLocation(stat) {
   return stat.user?.[USER_FIELDS.currentLocation] ?? "";
 }
@@ -2233,12 +2237,11 @@ function makeDecisions({runtime, stat, cache, coLocatedChars, remoteChars}) {
   }
 }
 
-function getAffectionStage(char, globalAffectionStages) {
-  const stages = char.affectionStages || globalAffectionStages;
-  if (!stages || !Array.isArray(stages)) {
+function getAffectionStage(char, affectionStages) {
+  if (!affectionStages || !Array.isArray(affectionStages)) {
     return null;
   }
-  const parsedStages = stages.map(stage => typeof stage === "string" ? JSON.parse(stage) : stage);
+  const parsedStages = affectionStages.map(stage => typeof stage === "string" ? JSON.parse(stage) : stage);
   const applicableStages = parsedStages.filter(stage => char.好感度 >= stage.threshold);
   if (applicableStages.length === 0) {
     return null;
@@ -2282,11 +2285,15 @@ function preprocess({runtime, stat, cache}) {
     const newCache = external_default().cloneDeep(cache);
     const changes = [];
     const charIds = Object.keys(accessors_getChars(stat));
-    const globalAffectionStages = getGlobalAffectionStages(stat);
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
-      const affectionStage = getAffectionStage(char, globalAffectionStages);
+      const charAffectionStages = getCharAffectionStages(newRuntime, charId);
+      if (!charAffectionStages || charAffectionStages.length === 0) {
+        preprocessor_logger.debug(funcName, `角色 ${charId} 在 runtime.characterSettings 中没有找到好感度等级表，跳过处理。`);
+        continue;
+      }
+      const affectionStage = getAffectionStage(char, charAffectionStages);
       if (affectionStage) {
         setAffectionStageInRuntime(newRuntime, charId, affectionStage);
         preprocessor_logger.debug(funcName, `角色 ${charId} (好感度: ${char.好感度}) 解析到好感度等级: [${affectionStage.name}]`);
@@ -2326,26 +2333,6 @@ async function processCharacterDecisions({stat, runtime}) {
   const funcName = "processCharacterDecisions";
   character_processor_logger.debug(funcName, "开始处理角色决策...");
   try {
-    if (runtime.incident?.isIncidentActive) {
-      character_processor_logger.debug(funcName, "检测到异变正在发生，跳过所有角色决策。");
-      const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
-        stat,
-        runtime,
-        cache: getCache(stat),
-        companionDecisions: {},
-        nonCompanionDecisions: {},
-        partitions: {
-          coLocated: [],
-          remote: []
-        }
-      });
-      applyCacheToStat(finalStat, finalCache);
-      return {
-        stat: finalStat,
-        runtime: finalRuntime,
-        changes: aggregateChanges
-      };
-    }
     const initialCache = getCache(stat);
     const {runtime: processedRuntime, cache: processedCache, changes: preprocessChanges} = preprocess({
       runtime,
@@ -2360,6 +2347,23 @@ async function processCharacterDecisions({stat, runtime}) {
       coLocated: coLocatedChars,
       remote: remoteChars
     };
+    if (runtime.incident?.isIncidentActive) {
+      character_processor_logger.debug(funcName, "检测到异变正在发生，跳过所有角色决策。");
+      const {stat: finalStat, runtime: finalRuntime, cache: finalCache, changes: aggregateChanges} = aggregateResults({
+        stat,
+        runtime: processedRuntime,
+        cache: processedCache,
+        companionDecisions: {},
+        nonCompanionDecisions: {},
+        partitions
+      });
+      applyCacheToStat(finalStat, finalCache);
+      return {
+        stat: finalStat,
+        runtime: finalRuntime,
+        changes: [ ...preprocessChanges, ...aggregateChanges ]
+      };
+    }
     const {companionDecisions, nonCompanionDecisions, newCache: decidedCache, changeLog: decisionChangeLog} = makeDecisions({
       runtime: processedRuntime,
       stat,
@@ -2397,7 +2401,7 @@ function accessors_getGlobalAffectionStages(stat) {
   return stat.config?.affection?.affectionStages ?? [];
 }
 
-function getCharAffectionStages(stat, charId) {
+function accessors_getCharAffectionStages(stat, charId) {
   const charStages = stat.chars?.[charId]?.affectionStages;
   if (charStages && charStages.length > 0) {
     return charStages;
@@ -2421,7 +2425,7 @@ function processCharacterSettings({stat}) {
   for (const charId in stat.chars) {
     const character = stat.chars[charId];
     if (!character) continue;
-    const affectionStages = getCharAffectionStages(stat, charId);
+    const affectionStages = accessors_getCharAffectionStages(stat, charId);
     const specials = getCharSpecials(stat, charId);
     const routine = getCharRoutine(stat, charId);
     const settings = {
