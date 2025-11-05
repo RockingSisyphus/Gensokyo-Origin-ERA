@@ -151,7 +151,7 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
 
   // [移植自 index.ts] 调用履历与关系组件的更新函数
   if (contentBio.value && typeof contentBio.value.update === 'function') {
-    contentBio.value.update(statWithoutMeta);
+    contentBio.value.update(context);
     logger.debug(funcName, '已调用 ContentBio.update');
   }
 

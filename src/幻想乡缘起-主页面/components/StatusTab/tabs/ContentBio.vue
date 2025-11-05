@@ -12,8 +12,8 @@
 
 <script setup lang="ts">
 import { ref } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
-import { get, getStr } from '../../../utils/format';
+import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { toText } from '../../../utils/format';
 import { Logger } from '../../../utils/log';
 
 // 初始化日志记录器，方便调试
@@ -26,27 +26,25 @@ const userRelationships = ref<HTMLElement | null>(null);
 /**
  * @description 更新“履历与关系”选项卡的内容。
  *              该函数由 index.ts 中的 era:writeDone 事件监听器调用。
- * @param {any} statWithoutMeta - 从 era:writeDone 事件中获取的不含元数据的最新状态对象。
+ * @param {Stat} stat - 从 era:writeDone 事件中获取的、经过 Zod 解析的最新状态对象。
  */
-function update(statWithoutMeta: any) {
+function update({ statWithoutMeta: stat }: { statWithoutMeta: Stat }) {
   const funcName = 'update';
-  logger.log(funcName, '接收到更新指令，开始更新履历与关系', { statWithoutMeta });
+  logger.log(funcName, '接收到更新指令，开始更新履历与关系', { stat });
 
-  // 使用 get 工具函数从状态对象中安全地提取 user 对象，避免因路径不存在而出错
-  const userData = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_DATA, {});
+  // 直接从类型安全的 stat 对象中访问 user 数据
+  const userData = stat.user;
   logger.debug(funcName, '提取的用户数据', { userData });
 
-  // 从 user 对象中分别提取“重要经历”和“人际关系”
-  // 使用 getStr 自动处理数组拼接
-  const eventsText = getStr(userData, ERA_VARIABLE_PATH.USER_EVENTS, '—');
-  const relationshipsText = getStr(userData, ERA_VARIABLE_PATH.USER_RELATIONSHIPS, '—');
+  // 直接访问“重要经历”和“人际关系”，并使用 toText 统一格式化
+  const eventsText = toText(userData.重要经历);
+  const relationshipsText = toText(userData.人际关系);
 
   logger.debug(funcName, '处理后的待显示文本', { eventsText, relationshipsText });
 
   // 更新“重要经历”的 DOM 内容
   if (userEvents.value) {
-    // 如果文本为空，也显示默认的 '—'
-    userEvents.value.textContent = eventsText || '—';
+    userEvents.value.textContent = eventsText;
     logger.log(funcName, '成功更新“重要经历”内容。');
   } else {
     // 如果在组件挂载后仍然找不到 DOM 元素，发出警告
@@ -55,7 +53,7 @@ function update(statWithoutMeta: any) {
 
   // 更新“人际关系”的 DOM 内容
   if (userRelationships.value) {
-    userRelationships.value.textContent = relationshipsText || '—';
+    userRelationships.value.textContent = relationshipsText;
     logger.log(funcName, '成功更新“人际关系”内容。');
   } else {
     logger.warn(funcName, '无法找到“人际关系”的 DOM 元素 (userRelationships ref)，请检查模板。');

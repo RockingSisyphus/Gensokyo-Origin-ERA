@@ -602,7 +602,9 @@ const UserSchema = external_z_namespaceObject.z.object({
   年龄: external_z_namespaceObject.z.string().nullable(),
   特殊能力: external_z_namespaceObject.z.string().nullable(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
-  居住地区: external_z_namespaceObject.z.string().nullable()
+  居住地区: external_z_namespaceObject.z.string().nullable(),
+  重要经历: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional().nullable(),
+  人际关系: external_z_namespaceObject.z.union([ external_z_namespaceObject.z.string(), external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()) ]).optional().nullable()
 });
 
 const USER_FIELDS = {
@@ -612,7 +614,9 @@ const USER_FIELDS = {
   age: "年龄",
   abilities: "特殊能力",
   currentLocation: "所在地区",
-  home: "居住地区"
+  home: "居住地区",
+  events: "重要经历",
+  relationships: "人际关系"
 };
 
 const getClock = runtime => runtime.clock;
