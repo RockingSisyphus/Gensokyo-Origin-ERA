@@ -48,7 +48,7 @@ const nearbyCharacters = computed<(Character & { name: string })[]>(() => {
   }
 
   return coLocatedIds
-    .map((charId) => {
+    .map(charId => {
       const charStat = state.stat?.chars?.[charId];
       const charRuntime = state.runtime?.character?.chars?.[charId];
       if (!charStat) return null;

@@ -27,13 +27,20 @@
             <strong>耐心值:</strong> {{ toText(affectionStageInfo.patienceUnit) }}
           </div>
           <div v-if="affectionStageInfo.affectionGrowthLimit" class="GensokyoOrigin-RoleDetailPopup-detail-item">
-            <strong>好感增长上限:</strong> 软上限 {{ affectionStageInfo.affectionGrowthLimit.max }}, 超出后除以 {{ affectionStageInfo.affectionGrowthLimit.divisor }}
+            <strong>好感增长上限:</strong> 软上限 {{ affectionStageInfo.affectionGrowthLimit.max }}, 超出后除以
+            {{ affectionStageInfo.affectionGrowthLimit.divisor }}
           </div>
           <div v-if="affectionStageInfo.visit" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
             <strong>拜访规则:</strong>
-            {{ affectionStageInfo.visit.enabled ? '会' : '不会' }}拜访。基础概率 {{ ((affectionStageInfo.visit.probBase ?? 0) * 100).toFixed(0) }}%, 好感影响 {{ ((affectionStageInfo.visit.probK ?? 0) * 100).toFixed(0) }}%。冷却刷新于 {{ affectionStageInfo.visit.coolUnit }}
+            {{ affectionStageInfo.visit.enabled ? '会' : '不会' }}拜访。基础概率
+            {{ ((affectionStageInfo.visit.probBase ?? 0) * 100).toFixed(0) }}%, 好感影响
+            {{ ((affectionStageInfo.visit.probK ?? 0) * 100).toFixed(0) }}%。冷却刷新于
+            {{ affectionStageInfo.visit.coolUnit }}
           </div>
-          <div v-if="affectionStageInfo.forgettingSpeed?.length" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+          <div
+            v-if="affectionStageInfo.forgettingSpeed?.length"
+            class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"
+          >
             <strong>遗忘规则:</strong>
             <span v-for="(rule, index) in affectionStageInfo.forgettingSpeed" :key="index">
               于 {{ rule.triggerFlag }} 触发, 降低 {{ rule.decrease }} 点好感。
