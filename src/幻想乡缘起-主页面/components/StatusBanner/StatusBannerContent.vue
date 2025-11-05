@@ -4,7 +4,7 @@
     <div class="banner-title"><span class="emoji">📡</span><span>世界状态</span></div>
 
     <!-- 日期和日历组件 -->
-    <TimeContainer ref="timeContainer" :clock-info="clockInfo" />
+    <TimeContainer ref="timeContainer" :stat="statData" :runtime="runtimeData" />
 
     <span class="banner-sep" aria-hidden="true"></span>
 
@@ -16,7 +16,7 @@
 <script setup lang="ts">
 import _ from 'lodash';
 import { ref } from 'vue';
-import type { ClockInfo, StatWithoutMeta } from '../../utils/constants';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import { Logger } from '../../utils/log';
 import TimeContainer from './Icons/TimeContainer/TimeContainer.vue';
 import WeatherContainer from './Icons/WeatherContainer/WeatherContainer.vue';
@@ -24,35 +24,28 @@ import WeatherContainer from './Icons/WeatherContainer/WeatherContainer.vue';
 const logger = new Logger();
 
 // 状态
-const clockInfo = ref<ClockInfo | null>(null);
+const statData = ref<Stat | null>(null);
+const runtimeData = ref<any>(null);
 const weather = ref<string | null>(null);
 
 /**
  * @description 【暴露给外部的唯一入口】更新整个状态横幅。
- * @param context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-const update = (context: { statWithoutMeta: StatWithoutMeta; runtime: any }) => {
+const update = ({ statWithoutMeta, runtime }: { statWithoutMeta: Stat; runtime: any }) => {
   const funcName = 'update';
-  const { statWithoutMeta, runtime } = context || {};
-
-  logger.log(funcName, '状态横幅内容区开始更新，接收到的 context：', context);
+  logger.log(funcName, '状态横幅内容区开始更新，接收到的数据：', { statWithoutMeta, runtime });
 
   if (!statWithoutMeta || typeof statWithoutMeta !== 'object') {
-    logger.warn(funcName, '调用失败：传入的 context 或 statWithoutMeta 无效。', context);
+    logger.warn(funcName, '调用失败：传入的 statWithoutMeta 无效。', { statWithoutMeta, runtime });
     return;
   }
 
-  // 更新天气显示
-  weather.value = _.get(statWithoutMeta, '世界.天气', '—');
+  // 更新内部状态
+  statData.value = statWithoutMeta;
+  runtimeData.value = runtime;
 
-  // 更新日期和日历显示
-  const clockNow = _.get(runtime, 'clock.now', null);
-  const festivals = _.get(statWithoutMeta, 'festivals_list', []);
-  if (clockNow && typeof clockNow === 'object') {
-    clockInfo.value = { ...clockNow, festivals };
-  } else {
-    logger.warn(funcName, '未在 state 中找到 runtime.clock.now 或其格式不正确');
-  }
+  // 更新天气显示
+  // weather.value = statWithoutMeta.世界?.天气 ?? '—';
 };
 
 // 暴露 update 方法给父组件

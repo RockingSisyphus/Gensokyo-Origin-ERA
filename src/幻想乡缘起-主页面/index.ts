@@ -1,12 +1,10 @@
 import { createApp } from 'vue';
-// eslint-disable-next-line import-x/default
-import App from './app.vue';
-import './style.scss';
-import { ERA_VARIABLE_PATH } from './utils/constants';
-import { get } from './utils/format';
-import { Logger, logContext } from './utils/log';
+
 import { RuntimeSchema } from '../GSKO-BASE/schema/runtime';
 import { StatSchema } from '../GSKO-BASE/schema/stat';
+import App from './app.vue';
+import './style.scss';
+import { Logger, logContext } from './utils/log';
 
 // ===============================================================
 // 应用入口：负责 Vue 初始化、以及监听 era:writeDone 事件后刷新 UI/后台流水线
