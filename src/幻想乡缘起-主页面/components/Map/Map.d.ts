@@ -5,7 +5,7 @@ export interface Position {
 
 export interface MapMarker {
   name: string;
-  position: Position;
+  pos: Position;
   htmlEle: string;
 }
 

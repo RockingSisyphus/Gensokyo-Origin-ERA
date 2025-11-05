@@ -30,7 +30,7 @@
         v-if="activeTab === 'status'"
         :class="{ active: activeTab === 'status' }"
       >
-        <Map />
+        <Map :context="contextRef" />
       </div>
 
       <!-- 异变 Tab -->
@@ -97,6 +97,8 @@ const tabs = [
 ];
 const activeTab = ref('main'); // 默认激活 '正文' 选项卡
 
+const contextRef = ref<null | { statWithoutMeta: any; runtime: any }>(null);
+
 /**
  * @description 切换选项卡。这是对 index.ts 中原始 DOM 事件监听器的 Vue 化改造。
  * @param {string} tabId - 要切换到的选项卡的 ID
@@ -114,6 +116,7 @@ const switchTab = (tabId: string) => {
  * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
 const update = (context: { statWithoutMeta: any; runtime: any }) => {
+  contextRef.value = context;
   const funcName = 'update';
   const { statWithoutMeta, runtime } = context || {};
 

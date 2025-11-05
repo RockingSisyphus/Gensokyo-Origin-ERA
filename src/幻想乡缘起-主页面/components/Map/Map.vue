@@ -19,9 +19,9 @@
           class="marker"
           v-html="marker.htmlEle"
           :style="{
-            left: marker.position.x * mapState.zoom + mapState.offsetX + 'px',
-            top: marker.position.y * mapState.zoom + mapState.offsetY + 'px',
-            transform: `translate(-50%, -50%) scale(${1 / mapState.zoom})`,
+            left: marker.pos.x * mapState.zoom + mapState.offsetX + 'px',
+            top: marker.pos.y * mapState.zoom + mapState.offsetY + 'px',
+            transform: `translate(-50%, -50%) scale(${mapState.zoom})`,
           }"
           @click="selectLocation(marker)"
         ></div>
@@ -31,9 +31,9 @@
           v-if="selectedMarker"
           class="tip-container"
           :style="{
-            left: selectedMarker.position.x * mapState.zoom + mapState.offsetX + 'px',
-            top: selectedMarker.position.y * mapState.zoom + mapState.offsetY - 10 + 'px',
-            transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
+            left: selectedMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
+            top: selectedMarker.pos.y * mapState.zoom + mapState.offsetY - 10 + 'px',
+            transform: `translate(-50%, -100%) scale(${mapState.zoom})`,
           }"
         >
           <div class="dialog">
@@ -49,8 +49,8 @@
           class="marker main-role-marker pulsate"
           v-html="mainRoleMarker.htmlEle"
           :style="{
-            left: mainRoleMarker.position.x * mapState.zoom + mapState.offsetX + 'px',
-            top: mainRoleMarker.position.y * mapState.zoom + mapState.offsetY + 'px',
+            left: mainRoleMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
+            top: mainRoleMarker.pos.y * mapState.zoom + mapState.offsetY + 'px',
             transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
           }"
         ></div>
@@ -68,19 +68,33 @@ const exampleMapSize = {
   height: 600,
 };
 
-const markersData: MapMarker[] = [
-  { name: '博丽神社', position: { x: 100, y: 100 }, htmlEle: '<div>博丽神社</div>' },
-  { name: '永远亭', position: { x: 300, y: 150 }, htmlEle: '<div>永远亭</div>' },
-  { name: '白玉楼', position: { x: 500, y: 500 }, htmlEle: '<div>白玉楼</div>' },
-];
-
 const exampleRoads: Road[] = [
   { start: { x: 100, y: 100 }, end: { x: 300, y: 150 } },
   { start: { x: 100, y: 100 }, end: { x: 500, y: 500 } },
 ];
+
 // 示例数据end
 
-let markers = ref<MapMarker[]>(markersData);
+// 定义 props
+const props = defineProps({
+  context: null,
+});
+
+// 监听 message 的变化
+watch(
+  () => props.context,
+  (newValue, oldValue) => {
+    console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
+  },
+);
+
+let markers: ComputedRef<MapMarker[]> = computed(() => {
+  if (props.context?.runtime?.area?.legal_locations) {
+    return props.context.runtime.area.legal_locations;
+  }
+
+  return [];
+});
 let mapState = ref<MapState>({
   offsetX: 0,
   offsetY: 0,
@@ -94,7 +108,7 @@ let mapState = ref<MapState>({
 let selectedMarker = ref<MapMarker | null>(null);
 let mainRoleMarker = ref<MapMarker | null>({
   name: '主角',
-  position: { x: 300, y: 150 },
+  pos: { x: 300, y: 150 },
   htmlEle: '<div>📍</div>',
 });
 
