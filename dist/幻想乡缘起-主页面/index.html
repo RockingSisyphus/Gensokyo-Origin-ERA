@@ -1933,33 +1933,14 @@ const Mapvue_type_script_setup_true_lang_ts_hoisted_9 = [ "innerHTML" ];
 
 const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "Map",
+  props: {
+    context: null
+  },
   setup(__props) {
     const exampleMapSize = {
       width: 800,
       height: 600
     };
-    const markersData = [ {
-      name: "博丽神社",
-      position: {
-        x: 100,
-        y: 100
-      },
-      htmlEle: "<div>博丽神社</div>"
-    }, {
-      name: "永远亭",
-      position: {
-        x: 300,
-        y: 150
-      },
-      htmlEle: "<div>永远亭</div>"
-    }, {
-      name: "白玉楼",
-      position: {
-        x: 500,
-        y: 500
-      },
-      htmlEle: "<div>白玉楼</div>"
-    } ];
     const exampleRoads = [ {
       start: {
         x: 100,
@@ -1979,7 +1960,16 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
         y: 500
       }
     } ];
-    let markers = (0, external_Vue_namespaceObject.ref)(markersData);
+    const props = __props;
+    (0, external_Vue_namespaceObject.watch)(() => props.context, (newValue, oldValue) => {
+      console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
+    });
+    let markers = (0, external_Vue_namespaceObject.computed)(() => {
+      if (props.context?.runtime?.area?.legal_locations) {
+        return props.context.runtime.area.legal_locations;
+      }
+      return [];
+    });
     let mapState = (0, external_Vue_namespaceObject.ref)({
       offsetX: 0,
       offsetY: 0,
@@ -1993,7 +1983,7 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     let selectedMarker = (0, external_Vue_namespaceObject.ref)(null);
     let mainRoleMarker = (0, external_Vue_namespaceObject.ref)({
       name: "主角",
-      position: {
+      pos: {
         x: 300,
         y: 150
       },
@@ -2126,11 +2116,11 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       class: "marker",
       innerHTML: marker.htmlEle,
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: marker.position.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        left: marker.pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: marker.position.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        top: marker.pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
-        transform: `translate(-50%, -50%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+        transform: `translate(-50%, -50%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
       }),
       onClick: $event => selectLocation(marker)
     }, null, 12, Mapvue_type_script_setup_true_lang_ts_hoisted_6))), 128)), (0, external_Vue_namespaceObject.createCommentVNode)(" 点击marker的tip弹出 "), (0, 
@@ -2139,11 +2129,11 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       key: 0,
       class: "tip-container",
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: (0, external_Vue_namespaceObject.unref)(selectedMarker).position.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        left: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: (0, external_Vue_namespaceObject.unref)(selectedMarker).position.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        top: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY - 10 + "px",
-        transform: `translate(-50%, -100%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+        transform: `translate(-50%, -100%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
       })
     }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_7, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("h2", Mapvue_type_script_setup_true_lang_ts_hoisted_8, (0, 
@@ -2157,9 +2147,9 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       class: "marker main-role-marker pulsate",
       innerHTML: (0, external_Vue_namespaceObject.unref)(mainRoleMarker).htmlEle,
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: (0, external_Vue_namespaceObject.unref)(mainRoleMarker).position.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        left: (0, external_Vue_namespaceObject.unref)(mainRoleMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: (0, external_Vue_namespaceObject.unref)(mainRoleMarker).position.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        top: (0, external_Vue_namespaceObject.unref)(mainRoleMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
         transform: `translate(-50%, -100%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
       })
@@ -2290,11 +2280,13 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       name: "设置"
     } ];
     const activeTab = (0, external_Vue_namespaceObject.ref)("main");
+    const contextRef = (0, external_Vue_namespaceObject.ref)(null);
     const switchTab = tabId => {
       logger.log("switchTab", `切换选项卡到: ${tabId}`);
       activeTab.value = tabId;
     };
     const update = context => {
+      contextRef.value = context;
       const funcName = "update";
       const {statWithoutMeta, runtime} = context || {};
       logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, {
@@ -2384,7 +2376,9 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
           active: activeTab.value === "status"
         } ])
-      }, [ (0, external_Vue_namespaceObject.createVNode)(Map) ], 2)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
+      }, [ (0, external_Vue_namespaceObject.createVNode)(Map, {
+        context: contextRef.value
+      }, null, 8, [ "context" ]) ], 2)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
       external_Vue_namespaceObject.createCommentVNode)(" 异变 Tab "), (0, external_Vue_namespaceObject.createElementVNode)("div", {
         id: "content_incidents",
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
@@ -2425,7 +2419,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4420a5c0" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-93a0a84e" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -3646,7 +3640,7 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 #content_incidents h4[data-v-382a017e]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-382a017e]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-382a017e]{margin-bottom:15px}.debug-select[data-v-382a017e],.debug-switch[data-v-382a017e]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-382a017e]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-382a017e] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-382a017e] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-382a017e] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-name{font-weight:700}.incident-list[data-v-382a017e] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-line{margin:6px 0;font-size:.9em}
 .map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .main-role-marker{transform-origin:bottom center;font-size:24px;z-index:10}
 .font-size-controls[data-v-7fbcf727]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-7fbcf727]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-4420a5c0]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-4420a5c0]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-4420a5c0]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-4420a5c0]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-4420a5c0]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-4420a5c0]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-4420a5c0]{padding:15px}}[data-v-4420a5c0] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-4420a5c0] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-4420a5c0] .incident-list{display:flex;flex-direction:column;gap:12px}
+.status-tabs[data-v-93a0a84e]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-93a0a84e]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-93a0a84e]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-93a0a84e]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-93a0a84e]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-93a0a84e]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-93a0a84e]{padding:15px}}[data-v-93a0a84e] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-93a0a84e] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-93a0a84e] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
 .aya-news-popup[data-v-08972433]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-08972433]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-08972433]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-08972433]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
