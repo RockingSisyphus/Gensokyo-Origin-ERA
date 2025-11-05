@@ -28,6 +28,33 @@ function __webpack_require__(moduleId) {
   return module.exports;
 }
 
+(() => {
+  __webpack_require__.n = module => {
+    var getter = module && module.__esModule ? () => module["default"] : () => module;
+    __webpack_require__.d(getter, {
+      a: getter
+    });
+    return getter;
+  };
+})();
+
+(() => {
+  __webpack_require__.d = (exports, definition) => {
+    for (var key in definition) {
+      if (__webpack_require__.o(definition, key) && !__webpack_require__.o(exports, key)) {
+        Object.defineProperty(exports, key, {
+          enumerable: true,
+          get: definition[key]
+        });
+      }
+    }
+  };
+})();
+
+(() => {
+  __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
+})();
+
 var __webpack_exports__ = {};
 
 const external_Vue_namespaceObject = Vue;
@@ -390,6 +417,7 @@ const CharacterDistributionSchema = external_z_namespaceObject.z.object({
 });
 
 const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string().optional(),
   affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: runtime_ActionSchema.optional(),
   companionDecision: runtime_ActionSchema.optional()
@@ -1078,8 +1106,8 @@ const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     const loveThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100);
     const hateThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100);
     const affectionStage = (0, external_Vue_namespaceObject.computed)(() => {
-      if (!props.runtime || !props.character?.name) return "—";
-      return props.runtime.character?.chars[props.character.name]?.affectionStage?.name || "—";
+      if (!props.runtime || !props.character?.id) return "—";
+      return props.runtime.character?.chars[props.character.id]?.affectionStage?.name || "—";
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ _cache[0] || (_cache[0] = (0, 
@@ -1467,6 +1495,8 @@ const ContentOthers_exports_ = ContentOthersvue_type_script_setup_true_lang_ts;
 const ContentOthers = ContentOthers_exports_;
 
 const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
 
 const ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "row",
@@ -2704,8 +2734,8 @@ const RoleDetailPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_names
     const props = __props;
     const particleEmitter = (0, external_Vue_namespaceObject.ref)(null);
     const charRuntimeData = (0, external_Vue_namespaceObject.computed)(() => {
-      if (!props.runtime?.character?.chars || !props.character.name) return null;
-      return props.runtime.character.chars[props.character.name];
+      if (!props.runtime?.character?.chars || !props.character.id) return null;
+      return props.runtime.character.chars[props.character.id];
     });
     const affectionStageInfo = (0, external_Vue_namespaceObject.computed)(() => charRuntimeData.value?.affectionStage);
     const decisionText = (0, external_Vue_namespaceObject.computed)(() => {
@@ -2826,6 +2856,7 @@ const ribbonScrollStep = 320;
 const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "RoleRibbonContainer",
   setup(__props, {expose: __expose}) {
+    const logger = new Logger("RoleRibbon");
     const state = (0, external_Vue_namespaceObject.reactive)({
       stat: null,
       runtime: null
@@ -2833,20 +2864,34 @@ const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_n
     const ribbon = (0, external_Vue_namespaceObject.ref)(null);
     const selectedCharacter = (0, external_Vue_namespaceObject.ref)(null);
     const nearbyCharacters = (0, external_Vue_namespaceObject.computed)(() => {
+      const funcName = "nearbyCharacters";
       const coLocatedIds = state.runtime?.character?.partitions?.coLocated;
+      logger.debug(funcName, "coLocatedIds:", external_default().cloneDeep(coLocatedIds));
       if (!coLocatedIds || !state.stat?.chars || !state.runtime?.character?.chars) {
+        logger.debug(funcName, "依赖数据不完整，返回空数组。");
         return [];
       }
-      return coLocatedIds.map(charId => {
+      const result = coLocatedIds.map(charId => {
+        logger.debug(funcName, `正在处理角色ID: ${charId}`);
         const charStat = state.stat?.chars?.[charId];
         const charRuntime = state.runtime?.character?.chars?.[charId];
-        if (!charStat) return null;
+        logger.debug(funcName, `[${charId}] charStat:`, external_default().cloneDeep(charStat));
+        logger.debug(funcName, `[${charId}] charRuntime:`, external_default().cloneDeep(charRuntime));
+        if (!charStat) {
+          logger.warn(funcName, `在 stat.chars 中未找到角色 ${charId} 的数据，已跳过。`);
+          return null;
+        }
+        const displayName = charRuntime?.name || charId;
+        logger.debug(funcName, `[${charId}] 最终显示名称: ${displayName}`);
         return {
+          id: charId,
           ...charStat,
-          name: charId,
-          ...charRuntime
+          ...charRuntime,
+          name: displayName
         };
       }).filter(Boolean);
+      logger.debug(funcName, "计算完成的 nearbyCharacters:", external_default().cloneDeep(result));
+      return result;
     });
     const scroll = direction => {
       ribbon.value?.scrollBy({
@@ -2855,6 +2900,11 @@ const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_n
       });
     };
     const updateRibbon = context => {
+      const funcName = "updateRibbon";
+      logger.debug(funcName, "接收到新的上下文数据", {
+        stat: external_default().cloneDeep(context.statWithoutMeta),
+        runtime: external_default().cloneDeep(context.runtime)
+      });
       state.stat = context.statWithoutMeta;
       state.runtime = context.runtime;
     };
@@ -2878,7 +2928,7 @@ const RoleRibbonContainervue_type_script_setup_true_lang_ts = (0, external_Vue_n
     }, [ ((0, external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(nearbyCharacters.value, char => ((0, external_Vue_namespaceObject.openBlock)(), 
     (0, external_Vue_namespaceObject.createBlock)(RoleCard, {
-      key: char.name,
+      key: char.id,
       character: char,
       "stat-without-meta": state.stat,
       runtime: state.runtime,

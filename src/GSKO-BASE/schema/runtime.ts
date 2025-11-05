@@ -65,6 +65,7 @@ const CharacterDistributionSchema = z.object({
 export type CharacterDistribution = z.infer<typeof CharacterDistributionSchema>;
 
 export const CharacterRuntimeSchema = z.object({
+  name: z.string().optional(),
   affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: ActionSchema.optional(),
   companionDecision: ActionSchema.optional(),

@@ -28,7 +28,7 @@ import AffectionDisplay from './AffectionDisplay.vue';
 
 const props = defineProps({
   character: {
-    type: Object as PropType<Character & { name: string }>,
+    type: Object as PropType<Character & { name: string; id: string }>,
     required: true,
   },
   statWithoutMeta: {

@@ -71,7 +71,7 @@ import ParticleEmitter from '../common/ParticleEmitter.vue';
 
 const props = defineProps({
   character: {
-    type: Object as PropType<Character & { name: string }>,
+    type: Object as PropType<Character & { name: string; id: string }>,
     required: true,
   },
   statWithoutMeta: {
@@ -88,9 +88,11 @@ defineEmits(['close']);
 
 const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
 
+// 获取 runtime 里的角色运行数据，使用角色 ID 作为 key，避免显示名的变化影响取值
+
 const charRuntimeData = computed(() => {
-  if (!props.runtime?.character?.chars || !props.character.name) return null;
-  return props.runtime.character.chars[props.character.name];
+  if (!props.runtime?.character?.chars || !props.character.id) return null;
+  return props.runtime.character.chars[props.character.id];
 });
 
 const affectionStageInfo = computed(() => charRuntimeData.value?.affectionStage);

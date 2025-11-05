@@ -24,7 +24,7 @@ import StyledProgressBar from '../common/StyledProgressBar.vue';
 
 const props = defineProps({
   character: {
-    type: Object as PropType<Character & { name: string }>,
+    type: Object as PropType<Character & { name: string; id: string }>,
     required: true,
   },
   statWithoutMeta: {
@@ -46,9 +46,10 @@ const affectionValue = computed(() => props.character?.好感度 || 0);
 const loveThreshold = computed(() => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100);
 const hateThreshold = computed(() => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100);
 
+// 好感阶段读取 runtime 的数据，统一用 ID 为准，避免不同显示名影响访问
 const affectionStage = computed(() => {
-  if (!props.runtime || !props.character?.name) return '—';
-  return props.runtime.character?.chars[props.character.name]?.affectionStage?.name || '—';
+  if (!props.runtime || !props.character?.id) return '—';
+  return props.runtime.character?.chars[props.character.id]?.affectionStage?.name || '—';
 });
 </script>
 

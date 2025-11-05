@@ -67,6 +67,11 @@ export function setAffectionStageInRuntime(runtime: Runtime, charId: string, sta
   runtime.character!.chars[charId]!.affectionStage = stage;
 }
 
+export function setNameInRuntime(runtime: Runtime, charId: string, name: string): void {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character!.chars[charId]!.name = name;
+}
+
 export function getDecisionFromRuntime(runtime: Runtime, charId: string): Action | undefined {
   return getCharacterRuntime(runtime, charId)?.decision;
 }

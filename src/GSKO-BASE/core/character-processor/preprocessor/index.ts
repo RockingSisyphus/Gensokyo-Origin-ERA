@@ -12,6 +12,7 @@ import {
   getChars,
   isVisitCooling,
   setAffectionStageInRuntime,
+  setNameInRuntime,
   setVisitCooling,
 } from '../accessors';
 import { getAffectionStage } from '../utils';
@@ -62,6 +63,9 @@ export function preprocess({ runtime, stat, cache }: { runtime: Runtime; stat: S
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
+
+      // 0. 将角色名存入 runtime
+      setNameInRuntime(newRuntime, charId, char.name);
 
       // 1. 解析好感度等级并存入 runtime
       // character-processor 只信任 runtime.characterSettings 中的数据

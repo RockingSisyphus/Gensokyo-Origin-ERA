@@ -5,7 +5,7 @@
     <div id="role-ribbon" ref="ribbon" class="role-ribbon">
       <RoleCard
         v-for="char in nearbyCharacters"
-        :key="char.name"
+        :key="char.id"
         :character="char"
         :stat-without-meta="state.stat"
         :runtime="state.runtime"
@@ -25,12 +25,16 @@
 </template>
 
 <script setup lang="ts">
-import { computed, ref, reactive } from 'vue';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import _ from 'lodash';
+import { computed, reactive, ref } from 'vue';
 import type { Character } from '../../../GSKO-BASE/schema/character';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import { Logger } from '../../utils/log';
 import RoleCard from './RoleCard.vue';
 import RoleDetailPopup from './RoleDetailPopup.vue';
+
+const logger = new Logger('RoleRibbon');
 
 const state = reactive({
   stat: null as Stat | null,
@@ -41,9 +45,14 @@ const ribbon = ref<HTMLElement | null>(null);
 const selectedCharacter = ref<any | null>(null);
 const ribbonScrollStep = 320;
 
-const nearbyCharacters = computed<(Character & { name: string })[]>(() => {
+// nearbyCharacters ��ǰ����ͬλ�ø�����ɫ������չ� ID �Ա��� runtime �еĲ�������
+const nearbyCharacters = computed<(Character & { name: string; id: string })[]>(() => {
+  const funcName = 'nearbyCharacters';
   const coLocatedIds = state.runtime?.character?.partitions?.coLocated;
+  logger.debug(funcName, 'coLocatedIds:', _.cloneDeep(coLocatedIds));
+
   if (!coLocatedIds || !state.stat?.chars || !state.runtime?.character?.chars) {
+    logger.debug(funcName, '依赖数据不完整，返回空数组。');
     return [];
   }
 
@@ -51,15 +60,30 @@ const nearbyCharacters = computed<(Character & { name: string })[]>(() => {
     .map(charId => {
       const charStat = state.stat?.chars?.[charId];
       const charRuntime = state.runtime?.character?.chars?.[charId];
-      if (!charStat) return null;
+
+      logger.debug(funcName, `[${charId}] charStat:`, _.cloneDeep(charStat));
+      logger.debug(funcName, `[${charId}] charRuntime:`, _.cloneDeep(charRuntime));
+
+      if (!charStat) {
+        logger.warn(funcName, `在 stat.chars 中未找到角色 ${charId} 的数据，已跳过。`);
+        return null;
+      }
+
+      // 优先使用 runtime 中定义的 name，如果不存在，则回退到使用角色 ID
+      const displayName = charRuntime?.name || charId;
+      logger.debug(funcName, `[${charId}] 最终显示名称: ${displayName}`);
 
       return {
+        id: charId,
         ...charStat,
-        name: charId,
         ...charRuntime,
+        name: displayName,
       };
     })
-    .filter(Boolean) as (Character & { name: string })[];
+    .filter(Boolean) as (Character & { name: string; id: string })[];
+
+  logger.debug(funcName, '计算完成的 nearbyCharacters:', _.cloneDeep(result));
+  return result;
 });
 
 const scroll = (direction: number) => {
@@ -67,6 +91,11 @@ const scroll = (direction: number) => {
 };
 
 const updateRibbon = (context: { statWithoutMeta: Stat; runtime: Runtime }) => {
+  const funcName = 'updateRibbon';
+  logger.debug(funcName, '接收到新的上下文数据', {
+    stat: _.cloneDeep(context.statWithoutMeta),
+    runtime: _.cloneDeep(context.runtime),
+  });
   state.stat = context.statWithoutMeta;
   state.runtime = context.runtime;
 };

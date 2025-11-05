@@ -1784,6 +1784,11 @@ function setAffectionStageInRuntime(runtime, charId, stage) {
   runtime.character.chars[charId].affectionStage = stage;
 }
 
+function setNameInRuntime(runtime, charId, name) {
+  ensureCharacterRuntime(runtime, charId);
+  runtime.character.chars[charId].name = name;
+}
+
 function getDecisionFromRuntime(runtime, charId) {
   return getCharacterRuntime(runtime, charId)?.decision;
 }
@@ -2288,6 +2293,7 @@ function preprocess({runtime, stat, cache}) {
     for (const charId of charIds) {
       const char = getChar(stat, charId);
       if (!char) continue;
+      setNameInRuntime(newRuntime, charId, char.name);
       const charAffectionStages = getCharAffectionStages(newRuntime, charId);
       if (!charAffectionStages || charAffectionStages.length === 0) {
         preprocessor_logger.debug(funcName, `角色 ${charId} 在 runtime.characterSettings 中没有找到好感度等级表，跳过处理。`);
@@ -2553,6 +2559,7 @@ const CharacterDistributionSchema = external_z_namespaceObject.z.object({
 });
 
 const CharacterRuntimeSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string().optional(),
   affectionStage: AffectionStageWithForgetSchema.optional(),
   decision: runtime_ActionSchema.optional(),
   companionDecision: runtime_ActionSchema.optional()
