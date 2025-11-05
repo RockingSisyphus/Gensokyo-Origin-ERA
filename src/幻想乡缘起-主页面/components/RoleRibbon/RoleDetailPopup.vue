@@ -10,7 +10,7 @@
         </div>
       </div>
       <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+        <!-- <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
           <strong>年龄:</strong> {{ toText(character['年龄']) }}
         </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
@@ -18,11 +18,11 @@
         </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
           <strong>身份:</strong> {{ toText(character['身份']) }}
-        </div>
+        </div> -->
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-          <strong>居住地:</strong> {{ toText(character['居住地区']) }}
+          <strong>居住地:</strong> {{ toText(character.居住地区) }}
         </div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+        <!-- <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
           <strong>性格:</strong> {{ toText(character['性格']) }}
         </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
@@ -30,9 +30,9 @@
         </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
           <strong>人际关系:</strong> {{ toText(character['人际关系']) }}
-        </div>
+        </div> -->
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>当前目标:</strong> {{ toText(character['当前目标']) }}
+          <strong>当前目标:</strong> {{ toText(character.目标) }}
         </div>
       </div>
       <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="large" />
@@ -48,16 +48,27 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import type { PropType } from 'vue';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Character } from '../../../GSKO-BASE/schema/character';
 import AffectionDisplay from './AffectionDisplay.vue';
 import ParticleEmitter from '../common/ParticleEmitter.vue';
-import { get } from '../../utils/format';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
 
-const props = defineProps<{
-  character: any;
-  statWithoutMeta: any;
-  runtime: any;
-}>();
+const props = defineProps({
+  character: {
+    type: Object as PropType<Character & { name: string }>,
+    required: true,
+  },
+  statWithoutMeta: {
+    type: Object as PropType<Stat | null>,
+    required: true,
+  },
+  runtime: {
+    type: Object as PropType<Runtime | null>,
+    required: true,
+  },
+});
 
 defineEmits(['close']);
 
@@ -70,12 +81,12 @@ const toText = (v: any) => {
 };
 
 // --- 数据计算 (与粒子效果相关) ---
-const affectionValue = computed(() => props.character?.['好感度'] || 0);
-const loveThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)),
+const affectionValue = computed(() => props.character?.好感度 || 0);
+const loveThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100,
 );
-const hateThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)),
+const hateThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100,
 );
 
 const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {

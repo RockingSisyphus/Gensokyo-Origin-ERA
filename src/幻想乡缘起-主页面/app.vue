@@ -21,7 +21,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent } from 'vue';
+import { defineComponent, ref } from 'vue';
 
 export default defineComponent({
   name: 'App',
@@ -29,15 +29,14 @@ export default defineComponent({
 </script>
 
 <script setup lang="ts">
-import { ref } from 'vue';
 // [重构] 导入新的 StatusTabContent 组件
 import StatusTabContent from './components/StatusTab/StatusTabContent.vue';
 // [重构] 其他子组件的导入已移至 StatusTabContent.vue，此处不再需要
+import AyaNewsContainer from './components/AyaNews/AyaNewsContainer.vue';
 import RoleRibbonContainer from './components/RoleRibbon/RoleRibbonContainer.vue';
 import StatusBanner from './components/StatusBanner/StatusBannerContent.vue';
-import AyaNewsContainer from './components/AyaNews/AyaNewsContainer.vue';
-import UserStateContainer from './components/UserState/UserStateContainer.vue';
 import ThemeToggle from './components/ThemeToggle.vue';
+import UserStateContainer from './components/UserState/UserStateContainer.vue';
 
 // 为 ThemeToggle 组件创建一个 ref
 const themeToggle = ref<InstanceType<typeof ThemeToggle> | null>(null);

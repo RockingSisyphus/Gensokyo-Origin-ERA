@@ -4489,7 +4489,9 @@ const DEFAULT_TIME_CONFIG = {
 };
 
 const AffectionConfigSchema = external_z_namespaceObject.z.object({
-  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema))
+  affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)),
+  loveThreshold: external_z_namespaceObject.z.number().optional(),
+  hateThreshold: external_z_namespaceObject.z.number().optional()
 });
 
 const ConfigSchema = external_z_namespaceObject.z.object({

@@ -95,6 +95,8 @@ export const DEFAULT_TIME_CONFIG: TimeConfig = {
 // --- Affection Config ---
 export const AffectionConfigSchema = z.object({
   affectionStages: z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)),
+  loveThreshold: z.number().optional(),
+  hateThreshold: z.number().optional(),
 });
 export type AffectionConfig = z.infer<typeof AffectionConfigSchema>;
 

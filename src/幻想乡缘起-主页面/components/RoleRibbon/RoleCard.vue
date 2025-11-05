@@ -19,28 +19,39 @@
 
 <script setup lang="ts">
 import { ref, computed, watch } from 'vue';
+import type { PropType } from 'vue';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Character } from '../../../GSKO-BASE/schema/character';
 import AffectionDisplay from './AffectionDisplay.vue';
 import ParticleEmitter from '../common/ParticleEmitter.vue';
-import { get } from '../../utils/format';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
 
-const props = defineProps<{
-  character: any;
-  statWithoutMeta: any;
-  runtime: any;
-}>();
+const props = defineProps({
+  character: {
+    type: Object as PropType<Character & { name: string }>,
+    required: true,
+  },
+  statWithoutMeta: {
+    type: Object as PropType<Stat | null>,
+    required: true,
+  },
+  runtime: {
+    type: Object as PropType<Runtime | null>,
+    required: true,
+  },
+});
 
 defineEmits(['show-details']);
 
 const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
 
 // --- 数据计算 (与粒子效果相关) ---
-const affectionValue = computed(() => props.character?.['好感度'] || 0);
-const loveThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)),
+const affectionValue = computed(() => props.character?.好感度 || 0);
+const loveThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100,
 );
-const hateThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)),
+const hateThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100,
 );
 
 const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {

@@ -16,30 +16,43 @@
 
 <script setup lang="ts">
 import { computed } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
-import { get } from '../../utils/format';
+import type { PropType } from 'vue';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Character } from '../../../GSKO-BASE/schema/character';
 import StyledProgressBar from '../common/StyledProgressBar.vue';
 
-const props = defineProps<{
-  character: any;
-  statWithoutMeta: any;
-  runtime: any;
-  size: 'small' | 'large';
-}>();
+const props = defineProps({
+  character: {
+    type: Object as PropType<Character & { name: string }>,
+    required: true,
+  },
+  statWithoutMeta: {
+    type: Object as PropType<Stat | null>,
+    required: true,
+  },
+  runtime: {
+    type: Object as PropType<Runtime | null>,
+    required: true,
+  },
+  size: {
+    type: String as PropType<'small' | 'large'>,
+    required: true,
+  },
+});
 
 // --- 数据计算 ---
-const affectionValue = computed(() => props.character?.['好感度'] || 0);
-const loveThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100)),
+const affectionValue = computed(() => props.character?.好感度 || 0);
+const loveThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100,
 );
-const hateThreshold = computed(() =>
-  Number(get(props.statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100)),
+const hateThreshold = computed(
+  () => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100,
 );
 
 const affectionStage = computed(() => {
   if (!props.runtime || !props.character?.name) return '—';
-  const path = ERA_VARIABLE_PATH.RUNTIME_AFFECTION_STAGE_NAME_PATH(props.character.name);
-  return get(props.runtime, path, '—');
+  return props.runtime.character?.chars[props.character.name]?.affectionStage?.name || '—';
 });
 </script>
 

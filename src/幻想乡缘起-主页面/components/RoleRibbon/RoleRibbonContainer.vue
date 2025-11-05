@@ -7,8 +7,8 @@
         v-for="char in nearbyCharacters"
         :key="char.name"
         :character="char"
-        :stat-without-meta="statWithoutMeta"
-        :runtime="runtime"
+        :stat-without-meta="state.stat"
+        :runtime="state.runtime"
         @show-details="selectedCharacter = $event"
       />
       <div v-if="!nearbyCharacters.length" class="role-card-placeholder">附近暂无角色</div>
@@ -17,61 +17,47 @@
     <RoleDetailPopup
       v-if="selectedCharacter"
       :character="selectedCharacter"
-      :stat-without-meta="statWithoutMeta"
-      :runtime="runtime"
+      :stat-without-meta="state.stat"
+      :runtime="state.runtime"
       @close="selectedCharacter = null"
     />
   </div>
 </template>
 
 <script setup lang="ts">
-import { computed, ref } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
-import { get } from '../../utils/format';
+import { computed, ref, reactive } from 'vue';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Character } from '../../../GSKO-BASE/schema/character';
 import RoleCard from './RoleCard.vue';
 import RoleDetailPopup from './RoleDetailPopup.vue';
 
-const ribbon = ref<HTMLElement | null>(null);
-const allCharacters = ref<any>({});
-const userLocation = ref('');
-const ribbonScrollStep = ref(320);
-const selectedCharacter = ref<any | null>(null);
-const statWithoutMeta = ref<any>({});
-const runtime = ref<any>({}); // <-- Add runtime ref
+const state = reactive({
+  stat: null as Stat | null,
+  runtime: null as Runtime | null,
+});
 
-const nearbyCharacters = computed(() => {
-  if (!userLocation.value || !Object.keys(allCharacters.value).length) {
+const ribbon = ref<HTMLElement | null>(null);
+const selectedCharacter = ref<any | null>(null);
+const ribbonScrollStep = 320;
+
+const nearbyCharacters = computed<(Character & { name: string })[]>(() => {
+  const userLocation = state.stat?.user?.所在地区;
+  if (!userLocation || !state.stat?.chars) {
     return [];
   }
-  return Object.entries(allCharacters.value)
-    .filter(
-      ([, v]: any) =>
-        v && typeof v === 'object' && String(get(v, ERA_VARIABLE_PATH.CHAR_LOCATION, '')).trim() === userLocation.value,
-    )
-    .map(([name, data]) => Object.assign({ name }, data));
+  return Object.entries(state.stat.chars)
+    .filter(([, char]) => char && String(char.所在地区 || '').trim() === userLocation)
+    .map(([name, char]) => ({ ...char, name }));
 });
 
 const scroll = (direction: number) => {
-  ribbon.value?.scrollBy({ left: direction * ribbonScrollStep.value, behavior: 'smooth' });
+  ribbon.value?.scrollBy({ left: direction * ribbonScrollStep, behavior: 'smooth' });
 };
 
-const updateRibbon = (context: { statWithoutMeta: any; runtime: any }) => {
-  const newStat = context?.statWithoutMeta;
-  if (!newStat || typeof newStat !== 'object') return;
-  statWithoutMeta.value = newStat;
-  runtime.value = context.runtime || {}; // <-- Update runtime
-
-  userLocation.value = String(get(newStat, ERA_VARIABLE_PATH.USER_LOCATION, '')).trim();
-
-  let chars: any = newStat?.[ERA_VARIABLE_PATH.CHARS as any];
-  try {
-    if (typeof chars === 'string') chars = JSON.parse(chars);
-  } catch {
-    chars = {};
-  }
-  allCharacters.value = chars || {};
-
-  ribbonScrollStep.value = Number(get(newStat, ERA_VARIABLE_PATH.UI_RIBBON_STEP, 320)) || 320;
+const updateRibbon = (context: { statWithoutMeta: Stat; runtime: Runtime }) => {
+  state.stat = context.statWithoutMeta;
+  state.runtime = context.runtime;
 };
 
 defineExpose({
