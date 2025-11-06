@@ -62,19 +62,6 @@
 <script setup lang="ts">
 import { MapMarker, MapState, Road } from './Map';
 
-// 示例数据start
-const exampleMapSize = {
-  width: 800,
-  height: 600,
-};
-
-const exampleRoads: Road[] = [
-  { start: { x: 100, y: 100 }, end: { x: 300, y: 150 } },
-  { start: { x: 100, y: 100 }, end: { x: 500, y: 500 } },
-];
-
-// 示例数据end
-
 // 定义 props
 const props = defineProps({
   context: null,
@@ -88,12 +75,66 @@ watch(
   },
 );
 
-let markers: ComputedRef<MapMarker[]> = computed(() => {
+const mapSize = computed(() => {
+  if (props.context?.runtime?.area?.mapSize) {
+    return props.context.runtime.area.mapSize;
+  }
+
+  return {
+    width: 800,
+    height: 600,
+  };
+});
+const markers: ComputedRef<MapMarker[]> = computed(() => {
   if (props.context?.runtime?.area?.legal_locations) {
     return props.context.runtime.area.legal_locations;
   }
 
   return [];
+});
+const roads: ComputedRef<Road[]> = computed(() => {
+  const connections = [];
+  const locationMap = new Map();
+  if (props.context?.runtime?.area?.legal_locations) {
+    props.context.runtime.area.legal_locations.forEach((item: MapMarker) => {
+      locationMap.set(item.name, item.pos);
+    });
+  }
+
+  if (props.context?.runtime?.area?.graph) {
+    // 遍历图的连接关系
+    for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
+      const startLocation = locationMap.get(startName);
+      if (!startLocation) continue;
+
+      const startInfo = {
+        name: startName,
+        x: startLocation.x,
+        y: startLocation.y,
+      };
+
+      // 遍历当前地点的所有连接
+      for (const [endName, isConnected] of Object.entries(connectionsObj as string)) {
+        if (isConnected) {
+          const endLocation = locationMap.get(endName);
+          if (endLocation) {
+            const endInfo = {
+              name: endName,
+              x: endLocation.x,
+              y: endLocation.y,
+            };
+
+            connections.push({
+              start: startInfo,
+              end: endInfo,
+            });
+          }
+        }
+      }
+    }
+  }
+
+  return connections;
 });
 let mapState = ref<MapState>({
   offsetX: 0,
@@ -102,8 +143,8 @@ let mapState = ref<MapState>({
   isDragging: false,
   lastMouseX: 0,
   lastMouseY: 0,
-  mapWidth: exampleMapSize.width,
-  mapHeight: exampleMapSize.height,
+  mapWidth: mapSize.value.width,
+  mapHeight: mapSize.value.height,
 });
 let selectedMarker = ref<MapMarker | null>(null);
 let mainRoleMarker = ref<MapMarker | null>({
@@ -173,13 +214,11 @@ onMounted(() => {
   // 绘制道路
   function drawRoads() {
     try {
-      const roads = exampleRoads;
-
       ctx.strokeStyle = '#333';
       ctx.lineWidth = 4;
       ctx.lineCap = 'round';
 
-      roads.forEach(road => {
+      roads.value.forEach(road => {
         ctx.beginPath();
         ctx.moveTo(road.start.x, road.start.y);
         ctx.lineTo(road.end.x, road.end.y);
@@ -310,6 +349,10 @@ onMounted(() => {
     position: absolute;
     transform: translate(-50%, -50%);
     cursor: pointer;
+    font-size: 12px;
+    background-color: #fff;
+    border-radius: 4px;
+    padding: 4px;
   }
 
   .container {
