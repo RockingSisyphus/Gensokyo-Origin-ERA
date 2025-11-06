@@ -1,10 +1,12 @@
 import _ from 'lodash';
 import { Cache } from '../../../schema/cache';
 import { ChangeLogEntry } from '../../../schema/change-log';
+import { CHARACTER_FIELDS } from '../../../schema/character';
 import { Action, Runtime } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
 import { Logger } from '../../../utils/log';
 import {
+  getChar,
   getUserLocation,
   setCharGoalInStat,
   setCharLocationInStat,
@@ -24,7 +26,7 @@ const logger = new Logger();
  * @param runtime - The runtime object.
  * @returns 解析后的实际地点名称。
  */
-function resolveTargetLocation(to: string | undefined, stat: Stat, runtime: Runtime): string {
+function resolveTargetLocation(charId: string, to: string | undefined, stat: Stat, runtime: Runtime): string {
   if (to === 'RANDOM') {
     const legalLocations = runtime.area?.legal_locations;
     if (legalLocations && legalLocations.length > 0) {
@@ -34,6 +36,15 @@ function resolveTargetLocation(to: string | undefined, stat: Stat, runtime: Runt
       }
     }
     // 如果没有合法地点列表或采样结果不是字符串，则退回到玩家位置
+    return getUserLocation(stat);
+  }
+
+  if (to === '$HOME') {
+    const char = getChar(stat, charId);
+    const homeLocation = char?.[CHARACTER_FIELDS.home] ?? undefined;
+    if (typeof homeLocation === 'string' && homeLocation.trim() !== '') {
+      return homeLocation;
+    }
     return getUserLocation(stat);
   }
 
@@ -65,7 +76,7 @@ function applyNonCompanionDecisions({
     logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
 
     // 1. 更新 stat
-    const newLocation = resolveTargetLocation(decision.to, stat, runtime);
+    const newLocation = resolveTargetLocation(charId, decision.to, stat, runtime);
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
     logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
