@@ -144,6 +144,9 @@ let skipRandomPropagation = false;
 watch(
   () => props.stat?.config?.incident?.forceTrigger ?? false,
   value => {
+    if (immediateTrigger.value === value) {
+      return;
+    }
     skipImmediatePropagation = true;
     immediateTrigger.value = value;
     logger.log('syncImmediateTrigger', `已同步“立即引发异变”状态: ${value}`);
@@ -154,6 +157,9 @@ watch(
 watch(
   () => props.stat?.config?.incident?.isRandomPool ?? false,
   value => {
+    if (randomPool.value === value) {
+      return;
+    }
     skipRandomPropagation = true;
     randomPool.value = value;
     logger.log('syncRandomPool', `已同步“乱序异变”状态: ${value}`);
