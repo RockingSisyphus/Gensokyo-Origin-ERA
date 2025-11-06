@@ -38,19 +38,18 @@
         >
           <div class="dialog">
             <h2 class="location-name">{{ selectedMarker.name }}</h2>
-            <div>博丽灵梦：喝茶中🍵</div>
-            <div>魔理沙：实验中🧪</div>
+            <div v-html="selectedMarker.htmlEle"></div>
           </div>
         </div>
 
-        <!-- 主角 -->
+        <!-- 玩家 -->
         <div
-          v-if="mainRoleMarker"
-          class="marker main-role-marker pulsate"
-          v-html="mainRoleMarker.htmlEle"
+          v-if="playerMarker"
+          class="marker player-marker pulsate"
+          v-html="playerMarker.htmlEle"
           :style="{
-            left: mainRoleMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
-            top: mainRoleMarker.pos.y * mapState.zoom + mapState.offsetY + 'px',
+            left: playerMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
+            top: playerMarker.pos.y * mapState.zoom + mapState.offsetY + 'px',
             transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
           }"
         ></div>
@@ -85,6 +84,8 @@ const mapSize = computed(() => {
     height: 600,
   };
 });
+
+// 地图上的地点
 const markers: ComputedRef<MapMarker[]> = computed(() => {
   if (props.context?.runtime?.area?.legal_locations) {
     return props.context.runtime.area.legal_locations;
@@ -92,8 +93,9 @@ const markers: ComputedRef<MapMarker[]> = computed(() => {
 
   return [];
 });
-const roads: ComputedRef<Road[]> = computed(() => {
-  const connections = [];
+
+// 地图地点的名称和位置的map
+const locationMap = computed(() => {
   const locationMap = new Map();
   if (props.context?.runtime?.area?.legal_locations) {
     props.context.runtime.area.legal_locations.forEach((item: MapMarker) => {
@@ -101,10 +103,16 @@ const roads: ComputedRef<Road[]> = computed(() => {
     });
   }
 
+  return locationMap;
+});
+
+// 地图上的道路
+const roads: ComputedRef<Road[]> = computed(() => {
+  const connections = [];
   if (props.context?.runtime?.area?.graph) {
     // 遍历图的连接关系
     for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
-      const startLocation = locationMap.get(startName);
+      const startLocation = locationMap.value.get(startName);
       if (!startLocation) continue;
 
       const startInfo = {
@@ -116,7 +124,7 @@ const roads: ComputedRef<Road[]> = computed(() => {
       // 遍历当前地点的所有连接
       for (const [endName, isConnected] of Object.entries(connectionsObj as string)) {
         if (isConnected) {
-          const endLocation = locationMap.get(endName);
+          const endLocation = locationMap.value.get(endName);
           if (endLocation) {
             const endInfo = {
               name: endName,
@@ -136,6 +144,23 @@ const roads: ComputedRef<Road[]> = computed(() => {
 
   return connections;
 });
+
+// 玩家的marker
+const playerMarker: ComputedRef<MapMarker | null> = computed(() => {
+  if (props.context?.runtime?.characterDistribution?.playerLocation) {
+    const location = locationMap.value.get(props.context?.runtime?.characterDistribution.playerLocation);
+    if (location) {
+      return {
+        name: '玩家',
+        pos: { x: location.x, y: location.y },
+        htmlEle: '<div>📍</div>',
+      };
+    }
+  }
+
+  return null;
+});
+
 let mapState = ref<MapState>({
   offsetX: 0,
   offsetY: 0,
@@ -146,15 +171,23 @@ let mapState = ref<MapState>({
   mapWidth: mapSize.value.width,
   mapHeight: mapSize.value.height,
 });
+
 let selectedMarker = ref<MapMarker | null>(null);
-let mainRoleMarker = ref<MapMarker | null>({
-  name: '主角',
-  pos: { x: 300, y: 150 },
-  htmlEle: '<div>📍</div>',
-});
 
 function selectLocation(markerData: MapMarker) {
-  selectedMarker.value = markerData;
+  try {
+    const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
+    const npcList = npcIdList.map((id: string) => {
+      return props.context.runtime.characterSettings[id];
+    });
+    let htmlEle = '';
+    npcList.map((npc: any) => {
+      htmlEle += `<div>${npc.name}:${npc.routine[0].action.do}</div>`;
+    });
+    selectedMarker.value = { ...markerData, htmlEle };
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 onMounted(() => {
@@ -428,7 +461,8 @@ onMounted(() => {
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
   }
 
-  .main-role-marker {
+  .player-marker {
+    background-color: transparent;
     transform-origin: bottom center;
     font-size: 24px;
     z-index: 10;
