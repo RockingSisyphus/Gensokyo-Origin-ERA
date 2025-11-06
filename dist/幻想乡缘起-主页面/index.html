@@ -1,4 +1,6 @@
-<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
+<!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import "https://testingcf.jsdelivr.net/npm/pinia/+esm";
+
+var __webpack_modules__ = {
   800: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
@@ -1970,38 +1972,61 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     context: null
   },
   setup(__props) {
-    const exampleMapSize = {
-      width: 800,
-      height: 600
-    };
-    const exampleRoads = [ {
-      start: {
-        x: 100,
-        y: 100
-      },
-      end: {
-        x: 300,
-        y: 150
-      }
-    }, {
-      start: {
-        x: 100,
-        y: 100
-      },
-      end: {
-        x: 500,
-        y: 500
-      }
-    } ];
     const props = __props;
     (0, external_Vue_namespaceObject.watch)(() => props.context, (newValue, oldValue) => {
       console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
     });
-    let markers = (0, external_Vue_namespaceObject.computed)(() => {
+    const mapSize = (0, external_Vue_namespaceObject.computed)(() => {
+      if (props.context?.runtime?.area?.mapSize) {
+        return props.context.runtime.area.mapSize;
+      }
+      return {
+        width: 800,
+        height: 600
+      };
+    });
+    const markers = (0, external_Vue_namespaceObject.computed)(() => {
       if (props.context?.runtime?.area?.legal_locations) {
         return props.context.runtime.area.legal_locations;
       }
       return [];
+    });
+    const roads = (0, external_Vue_namespaceObject.computed)(() => {
+      const connections = [];
+      const locationMap = new Map;
+      if (props.context?.runtime?.area?.legal_locations) {
+        props.context.runtime.area.legal_locations.forEach(item => {
+          locationMap.set(item.name, item.pos);
+        });
+      }
+      if (props.context?.runtime?.area?.graph) {
+        for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
+          const startLocation = locationMap.get(startName);
+          if (!startLocation) continue;
+          const startInfo = {
+            name: startName,
+            x: startLocation.x,
+            y: startLocation.y
+          };
+          for (const [endName, isConnected] of Object.entries(connectionsObj)) {
+            if (isConnected) {
+              const endLocation = locationMap.get(endName);
+              if (endLocation) {
+                const endInfo = {
+                  name: endName,
+                  x: endLocation.x,
+                  y: endLocation.y
+                };
+                connections.push({
+                  start: startInfo,
+                  end: endInfo
+                });
+              }
+            }
+          }
+        }
+      }
+      return connections;
     });
     let mapState = (0, external_Vue_namespaceObject.ref)({
       offsetX: 0,
@@ -2010,8 +2035,8 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       isDragging: false,
       lastMouseX: 0,
       lastMouseY: 0,
-      mapWidth: exampleMapSize.width,
-      mapHeight: exampleMapSize.height
+      mapWidth: mapSize.value.width,
+      mapHeight: mapSize.value.height
     });
     let selectedMarker = (0, external_Vue_namespaceObject.ref)(null);
     let mainRoleMarker = (0, external_Vue_namespaceObject.ref)({
@@ -2057,11 +2082,10 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       }
       function drawRoads() {
         try {
-          const roads = exampleRoads;
           ctx.strokeStyle = "#333";
           ctx.lineWidth = 4;
           ctx.lineCap = "round";
-          roads.forEach(road => {
+          roads.value.forEach(road => {
             ctx.beginPath();
             ctx.moveTo(road.start.x, road.start.y);
             ctx.lineTo(road.end.x, road.end.y);
@@ -2192,7 +2216,7 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
 
 const Map_exports_ = Mapvue_type_script_setup_true_lang_ts;
 
-const Map = Map_exports_;
+const Map_Map = Map_exports_;
 
 const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "font-size-controls"
@@ -2409,7 +2433,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
           active: activeTab.value === "status"
         } ])
-      }, [ (0, external_Vue_namespaceObject.createVNode)(Map, {
+      }, [ (0, external_Vue_namespaceObject.createVNode)(Map_Map, {
         context: contextRef.value
       }, null, 8, [ "context" ]) ], 2)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
       external_Vue_namespaceObject.createCommentVNode)(" 异变 Tab "), (0, external_Vue_namespaceObject.createElementVNode)("div", {
@@ -3792,7 +3816,7 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .GensokyoOrigin-ContentOthers-debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}.GensokyoOrigin-ContentOthers-incident-list{display:flex;flex-direction:column;gap:12px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;position:relative}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed{padding-bottom:8px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-body{display:none}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-card-header{margin-bottom:0;padding-bottom:6px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-debug-switch{background:hsla(0,0%,100%,.05)}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{box-shadow:0 2px 12px rgba(0,0,0,.35)}
 [data-v-851a0cc6] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-851a0cc6] input[type="text"],[data-v-851a0cc6] input[type="number"],[data-v-851a0cc6] textarea,[data-v-851a0cc6] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-851a0cc6] input:focus,[data-v-851a0cc6] textarea:focus,[data-v-851a0cc6] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-851a0cc6] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-851a0cc6] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-851a0cc6] button:hover{background:var(--btn-accent-hover)}[data-v-851a0cc6] button:active{transform:translateY(1px)}[data-v-851a0cc6] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-851a0cc6] .muted-btn:hover{filter:brightness(0.97)}[data-v-851a0cc6] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-851a0cc6] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-851a0cc6] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-851a0cc6] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
 #content_incidents h4[data-v-382a017e]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-382a017e]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-382a017e]{margin-bottom:15px}.debug-select[data-v-382a017e],.debug-switch[data-v-382a017e]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-382a017e]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-382a017e] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-382a017e] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-382a017e] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-name{font-weight:700}.incident-list[data-v-382a017e] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-line{margin:6px 0;font-size:.9em}
-.map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .main-role-marker{transform-origin:bottom center;font-size:24px;z-index:10}
+.map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-size:12px;background-color:#fff;border-radius:4px;padding:4px}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .main-role-marker{transform-origin:bottom center;font-size:24px;z-index:10}
 .font-size-controls[data-v-7fbcf727]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-7fbcf727]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
 .status-tabs[data-v-93a0a84e]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-93a0a84e]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-93a0a84e]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-93a0a84e]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-93a0a84e]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-93a0a84e]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-93a0a84e]{padding:15px}}[data-v-93a0a84e] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-93a0a84e] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-93a0a84e] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}

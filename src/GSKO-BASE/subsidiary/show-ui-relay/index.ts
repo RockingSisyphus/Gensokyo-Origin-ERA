@@ -61,4 +61,3 @@ eventOn('GSKO:requireData', () => {
       }
     });
 });
-
