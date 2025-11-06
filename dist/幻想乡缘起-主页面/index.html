@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">var __webpack_modules__ = {
-  800: (__unused_webpack_module, exports) => {
+  42: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -978,7 +978,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(800);
+var exportHelper = __webpack_require__(42);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3e602d5b" ] ]);
 
@@ -3023,10 +3023,12 @@ const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_6 = {
 };
 
 const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  key: 0,
   class: "fest-host"
 };
 
 const CalendarDayvue_type_script_setup_true_lang_ts_hoisted_8 = {
+  key: 0,
   class: "fest-customs"
 };
 
@@ -3041,7 +3043,7 @@ const CalendarDayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
     const showPopover = (0, external_Vue_namespaceObject.ref)(false);
     const highestImportance = (0, external_Vue_namespaceObject.computed)(() => {
       if (!hasFestivals.value || !props.day.festivals) return 0;
-      return Math.max(...props.day.festivals.map(f => f.importance));
+      return Math.max(...props.day.festivals.map(f => f.importance ?? 0));
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_1, [ !__props.day.isPlaceholder ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
@@ -3064,19 +3066,21 @@ const CalendarDayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
       key: fest.name,
       class: "fest-item"
     }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_6, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(fest.name), 1), (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_7, "@ " + (0, 
-    external_Vue_namespaceObject.toDisplayString)(fest.主办地), 1) ]), (0, external_Vue_namespaceObject.createElementVNode)("ul", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(fest.name), 1), fest.host ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("span", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_7, "@ " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(fest.host), 1)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]), fest.customs?.length ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("ul", CalendarDayvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(fest.customs, (custom, index) => ((0, external_Vue_namespaceObject.openBlock)(), 
     (0, external_Vue_namespaceObject.createElementBlock)("li", {
       key: index
-    }, (0, external_Vue_namespaceObject.toDisplayString)(custom), 1))), 128)) ]) ]))), 128)) ])) : (0, 
+    }, (0, external_Vue_namespaceObject.toDisplayString)(custom), 1))), 128)) ])) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]))), 128)) ])) : (0, 
     external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]));
   }
 });
 
-const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-35064b7e" ] ]);
+const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-465be192" ] ]);
 
 const CalendarDay = CalendarDay_exports_;
 
@@ -3091,14 +3095,28 @@ const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_2 = {
 };
 
 const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  class: "cal-nav"
+  class: "cal-title"
 };
 
 const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_4 = {
-  class: "cal-body"
+  id: "cal-month",
+  class: "month"
 };
 
 const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  id: "cal-year",
+  class: "year"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "cal-nav"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  class: "cal-body"
+};
+
+const CalendarContentvue_type_script_setup_true_lang_ts_hoisted_8 = {
   id: "cal-grid",
   class: "cal-grid"
 };
@@ -3111,6 +3129,8 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
   setup(__props) {
     const props = __props;
     const displayMonth = (0, external_Vue_namespaceObject.ref)(new Date);
+    const monthLabel = (0, external_Vue_namespaceObject.computed)(() => `${displayMonth.value.getMonth() + 1}月`);
+    const yearLabel = (0, external_Vue_namespaceObject.computed)(() => `${displayMonth.value.getFullYear()}年`);
     const festivals = (0, external_Vue_namespaceObject.computed)(() => props.clockInfo?.festivals || []);
     const updateMonth = direction => {
       const newMonth = new Date(displayMonth.value);
@@ -3147,14 +3167,6 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       }
       return days;
     });
-    (0, external_Vue_namespaceObject.watch)(displayMonth, newDate => {
-      const monthStr = `${newDate.getMonth() + 1}月`;
-      const yearStr = `${newDate.getFullYear()}年`;
-      format_text("cal-month", monthStr);
-      format_text("cal-year", yearStr);
-    }, {
-      immediate: true
-    });
     (0, external_Vue_namespaceObject.watch)(() => props.clockInfo, newClockInfo => {
       if (newClockInfo?.iso) {
         displayMonth.value = new Date(newClockInfo.iso);
@@ -3163,16 +3175,11 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       immediate: true
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_2, [ _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "cal-title"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "cal-month",
-      class: "month"
-    }, "—月"), (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      id: "cal-year",
-      class: "year"
-    }, "—年") ], -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(monthLabel.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_5, (0, 
+    external_Vue_namespaceObject.toDisplayString)(yearLabel.value), 1) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_6, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("button", {
       id: "cal-prev",
       class: "cal-btn",
@@ -3188,9 +3195,9 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       class: "cal-btn",
       title: "下一月",
       onClick: _cache[1] || (_cache[1] = $event => updateMonth("next"))
-    }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_4, [ _cache[3] || (_cache[3] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-03881b10><div class="w" data-v-03881b10>一</div><div class="w" data-v-03881b10>二</div><div class="w" data-v-03881b10>三</div><div class="w" data-v-03881b10>四</div><div class="w" data-v-03881b10>五</div><div class="w" data-v-03881b10>六</div><div class="w" data-v-03881b10>日</div></div>', 1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_5, [ ((0, 
+    }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_7, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-40fd130e><div class="w" data-v-40fd130e>一</div><div class="w" data-v-40fd130e>二</div><div class="w" data-v-40fd130e>三</div><div class="w" data-v-40fd130e>四</div><div class="w" data-v-40fd130e>五</div><div class="w" data-v-40fd130e>六</div><div class="w" data-v-40fd130e>日</div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(CalendarDay, {
@@ -3200,7 +3207,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
   }
 });
 
-const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-03881b10" ] ]);
+const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-40fd130e" ] ]);
 
 const CalendarContent = CalendarContent_exports_;
 
@@ -3789,8 +3796,8 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .role-ribbon-container[data-v-57aa0965]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-57aa0965]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-57aa0965]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-57aa0965]{left:8px}.ribbon-arrow.right[data-v-57aa0965]{right:8px}.role-card-placeholder[data-v-57aa0965]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}
 .emoji[data-v-37a35e60]{margin-right:0;font-size:1.1em}.banner-chip[data-v-37a35e60]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-37a35e60]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-37a35e60]:active{transform:translateY(1px) scale(0.99)}
 .banner-chip-open[data-v-a8d897e6]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-a8d897e6]{font-size:1.2em;margin-right:8px}.close-icon[data-v-a8d897e6]{font-size:.9em;color:var(--ink)}
-.cal-day-container[data-v-35064b7e]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-35064b7e]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-35064b7e]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-35064b7e]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-35064b7e]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-35064b7e]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-35064b7e]{--importance:5}.cal-day-btn[data-importance="4"][data-v-35064b7e]{--importance:4}.cal-day-btn[data-importance="3"][data-v-35064b7e]{--importance:3}.cal-day-btn[data-importance="2"][data-v-35064b7e]{--importance:2}.cal-day-btn[data-importance="1"][data-v-35064b7e]{--importance:1}.dnum[data-v-35064b7e]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-35064b7e]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-35064b7e]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-35064b7e]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-35064b7e]:first-child{border-top:none;padding-top:0}.fest-header[data-v-35064b7e]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-35064b7e]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-35064b7e]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-35064b7e]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
-.cal-content[data-v-03881b10]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-03881b10]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-03881b10]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-03881b10]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-03881b10]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-03881b10]{display:flex;gap:6px}.cal-btn[data-v-03881b10]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-03881b10]:active{transform:translateY(1px)}.cal-body[data-v-03881b10]{padding:10px 12px 12px}.cal-week[data-v-03881b10]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-03881b10]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-03881b10]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
+.cal-day-container[data-v-465be192]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-465be192]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-465be192]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-465be192]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-465be192]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-465be192]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-465be192]{--importance:5}.cal-day-btn[data-importance="4"][data-v-465be192]{--importance:4}.cal-day-btn[data-importance="3"][data-v-465be192]{--importance:3}.cal-day-btn[data-importance="2"][data-v-465be192]{--importance:2}.cal-day-btn[data-importance="1"][data-v-465be192]{--importance:1}.dnum[data-v-465be192]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-465be192]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-465be192]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-465be192]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-465be192]:first-child{border-top:none;padding-top:0}.fest-header[data-v-465be192]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-465be192]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-465be192]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-465be192]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
+.cal-content[data-v-40fd130e]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-40fd130e]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-40fd130e]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-40fd130e]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-40fd130e]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-40fd130e]{display:flex;gap:6px}.cal-btn[data-v-40fd130e]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-40fd130e]:active{transform:translateY(1px)}.cal-body[data-v-40fd130e]{padding:10px 12px 12px}.cal-week[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-40fd130e]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
 .time-container[data-v-517ae222]{position:relative}
 
 .banner-chip[data-v-11b37370]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-11b37370]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-11b37370]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-11b37370]{margin-right:0;font-size:1.1em}
@@ -3806,5 +3813,5 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .user-state-container[data-v-0a721dc0]{position:relative}
 
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
-/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+/*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

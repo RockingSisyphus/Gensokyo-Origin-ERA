@@ -17,9 +17,9 @@
       <div v-for="fest in day.festivals" :key="fest.name" class="fest-item">
         <div class="fest-header">
           <strong>{{ fest.name }}</strong>
-          <span class="fest-host">@ {{ fest.主办地 }}</span>
+          <span v-if="fest.host" class="fest-host">@ {{ fest.host }}</span>
         </div>
-        <ul class="fest-customs">
+        <ul v-if="fest.customs?.length" class="fest-customs">
           <li v-for="(custom, index) in fest.customs" :key="index">{{ custom }}</li>
         </ul>
       </div>
@@ -32,9 +32,13 @@ import { computed, ref } from 'vue';
 
 interface Festival {
   name: string;
-  customs: string[];
-  主办地: string;
-  importance: number;
+  month?: number;
+  start_day?: number;
+  end_day?: number;
+  description?: string;
+  customs?: string[];
+  host?: string;
+  importance?: number;
   [key: string]: any;
 }
 
@@ -52,7 +56,7 @@ const showPopover = ref(false);
 
 const highestImportance = computed(() => {
   if (!hasFestivals.value || !props.day.festivals) return 0;
-  return Math.max(...props.day.festivals.map(f => f.importance));
+  return Math.max(...props.day.festivals.map(f => f.importance ?? 0));
 });
 </script>
 

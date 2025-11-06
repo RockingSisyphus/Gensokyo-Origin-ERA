@@ -3,8 +3,8 @@
  */
 
 import _ from 'lodash';
-import baseTestData from '../stat-test-data.json';
-import type { Stat } from '../../../幻想乡缘起-后台数据处理/schema/stat';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import '../stat-test-data.json';
 
 const FESTIVAL_EPOCH_ISO = '2025-01-01T00:00:00Z';
 
@@ -24,7 +24,6 @@ const festivalSpecificData = {
       customs: ['初詣参拜', '食御节料理', '发压岁钱'],
       importance: 5,
       host: '博丽神社',
-      主办地: '博丽神社',
     },
     {
       month: 2,
@@ -35,7 +34,6 @@ const festivalSpecificData = {
       customs: ['撒豆驱鬼'],
       importance: 4,
       host: '博丽神社',
-      主办地: '博丽神社',
     },
     {
       month: 12,
@@ -46,7 +44,6 @@ const festivalSpecificData = {
       customs: ['吃跨年荞麦面', '敲钟一百零八声'],
       importance: 4,
       host: '博丽神社',
-      主办地: '博丽神社',
     },
   ],
 };

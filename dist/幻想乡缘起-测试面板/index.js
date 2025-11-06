@@ -1517,8 +1517,7 @@ const festivalSpecificData = {
     type: "seasonal_festival",
     customs: [ "初詣参拜", "食御节料理", "发压岁钱" ],
     importance: 5,
-    host: "博丽神社",
-    主办地: "博丽神社"
+    host: "博丽神社"
   }, {
     month: 2,
     start_day: 3,
@@ -1527,8 +1526,7 @@ const festivalSpecificData = {
     type: "seasonal_festival",
     customs: [ "撒豆驱鬼" ],
     importance: 4,
-    host: "博丽神社",
-    主办地: "博丽神社"
+    host: "博丽神社"
   }, {
     month: 12,
     start_day: 31,
@@ -1537,8 +1535,7 @@ const festivalSpecificData = {
     type: "seasonal_festival",
     customs: [ "吃跨年荞麦面", "敲钟一百零八声" ],
     importance: 4,
-    host: "博丽神社",
-    主办地: "博丽神社"
+    host: "博丽神社"
   } ]
 };
 

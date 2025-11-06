@@ -2,7 +2,8 @@
   <div id="cal-content" class="cal-content" role="region">
     <div class="cal-head">
       <div class="cal-title">
-        <span id="cal-month" class="month">—月</span><span id="cal-year" class="year">—年</span>
+        <span id="cal-month" class="month">{{ monthLabel }}</span
+        ><span id="cal-year" class="year">{{ yearLabel }}</span>
       </div>
       <div class="cal-nav">
         <button id="cal-prev" class="cal-btn" title="上一月" @click="updateMonth('prev')">◀</button>
@@ -30,7 +31,6 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
 import type { ClockInfo } from '../../../../utils/constants';
-import { text } from '../../../../utils/format';
 import CalendarDay from './CalendarDay.vue';
 
 const props = defineProps<{
@@ -38,6 +38,9 @@ const props = defineProps<{
 }>();
 
 const displayMonth = ref(new Date());
+
+const monthLabel = computed(() => `${displayMonth.value.getMonth() + 1}月`);
+const yearLabel = computed(() => `${displayMonth.value.getFullYear()}年`);
 
 const festivals = computed(() => props.clockInfo?.festivals || []);
 
@@ -86,17 +89,6 @@ const calendarDays = computed(() => {
   }
   return days;
 });
-
-watch(
-  displayMonth,
-  newDate => {
-    const monthStr = `${newDate.getMonth() + 1}月`;
-    const yearStr = `${newDate.getFullYear()}年`;
-    text('cal-month', monthStr);
-    text('cal-year', yearStr);
-  },
-  { immediate: true },
-);
 
 watch(
   () => props.clockInfo,
