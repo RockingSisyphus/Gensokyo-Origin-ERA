@@ -1897,7 +1897,7 @@ const DEFAULT_VALUES = {
 
 const aggregator_logger = new Logger("GSKO-BASE/core/character-processor/aggregator");
 
-function resolveTargetLocation(to, stat, runtime) {
+function resolveTargetLocation(charId, to, stat, runtime) {
   if (to === "RANDOM") {
     const legalLocations = runtime.area?.legal_locations;
     if (legalLocations && legalLocations.length > 0) {
@@ -1905,6 +1905,14 @@ function resolveTargetLocation(to, stat, runtime) {
       if (typeof sampled === "string") {
         return sampled;
       }
+    }
+    return accessors_getUserLocation(stat);
+  }
+  if (to === "$HOME") {
+    const char = getChar(stat, charId);
+    const homeLocation = char?.[CHARACTER_FIELDS.home] ?? undefined;
+    if (typeof homeLocation === "string" && homeLocation.trim() !== "") {
+      return homeLocation;
     }
     return accessors_getUserLocation(stat);
   }
@@ -1918,7 +1926,7 @@ function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions
   const funcName = "applyNonCompanionDecisions";
   external_default().forEach(nonCompanionDecisions, (decision, charId) => {
     aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
-    const newLocation = resolveTargetLocation(decision.to, stat, runtime);
+    const newLocation = resolveTargetLocation(charId, decision.to, stat, runtime);
     setCharLocationInStat(stat, charId, newLocation);
     setCharGoalInStat(stat, charId, decision.do);
     aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
