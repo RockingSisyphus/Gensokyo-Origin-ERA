@@ -16,7 +16,7 @@
     <div id="status-tab-content-area" class="status-tab-content-area">
       <!-- 正文 Tab -->
       <div id="content_main" class="status-tab-content" :class="{ active: activeTab === 'main' }">
-        <FontSizeControls ref="fontSizeControls" />
+        <FontSizeControls :ui-config="fontSizeUiConfig" />
         <div id="main-content" class="preserve-format">
           <content>$1</content>
         </div>
@@ -62,6 +62,7 @@ import { ref } from 'vue';
 import { ERA_VARIABLE_PATH } from '../../utils/constants';
 import { getStr } from '../../utils/format';
 import { Logger } from '../../utils/log';
+import type { UiConfig } from '../../../GSKO-BASE/schema/ui';
 import ContentBio from './tabs/ContentBio.vue';
 import ContentOthers from './tabs/ContentOthers.vue';
 import ContentSettings from './tabs/ContentSettings.vue';
@@ -75,15 +76,14 @@ const logger = new Logger();
 
 // 子组件对外暴露的实例类型
 type Updatable = { update: (payload: any) => void };
-type FontSizeControlsExposed = { updateFontSize: (payload: any) => void };
 
 // ▼ [移植] 严格参考 app.vue，为所有子组件创建 ref
-const fontSizeControls = ref<FontSizeControlsExposed | null>(null);
 const worldMap = ref<Updatable | null>(null);
 const incidents = ref<Updatable | null>(null);
 const contentOthers = ref<Updatable | null>(null);
 const contentBio = ref<Updatable | null>(null);
 const contentSettingsConfig = ref<Record<string, any> | null>(null);
+const fontSizeUiConfig = ref<UiConfig | null>(null);
 // ▲ [移植] ref 创建结束
 
 // ▼ [改造] 将 index.ts 中的 tab 切换逻辑改造成 Vue 的方式
@@ -127,11 +127,10 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
     return;
   }
 
-  // [移植自 index.ts] 调用字号控制组件的更新函数
-  if (fontSizeControls.value && typeof fontSizeControls.value.updateFontSize === 'function') {
-    fontSizeControls.value.updateFontSize(statWithoutMeta);
-    logger.debug(funcName, '已调用 FontSizeControls.updateFontSize');
-  }
+  fontSizeUiConfig.value = statWithoutMeta?.config?.ui ?? null;
+  logger.debug(funcName, '已同步 FontSizeControls 配置', {
+    hasUiConfig: !!fontSizeUiConfig.value,
+  });
 
   // [移植自 index.ts] 调用世界地图组件的更新函数
   if (worldMap.value && typeof worldMap.value.update === 'function') {

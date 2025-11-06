@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import "https://testingcf.jsdelivr.net/npm/pinia/+esm";
 
 var __webpack_modules__ = {
-  800: (__unused_webpack_module, exports) => {
+  42: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -519,8 +519,10 @@ const CHARACTER_FIELDS = {
 };
 
 const UiConfigSchema = external_z_namespaceObject.z.object({
-  theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light")
-});
+  theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light"),
+  mainFontPercent: external_z_namespaceObject.z.number().default(100),
+  fontScaleStepPct: external_z_namespaceObject.z.number().default(10)
+}).passthrough();
 
 const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
@@ -986,7 +988,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(800);
+var exportHelper = __webpack_require__(42);
 
 const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3e602d5b" ] ]);
 
@@ -2324,11 +2326,14 @@ const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
 
 const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "FontSizeControls",
-  setup(__props, {expose: __expose}) {
+  props: {
+    uiConfig: {}
+  },
+  setup(__props) {
+    const props = __props;
     const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/tabs/FontSizeControls");
     const currentPercent = (0, external_Vue_namespaceObject.ref)(100);
     const stepPct = (0, external_Vue_namespaceObject.ref)(10);
-    const clamp = n => Math.max(60, Math.min(200, Math.floor(Number(n) || 100)));
     const applyToDOM = pct => {
       const content = document.getElementById("content_main");
       if (content) {
@@ -2338,55 +2343,63 @@ const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         logger.warn("applyToDOM", "未找到 #content_main 元素。");
       }
     };
-    const updateFontSize = statWithoutMeta => {
-      const funcName = "updateFontSize";
-      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。", statWithoutMeta);
-        return;
+    const clamp = n => Math.max(60, Math.min(200, Math.floor(Number(n) || 100)));
+    const sanitizeStep = value => {
+      const numeric = Number(value);
+      if (!Number.isFinite(numeric) || numeric <= 0) {
+        return 10;
       }
-      const newPercent = get(statWithoutMeta, ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, 100);
-      const clampedPercent = clamp(Number(newPercent));
-      stepPct.value = get(statWithoutMeta, ERA_VARIABLE_PATH.FONT_SCALE_STEP_PCT, 10);
+      return Math.floor(numeric);
+    };
+    const syncFromConfig = (percent, step) => {
+      const clampedPercent = clamp(percent);
+      const sanitizedStep = sanitizeStep(step);
+      stepPct.value = sanitizedStep;
       currentPercent.value = clampedPercent;
       applyToDOM(clampedPercent);
-      logger.log(funcName, `从 statWithoutMeta 更新字号为: ${clampedPercent}%`);
+      logger.log("syncFromConfig", `初始化字号: ${clampedPercent}%（步进: ${sanitizedStep}%）`);
     };
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      const inc = document.getElementById("increase-font");
-      const dec = document.getElementById("decrease-font");
-      if (inc) {
-        inc.onclick = () => {
-          const newValue = clamp(currentPercent.value + stepPct.value);
-          currentPercent.value = newValue;
-          applyToDOM(newValue);
-          updateEraVariable(ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, newValue);
-        };
+    const hasSyncedInitial = (0, external_Vue_namespaceObject.ref)(false);
+    (0, external_Vue_namespaceObject.watch)(() => props.uiConfig, uiConfig => {
+      if (!uiConfig) {
+        hasSyncedInitial.value = false;
+        return;
       }
-      if (dec) {
-        dec.onclick = () => {
-          const newValue = clamp(currentPercent.value - stepPct.value);
-          currentPercent.value = newValue;
-          applyToDOM(newValue);
-          updateEraVariable(ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, newValue);
-        };
+      if (hasSyncedInitial.value) {
+        return;
       }
-      logger.log("onMounted", "按钮事件已绑定。");
+      syncFromConfig(uiConfig.mainFontPercent, uiConfig.fontScaleStepPct);
+      hasSyncedInitial.value = true;
+    }, {
+      immediate: true
     });
-    __expose({
-      updateFontSize
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1, [ ..._cache[0] || (_cache[0] = [ (0, 
+    const persistFontSize = pct => {
+      currentPercent.value = pct;
+      applyToDOM(pct);
+      updateEraVariable(ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, pct);
+    };
+    const increaseFont = () => {
+      const newValue = clamp(currentPercent.value + stepPct.value);
+      persistFontSize(newValue);
+    };
+    const decreaseFont = () => {
+      const newValue = clamp(currentPercent.value - stepPct.value);
+      persistFontSize(newValue);
+    };
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("button", {
       id: "decrease-font",
-      class: "font-size-btn"
-    }, "−", -1), (0, external_Vue_namespaceObject.createElementVNode)("button", {
+      class: "font-size-btn",
+      onClick: decreaseFont
+    }, "−"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
       id: "increase-font",
-      class: "font-size-btn"
-    }, "+", -1) ]) ]));
+      class: "font-size-btn",
+      onClick: increaseFont
+    }, "+") ]));
   }
 });
 
-const FontSizeControls_exports_ = (0, exportHelper.A)(FontSizeControlsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7fbcf727" ] ]);
+const FontSizeControls_exports_ = (0, exportHelper.A)(FontSizeControlsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-2f49ff89" ] ]);
 
 const FontSizeControls = FontSizeControls_exports_;
 
@@ -2411,12 +2424,12 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   __name: "StatusTabContent",
   setup(__props, {expose: __expose}) {
     const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/StatusTabContent");
-    const fontSizeControls = (0, external_Vue_namespaceObject.ref)(null);
     const worldMap = (0, external_Vue_namespaceObject.ref)(null);
     const incidents = (0, external_Vue_namespaceObject.ref)(null);
     const contentOthers = (0, external_Vue_namespaceObject.ref)(null);
     const contentBio = (0, external_Vue_namespaceObject.ref)(null);
     const contentSettingsConfig = (0, external_Vue_namespaceObject.ref)(null);
+    const fontSizeUiConfig = (0, external_Vue_namespaceObject.ref)(null);
     const tabs = [ {
       id: "main",
       name: "正文"
@@ -2453,10 +2466,10 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         logger.warn(funcName, "传入的 context 或 statWithoutMeta 为空，无法更新 UI。");
         return;
       }
-      if (fontSizeControls.value && typeof fontSizeControls.value.updateFontSize === "function") {
-        fontSizeControls.value.updateFontSize(statWithoutMeta);
-        logger.debug(funcName, "已调用 FontSizeControls.updateFontSize");
-      }
+      fontSizeUiConfig.value = statWithoutMeta?.config?.ui ?? null;
+      logger.debug(funcName, "已同步 FontSizeControls 配置", {
+        hasUiConfig: !!fontSizeUiConfig.value
+      });
       if (worldMap.value && typeof worldMap.value.update === "function") {
         worldMap.value.update(statWithoutMeta);
         logger.debug(funcName, "已调用 WorldMap.update");
@@ -2518,9 +2531,8 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
           active: activeTab.value === "main"
         } ])
       }, [ (0, external_Vue_namespaceObject.createVNode)(FontSizeControls, {
-        ref_key: "fontSizeControls",
-        ref: fontSizeControls
-      }, null, 512), (0, external_Vue_namespaceObject.createElementVNode)("div", StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_4, [ (0, 
+        "ui-config": fontSizeUiConfig.value
+      }, null, 8, [ "ui-config" ]), (0, external_Vue_namespaceObject.createElementVNode)("div", StatusTabContentvue_type_script_setup_true_lang_ts_hoisted_4, [ (0, 
       external_Vue_namespaceObject.createVNode)(_component_content, null, {
         default: (0, external_Vue_namespaceObject.withCtx)(() => [ ..._cache[0] || (_cache[0] = [ (0, 
         external_Vue_namespaceObject.createTextVNode)("$1", -1) ]) ]),
@@ -2578,7 +2590,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-65235de9" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3f7da338" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -3919,8 +3931,8 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 [data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
 #content_incidents h4[data-v-382a017e]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-382a017e]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-382a017e]{margin-bottom:15px}.debug-select[data-v-382a017e],.debug-switch[data-v-382a017e]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-382a017e]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-382a017e] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-382a017e] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-382a017e] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-name{font-weight:700}.incident-list[data-v-382a017e] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-line{margin:6px 0;font-size:.9em}
 .map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-size:12px;background-color:#fff;border-radius:4px;padding:4px}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .player-marker{background-color:rgba(0,0,0,0);transform-origin:bottom center;font-size:24px;z-index:10}
-.font-size-controls[data-v-7fbcf727]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-7fbcf727]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-65235de9]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-65235de9]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-65235de9]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-65235de9]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-65235de9]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-65235de9]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-65235de9]{padding:15px}}[data-v-65235de9] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-65235de9] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-65235de9] .incident-list{display:flex;flex-direction:column;gap:12px}
+.font-size-controls[data-v-2f49ff89]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-2f49ff89]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
+.status-tabs[data-v-3f7da338]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-3f7da338]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-3f7da338]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-3f7da338]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-3f7da338]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-3f7da338]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-3f7da338]{padding:15px}}[data-v-3f7da338] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-3f7da338] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-3f7da338] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
 .aya-news-popup[data-v-08972433]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-08972433]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-08972433]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-08972433]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
@@ -3948,5 +3960,5 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .user-state-container[data-v-0a721dc0]{position:relative}
 
 .status-ui-container{position:relative;display:flex;flex-direction:column;margin:10px;border:1px solid var(--line);border-radius:4px;overflow-x:hidden;overflow-y:visible;background:var(--bg)}.status-main-content{flex:1;display:flex;flex-direction:column;min-height:0;overflow:visible}.status-duo{display:flex;flex-wrap:nowrap;align-items:flex-start;gap:10px;overflow-x:auto;overflow-y:visible;border-bottom:1px dashed var(--line);padding:12px;margin-bottom:12px;width:100%}@media (min-width:1100px){.status-ui-container{display:grid;grid-template-columns:380px minmax(0,1fr);grid-template-rows:auto;grid-auto-rows:auto}.status-duo{grid-column:1;grid-row:1;flex-direction:column;align-items:stretch;overflow-y:visible;overflow-x:hidden;border-right:1px dashed var(--line);border-bottom:none;padding:12px;margin-bottom:0;max-height:none}.status-main-content{grid-column:2}.status-duo>.user-state-container{flex:0 0 auto;border-right:none;border-bottom:1px solid var(--line)}}@media (max-width:768px){.status-ui-container{flex-direction:column;margin:5px}}
-/*! tailwindcss v4.1.16 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
+/*! tailwindcss v4.1.15 | MIT License | https://tailwindcss.com */:root{--duo-head-h:38px}*{box-sizing:border-box}body{margin:0;font-family:"Noto Serif SC",serif;color:var(--ink);font-size:14px;background:linear-gradient(var(--grid) 1px,transparent 1px),linear-gradient(90deg,var(--grid) 1px,transparent 1px),var(--bg);background-size:20px 20px}.preserve-format{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word}.label{font-weight:600;color:var(--muted);min-width:90px;margin-right:5px}hr.dashed{border:none;border-top:1px dashed var(--line);margin:20px 0}html,body,.status-ui-container,.status-main-content,.status-tab-content-area,.role-ribbon-container{max-width:100%;overflow-x:hidden}#content_main,#main-content{max-width:100%;contain:inline-size}#main-content,#main-content *{max-width:100% !important}#main-content img,#main-content video{height:auto}#main-content table{display:block;overflow-x:auto}#main-content pre{white-space:pre-wrap;overflow-x:auto}.debug-console{font-family:ui-monospace,SFMono-Regular,Consolas,"Liberation Mono",Menlo,monospace;background:#0f0f0f;color:#e7e7e7;border:1px solid var(--line);border-radius:4px;padding:10px;height:260px;overflow:auto;white-space:pre-wrap;word-break:break-word}.debug-line{padding:2px 0;border-bottom:1px dashed hsla(0,0%,100%,.08)}.debug-badge{font-size:.75em;padding:2px 6px;border-radius:10px;margin-right:6px;background:#333;color:#eee}.debug-line.warn .debug-badge{background:#9b7b2f}.debug-line.error .debug-badge{background:#b2453d}.debug-stats{font-size:.85em;color:#cfcfcf;margin:6px 0 0;opacity:.9}:root,:root[data-theme=light]{--bg:#fffdf7;--paper:#fcfaf5;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8;--tile:#e0d5c4;--pad:12px;--control-bg:#fff7e8;--control-border:#c9b59e;--control-focus:#b6782b;--btn-accent:#b76e2b;--btn-accent-hover:#a95f1e;--btn-muted:#efe8de;--btn-muted-border:#d3c8b8;--grid:rgba(224,213,196,0.1);--avatar-bg:#f5f1e8;--bar-bg:#f0ece4;--tab-active:#8c7b6a;--cal-cell-bg:var(--bg);--cal-cell-border:var(--line);--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 88%,black 12%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 10%,white 90%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 30%,white 70%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 75%,black 25%)}}--cal-today-ring:var(--control-focus)}:root[data-theme=dark]{--bg:#13110f;--paper:#1b1916;--ink:#efe8de;--muted:#b7a899;--line:#4b433a;--tile:#2a241e;--pad:12px;--control-bg:#1f1b16;--control-border:#5b4e41;--control-focus:#d89a4a;--btn-accent:#c57a33;--btn-accent-hover:#b56b24;--btn-muted:#2a241e;--btn-muted-border:#4b433a;--grid:rgba(255,255,255,0.04);--avatar-bg:#1f1b17;--bar-bg:#2a2520;--tab-active:#c8b49d;--cal-cell-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-bg:color-mix(in srgb,var(--paper) 92%,black 8%)}}--cal-cell-border:var(--line);@supports (color:color-mix(in lab,red,red)){&{--cal-cell-border:color-mix(in srgb,var(--line) 85%,white 15%)}}--cal-hover-bg:var(--paper);@supports (color:color-mix(in lab,red,red)){&{--cal-hover-bg:color-mix(in srgb,var(--paper) 80%,white 0%)}}--cal-festival-bg:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-bg:color-mix(in srgb,var(--btn-accent) 14%,var(--paper) 86%)}}--cal-festival-border:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-border:color-mix(in srgb,var(--btn-accent) 45%,var(--line) 55%)}}--cal-festival-text:var(--btn-accent);@supports (color:color-mix(in lab,red,red)){&{--cal-festival-text:color-mix(in srgb,var(--btn-accent) 80%,white 20%)}}--cal-today-ring:var(--control-focus)}@media (max-width:480px){.calendar-day .fest{font-size:.75em}}
 </style></head><body><div id="app"></div></body></html>

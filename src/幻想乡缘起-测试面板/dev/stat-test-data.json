@@ -130,7 +130,9 @@
       }
     ],
     "ui": {
-      "theme": "light"
+      "theme": "light",
+      "mainFontPercent": 100,
+      "fontScaleStepPct": 10
     },
     "time": {
       "epochISO": "2025-10-24T06:00:00Z",

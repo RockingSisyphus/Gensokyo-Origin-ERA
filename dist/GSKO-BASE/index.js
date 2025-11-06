@@ -4536,8 +4536,10 @@ function onQueryResult(listener) {
 }
 
 const UiConfigSchema = external_z_namespaceObject.z.object({
-  theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light")
-});
+  theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light"),
+  mainFontPercent: external_z_namespaceObject.z.number().default(100),
+  fontScaleStepPct: external_z_namespaceObject.z.number().default(10)
+}).passthrough();
 
 const IncidentPoolItemSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
