@@ -15,6 +15,7 @@ export const MapLeafSchema = z
   .object({
     pos: MapPositionSchema,
     htmlEle: z.string(),
+    aliases: z.array(z.string()).default([]),
   })
   .passthrough();
 export type MapLeaf = z.infer<typeof MapLeafSchema>;

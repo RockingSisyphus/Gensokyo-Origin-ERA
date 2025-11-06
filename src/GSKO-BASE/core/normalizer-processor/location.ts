@@ -23,6 +23,20 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
   try {
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
     const legalLocations = new Set<string>(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
+    const aliasToLegalName = new Map<string, string>();
+    for (const location of legalLocationsData) {
+      const canonicalName = location.name?.trim();
+      if (!canonicalName) continue;
+      if (Array.isArray(location.aliases)) {
+        for (const alias of location.aliases) {
+          const trimmedAlias = alias?.trim?.();
+          if (!trimmedAlias) continue;
+          if (!aliasToLegalName.has(trimmedAlias)) {
+            aliasToLegalName.set(trimmedAlias, canonicalName);
+          }
+        }
+      }
+    }
     if (legalLocations.size === 0) {
       logger.warn(funcName, '合法地点列表为空，跳过地点规范化。');
       return { stat, changeLog };
@@ -42,6 +56,10 @@ export function normalizeLocationData({ originalStat, runtime }: { originalStat:
       }
       if (legalLocations.has(locationString)) {
         return { isOk: true, fixedLocation: locationString };
+      }
+      const aliasResolved = aliasToLegalName.get(locationString);
+      if (aliasResolved) {
+        return { isOk: true, fixedLocation: aliasResolved };
       }
       return keepOnInvalid
         ? { isOk: false, fixedLocation: locationString }

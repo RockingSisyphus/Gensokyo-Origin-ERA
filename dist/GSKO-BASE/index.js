@@ -1174,7 +1174,8 @@ const MapPositionSchema = external_z_namespaceObject.z.object({
 
 const MapLeafSchema = external_z_namespaceObject.z.object({
   pos: MapPositionSchema,
-  htmlEle: external_z_namespaceObject.z.string()
+  htmlEle: external_z_namespaceObject.z.string(),
+  aliases: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).default([])
 }).passthrough();
 
 const MapTreeSchema = external_z_namespaceObject.z.lazy(() => external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), external_z_namespaceObject.z.union([ MapLeafSchema, MapTreeSchema ])));
@@ -1235,7 +1236,8 @@ function buildGraph({stat}) {
           if (!seenNodes.has(key)) {
             leafNodes.push({
               name: key,
-              ...parseResult.data
+              ...parseResult.data,
+              aliases: parseResult.data.aliases ?? []
             });
             seenNodes.add(key);
           }
@@ -3104,6 +3106,20 @@ function normalizeLocationData({originalStat, runtime}) {
   try {
     const legalLocationsData = runtime?.area?.legal_locations ?? [];
     const legalLocations = new Set(legalLocationsData.map(loc => loc.name.trim()).filter(Boolean));
+    const aliasToLegalName = new Map;
+    for (const location of legalLocationsData) {
+      const canonicalName = location.name?.trim();
+      if (!canonicalName) continue;
+      if (Array.isArray(location.aliases)) {
+        for (const alias of location.aliases) {
+          const trimmedAlias = alias?.trim?.();
+          if (!trimmedAlias) continue;
+          if (!aliasToLegalName.has(trimmedAlias)) {
+            aliasToLegalName.set(trimmedAlias, canonicalName);
+          }
+        }
+      }
+    }
     if (legalLocations.size === 0) {
       location_logger.warn(funcName, "合法地点列表为空，跳过地点规范化。");
       return {
@@ -3125,6 +3141,13 @@ function normalizeLocationData({originalStat, runtime}) {
         return {
           isOk: true,
           fixedLocation: locationString
+        };
+      }
+      const aliasResolved = aliasToLegalName.get(locationString);
+      if (aliasResolved) {
+        return {
+          isOk: true,
+          fixedLocation: aliasResolved
         };
       }
       return keepOnInvalid ? {

@@ -43,7 +43,7 @@ export function buildGraph({ stat }: { stat: Stat }): {
         if (parseResult.success) {
           // 这是一个有效的 MapLeaf
           if (!seenNodes.has(key)) {
-            leafNodes.push({ name: key, ...parseResult.data });
+            leafNodes.push({ name: key, ...parseResult.data, aliases: parseResult.data.aliases ?? [] });
             seenNodes.add(key);
           }
         } else if (child && typeof child === 'object') {
