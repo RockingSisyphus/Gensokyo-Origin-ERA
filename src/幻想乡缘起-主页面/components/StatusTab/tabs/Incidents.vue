@@ -86,7 +86,7 @@ const incidentCards = computed<IncidentCard[]>(() => {
   return entries.map(([name, detail]) => {
     const incident = detail as IncidentDetail;
     const solver = incident.异变退治者;
-    const solverText = Array.isArray(solver) ? solver.join('、') : solver ?? '';
+    const solverText = Array.isArray(solver) ? solver.join('、') : (solver ?? '');
     const mainLoc = incident.主要地区?.join('、') ?? '';
 
     const fields: IncidentCardField[] = [];

@@ -130,8 +130,7 @@ async function computeHighlightedHtml(
   const text = mapText.value;
 
   // 确定当前高亮关键字（玩家所在地区）
-  const fallbackPlace =
-    typeof state?.world?.fallbackPlace === 'string' ? state.world.fallbackPlace : '博丽神社';
+  const fallbackPlace = typeof state?.world?.fallbackPlace === 'string' ? state.world.fallbackPlace : '博丽神社';
   const keywordSource = state?.user?.所在地区 ?? fallbackPlace;
   const keyword = String(keywordSource ?? fallbackPlace).trim();
   logger.log(funcName, `当前高亮关键字: ${keyword}`);
@@ -213,8 +212,7 @@ const update = async (statWithoutMeta: any): Promise<boolean> => {
   // 更新“附近地区”文本
   const nearbyPlacesEl = document.getElementById('nearby-places');
   if (nearbyPlacesEl) {
-    const fallbackPlace =
-      typeof worldSection.fallbackPlace === 'string' ? worldSection.fallbackPlace : '博丽神社';
+    const fallbackPlace = typeof worldSection.fallbackPlace === 'string' ? worldSection.fallbackPlace : '博丽神社';
     const base = statWithoutMeta.user?.所在地区 ?? fallbackPlace;
     try {
       const adj = buildAdjacencyMap(mapGraph.value);
