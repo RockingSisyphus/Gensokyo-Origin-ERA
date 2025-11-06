@@ -50,7 +50,7 @@
 
       <!-- 设置 Tab -->
       <div id="content_settings" class="status-tab-content" :class="{ active: activeTab === 'settings' }">
-        <ContentSettings ref="contentSettings" />
+        <ContentSettings :config="contentSettingsConfig" @saved="handleContentSettingsSaved" />
       </div>
     </div>
     <!-- ▲ [移植] 结构结束 -->
@@ -83,7 +83,7 @@ const worldMap = ref<Updatable | null>(null);
 const incidents = ref<Updatable | null>(null);
 const contentOthers = ref<Updatable | null>(null);
 const contentBio = ref<Updatable | null>(null);
-const contentSettings = ref<Updatable | null>(null);
+const contentSettingsConfig = ref<Record<string, any> | null>(null);
 // ▲ [移植] ref 创建结束
 
 // ▼ [改造] 将 index.ts 中的 tab 切换逻辑改造成 Vue 的方式
@@ -158,11 +158,11 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
     logger.debug(funcName, '已调用 ContentBio.update');
   }
 
-  // [移植自 index.ts] 调用设置组件的更新函数
-  if (contentSettings.value && typeof contentSettings.value.update === 'function') {
-    contentSettings.value.update(statWithoutMeta);
-    logger.debug(funcName, '已调用 ContentSettings.update');
-  }
+  // 将配置对象传递给设置组件，触发内置 watch 更新
+  contentSettingsConfig.value = statWithoutMeta?.config ?? null;
+  logger.debug(funcName, '已同步 ContentSettings 配置', {
+    hasConfig: !!contentSettingsConfig.value,
+  });
 
   // [移植自 index.ts 的 MVU.render.mainColumns] 更新附加正文
   const mainExtraEl = document.getElementById('main-extra');
@@ -176,6 +176,10 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
 };
 // ▲ [移植] update 方法结束
 
+const handleContentSettingsSaved = (payload: { ok: number; fail: number; patch: Record<string, any> }) => {
+  logger.log('handleContentSettingsSaved', '设置页保存完成', payload);
+};
+
 // 将 update 方法和所有子组件的 ref 暴露出去，以便父组件(app.vue)可以访问
 defineExpose({
   update,
@@ -183,7 +187,6 @@ defineExpose({
   incidents,
   contentOthers,
   contentBio,
-  contentSettings,
 });
 </script>
 

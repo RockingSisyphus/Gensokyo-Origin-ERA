@@ -5,7 +5,7 @@
       <span id="cfg_status" class="tag">{{ loadStatus }}</span>
       <button id="btn_expand_all" @click="expandAll">展开全部</button>
       <button id="btn_collapse_all" @click="collapseAll">折叠全部</button>
-      <button id="btn_save_cfg" @click="save">保存更改到世界书</button>
+      <button id="btn_save_cfg" @click="save">保存更改</button>
     </div>
     <div class="hint">布尔=勾选，数字=数字框，字符串=文本框，数组=每行一项。对象会折叠为分组。</div>
     <div id="cfg_root" ref="configRoot"></div>
@@ -13,80 +13,139 @@
 </template>
 
 <script setup lang="ts">
-import { get as _get, cloneDeep, isEqual } from 'lodash';
-import { ref } from 'vue';
-import { updateEraVariable } from '../../../utils/eraWriter';
+import { cloneDeep, isEqual } from 'lodash';
+import { onMounted, ref, watch } from 'vue';
+import { updateEraVariableByObject } from '../../../utils/eraWriter';
 import { Logger } from '../../../utils/log';
 
-// 日志记录器
-const logger = new Logger();
-
-// 响应式变量
-const loadStatus = ref('未载入');
-const configRoot = ref<HTMLElement | null>(null); // 用于挂载动态生成的DOM
-
-// 存储从 ERA 加载的原始配置，用于后续比较
-let initialConfig: any = null;
-
-// 定义一个接口来描述配置更改的结构
 interface ConfigChange {
-  path: string;
+  path: string[];
+  pathLabel: string;
   from: any;
   to: any;
 }
 
-// 存储叶子节点的数量
-let leafCount = 0;
-// 存储分组节点的数量
-let groupCount = 0;
+interface ContentSettingsProps {
+  config: Record<string, any> | null | undefined;
+}
 
-/**
- * @description 判断一个值是否为纯对象
- * @param o - 要检查的值
- * @returns {boolean} 如果是纯对象则返回 true
- */
+const props = defineProps<ContentSettingsProps>();
+const emit = defineEmits<{
+  (e: 'saved', payload: { ok: number; fail: number; patch: Record<string, any> }): void;
+}>();
+
+const logger = new Logger();
+
+const loadStatus = ref('未载入');
+const configRoot = ref<HTMLElement | null>(null); // 用于挂载动态生成的 DOM
+
+let initialConfig: any = null; // 深拷贝的原始配置，用于比较
+let editedConfig: any = null; // 当前正在编辑的配置副本
+
+let leafCount = 0; // 叶子节点数量
+let groupCount = 0; // 分组节点数量
+let pendingConfig: Record<string, any> | null | undefined; // 在 DOM 未就绪时暂存配置
+
 const isObj = (o: any) => o && typeof o === 'object' && !Array.isArray(o);
 
-/**
- * @description 连接路径片段
- * @param base - 基础路径
- * @param k - 要添加的键
- * @returns {string} 拼接后的完整路径
- */
-const join = (base: string, k: string) => (base ? `${base}.${k}` : k);
+const handleConfigUpdate = (config: Record<string, any> | null | undefined) => {
+  if (!configRoot.value) {
+    pendingConfig = config;
+    return;
+  }
 
-/**
- * @description 为配置项创建对应的 HTML 输入控件
- * @param path - 配置项的路径
- * @param value - 配置项的值
- * @returns {{el: HTMLDivElement, getVal: Function}} 包含控件元素和获取其值的函数的对象
- */
-function createControl(path: string, value: any) {
+  if (!config) {
+    configRoot.value.innerHTML = '';
+    loadStatus.value = '未载入';
+    initialConfig = null;
+    editedConfig = null;
+    return;
+  }
+
+  if (typeof config !== 'object') {
+    logger.warn('handleConfigUpdate', '配置对象无效，期望为 object。');
+    configRoot.value.innerHTML = '';
+    loadStatus.value = '配置无效';
+    initialConfig = null;
+    editedConfig = null;
+    return;
+  }
+
+  render(config);
+};
+
+watch(
+  () => props.config,
+  config => {
+    handleConfigUpdate(config);
+  },
+  { immediate: true },
+);
+
+onMounted(() => {
+  if (pendingConfig !== undefined) {
+    const config = pendingConfig;
+    pendingConfig = undefined;
+    handleConfigUpdate(config);
+  }
+});
+
+const pathLabel = (segments: string[]) => (segments.length ? segments.join('.') : 'config');
+
+const getValueAtPath = (root: any, segments: string[]) =>
+  segments.reduce((acc, key) => (acc != null ? acc[key] : undefined), root);
+
+const setValueAtPath = (root: any, segments: string[], value: any) => {
+  if (!segments.length) {
+    return;
+  }
+  let current = root;
+  for (let i = 0; i < segments.length - 1; i++) {
+    const key = segments[i];
+    if (!isObj(current[key])) {
+      current[key] = {};
+    }
+    current = current[key];
+  }
+  current[segments[segments.length - 1]] = value;
+};
+
+function createControl(segments: string[], parent: Record<string, any>, key: string, value: any, docText?: string) {
   const wrap = document.createElement('div');
-  const key = document.createElement('div');
+  const keyEl = document.createElement('div');
   const box = document.createElement('div');
   wrap.style.margin = '10px 0';
-  key.style.fontWeight = '600';
-  key.style.color = '#5e5042';
-  key.textContent = path;
-  wrap.appendChild(key);
+  keyEl.style.fontWeight = '600';
+  keyEl.style.color = '#5e5042';
+  keyEl.textContent = pathLabel(segments);
+  wrap.appendChild(keyEl);
+
+  if (docText) {
+    const docEl = document.createElement('div');
+    docEl.style.color = '#857664';
+    docEl.style.fontSize = '.9em';
+    docEl.style.margin = '6px 0 10px';
+    docEl.textContent = docText;
+    wrap.appendChild(docEl);
+  }
+
   wrap.appendChild(box);
 
-  let getVal: () => any;
+  let getDomValue: () => any;
 
   if (typeof value === 'boolean') {
     const el = document.createElement('input');
     el.type = 'checkbox';
     el.checked = !!value;
     box.appendChild(el);
-    getVal = () => !!el.checked;
+    getDomValue = () => !!el.checked;
   } else if (typeof value === 'number') {
     const el = document.createElement('input');
     el.type = 'number';
     el.value = String(value);
     el.style.width = '100%';
     box.appendChild(el);
-    getVal = () => Number(el.value);
+    getDomValue = () => Number(el.value);
   } else if (Array.isArray(value)) {
     const isPrimitiveArray = value.every(v => v === null || ['string', 'number', 'boolean'].includes(typeof v));
     const el = document.createElement('textarea');
@@ -96,7 +155,7 @@ function createControl(path: string, value: any) {
 
     if (isPrimitiveArray) {
       el.value = value.map(v => String(v)).join('\n');
-      getVal = () => {
+      getDomValue = () => {
         const lines = (el.value || '')
           .split('\n')
           .map(s => s.trim())
@@ -106,12 +165,12 @@ function createControl(path: string, value: any) {
       };
     } else {
       el.value = JSON.stringify(value, null, 2);
-      getVal = () => {
+      getDomValue = () => {
         try {
           const text = el.value.trim();
           return text ? JSON.parse(text) : [];
         } catch (e) {
-          logger.error('createControl', `解析JSON失败，路径: ${path}`, e);
+          logger.error('createControl', `解析 JSON 失败，路径: ${pathLabel(segments)}`, e);
           return value; // 解析失败时返回原始值，防止破坏数据
         }
       };
@@ -119,21 +178,25 @@ function createControl(path: string, value: any) {
   } else {
     const el = document.createElement('input');
     el.type = 'text';
-    el.value = String(value);
+    el.value = value == null ? '' : String(value);
     el.style.width = '100%';
     box.appendChild(el);
-    getVal = () => el.value;
+    getDomValue = () => el.value;
   }
 
   leafCount++;
-  // 在控件的 wrapper 上附加获取值的函数和路径/初始值信息
-  (wrap as any).__getVal = getVal;
-  wrap.dataset.path = path;
-  try {
-    wrap.dataset.init = JSON.stringify(value);
-  } catch {
-    wrap.dataset.init = '';
-  }
+
+  const initialValue = cloneDeep(getValueAtPath(initialConfig, segments));
+
+  (wrap as any).__getDomValue = getDomValue;
+  (wrap as any).__applyValue = (next: any) => {
+    parent[key] = next;
+  };
+  (wrap as any).__initialValue = initialValue;
+  (wrap as any).__pathSegments = segments.slice();
+  (wrap as any).__pathLabel = pathLabel(segments);
+
+  wrap.dataset.path = pathLabel(segments);
 
   return wrap;
 }
@@ -145,11 +208,11 @@ function createControl(path: string, value: any) {
  * @param docText - 该分组的文档/说明文本
  * @returns {HTMLDetailsElement} 创建的 details 元素
  */
-function createGroup(obj: any, basePath: string, docText?: string) {
+function createGroup(obj: any, segments: string[], docText?: string, summaryLabel?: string) {
   const box = document.createElement('details');
   box.open = false;
   const sum = document.createElement('summary');
-  sum.textContent = basePath || '(root)';
+  sum.textContent = summaryLabel ?? (segments.length ? segments[segments.length - 1] : '(root)');
   box.appendChild(sum);
 
   if (docText) {
@@ -166,21 +229,13 @@ function createGroup(obj: any, basePath: string, docText?: string) {
   Object.keys(obj).forEach(k => {
     if (k === '__doc' || k === '_doc' || k.endsWith('__doc') || k.startsWith('_')) return;
     const v = obj[k];
-    const p = join(basePath, k);
+    const nextSegments = [...segments, k];
     if (isObj(v)) {
-      const child = createGroup(v, p, v._doc || obj[`${k}__doc`]);
+      const child = createGroup(v, nextSegments, v?._doc || obj[`${k}__doc`], k);
       box.appendChild(child);
     } else {
       const leafDoc = obj[`${k}__doc`];
-      const controlElement = createControl(p, v);
-      if (leafDoc) {
-        const d = document.createElement('div');
-        d.style.color = '#857664';
-        d.style.fontSize = '.9em';
-        d.style.margin = '6px 0 10px';
-        d.textContent = leafDoc;
-        controlElement.insertBefore(d, controlElement.children[1]);
-      }
+      const controlElement = createControl(nextSegments, obj, k, v, leafDoc);
       box.appendChild(controlElement);
     }
   });
@@ -190,20 +245,24 @@ function createGroup(obj: any, basePath: string, docText?: string) {
 
 /**
  * @description 渲染整个配置表单
- * @param cfg - 从 statWithoutMeta 中获取的配置对象
+ * @param config - 传入的配置对象
  */
-function render(cfg: any) {
+function render(config: Record<string, any>) {
   if (!configRoot.value) {
-    logger.warn('render', '无法渲染，因为 #cfg_root 容器不存在。');
+    logger.warn('render', '#cfg_root 容器尚未就绪，推迟渲染。');
+    pendingConfig = config;
     return;
   }
   const t0 = performance.now();
+
+  initialConfig = cloneDeep(config);
+  editedConfig = cloneDeep(config);
+
   leafCount = 0;
   groupCount = 0;
   configRoot.value.innerHTML = '';
-  initialConfig = cloneDeep(cfg); // 深拷贝一份初始配置用于比较
 
-  const view = createGroup(cfg, '', cfg?._doc);
+  const view = createGroup(editedConfig, [], editedConfig?._doc, 'config');
   view.open = false;
   configRoot.value.appendChild(view);
   loadStatus.value = '已载入';
@@ -224,20 +283,23 @@ function collectChanges(): ConfigChange[] {
 
   items.forEach(el => {
     scanned++;
-    const path = (el as HTMLElement).dataset.path;
-    const getVal = (el as any).__getVal;
-    if (!path || !getVal) return;
+    const getDomValue = (el as any).__getDomValue as (() => any) | undefined;
+    const applyValue = (el as any).__applyValue as ((next: any) => void) | undefined;
+    const initialValue = (el as any).__initialValue;
+    const pathSegments = (el as any).__pathSegments as string[] | undefined;
+    const label = (el as any).__pathLabel as string | undefined;
+    if (!getDomValue || !applyValue || !pathSegments || !label) return;
 
-    const currentValue = getVal();
-    let initialValue = null;
-    try {
-      initialValue = JSON.parse((el as HTMLElement).dataset.init || 'null');
-    } catch {
-      // 忽略解析错误，initialValue 将保持 null
-    }
+    const currentValue = getDomValue();
+    applyValue(cloneDeep(currentValue));
 
     if (!isEqual(currentValue, initialValue)) {
-      changes.push({ path, from: initialValue, to: currentValue });
+      changes.push({
+        path: pathSegments,
+        pathLabel: label,
+        from: initialValue,
+        to: cloneDeep(currentValue),
+      });
     }
   });
 
@@ -245,14 +307,19 @@ function collectChanges(): ConfigChange[] {
     scanned,
     changed: changes.length,
     ms: (performance.now() - t0).toFixed(1),
-    sample: changes.slice(0, 5),
+    sample: changes.slice(0, 5).map(item => ({ path: item.pathLabel, to: item.to })),
   });
   return changes;
 }
 
-/**
- * @description 保存更改到 ERA 变量
- */
+const buildPatchObject = (changes: ConfigChange[]) => {
+  const patch: Record<string, any> = {};
+  changes.forEach(change => {
+    setValueAtPath(patch, change.path, cloneDeep(change.to));
+  });
+  return patch;
+};
+
 async function save() {
   const funcName = 'save';
   try {
@@ -266,23 +333,28 @@ async function save() {
     logger.log(funcName, `准备写入 ${changes.length} 项更改...`);
     toastr.info(`正在保存 ${changes.length} 项更改...`);
 
-    let ok = 0,
-      fail = 0;
-    for (const change of changes) {
-      try {
-        // 使用 eraWriter 更新变量
-        updateEraVariable(`config.${change.path}`, change.to);
-        ok++;
-        logger.log(funcName, `已通过 era:updateByPath 请求更新`, { path: `config.${change.path}` });
-      } catch (e) {
-        fail++;
-        logger.error(funcName, `写入失败`, { path: change.path, error: e });
-      }
-    }
+    const patch = buildPatchObject(changes);
+    let ok = 0;
+    let fail = 0;
 
-    // 更新完成后，重新加载配置以同步UI
-    logger.log(funcName, `保存完成`, { ok, fail });
-    toastr.success(`保存成功 ${ok} 项，失败 ${fail} 项。`);
+    try {
+      updateEraVariableByObject({ config: patch });
+      ok = changes.length;
+      logger.log(funcName, `已发送 era:updateByObject`, { patch });
+      toastr.success(`保存成功 ${ok} 项。`);
+      emit('saved', { ok, fail, patch });
+      if (editedConfig && typeof editedConfig === 'object') {
+        render(editedConfig);
+        loadStatus.value = '已保存';
+      } else {
+        loadStatus.value = '已保存';
+      }
+    } catch (error) {
+      fail = changes.length;
+      logger.error(funcName, `写入失败`, error);
+      toastr.error('保存过程中发生未知错误。');
+      emit('saved', { ok, fail, patch });
+    }
   } catch (e) {
     logger.error(funcName, `保存过程出现异常`, e);
     toastr.error('保存过程中发生未知错误。');
@@ -306,27 +378,6 @@ function collapseAll() {
   list?.forEach(d => (d.open = false));
   logger.log('collapseAll', `折叠了 ${list?.length || 0} 个分组。`);
 }
-
-/**
- * @description 外部调用的更新函数
- * @param statWithoutMeta - 从 era:writeDone 事件中获取的 stat 数据
- */
-function update(statWithoutMeta: any) {
-  const funcName = 'update';
-  logger.log(funcName, '接收到更新请求', { keys: Object.keys(statWithoutMeta || {}).length });
-  const config = _get(statWithoutMeta, 'config');
-  if (config && typeof config === 'object') {
-    render(config);
-  } else {
-    logger.warn(funcName, '在 statWithoutMeta 中未找到有效的 config 对象。');
-    loadStatus.value = '配置无效';
-  }
-}
-
-// 暴露 update 方法给父组件
-defineExpose({
-  update,
-});
 </script>
 
 <!-- ===== 12) 设置界面控件（仅限 #content_settings 作用域） ===== -->
