@@ -1539,7 +1539,7 @@ const festivalSpecificData = {
   } ]
 };
 
-const baseFestivalStat = external_default().merge(external_default().cloneDeep(stat_test_data_namespaceObject), festivalSpecificData);
+const baseFestivalStat = external_default().merge(external_default().cloneDeep(baseTestData), festivalSpecificData);
 
 const getProgress = (targetMonth, targetDay) => {
   const epoch = new Date(baseFestivalStat.config.time.epochISO);
