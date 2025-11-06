@@ -84,12 +84,16 @@ const EntrySchema = external_z_namespaceObject.z.object({
   priority: external_z_namespaceObject.z.number().optional()
 });
 
+const EntryListSchema = external_z_namespaceObject.z.array(EntrySchema);
+
+const EntryListPreprocessSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema));
+
 const CharacterSettingsSchema = external_z_namespaceObject.z.object({
   id: external_z_namespaceObject.z.string(),
   name: external_z_namespaceObject.z.string(),
   affectionStages: external_z_namespaceObject.z.array(AffectionStageWithForgetSchema),
-  specials: external_z_namespaceObject.z.array(EntrySchema),
-  routine: external_z_namespaceObject.z.array(EntrySchema)
+  specials: EntryListPreprocessSchema,
+  routine: EntryListPreprocessSchema
 });
 
 const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSettingsSchema);
@@ -100,8 +104,8 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable(),
   affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
-  specials: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  routine: external_z_namespaceObject.z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  specials: EntryListPreprocessSchema.default([]),
+  routine: EntryListPreprocessSchema.default([]),
   目标: external_z_namespaceObject.z.string().optional()
 });
 
@@ -2417,6 +2421,14 @@ function accessors_getGlobalAffectionStages(stat) {
   return stat.config?.affection?.affectionStages ?? [];
 }
 
+function getGlobalSpecials(stat) {
+  return stat.config?.specials ?? [];
+}
+
+function getGlobalRoutine(stat) {
+  return stat.config?.routine ?? [];
+}
+
 function accessors_getCharAffectionStages(stat, charId) {
   const charStages = stat.chars?.[charId]?.affectionStages;
   if (charStages && charStages.length > 0) {
@@ -2426,11 +2438,19 @@ function accessors_getCharAffectionStages(stat, charId) {
 }
 
 function getCharSpecials(stat, charId) {
-  return stat.chars?.[charId]?.specials ?? [];
+  const charSpecials = stat.chars?.[charId]?.specials;
+  if (charSpecials && charSpecials.length > 0) {
+    return charSpecials;
+  }
+  return getGlobalSpecials(stat);
 }
 
 function getCharRoutine(stat, charId) {
-  return stat.chars?.[charId]?.routine ?? [];
+  const charRoutine = stat.chars?.[charId]?.routine;
+  if (charRoutine && charRoutine.length > 0) {
+    return charRoutine;
+  }
+  return getGlobalRoutine(stat);
 }
 
 function processCharacterSettings({stat}) {
@@ -4585,6 +4605,8 @@ const AffectionConfigSchema = external_z_namespaceObject.z.object({
 
 const ConfigSchema = external_z_namespaceObject.z.object({
   affection: AffectionConfigSchema,
+  specials: EntryListPreprocessSchema.default([]),
+  routine: EntryListPreprocessSchema.default([]),
   time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
   incident: IncidentConfigSchema.optional(),
   ui: UiConfigSchema

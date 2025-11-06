@@ -94,6 +94,41 @@
         }
       ]
     },
+    "specials": [],
+    "routine": [
+      {
+        "when": { "byNow": { "periodName": "清晨" } },
+        "action": { "do": "吃早饭", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "上午" } },
+        "action": { "do": "忙自己的事", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "中午" } },
+        "action": { "do": "吃午饭", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "下午" } },
+        "action": { "do": "忙自己的事", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "黄昏" } },
+        "action": { "do": "吃晚饭", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "夜晚" } },
+        "action": { "do": "休息", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "上半夜" } },
+        "action": { "do": "睡觉", "to": "$HOME" }
+      },
+      {
+        "when": { "byNow": { "periodName": "下半夜" } },
+        "action": { "do": "睡觉", "to": "$HOME" }
+      }
+    ],
     "ui": {
       "theme": "light"
     },
@@ -242,8 +277,6 @@
       "所在地区": "红魔馆",
       "居住地区": "红魔馆",
       "affectionStages": [],
-      "specials": [],
-      "routine": [],
       "目标": ""
     },
     "aya": {

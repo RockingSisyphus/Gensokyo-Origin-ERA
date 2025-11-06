@@ -26,6 +26,30 @@
         }
       ]
     },
+    "specials": [
+      {
+        "when": "any",
+        "action": {
+          "do": "string",
+          "to": "string",
+          "from": "string",
+          "source": "string"
+        },
+        "priority": "number"
+      }
+    ],
+    "routine": [
+      {
+        "when": "any",
+        "action": {
+          "do": "string",
+          "to": "string",
+          "from": "string",
+          "source": "string"
+        },
+        "priority": "number"
+      }
+    ],
     "time": {
       "epochISO": "string (datetime)",
       "flagHistoryLimits": {

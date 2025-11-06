@@ -14,6 +14,24 @@ export function getGlobalAffectionStages(stat: Stat): AffectionStageWithForget[]
 }
 
 /**
+ * 获取全局默认的特殊行动条目。
+ * @param stat - The stat object.
+ * @returns The global specials array.
+ */
+export function getGlobalSpecials(stat: Stat): Entry[] {
+  return stat.config?.specials ?? [];
+}
+
+/**
+ * 获取全局默认的日常行动条目。
+ * @param stat - The stat object.
+ * @returns The global routine array.
+ */
+export function getGlobalRoutine(stat: Stat): Entry[] {
+  return stat.config?.routine ?? [];
+}
+
+/**
  * 获取指定角色的好感度等级表。
  * 如果角色自定义了等级表，则返回角色的版本；否则返回全局默认版本。
  * @param stat - The stat object.
@@ -35,7 +53,11 @@ export function getCharAffectionStages(stat: Stat, charId: string): AffectionSta
  * @returns The character's specials array.
  */
 export function getCharSpecials(stat: Stat, charId: string): Entry[] {
-  return stat.chars?.[charId]?.specials ?? [];
+  const charSpecials = stat.chars?.[charId]?.specials;
+  if (charSpecials && charSpecials.length > 0) {
+    return charSpecials;
+  }
+  return getGlobalSpecials(stat);
 }
 
 /**
@@ -45,5 +67,9 @@ export function getCharSpecials(stat: Stat, charId: string): Entry[] {
  * @returns The character's routine array.
  */
 export function getCharRoutine(stat: Stat, charId: string): Entry[] {
-  return stat.chars?.[charId]?.routine ?? [];
+  const charRoutine = stat.chars?.[charId]?.routine;
+  if (charRoutine && charRoutine.length > 0) {
+    return charRoutine;
+  }
+  return getGlobalRoutine(stat);
 }

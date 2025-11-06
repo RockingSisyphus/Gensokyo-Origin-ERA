@@ -85,6 +85,16 @@ export const EntrySchema = z.object({
 });
 export type Entry = z.infer<typeof EntrySchema>;
 
+/**
+ * Entry 条目的数组 Schema（直接使用对象形式）。
+ */
+export const EntryListSchema = z.array(EntrySchema);
+
+/**
+ * Entry 条目的数组 Schema，允许字符串化对象并在解析前转换。
+ */
+export const EntryListPreprocessSchema = z.array(PreprocessStringifiedObject(EntrySchema));
+
 // --- 角色设置聚合 Schema ---
 
 /**
@@ -106,11 +116,11 @@ export const CharacterSettingsSchema = z.object({
   /**
    * 角色的特殊行动列表。
    */
-  specials: z.array(EntrySchema),
+  specials: EntryListPreprocessSchema,
   /**
    * 角色的日常行动列表。
    */
-  routine: z.array(EntrySchema),
+  routine: EntryListPreprocessSchema,
 });
 export type CharacterSettings = z.infer<typeof CharacterSettingsSchema>;
 

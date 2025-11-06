@@ -3,7 +3,7 @@
  */
 import { z } from 'zod';
 import { PreprocessStringifiedObject } from '../../utils/zod';
-import { AffectionStageWithForgetSchema } from '../character-settings';
+import { AffectionStageWithForgetSchema, EntryListPreprocessSchema } from '../character-settings';
 import { UiConfigSchema } from '../ui';
 
 // --- Incident Config ---
@@ -104,6 +104,8 @@ export type AffectionConfig = z.infer<typeof AffectionConfigSchema>;
 export const ConfigSchema = z
   .object({
     affection: AffectionConfigSchema,
+    specials: EntryListPreprocessSchema.default([]),
+    routine: EntryListPreprocessSchema.default([]),
     time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
     incident: IncidentConfigSchema.optional(),
     ui: UiConfigSchema,

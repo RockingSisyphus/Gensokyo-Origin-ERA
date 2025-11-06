@@ -1,6 +1,6 @@
 import { z } from 'zod';
 import { PreprocessStringifiedObject } from '../../utils/zod';
-import { AffectionStageWithForgetSchema, EntrySchema } from '../character-settings';
+import { AffectionStageWithForgetSchema, EntryListPreprocessSchema } from '../character-settings';
 
 export const CharacterSchema = z.object({
   name: z.string(),
@@ -8,8 +8,8 @@ export const CharacterSchema = z.object({
   所在地区: z.string().nullable(),
   居住地区: z.string().nullable(),
   affectionStages: z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
-  specials: z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
-  routine: z.array(PreprocessStringifiedObject(EntrySchema)).default([]),
+  specials: EntryListPreprocessSchema.default([]),
+  routine: EntryListPreprocessSchema.default([]),
   目标: z.string().optional(),
 });
 
