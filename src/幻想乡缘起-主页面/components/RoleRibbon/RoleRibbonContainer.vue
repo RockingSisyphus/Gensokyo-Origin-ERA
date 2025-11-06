@@ -81,9 +81,6 @@ const nearbyCharacters = computed<(Character & { name: string; id: string })[]>(
       };
     })
     .filter(Boolean) as (Character & { name: string; id: string })[];
-
-  logger.debug(funcName, '计算完成的 nearbyCharacters:', _.cloneDeep(result));
-  return result;
 });
 
 const scroll = (direction: number) => {

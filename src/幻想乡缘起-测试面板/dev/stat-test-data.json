@@ -6,45 +6,45 @@
           "threshold": -99999,
           "name": "死敌",
           "describe": "将不惜一切代价试图杀死对方。",
-          "patienceUnit": "day",
-          "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
+          "patienceUnit": "year",
+          "visit": { "enabled": true, "probBase": 0.3, "coolUnit": "day" },
           "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
+          "affectionGrowthLimit": { "max": 2, "divisor": 10 }
         },
         {
           "threshold": -100,
           "name": "憎恨",
           "describe": "会主动寻找并攻击对方。",
-          "patienceUnit": "day",
-          "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
+          "patienceUnit": "month",
+          "visit": { "enabled": false, "probBase": 0.1, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 3 }],
+          "affectionGrowthLimit": { "max": 2, "divisor": 8 }
         },
         {
           "threshold": -20,
           "name": "厌恶",
           "describe": "会避开对方，如果无法避开则会恶语相向。",
-          "patienceUnit": "day",
+          "patienceUnit": "period",
           "visit": { "enabled": false, "probBase": 0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 2, "divisor": 2 }
+          "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 2, "divisor": 5 }
         },
         {
           "threshold": 0,
           "name": "陌生",
           "describe": "如同对待陌生人一样，保持距离和警惕。",
-          "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.1, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "patienceUnit": "period",
+          "visit": { "enabled": false, "probBase": 0.1, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
           "affectionGrowthLimit": { "max": 5, "divisor": 2 }
         },
         {
           "threshold": 10,
           "name": "普通",
           "describe": "会进行普通的对话和互动。",
-          "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.2, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
+          "patienceUnit": "period",
+          "visit": { "enabled": true, "probBase": 0.1, "coolUnit": "week" },
+          "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 2 }],
           "affectionGrowthLimit": { "max": 5, "divisor": 2 }
         },
         {
@@ -52,45 +52,45 @@
           "name": "熟悉",
           "describe": "会主动打招呼，并进行更深入的对话。",
           "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.3, "coolUnit": "day" },
+          "visit": { "enabled": true, "probBase": 0.2, "coolUnit": "week" },
           "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 5, "divisor": 2 }
+          "affectionGrowthLimit": { "max": 2, "divisor": 3 }
         },
         {
           "threshold": 40,
           "name": "亲近",
           "describe": "会分享自己的心事，并主动邀请对方。",
-          "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.5, "coolUnit": "day" },
+          "patienceUnit": "week",
+          "visit": { "enabled": true, "probBase": 0.5, "coolUnit": "week" },
           "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
+          "affectionGrowthLimit": { "max": 3, "divisor": 2 }
         },
         {
           "threshold": 70,
           "name": "亲密",
           "describe": "会将对方视为重要的人，并愿意为其付出。",
-          "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
+          "patienceUnit": "month",
+          "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "week" },
+          "forgettingSpeed": [{ "triggerFlag": "newSeason", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 10, "divisor": 2 }
         },
         {
           "threshold": 100,
           "name": "思慕",
           "describe": "深深地爱着对方，愿意为其做任何事。",
-          "patienceUnit": "day",
-          "visit": { "enabled": true, "probBase": 0.9, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
+          "patienceUnit": "season",
+          "visit": { "enabled": true, "probBase": 0.7, "coolUnit": "day" },
+          "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 20, "divisor": 1 }
         },
         {
           "threshold": 99999,
           "name": "不渝",
           "describe": "无论发生什么，都会永远爱着对方。",
-          "patienceUnit": "day",
+          "patienceUnit": "year",
           "visit": { "enabled": true, "probBase": 1.0, "coolUnit": "day" },
-          "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
-          "affectionGrowthLimit": { "max": 10, "divisor": 3 }
+          "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
+          "affectionGrowthLimit": { "max": 100, "divisor": 1 }
         }
       ]
     },
@@ -129,11 +129,59 @@
       "forceTrigger": false,
       "isRandomPool": false,
       "pool": [
-        { "name": "红雾异变", "detail": "幻想乡被红色的雾气笼罩了。", "mainLoc": "红魔馆" },
-        { "name": "春雪异变", "detail": "春天来了，但雪还在下。", "mainLoc": "白玉楼" }
+        {
+          "name": "红雾异变",
+          "mainLoc": "红魔馆",
+          "detail": "盛夏的幻想乡被不祥的红雾遮天蔽日。红雾来自湖畔的“红魔馆”，其主——吸血鬼蕾米莉亚·斯卡蕾特为在白日行动，故有意放雾以遮光；红雾对人类有害，引得博丽灵梦与雾雨魔理沙出发问罪。一路清理阻挡的妖精与馆众（露米娅、琪露诺、红美铃、帕秋莉、十六夜咲夜等），最终在馆中主厅与蕾米莉亚展开弹幕决战。蕾米莉亚落败后收回红雾，夏日重归晴朗；（外传记者文文的报道亦记录了“红雾浓遮日光、仲夏反觉寒冷”的民间观感）。至此红雾异变告终。注：现代官方年表设定中，博丽大结界早已建立，红雾不会跨界影响外界世界，上述“外界受害”只见于早期表述或角色对话的推测。"
+        },
+        {
+          "name": "春雪异变",
+          "mainLoc": "白玉楼",
+          "detail": "入五月仍大雪纷飞，春天迟迟不至。冥界白玉楼之主、亡灵西行寺幽幽子命其半人半灵侍者魂魄妖梦四处“收集春度”，意欲令自家庭园中那株久不开花的妖怪樱**“西行妖（西行樱）”**满开。灵梦、魔理沙、咲夜各因现实所迫（神社受寒、门前樱瓣异状、馆内物资见底）循花迹追至“幽冥结界”上空，击退骚灵三姐妹后入冥界。在白玉楼门前与妖梦交手，再至深处与幽幽子正面对峙。最终，幽幽子败北而收手，将春度归还幻想乡，春寒尽解；而几近满开的西行妖也被重新镇住——其树下所封的“尸骸之魂”正是幽幽子本人，她并不自知，因自身的无意识自我保护而无法真正解封。异变因此平息。"
+        },
+        {
+          "name": "宴会与妖雾异变",
+          "mainLoc": "博丽神社",
+          "detail": "幻想乡三天一小宴、妖雾日渐浓，众人（灵梦、魔理沙、咲夜、爱丽丝等）察觉不对相继出动。幕后黑手为从世间消失已久的鬼——伊吹萃香。她以“操控密度”的能力把“人、妖的气与心情”汇聚成雾，借连场盛宴把分散的人与妖重新黏合在一起，既为热闹，也为重建“昔日人退治鬼、鬼被退治”的互动生态，期望有朝一日引回远走他乡的鬼族。众人逐一战胜萃香后，雾散宴缓，幻想乡恢复常态，但萃香也就此“留下来”，以更温和的方式融入日常。"
+        },
+        {
+          "name": "永夜与虚假之月",
+          "mainLoc": "永远亭",
+          "detail": "满月之夜前后，天象反常：真正的满月被“替换”，而地面时间也被人为拉长为“无尽之夜”。实情是：为保护月之公主蓬莱山辉夜免受月都追兵追缉，月之贤者八意永琳施展“天文密葬法”，以虚假的满月取代真月，切断“月—地”通路；同时，四支调查队（灵梦/紫、魔理沙/爱莲、咲夜/蕾米、妖梦/幽幽子）为了“在天明前查明元凶”，又各自施术“延长夜幕”，导致“永夜”表象。在人里，上白泽慧音一度以“吞噬历史”之力隐藏村落以避祸；穿越迷途竹林抵达永远亭后，队伍先与铃仙交战，继而在错乱回廊中见到永琳与辉夜。最终分歧路线中或与永琳、或与辉夜决战，真相水落石出——永琳本拟“时机一到即还月”，而“永夜”实为调查组为追索真相而造就的手段。黎明终至，虚假之月撤去，异变落幕。"
+        },
+        {
+          "name": "花之异变",
+          "mainLoc": "彼岸",
+          "detail": "百花齐放，不分时令；幽灵四处飞散，精灵躁动异常。各路角色纷纷外出探因，却发现“无人主使”。判明此景为六十年一度的轮回周期所致：外界大事变引发大量亡灵迁徙，灵体附花而致花事大盛。此属自然现象，时间一过自会消退，无须强行“退治”。故事以角色各自的视角交错推进，结局多为“知其然而不强为”。"
+        },
+        {
+          "name": "信仰风波",
+          "mainLoc": "守矢神社",
+          "detail": "妖怪之山忽然迁入一座守矢神社，其巫女东风谷早苗下山“打招呼”（在灵梦看来接近“逼宫”），甚至放话要拆博丽神社。灵梦（与魔理沙）沿山而上，经秋姐妹神、键山雏与河城荷取等阻挡，又被天狗射命丸文盘问缘由，终获准面见山上神明。与早苗的弹幕对决以其自信过度告负收场；继而在山顶湖畔与山神八坂神奈子交涉——本质是守矢系为“生存与壮大”而寻求在幻想乡重新赢得信仰。战斗后双方议和：守矢以妖怪之山为根据地展开布教，博丽神社仍维持平衡节点。其后在Ex中，真正的本社神洩矢诹访子现身，补完“守矢二神”与信仰分工。"
+        },
+        {
+          "name": "气质与地震",
+          "mainLoc": "有顶天",
+          "detail": "天界天人比那名居天子因无聊而效仿“人间的异变游戏”，以绯想之剑收集众生“气质”，在空中积累为红云，并以要石（镇地之石）操弄地震，只让博丽神社反复受灾以引人上门“退治自己”。灵梦等人一路追索登天，与天子对决后，天子命天女修复神社，又在地上竖立要石以镇住蓄积之能，但八云紫质疑其真实用意，与之再战，神社再度崩坏，后由鬼族与天狗共同修缮。尾声是“大家一起虐天子”的盛大宴会，红云散去、地动止息；但传说中的能量仅被要石“封住未散”，若鲁莽拔除，仍可能酿成大震。"
+        },
+        {
+          "name": "地底喷泉与怨灵",
+          "mainLoc": "地灵殿",
+          "detail": "地上忽现间歇泉，大量怨灵随泉上涌，引发恐慌。地上妖怪因旧约“地上地底互不干涉”多留守，灵梦/魔理沙与各自的远程协力者（如紫、萃香、文）下地调查。至旧地狱，鬼星熊勇仪试力后指路至地灵殿；殿主、读心的宠物妖怪使古明地觉说明不知情，主角继续深入，先与火车猫火焰猫燐（阿燐）交手，再抵最深处见到真正的能量源——灵乌路空（阿空）。她受神奈子计划影响，吞下八咫乌之神力，掌控“核融合”而几近暴走；阿燐放怨灵上地，实为“引地上强者下地制止阿空”的求援。主角击败阿空、稳住能量后，怨灵不再外涌，而间歇泉化成温泉，成为幻想乡罕见的福利。"
+        },
+        {
+          "name": "宝船与解封",
+          "mainLoc": "命莲寺",
+          "detail": "空中现“宝船”，人心大哗。灵梦、魔理沙与早苗登船追索，邂逅船长村纱水蜜与守护者寅丸星等人，得知真正目的是寻找散落各处的“宝物（飞仓碎片/UFO）”，以解封被人类封印在魔界法界的大魔法僧·圣白莲。主角一路交战至法界“封印地”与白莲对峙，终见其本心为“护庇妖怪与人并存”。解封后白莲回到地上，在人里附近建立命莲寺弘法；而封兽鵺曾以“不明之物”混淆视听，也在结尾处收束。此役本质更像“新势力的登场仪式”，而非伤亡性的灾厄。"
+        },
+        {
+          "name": "神灵与复活",
+          "mainLoc": "神灵庙",
+          "detail": "观赏樱花之际，众人发现大量神灵（欲望的具象）盘旋四野。灵梦、魔理沙、早苗与妖梦沿线索至命莲寺后的墓地与古塔，先后与霍青娥、物部布都、苏我屠自古交锋，穿透“道家方术”的层层机关，终在地底陵墓**“梦殿大祀庙”见到复活的圣德道士丰聪耳神子**。神灵暴增正是因“圣人复活将成”的征兆；主角在弹幕中迫使神子克制扩张，事后神灵散去。神子携一行人迁居“仙界”，在幻想乡布施道教，与命莲寺形成温和对峙的新格局。"
+        }
       ],
-      "randomCore": [],
-      "randomType": []
+      "randomCore": ["季节", "结界", "妖气", "梦境", "影子", "星光", "时间", "语言", "乐声", "香气"],
+      "randomType": ["错乱", "逆流", "溢出", "停滞", "偏移", "回响", "侵染", "共鸣", "倒置", "反噬"]
     }
   },
   "chars": {
@@ -422,8 +470,373 @@
     }
   },
   "festivals_list": [
-    { "name": "正月（三天）", "month": 1, "start_day": 1, "end_day": 3 },
-    { "name": "节分", "month": 2, "start_day": 3, "end_day": 3 }
+    {
+      "month": 1,
+      "start_day": 1,
+      "end_day": 3,
+      "name": "正月（三天）",
+      "type": "seasonal_festival",
+      "customs": [
+        "到神社或寺院初诣参拜、抽签与写绘马，常见于博丽神社与命莲寺",
+        "食用御节料理与年杂煮，门口挂注连绳、摆门松与镜饼",
+        "发压岁钱与寄新年贺卡，迎接新年第一道日出"
+      ],
+      "importance": 5,
+      "host": "博丽神社"
+    },
+    {
+      "month": 1,
+      "start_day": 13,
+      "end_day": 13,
+      "name": "成人日（成人式）",
+      "type": "national_holiday",
+      "customs": ["新成人举行典礼与祈福，常着和服前往神社参拜", "家庭与同辈聚会合影留念"],
+      "importance": 3,
+      "host": "人间之里"
+    },
+    {
+      "month": 1,
+      "start_day": 24,
+      "end_day": 25,
+      "name": "莺替神事",
+      "type": "matsuri",
+      "customs": [
+        "巫女吹响笛子呼唤莺群，举行莺替祭事",
+        "现在聚到这里的并不是普通的鸴，而是天神的使者。这些鸴会啄去你说过的谎言。将其转换成幸福，它们会聚集在撒了谎的人身上。"
+      ],
+      "importance": 2,
+      "host": "博丽神社"
+    },
+    {
+      "month": 2,
+      "start_day": 3,
+      "end_day": 3,
+      "name": "节分",
+      "type": "seasonal_festival",
+      "customs": [
+        "撒豆驱鬼，高喊“鬼出福进”，向屋外或扮鬼者投福豆",
+        "按年龄吃同数黄豆祈好运，面向当年惠方默食整卷惠方卷"
+      ],
+      "importance": 4,
+      "host": "博丽神社"
+    },
+    {
+      "month": 2,
+      "start_day": 8,
+      "end_day": 8,
+      "name": "事八日（祭针节/厄日）",
+      "type": "seasonal_festival",
+      "customs": ["神明的力量变得衰弱的厄日", "年末年初的神圣期在此结束，人类之世的一年在这一天才开始"],
+      "importance": 1,
+      "host": "人间之里"
+    },
+    {
+      "month": 2,
+      "start_day": 10,
+      "end_day": 11,
+      "name": "雾之湖·冰雪祭",
+      "type": "matsuri",
+      "customs": ["湖畔与冰面展出大型雪雕与冰雕，夜间点灯映湖", "设置雪地娱乐与小吃摊位，提醒游客注意冰面安全"],
+      "importance": 3,
+      "host": "雾之湖"
+    },
+    {
+      "month": 2,
+      "start_day": 14,
+      "end_day": 14,
+      "name": "情人节",
+      "type": "observance",
+      "customs": ["女性向男性赠巧克力（本命、朋友或礼节性），商家推出礼盒", "为白色情人节做准备，记录收受与回礼清单"],
+      "importance": 4,
+      "host": "人间之里"
+    },
+    {
+      "month": 2,
+      "start_day": 15,
+      "end_day": 15,
+      "name": "涅槃会",
+      "type": "matsuri",
+      "customs": ["命莲寺每年都会举办涅槃会。"],
+      "importance": 2,
+      "host": "命莲寺"
+    },
+
+    {
+      "month": 3,
+      "start_day": 3,
+      "end_day": 3,
+      "name": "女儿节（雏祭）",
+      "type": "seasonal_festival",
+      "customs": [
+        "在家陈列雏人形祈愿女孩健康成长",
+        "食用菱饼、雏霰、散寿司与蛤蜊清汤",
+        "键山雏出售纸片制作的速成雏人偶并取得了很高的人气",
+        "雏人偶是为了积攒厄运，再扔掉的东西",
+        "新的雏人偶完全是一次性的雏人偶。女儿节一过去了就全都被扔在河里任凭它漂走",
+        "键山雏会回收扔进河里的雏人偶"
+      ],
+      "importance": 3,
+      "host": "人间之里"
+    },
+    {
+      "month": 3,
+      "start_day": 14,
+      "end_day": 14,
+      "name": "白色情人节（回礼日）",
+      "type": "observance",
+      "customs": ["男性向情人节赠与者回礼，多为糖果、点心或小饰品", "商铺推出回礼专区与包装服务"],
+      "importance": 4,
+      "host": "人间之里"
+    },
+    {
+      "month": 3,
+      "start_day": 20,
+      "end_day": 20,
+      "name": "春分日（彼岸日）",
+      "type": "national_holiday",
+      "customs": [
+        "祭扫先祖，供彼岸饼与鲜花",
+        "维持生者与亡者分界的礼仪与秩序",
+        "所谓彼岸日就是每年白昼和黑夜一样长的那一天，因为太阳和月亮有着相同的强度，借力于幽冥之事物也能显出原形来",
+        "彼岸日的幽灵很多",
+        "博丽灵梦会在彼岸日前往墓地抑制灵力",
+        "从神社看去，彼岸日的太阳正好是从鸟居正中升起。太阳从鸟居正中升起的这个时节，它的力量达到最大。这样的太阳沉落到墓地时，正是抑制灵力的最佳时刻"
+      ],
+      "importance": 3,
+      "host": "墓地"
+    },
+    {
+      "month": 3,
+      "start_day": 25,
+      "end_day": 31,
+      "name": "花见（赏樱）",
+      "type": "seasonal_festival",
+      "customs": ["亲友席地野餐欣赏樱花，夜间观赏点灯樱景", "爱护树木，不扰动周边结界设施与生态"],
+      "importance": 2,
+      "host": "无名之丘"
+    },
+    {
+      "month": 5,
+      "start_day": 5,
+      "end_day": 5,
+      "name": "儿童节（端午）",
+      "type": "national_holiday",
+      "customs": ["悬挂鲤鱼旗，陈设武者人偶或头盔祈健康成长", "吃柏饼与粽子，洗菖蒲汤辟邪"],
+      "importance": 4,
+      "host": "人间之里"
+    },
+    {
+      "month": 5,
+      "start_day": 16,
+      "end_day": 18,
+      "name": "博丽神社例大祭",
+      "type": "matsuri",
+      "customs": ["神轿巡游、参拜与各类摊位，绘卷与展售热闹非凡", "遵循巫女指示，避免触碰结界设施"],
+      "importance": 4,
+      "host": "博丽神社"
+    },
+    {
+      "month": 5,
+      "start_day": 20,
+      "end_day": 23,
+      "name": "守矢神社大祭",
+      "type": "matsuri",
+      "customs": ["山道花车与神轿巡行，祭乐鼓吹与祈愿仪式", "与神灵庙大祭轮替为年度盛典"],
+      "importance": 4,
+      "host": "守矢神社"
+    },
+    {
+      "month": 6,
+      "start_day": 7,
+      "end_day": 14,
+      "name": "神灵庙大祭",
+      "type": "matsuri",
+      "customs": ["古装行列出巡与法会雅乐，巡至山麓与里外边境", "与守矢神社大祭轮替为年度盛典"],
+      "importance": 4,
+      "host": "神灵庙"
+    },
+    {
+      "month": 7,
+      "start_day": 7,
+      "end_day": 7,
+      "name": "七夕",
+      "type": "seasonal_festival",
+      "customs": ["写愿望短册并挂于竹枝，商街布置彩笺竹饰", "部分地区按旧历在八月举行配套活动"],
+      "importance": 3,
+      "host": "人间之里"
+    },
+    {
+      "month": 7,
+      "start_day": 27,
+      "end_day": 31,
+      "name": "妖怪之山·天狗祭",
+      "type": "matsuri",
+      "customs": ["整月分期举行祭礼与展列，中旬与下旬进行两次盛大巡行", "宵山张灯结彩，山民与来客交流繁盛"],
+      "importance": 4,
+      "host": "妖怪之山"
+    },
+    {
+      "month": 7,
+      "start_day": 21,
+      "end_day": 21,
+      "name": "海之日（湖岸庆典）",
+      "type": "national_holiday",
+      "customs": ["湖岸感恩水域恩惠的净湖仪式与划舟活动", "水上安全讲习与湖滨清洁行动"],
+      "importance": 3,
+      "host": "风神之湖"
+    },
+    {
+      "month": 7,
+      "start_day": 24,
+      "end_day": 25,
+      "name": "天神祭",
+      "type": "matsuri",
+      "customs": ["陆上巡行与水上灯列，夜空花火与太鼓表演", "祈学业与文运兴隆"],
+      "importance": 4,
+      "host": "神灵庙"
+    },
+    {
+      "month": 8,
+      "start_day": 11,
+      "end_day": 11,
+      "name": "山之日",
+      "type": "national_holiday",
+      "customs": ["组织登山健行与自然体验活动", "提醒参与者遵守山域安全与结界规则"],
+      "importance": 2,
+      "host": "妖怪之山"
+    },
+    {
+      "month": 8,
+      "start_day": 2,
+      "end_day": 7,
+      "name": "虹龙洞·睡魔灯祭",
+      "type": "matsuri",
+      "customs": ["洞外巡游大型发光花灯与舞队，终夜烟火与灯河压轴", "提示游客注意洞窟通道与灵气涌动时段"],
+      "importance": 4,
+      "host": "虹龙洞"
+    },
+    {
+      "month": 8,
+      "start_day": 12,
+      "end_day": 12,
+      "name": "人间之里·盂兰盆舞大会",
+      "type": "matsuri",
+      "customs": ["舞队击太鼓与三味线，市民与来客可入场共舞", "设摊与夜市，营造节庆氛围"],
+      "importance": 4,
+      "host": "人间之里"
+    },
+    {
+      "month": 8,
+      "start_day": 13,
+      "end_day": 16,
+      "name": "盂兰盆",
+      "type": "seasonal_festival",
+      "customs": ["迎魂灯笼引路、扫墓祭祖与设灵位供品", "送魂以放河灯或送火作结，可于三途河边祈愿"],
+      "importance": 5,
+      "host": "命莲寺"
+    },
+    {
+      "month": 9,
+      "start_day": 23,
+      "end_day": 23,
+      "name": "秋分日（彼岸日）",
+      "type": "national_holiday",
+      "customs": [
+        "祭扫先祖，供彼岸饼与鲜花",
+        "维持生者与亡者分界的礼仪与秩序",
+        "所谓彼岸日就是每年白昼和黑夜一样长的那一天，因为太阳和月亮有着相同的强度，借力于幽冥之事物也能显出原形来",
+        "彼岸日的幽灵很多",
+        "博丽灵梦会在彼岸日前往墓地抑制灵力",
+        "从神社看去，彼岸日的太阳正好是从鸟居正中升起。太阳从鸟居正中升起的这个时节，它的力量达到最大。这样的太阳沉落到墓地时，正是抑制灵力的最佳时刻"
+      ],
+      "importance": 3,
+      "host": "墓地"
+    },
+    {
+      "month": 9,
+      "start_day": 21,
+      "end_day": 21,
+      "name": "月见（例月祭）",
+      "type": "seasonal_festival",
+      "customs": [
+        "供月见团子、芒草与时令薯栗，赏月小酌作诗",
+        "推荐于高丘或湖岸观月，避开危险地带",
+        "永远亭会在月地距离最近的满月之日举行名为例月祭的祭典，是由八意永琳发起的。",
+        "例月祭当天，永远亭的居民会将团子之类的圆形物体当作满月，相对的远离它，用这样的行为来防止月之使者的降临。"
+      ],
+      "importance": 3,
+      "host": "永远亭"
+    },
+    {
+      "month": 10,
+      "start_day": 1,
+      "end_day": 2,
+      "name": "丰收祭",
+      "type": "seasonal_festival",
+      "customs": [
+        "近几年才开始在博丽神社举办的小型祭典，博丽灵梦会用‘这个时候献上供奉的话神灵会特别高兴哦’的奇怪理由要求每个到访祭典的人献上比往常更多的供奉。",
+        "实际上是贫困的博丽灵梦为了积攒过冬的粮食杜撰硬凑出来的奇怪祭典，虽然大家心知肚明，但还是会主动给贫困的博丽神社献上一点供奉。",
+        "掌管幻想乡的秋天的红叶之神秋静叶和丰收之神秋穰子也会在这一天在博丽神社献身，和大家一起庆祝。"
+      ],
+      "importance": 1,
+      "host": "博丽神社"
+    },
+    {
+      "month": 11,
+      "start_day": 15,
+      "end_day": 15,
+      "name": "七五三",
+      "type": "seasonal_festival",
+      "customs": ["三岁五岁七岁儿童身着礼服参拜祈福，食用千岁糖", "家庭正式合影留念"],
+      "importance": 3,
+      "host": "博丽神社"
+    },
+    {
+      "month": 11,
+      "start_day": 24,
+      "end_day": 25,
+      "name": "酉之市",
+      "type": "seasonal_festival",
+      "customs": ["博丽神社每年都举办的热闹集市"],
+      "importance": 2,
+      "host": "博丽神社"
+    },
+    {
+      "month": 12,
+      "start_day": 8,
+      "end_day": 8,
+      "name": "事八日（祭针节/厄日）",
+      "type": "seasonal_festival",
+      "customs": ["神明的力量变得衰弱的厄日", "年末年初的神圣期在此结束，人类之世的一年在这一天才开始"],
+      "importance": 1,
+      "host": "人间之里"
+    },
+    {
+      "month": 12,
+      "start_day": 25,
+      "end_day": 25,
+      "name": "圣诞节（冬季庆典）",
+      "type": "observance",
+      "customs": ["冬季灯饰、蛋糕与炸鸡套餐流行，情侣约会氛围", "城馆举办公益夜会与音乐演出"],
+      "importance": 3,
+      "host": "红魔馆"
+    },
+    {
+      "month": 12,
+      "start_day": 31,
+      "end_day": 31,
+      "name": "大晦日（除夜）",
+      "type": "seasonal_festival",
+      "customs": [
+        "食跨年荞麦面祈长寿越年",
+        "寺院敲钟一百零八声以祓除烦恼，迎接新年",
+        "红魔馆会在这天举行晚宴，吃荞麦面。",
+        "雾雨魔理沙会早早地来到博丽神社进行新年参拜。",
+        "命莲寺会举办除夕夜钟活动。"
+      ],
+      "importance": 4,
+      "host": "博丽神社"
+    }
   ],
   "weather": "晴",
   "文文新闻": "文文偷懒ing"

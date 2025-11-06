@@ -4513,12 +4513,14 @@ const ConfigSchema = external_z_namespaceObject.z.object({
 }).passthrough();
 
 const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
   month: external_z_namespaceObject.z.number(),
   start_day: external_z_namespaceObject.z.number(),
   end_day: external_z_namespaceObject.z.number(),
-  host: external_z_namespaceObject.z.string().optional(),
-  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
+  name: external_z_namespaceObject.z.string(),
+  type: external_z_namespaceObject.z.string(),
+  customs: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
+  importance: external_z_namespaceObject.z.number(),
+  host: external_z_namespaceObject.z.string()
 });
 
 const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
