@@ -292,14 +292,22 @@
         "幻想乡及周边": {
           "幻想乡本土": {
             "东境丘陵带": {
-              "博丽神社": { "pos": { "x": 850, "y": 450 }, "htmlEle": "<div class='location-label'>博丽神社</div>" },
+              "博丽神社": {
+                "pos": { "x": 850, "y": 450 },
+                "htmlEle": "<div class='location-label'>博丽神社</div>",
+                "aliases": ["博麗神社", "博丽", "博丽神社周边"]
+              },
               "永远亭": { "pos": { "x": 800, "y": 550 }, "htmlEle": "<div class='location-label'>永远亭</div>" },
               "迷途竹林": { "pos": { "x": 780, "y": 580 }, "htmlEle": "<div class='location-label'>迷途竹林</div>" },
               "神灵庙": { "pos": { "x": 900, "y": 400 }, "htmlEle": "<div class='location-label'>神灵庙</div>" },
               "梦殿大祀庙": { "pos": { "x": 920, "y": 420 }, "htmlEle": "<div class='location-label'>梦殿大祀庙</div>" }
             },
             "中部平原带": {
-              "人间之里": { "pos": { "x": 500, "y": 500 }, "htmlEle": "<div class='location-label'>人间之里</div>" },
+              "人间之里": {
+                "pos": { "x": 500, "y": 500 },
+                "htmlEle": "<div class='location-label'>人间之里</div>",
+                "aliases": ["人里", "人間之里"]
+              },
               "铃奈庵": { "pos": { "x": 520, "y": 520 }, "htmlEle": "<div class='location-label'>铃奈庵</div>" },
               "命莲寺": { "pos": { "x": 600, "y": 480 }, "htmlEle": "<div class='location-label'>命莲寺</div>" },
               "墓地": { "pos": { "x": 620, "y": 460 }, "htmlEle": "<div class='location-label'>墓地</div>" },
@@ -426,11 +434,7 @@
         { "a": "仙界", "b": "梦境世界" },
         { "a": "梦境世界", "b": "月都" },
         { "a": "红魔馆", "b": "月都" }
-      ],
-      "aliases": {
-        "博丽神社": ["博麗神社", "博丽", "博丽神社周边"],
-        "人间之里": ["人里", "人間之里"]
-      }
+      ]
     },
     "fallbackPlace": "博丽神社"
   },
