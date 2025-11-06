@@ -9,221 +9,195 @@
       style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap"
     >
       <span class="label" style="min-width: auto; margin: 0"> <span class="emoji">⏳</span>异变倒计时（分钟）: </span>
-      <strong id="incident-countdown">—</strong>
-      <span
-        class="debug-switch"
-        title="来自世界书 config 的初始值；修改即写回到聊天变量的 config.incidents.triggerImmediate"
-      >
-        <input id="incident-trigger-now" type="checkbox" /> 立即引发异变
+      <strong id="incident-countdown">{{ countdownText }}</strong>
+      <span class="debug-switch" title="来自 config.incident.forceTrigger；修改即写回到配置">
+        <input id="incident-trigger-now" v-model="immediateTrigger" type="checkbox" /> 立即引发异变
       </span>
-      <span class="debug-switch" title="来自 config.incident.random_pool">
-        <input id="incident-pool-random" type="checkbox" /> 乱序异变
+      <span class="debug-switch" title="来自 config.incident.isRandomPool；修改即写回到配置">
+        <input id="incident-pool-random" v-model="randomPool" type="checkbox" /> 乱序异变
       </span>
     </div>
 
-    <div id="incident-list" class="incident-list"></div>
+    <div id="incident-list" class="incident-list">
+      <template v-if="incidentCards.length">
+        <div v-for="incident in incidentCards" :key="incident.key" class="role-card">
+          <div class="role-card-header">
+            <div class="role-avatar">异</div>
+            <div>
+              <div class="role-name">{{ incident.name }}</div>
+              <div class="role-meta">进程：{{ incident.statusText }}</div>
+            </div>
+          </div>
+          <div v-for="field in incident.fields" :key="field.label" class="role-line">
+            <strong>{{ field.label }}：</strong>{{ field.value }}
+          </div>
+        </div>
+      </template>
+      <template v-else>
+        <div class="role-card">
+          <div class="role-card-header">
+            <div class="role-avatar">✔</div>
+            <div>
+              <div class="role-name">暂无记录</div>
+              <div class="role-meta">最近没有可展示的异变</div>
+            </div>
+          </div>
+        </div>
+      </template>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { defineExpose, onMounted } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
-import { updateEraVariable } from '../../../utils/eraWriter';
-import { get, getRaw, toText } from '../../../utils/format';
+import { computed, ref, watch } from 'vue';
+import type { IncidentDetail } from '../../../../GSKO-BASE/schema/incident';
+import type { Runtime } from '../../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { updateEraVariableByObject } from '../../../utils/eraWriter';
 import { Logger } from '../../../utils/log';
 
 const logger = new Logger();
 
-// 定义常量
-const T0_PATH = 'incident.异变冷却基准时间';
+const props = defineProps<{
+  stat: Stat | null;
+  runtime: Runtime | null;
+}>();
 
-/**
- * @description 从 stat_data 中提取所有异变条目。
- * @param {any} data - stat_data 对象。
- * @returns {Array<{__name: string, __data: any}>} 异变条目数组。
- */
-function extractIncidents(data: any): Array<{ __name: string; __data: any }> {
-  let root = get(data, 'incidents');
-  if (typeof root === 'string') {
-    try {
-      root = JSON.parse(root);
-    } catch {
-      root = null;
-    }
-  }
-  if (!root || typeof root !== 'object' || Array.isArray(root)) return [];
-  return Object.entries(root)
-    .filter(([k, v]) => !String(k).startsWith('$') && v && typeof v === 'object' && !Array.isArray(v))
-    .map(([__name, __data]) => ({ __name, __data: __data as any }));
+interface IncidentCardField {
+  label: string;
+  value: string;
 }
 
-/**
- * @description 渲染异变列表。
- * @param {any} state - stat_data 对象。
- */
-function renderIncidents(state: any) {
-  const funcName = 'renderIncidents';
-  const host = document.getElementById('incident-list');
-  if (!host) {
-    logger.warn(funcName, '未找到 #incident-list 容器。');
-    return;
-  }
-  host.innerHTML = '';
-  const items = extractIncidents(state);
-  logger.log(funcName, `开始渲染 ${items.length} 个异变卡片。`);
+interface IncidentCard {
+  key: string;
+  name: string;
+  statusText: string;
+  fields: IncidentCardField[];
+}
 
-  items.forEach(({ __name, __data }) => {
-    const name = toText(get(__data, '异变名称', __name));
-    const status = get(__data, '异变已结束') ? '已结束' : '进行中';
-    const fields = [
-      ['影响', '异变影响'],
-      ['退治者', '异变退治者'],
-      ['发起者', '异变发起者'],
-      ['黑幕', '异变黑幕'],
-      ['其他信息', '其他异变信息'],
-    ];
-    const card = document.createElement('div');
-    card.className = 'role-card';
-    card.innerHTML = `
-<div class="role-card-header">
-    <div class="role-avatar">异</div>
-    <div><div class="role-name">${name}</div><div class="role-meta">进程：${status}</div></div>
-</div>
-${fields
-  .map(([label, key]) => {
-    const val = key === '异变退治者' ? getRaw(__data, key, []) : get(__data, key, '—');
-    return `<div class="role-line"><strong>${label}：</strong>${toText(val)}</div>`;
-  })
-  .join('')}
-`;
-    host.appendChild(card);
+const incidentCards = computed<IncidentCard[]>(() => {
+  const stat = props.stat;
+  if (!stat || !stat.incidents) return [];
+
+  const entries = Object.entries(stat.incidents).filter(([key, value]) => {
+    return !key.startsWith('$') && !!value;
   });
-  logger.log(funcName, '异变卡片渲染完成。');
-}
 
-// ===== 倒计时逻辑 =====
+  return entries.map(([name, detail]) => {
+    const incident = detail as IncidentDetail;
+    const solver = incident.异变退治者;
+    const solverText = Array.isArray(solver) ? solver.join('、') : solver ?? '';
+    const mainLoc = incident.主要地区?.join('、') ?? '';
 
-function readT0(runtime: any): number | null {
-  if (!runtime) {
-    logger.warn('readT0', 'runtime 对象不存在，无法读取 T0。');
+    const fields: IncidentCardField[] = [];
+    if (incident.异变细节) {
+      fields.push({ label: '异变细节', value: incident.异变细节 });
+    }
+    if (mainLoc) {
+      fields.push({ label: '主要地区', value: mainLoc });
+    }
+    if (solverText) {
+      fields.push({ label: '异变退治者', value: solverText });
+    }
+
+    return {
+      key: name,
+      name,
+      statusText: incident.异变已结束 ? '已结束' : '进行中',
+      fields,
+    };
+  });
+});
+
+const countdownMinutes = computed<number | null>(() => {
+  const runtimeCountdown = props.runtime?.incident?.remainingCooldown;
+  if (typeof runtimeCountdown === 'number' && Number.isFinite(runtimeCountdown)) {
+    return Math.max(0, Math.floor(runtimeCountdown));
+  }
+
+  const config = props.stat?.config?.incident;
+  const timeProgress = props.stat?.世界?.timeProgress;
+  if (!config || typeof config.cooldownMinutes !== 'number' || typeof timeProgress !== 'number') {
     return null;
   }
-  // 直接从传入的 runtime 对象读取
-  const t0 = get(runtime, T0_PATH, null);
-  if (t0 != null) {
-    const n = Number(toText(t0));
-    if (Number.isFinite(n)) {
-      logger.log('readT0', `从 runtime 读取到 t0: ${n}`);
-      return n;
+
+  const anchor = props.stat?.cache?.incident?.incidentCooldownAnchor;
+  if (anchor == null) {
+    return Math.max(0, Math.floor(config.cooldownMinutes));
+  }
+
+  const remaining = config.cooldownMinutes - (timeProgress - anchor);
+  return Math.max(0, Math.floor(remaining));
+});
+
+const countdownText = computed(() => {
+  const value = countdownMinutes.value;
+  return value == null ? '—' : String(value);
+});
+
+const immediateTrigger = ref(false);
+const randomPool = ref(false);
+
+let skipImmediatePropagation = false;
+let skipRandomPropagation = false;
+
+watch(
+  () => props.stat?.config?.incident?.forceTrigger ?? false,
+  value => {
+    skipImmediatePropagation = true;
+    immediateTrigger.value = value;
+    logger.log('syncImmediateTrigger', `已同步“立即引发异变”状态: ${value}`);
+  },
+  { immediate: true },
+);
+
+watch(
+  () => props.stat?.config?.incident?.isRandomPool ?? false,
+  value => {
+    skipRandomPropagation = true;
+    randomPool.value = value;
+    logger.log('syncRandomPool', `已同步“乱序异变”状态: ${value}`);
+  },
+  { immediate: true },
+);
+
+watch(
+  immediateTrigger,
+  value => {
+    if (skipImmediatePropagation) {
+      skipImmediatePropagation = false;
+      return;
     }
-  }
-  logger.log('readT0', '未在 runtime 中读取到合法 t0。');
-  return null;
-}
+    logger.log('onImmediateTriggerChange', `用户切换“立即引发异变”为: ${value}`);
+    updateEraVariableByObject({
+      config: {
+        incident: {
+          forceTrigger: value,
+        },
+      },
+    });
+  },
+  { flush: 'post' },
+);
 
-function readCooldownMinutes(state: any): number {
-  const cooldown = get(state, ERA_VARIABLE_PATH.INCIDENT_COOLDOWN, 0);
-  const n = Number(toText(cooldown));
-  if (Number.isFinite(n) && n >= 0) {
-    return Math.floor(n);
-  }
-  return 0;
-}
-
-function readTimeProgress(state: any): number {
-  const timeProgress = get(state, ERA_VARIABLE_PATH.TIME_PROGRESS, 0);
-  const n = Number(toText(timeProgress));
-  return Number.isFinite(n) ? Math.floor(n) : 0;
-}
-
-function calcCountdownMinutes(context: { statWithoutMeta: any; runtime: any }): number {
-  const { statWithoutMeta, runtime } = context;
-  const t0 = readT0(runtime);
-  if (t0 === null) {
-    logger.log('calcCountdownMinutes', 't0 不存在/非法，本轮倒计时按 0 处理。');
-    return 0;
-  }
-  const tp = readTimeProgress(statWithoutMeta);
-  const cd = readCooldownMinutes(statWithoutMeta);
-  const left = Math.max(0, Math.floor(cd - (tp - t0)));
-  logger.log(
-    'calcCountdownMinutes',
-    `计算倒计时（分钟）: { t0: ${t0}, timeProgress: ${tp}, cooldown: ${cd}, 剩余: ${left} }`,
-  );
-  return left;
-}
-
-/**
- * @description 更新异变工具栏的状态。
- * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
- */
-function updateIncidentToolbar(context: { statWithoutMeta: any; runtime: any }) {
-  const funcName = 'updateIncidentToolbar';
-  const { statWithoutMeta } = context;
-
-  const cdEl = document.getElementById('incident-countdown');
-  const triggerNowEl = document.getElementById('incident-trigger-now') as HTMLInputElement;
-  const randomPoolEl = document.getElementById('incident-pool-random') as HTMLInputElement;
-
-  if (cdEl) {
-    const left = calcCountdownMinutes(context);
-    cdEl.textContent = left == null ? '—' : String(left);
-    logger.log(funcName, `异变倒计时已更新为: ${cdEl.textContent}`);
-  }
-
-  if (triggerNowEl) {
-    const shouldTrigger = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, false);
-    triggerNowEl.checked = !!shouldTrigger;
-    logger.log(funcName, `“立即引发异变”状态已更新为: ${triggerNowEl.checked}`);
-  }
-
-  if (randomPoolEl) {
-    const useRandom = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, false);
-    randomPoolEl.checked = !!useRandom;
-    logger.log(funcName, `“乱序异变”状态已更新为: ${randomPoolEl.checked}`);
-  }
-}
-
-/**
- * @description 组件的主更新函数。
- * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
- */
-const update = (context: { statWithoutMeta: any; runtime: any }) => {
-  const { statWithoutMeta } = context || {};
-  if (!statWithoutMeta) {
-    logger.warn('update', '上下文信息不完整，缺少 statWithoutMeta，已中止。');
-    return;
-  }
-  renderIncidents(statWithoutMeta);
-  updateIncidentToolbar(context);
-};
-
-onMounted(() => {
-  const funcName = 'onMounted';
-  const triggerNowEl = document.getElementById('incident-trigger-now') as HTMLInputElement;
-  const randomPoolEl = document.getElementById('incident-pool-random') as HTMLInputElement;
-
-  if (triggerNowEl) {
-    triggerNowEl.onchange = () => {
-      const newValue = triggerNowEl.checked;
-      logger.log(funcName, `用户切换“立即引发异变”为: ${newValue}`);
-      updateEraVariable(ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, newValue);
-    };
-  }
-
-  if (randomPoolEl) {
-    randomPoolEl.onchange = () => {
-      const newValue = randomPoolEl.checked;
-      logger.log(funcName, `用户切换“乱序异变”为: ${newValue}`);
-      updateEraVariable(ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, newValue);
-    };
-  }
-  logger.log(funcName, '异变工具栏事件已绑定。');
-});
-
-defineExpose({
-  update,
-});
+watch(
+  randomPool,
+  value => {
+    if (skipRandomPropagation) {
+      skipRandomPropagation = false;
+      return;
+    }
+    logger.log('onRandomPoolChange', `用户切换“乱序异变”为: ${value}`);
+    updateEraVariableByObject({
+      config: {
+        incident: {
+          isRandomPool: value,
+        },
+      },
+    });
+  },
+  { flush: 'post' },
+);
 </script>
 
 <!-- ===== 异变列表 & 卡片样式 ===== -->

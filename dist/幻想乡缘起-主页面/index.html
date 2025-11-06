@@ -643,44 +643,321 @@ const StatSchema = external_z_namespaceObject.z.object({
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,
+  附加正文: external_z_namespaceObject.z.string().optional(),
   weather: external_z_namespaceObject.z.string().optional(),
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
 
-const ERA_VARIABLE_PATH = {
-  MAIN_FONT_PERCENT: "config.ui.mainFontPercent",
-  FONT_SCALE_STEP_PCT: "config.ui.fontScaleStepPct",
-  UI_THEME: "config.ui.theme",
-  MAP_ASCII: "world.map_ascii",
-  MAP_GRAPH: "world.map_graph",
-  FALLBACK_PLACE: "world.fallbackPlace",
-  INCIDENT_IMMEDIATE_TRIGGER: "config.incident.immediate_trigger",
-  INCIDENT_RANDOM_POOL: "config.incident.random_pool",
-  RUNTIME_PREFIX: "runtime.",
-  INCIDENT_COOLDOWN: "config.incident.cooldown",
-  TIME_PROGRESS: "世界.timeProgress",
-  FESTIVALS_LIST: "festivals_list",
-  NEWS_TEXT: "文文新闻",
-  EXTRA_MAIN: "附加正文",
-  USER_LOCATION: "user.所在地区",
-  USER_HOME: "user.居住地区",
-  CHARS: "chars",
-  CHAR_HOME: "居住地区",
-  CHAR_LOCATION: "所在地区",
-  CHAR_AFFECTION: "好感度",
-  CHAR_AFFECTION_STAGE: "好感度等级",
-  USER_DATA: "user",
-  USER_EVENTS: "重要经历",
-  USER_RELATIONSHIPS: "人际关系",
-  SKIP_VISIT_HUNTERS: "config.meetStuff.skipVisitHunters",
-  SKIP_SLEEP_HUNTERS: "config.nightStuff.skipSleepHunters",
-  UI_RIBBON_STEP: "config.ui.ribbonStep",
-  AFFECTION_STAGES: "config.affection.affectionStages",
-  AFFECTION_LOVE_THRESHOLD: "config.affection.loveThreshold",
-  AFFECTION_HATE_THRESHOLD: "config.affection.hateThreshold",
-  CONFIG_ROOT: "config",
-  RUNTIME_AFFECTION_STAGE_NAME_PATH: charId => `character.chars.${charId}.affectionStage.name`
+const _hoisted_1 = {
+  class: "map-component",
+  id: "mapComponent"
 };
+
+const _hoisted_2 = {
+  class: "map-wrapper"
+};
+
+const _hoisted_3 = {
+  class: "map-info",
+  ref: "mapInfo"
+};
+
+const _hoisted_4 = {
+  id: "coords"
+};
+
+const _hoisted_5 = {
+  class: "map-container",
+  id: "mapContainer"
+};
+
+const _hoisted_6 = [ "innerHTML", "onClick" ];
+
+const _hoisted_7 = {
+  class: "dialog"
+};
+
+const _hoisted_8 = {
+  class: "location-name"
+};
+
+const _hoisted_9 = [ "innerHTML" ];
+
+const _hoisted_10 = [ "innerHTML" ];
+
+const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "Map",
+  props: {
+    context: null
+  },
+  setup(__props) {
+    const props = __props;
+    (0, external_Vue_namespaceObject.watch)(() => props.context, (newValue, oldValue) => {
+      console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
+    });
+    const mapSize = (0, external_Vue_namespaceObject.computed)(() => {
+      if (props.context?.runtime?.area?.mapSize) {
+        return props.context.runtime.area.mapSize;
+      }
+      return {
+        width: 800,
+        height: 600
+      };
+    });
+    const markers = (0, external_Vue_namespaceObject.computed)(() => {
+      if (props.context?.runtime?.area?.legal_locations) {
+        return props.context.runtime.area.legal_locations;
+      }
+      return [];
+    });
+    const locationMap = (0, external_Vue_namespaceObject.computed)(() => {
+      const locationMap = new Map;
+      if (props.context?.runtime?.area?.legal_locations) {
+        props.context.runtime.area.legal_locations.forEach(item => {
+          locationMap.set(item.name, item.pos);
+        });
+      }
+      return locationMap;
+    });
+    const roads = (0, external_Vue_namespaceObject.computed)(() => {
+      const connections = [];
+      if (props.context?.runtime?.area?.graph) {
+        for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
+          const startLocation = locationMap.value.get(startName);
+          if (!startLocation) continue;
+          const startInfo = {
+            name: startName,
+            x: startLocation.x,
+            y: startLocation.y
+          };
+          for (const [endName, isConnected] of Object.entries(connectionsObj)) {
+            if (isConnected) {
+              const endLocation = locationMap.value.get(endName);
+              if (endLocation) {
+                const endInfo = {
+                  name: endName,
+                  x: endLocation.x,
+                  y: endLocation.y
+                };
+                connections.push({
+                  start: startInfo,
+                  end: endInfo
+                });
+              }
+            }
+          }
+        }
+      }
+      return connections;
+    });
+    const playerMarker = (0, external_Vue_namespaceObject.computed)(() => {
+      if (props.context?.runtime?.characterDistribution?.playerLocation) {
+        const location = locationMap.value.get(props.context?.runtime?.characterDistribution.playerLocation);
+        if (location) {
+          return {
+            name: "玩家",
+            pos: {
+              x: location.x,
+              y: location.y
+            },
+            htmlEle: "<div>📍</div>"
+          };
+        }
+      }
+      return null;
+    });
+    let mapState = (0, external_Vue_namespaceObject.ref)({
+      offsetX: 0,
+      offsetY: 0,
+      zoom: 1,
+      isDragging: false,
+      lastMouseX: 0,
+      lastMouseY: 0,
+      mapWidth: mapSize.value.width,
+      mapHeight: mapSize.value.height
+    });
+    let selectedMarker = (0, external_Vue_namespaceObject.ref)(null);
+    function selectLocation(markerData) {
+      try {
+        const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
+        const npcList = npcIdList.map(id => props.context.runtime.characterSettings[id]);
+        let htmlEle = "";
+        npcList.map(npc => {
+          htmlEle += `<div>${npc.name}:${npc.routine[0].action.do}</div>`;
+        });
+        selectedMarker.value = {
+          ...markerData,
+          htmlEle
+        };
+      } catch (error) {
+        console.error(error);
+      }
+    }
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      const mapComponent = document.getElementById("mapComponent");
+      const mapContainer = document.getElementById("mapContainer");
+      const canvas = document.getElementById("mapCanvas");
+      const ctx = canvas.getContext("2d");
+      mapComponent.style.width = `${mapState.value.mapWidth}px`;
+      mapComponent.style.height = `${mapState.value.mapHeight}px`;
+      function generateMap() {
+        try {
+          resetView();
+          canvas.width = mapState.value.mapWidth;
+          canvas.height = mapState.value.mapHeight;
+          drawMap();
+        } catch (error) {
+          alert("数据格式错误，请检查输入数据：" + error.message);
+        }
+      }
+      function drawMap() {
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        ctx.save();
+        ctx.translate(mapState.value.offsetX, mapState.value.offsetY);
+        ctx.scale(mapState.value.zoom, mapState.value.zoom);
+        drawMapBackground();
+        drawRoads();
+        ctx.restore();
+      }
+      function drawMapBackground() {
+        ctx.fillStyle = "#7f8c8d";
+        ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
+      }
+      function drawRoads() {
+        try {
+          ctx.strokeStyle = "#333";
+          ctx.lineWidth = 4;
+          ctx.lineCap = "round";
+          roads.value.forEach(road => {
+            ctx.beginPath();
+            ctx.moveTo(road.start.x, road.start.y);
+            ctx.lineTo(road.end.x, road.end.y);
+            ctx.stroke();
+          });
+        } catch (error) {
+          console.error("道路数据格式错误:", error);
+        }
+      }
+      function resetView() {
+        mapState.value = {
+          ...mapState.value,
+          zoom: 1,
+          offsetX: (mapContainer.clientWidth - mapState.value.mapWidth) / 2,
+          offsetY: (mapContainer.clientHeight - mapState.value.mapHeight) / 2
+        };
+        drawMap();
+      }
+      mapContainer.addEventListener("mousedown", e => {
+        mapState.value = {
+          ...mapState.value,
+          isDragging: true,
+          lastMouseX: e.clientX,
+          lastMouseY: e.clientY
+        };
+        mapContainer.style.cursor = "grabbing";
+      });
+      mapContainer.addEventListener("mousemove", e => {
+        if (mapState.value.isDragging) {
+          const deltaX = e.clientX - mapState.value.lastMouseX;
+          const deltaY = e.clientY - mapState.value.lastMouseY;
+          mapState.value.offsetX += deltaX;
+          mapState.value.offsetY += deltaY;
+          mapState.value.lastMouseX = e.clientX;
+          mapState.value.lastMouseY = e.clientY;
+          drawMap();
+        }
+      });
+      mapContainer.addEventListener("mouseup", () => {
+        mapState.value.isDragging = false;
+        mapContainer.style.cursor = "grab";
+      });
+      mapContainer.addEventListener("mouseleave", () => {
+        mapState.value.isDragging = false;
+        mapContainer.style.cursor = "grab";
+      });
+      mapContainer.addEventListener("wheel", e => {
+        e.preventDefault();
+        const zoomFactor = e.deltaY > 0 ? .9 : 1.1;
+        const newZoom = mapState.value.zoom * zoomFactor;
+        if (newZoom >= .2 && newZoom <= 5) {
+          const rect = mapContainer.getBoundingClientRect();
+          const mouseX = e.clientX - rect.left;
+          const mouseY = e.clientY - rect.top;
+          const worldX = (mouseX - mapState.value.offsetX) / mapState.value.zoom;
+          const worldY = (mouseY - mapState.value.offsetY) / mapState.value.zoom;
+          mapState.value = {
+            ...mapState.value,
+            zoom: newZoom,
+            offsetX: mouseX - worldX * mapState.value.zoom,
+            offsetY: mouseY - worldY * mapState.value.zoom
+          };
+          drawMap();
+        }
+      });
+      generateMap();
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_3, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 缩放: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)((0, external_Vue_namespaceObject.unref)(mapState).zoom.toFixed(1)), 1), _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" x | 坐标: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", _hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, external_Vue_namespaceObject.unref)(mapState).offsetX / (0, 
+    external_Vue_namespaceObject.unref)(mapState).zoom)) + ", " + (0, external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, 
+    external_Vue_namespaceObject.unref)(mapState).offsetY / (0, external_Vue_namespaceObject.unref)(mapState).zoom)), 1) ], 512), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("canvas", {
+      id: "mapCanvas"
+    }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 动态生成marker "), ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)((0, external_Vue_namespaceObject.unref)(markers), (marker, index) => ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: index,
+      class: "marker",
+      innerHTML: marker.htmlEle,
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        left: marker.pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
+        top: marker.pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
+        transform: `translate(-50%, -50%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+      }),
+      onClick: $event => selectLocation(marker)
+    }, null, 12, _hoisted_6))), 128)), (0, external_Vue_namespaceObject.createCommentVNode)(" 点击marker的tip弹出 "), (0, 
+    external_Vue_namespaceObject.unref)(selectedMarker) ? ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: 0,
+      class: "tip-container",
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        left: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
+        top: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetY - 10 + "px",
+        transform: `translate(-50%, -100%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+      })
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_7, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("h2", _hoisted_8, (0, external_Vue_namespaceObject.toDisplayString)((0, 
+    external_Vue_namespaceObject.unref)(selectedMarker).name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      innerHTML: (0, external_Vue_namespaceObject.unref)(selectedMarker).htmlEle
+    }, null, 8, _hoisted_9) ]) ], 4)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
+    external_Vue_namespaceObject.createCommentVNode)(" 玩家 "), (0, external_Vue_namespaceObject.unref)(playerMarker) ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: 1,
+      class: "marker player-marker pulsate",
+      innerHTML: (0, external_Vue_namespaceObject.unref)(playerMarker).htmlEle,
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        left: (0, external_Vue_namespaceObject.unref)(playerMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
+        top: (0, external_Vue_namespaceObject.unref)(playerMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
+        external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
+        transform: `translate(-50%, -100%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+      })
+    }, null, 12, _hoisted_10)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]) ]) ]));
+  }
+});
+
+const __exports__ = Mapvue_type_script_setup_true_lang_ts;
+
+const Map_Map = __exports__;
 
 const PROJECT_NAME = "GSKO-FACE";
 
@@ -990,9 +1267,13 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
 
 var exportHelper = __webpack_require__(800);
 
-const __exports__ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3e602d5b" ] ]);
+const ContentBio_exports_ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3e602d5b" ] ]);
 
-const ContentBio = __exports__;
+const ContentBio = ContentBio_exports_;
+
+const external_namespaceObject = _;
+
+var external_default = __webpack_require__.n(external_namespaceObject);
 
 const eraWriter_logger = new Logger("幻想乡缘起-主页面/utils/eraWriter");
 
@@ -1031,485 +1312,6 @@ function updateEraVariableByObject(obj) {
     eraWriter_logger.error(funcName, "发送 era:updateByObject 事件时出现异常", e);
   }
 }
-
-const StyledProgressBarvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "StyledProgressBar",
-  props: {
-    value: {},
-    max: {},
-    loveThreshold: {},
-    hateThreshold: {},
-    size: {}
-  },
-  setup(__props) {
-    const props = __props;
-    const barWidth = (0, external_Vue_namespaceObject.computed)(() => {
-      const max = props.max || 100;
-      return `${Math.min(Math.abs(props.value) / max * 100, 100)}%`;
-    });
-    const barClasses = (0, external_Vue_namespaceObject.computed)(() => {
-      const classes = {
-        "size-small": props.size === "small",
-        "size-large": props.size !== "small",
-        rtl: props.value < 0
-      };
-      if (props.hateThreshold !== undefined && props.value <= props.hateThreshold) {
-        classes["very-hate"] = true;
-      } else if (props.value < 0) {
-        classes["negative"] = true;
-      } else if (props.loveThreshold !== undefined && props.value >= props.loveThreshold) {
-        classes["very-love"] = true;
-      }
-      return classes;
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "styled-progress-bar", barClasses.value ])
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "val",
-      style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        width: barWidth.value
-      })
-    }, null, 4) ], 2));
-  }
-});
-
-const StyledProgressBar_exports_ = (0, exportHelper.A)(StyledProgressBarvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0390f826" ] ]);
-
-const StyledProgressBar = StyledProgressBar_exports_;
-
-const _hoisted_1 = {
-  class: "affection-display"
-};
-
-const _hoisted_2 = {
-  class: "info-line"
-};
-
-const _hoisted_3 = {
-  class: "aff-num"
-};
-
-const _hoisted_4 = {
-  class: "aff-stage"
-};
-
-const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "AffectionDisplay",
-  props: {
-    character: {
-      type: Object,
-      required: true
-    },
-    statWithoutMeta: {
-      type: Object,
-      required: true
-    },
-    runtime: {
-      type: Object,
-      required: true
-    },
-    size: {
-      type: String,
-      required: true
-    }
-  },
-  setup(__props) {
-    const props = __props;
-    const affectionValue = (0, external_Vue_namespaceObject.computed)(() => props.character?.好感度 || 0);
-    const loveThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100);
-    const hateThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100);
-    const affectionStage = (0, external_Vue_namespaceObject.computed)(() => {
-      if (!props.runtime || !props.character?.id) return "—";
-      return props.runtime.character?.chars[props.character.id]?.affectionStage?.name || "—";
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("strong", null, "好感度：", -1)), (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", _hoisted_3, (0, external_Vue_namespaceObject.toDisplayString)(affectionValue.value), 1), (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", _hoisted_4, (0, external_Vue_namespaceObject.toDisplayString)(affectionStage.value), 1) ]), (0, 
-    external_Vue_namespaceObject.createVNode)(StyledProgressBar, {
-      value: affectionValue.value,
-      "love-threshold": loveThreshold.value,
-      "hate-threshold": hateThreshold.value,
-      size: __props.size
-    }, null, 8, [ "value", "love-threshold", "hate-threshold", "size" ]) ]));
-  }
-});
-
-const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-d6059de4" ] ]);
-
-const AffectionDisplay = AffectionDisplay_exports_;
-
-const Particlevue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "Particle",
-  props: {
-    particleType: {},
-    dx: {},
-    dy: {},
-    rot: {},
-    delay: {},
-    initialX: {},
-    initialY: {}
-  },
-  emits: [ "destroy" ],
-  setup(__props, {emit: __emit}) {
-    const props = __props;
-    const emit = __emit;
-    const particleContent = (0, external_Vue_namespaceObject.computed)(() => props.particleType === "skull" ? "☠" : "❤");
-    const particleStyle = (0, external_Vue_namespaceObject.computed)(() => ({
-      left: `${props.initialX}%`,
-      top: `${props.initialY}%`,
-      "--dx": `${props.dx}px`,
-      "--dy": `${props.dy}px`,
-      "--rot": `${props.rot}deg`,
-      animationDelay: `${props.delay}s`
-    }));
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      setTimeout(() => {
-        emit("destroy");
-      }, 1500);
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("span", {
-      class: (0, external_Vue_namespaceObject.normalizeClass)([ "GensokyoOrigin-Particle", `GensokyoOrigin-Particle--${__props.particleType}` ]),
-      style: (0, external_Vue_namespaceObject.normalizeStyle)(particleStyle.value)
-    }, (0, external_Vue_namespaceObject.toDisplayString)(particleContent.value), 7));
-  }
-});
-
-const Particle_exports_ = Particlevue_type_script_setup_true_lang_ts;
-
-const Particle = Particle_exports_;
-
-const ParticleEmittervue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "particle-emitter-root"
-};
-
-const ParticleEmittervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "ParticleEmitter",
-  props: {
-    active: {
-      type: Boolean
-    },
-    particleType: {},
-    emissionRate: {}
-  },
-  setup(__props, {expose: __expose}) {
-    const props = __props;
-    const particles = (0, external_Vue_namespaceObject.ref)([]);
-    let particleIdCounter = 0;
-    const ticker = (0, external_Vue_namespaceObject.ref)(null);
-    const createParticle = (type, delay = 0) => {
-      particleIdCounter++;
-      particles.value.push({
-        id: particleIdCounter,
-        type,
-        initialX: 5 + Math.random() * 90,
-        initialY: 10 + Math.random() * 80,
-        dx: (Math.random() - .5) * 60,
-        dy: -40 - Math.random() * 40,
-        rot: (Math.random() - .5) * 40,
-        delay
-      });
-    };
-    const removeParticle = id => {
-      particles.value = particles.value.filter(p => p.id !== id);
-    };
-    const startTicker = () => {
-      if (ticker.value) return;
-      const rate = props.emissionRate || 2;
-      ticker.value = setInterval(() => {
-        createParticle(props.particleType);
-      }, 1e3 / rate);
-    };
-    const stopTicker = () => {
-      if (ticker.value) {
-        clearInterval(ticker.value);
-        ticker.value = null;
-      }
-    };
-    (0, external_Vue_namespaceObject.watch)(() => props.active, isActive => {
-      if (isActive) {
-        startTicker();
-      } else {
-        stopTicker();
-      }
-    }, {
-      immediate: true
-    });
-    const burst = (type, count) => {
-      for (let i = 0; i < count; i++) {
-        createParticle(type, i * .05);
-      }
-    };
-    (0, external_Vue_namespaceObject.onUnmounted)(() => {
-      stopTicker();
-    });
-    __expose({
-      burst
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", ParticleEmittervue_type_script_setup_true_lang_ts_hoisted_1, [ ((0, 
-    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-    external_Vue_namespaceObject.renderList)(particles.value, p => ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createBlock)(Particle, {
-      key: p.id,
-      "particle-type": p.type,
-      "initial-x": p.initialX,
-      "initial-y": p.initialY,
-      dx: p.dx,
-      dy: p.dy,
-      rot: p.rot,
-      delay: p.delay,
-      onDestroy: $event => removeParticle(p.id)
-    }, null, 8, [ "particle-type", "initial-x", "initial-y", "dx", "dy", "rot", "delay", "onDestroy" ]))), 128)) ]));
-  }
-});
-
-const ParticleEmitter_exports_ = ParticleEmittervue_type_script_setup_true_lang_ts;
-
-const ParticleEmitter = ParticleEmitter_exports_;
-
-const ContentOthersvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  id: "others-toolbar",
-  class: "GensokyoOrigin-ContentOthers-debug-toolbar",
-  style: {
-    margin: "6px 0 10px"
-  }
-};
-
-const ContentOthersvue_type_script_setup_true_lang_ts_hoisted_2 = {
-  class: "GensokyoOrigin-ContentOthers-debug-switch",
-  title: "config.mvuLifeMeet.rules.incident.skipVisitHunters"
-};
-
-const ContentOthersvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  class: "GensokyoOrigin-ContentOthers-debug-switch",
-  title: "config.mvuLifeMeet.rules.incident.skipSleepHunters"
-};
-
-const ContentOthersvue_type_script_setup_true_lang_ts_hoisted_4 = [ "data-name" ];
-
-const _hoisted_5 = {
-  class: "GensokyoOrigin-ContentOthers-role-card-header"
-};
-
-const _hoisted_6 = {
-  class: "GensokyoOrigin-ContentOthers-role-avatar"
-};
-
-const _hoisted_7 = {
-  class: "GensokyoOrigin-ContentOthers-role-name"
-};
-
-const _hoisted_8 = {
-  class: "GensokyoOrigin-ContentOthers-role-meta"
-};
-
-const _hoisted_9 = {
-  class: "GensokyoOrigin-ContentOthers-role-body"
-};
-
-const _hoisted_10 = {
-  key: 1,
-  class: "GensokyoOrigin-ContentOthers-role-card"
-};
-
-const ContentOthersvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "ContentOthers",
-  setup(__props, {expose: __expose}) {
-    const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/tabs/ContentOthers");
-    const otherRoles = (0, external_Vue_namespaceObject.ref)([]);
-    const stat = (0, external_Vue_namespaceObject.ref)({});
-    const runtime = (0, external_Vue_namespaceObject.ref)({});
-    const skipVisitHunters = (0, external_Vue_namespaceObject.ref)(false);
-    const skipSleepHunters = (0, external_Vue_namespaceObject.ref)(false);
-    const particleEmitters = (0, external_Vue_namespaceObject.ref)([]);
-    const update = context => {
-      const funcName = "update";
-      const {statWithoutMeta, runtime: newRuntime} = context || {};
-      logger.log(funcName, `开始更新“其他角色”组件`, {
-        statWithoutMeta,
-        newRuntime
-      });
-      if (!statWithoutMeta || typeof statWithoutMeta !== "object") {
-        logger.warn(funcName, "调用失败：传入的 statWithoutMeta 无效。");
-        return;
-      }
-      stat.value = statWithoutMeta;
-      runtime.value = newRuntime || {};
-      try {
-        skipVisitHunters.value = !!get(statWithoutMeta, ERA_VARIABLE_PATH.SKIP_VISIT_HUNTERS, false);
-        skipSleepHunters.value = !!get(statWithoutMeta, ERA_VARIABLE_PATH.SKIP_SLEEP_HUNTERS, false);
-      } catch (e) {
-        logger.error(funcName, `更新工具条状态时出错`, e);
-      }
-      try {
-        const uLoc = String(get(statWithoutMeta, ERA_VARIABLE_PATH.USER_LOCATION, "")).trim();
-        let chars = get(statWithoutMeta, ERA_VARIABLE_PATH.CHARS, {});
-        if (typeof chars === "string") {
-          try {
-            chars = JSON.parse(chars);
-          } catch (e) {
-            logger.error(funcName, "解析 chars JSON 字符串失败", e);
-            chars = {};
-          }
-        }
-        if (!chars || typeof chars !== "object") {
-          otherRoles.value = [];
-          return;
-        }
-        const entries = Object.entries(chars).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v));
-        const others = entries.filter(([, obj]) => {
-          const cLoc = String(get(obj, ERA_VARIABLE_PATH.CHAR_LOCATION, "")).trim();
-          return !(uLoc && cLoc && cLoc === uLoc);
-        });
-        others.sort((a, b) => {
-          const la = String(get(a[1], ERA_VARIABLE_PATH.CHAR_LOCATION, "")).localeCompare(String(get(b[1], ERA_VARIABLE_PATH.CHAR_LOCATION, "")), "zh-Hans-CN");
-          if (la !== 0) return la;
-          return String(a[0]).localeCompare(String(b[0]), "zh-Hans-CN");
-        });
-        const loveThreshold = Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_LOVE_THRESHOLD, 100));
-        const hateThreshold = Number(get(statWithoutMeta, ERA_VARIABLE_PATH.AFFECTION_HATE_THRESHOLD, -100));
-        const newRoles = others.map(([name, obj]) => {
-          const fields = [ [ "年龄", "年龄" ], [ "性别", "性别" ], [ "身份", "身份" ], [ "性格", "性格" ], [ "外貌", "外貌" ], [ "衣着", "衣着" ], [ "人际关系", "人际关系" ], [ "性经验", "性经验" ], [ "性知识", "性知识" ], [ "特殊能力", "特殊能力" ], [ "身体状况", "身体状况" ], [ "目标", "当前目标" ], [ "所想", "当前所想" ], [ "居住地区", "居住地区" ] ];
-          const affectionValue = get(obj, ERA_VARIABLE_PATH.CHAR_AFFECTION, 0);
-          let affectionState = "neutral";
-          if (affectionValue >= loveThreshold) affectionState = "love";
-          if (affectionValue <= hateThreshold) affectionState = "hate";
-          return {
-            name,
-            location: toText(get(obj, ERA_VARIABLE_PATH.CHAR_LOCATION, "未知")),
-            fields: fields.map(([label, key]) => ({
-              label,
-              value: toText(get(obj, key, "—"))
-            })),
-            raw: {
-              name,
-              ...obj
-            },
-            affectionState
-          };
-        });
-        (0, external_Vue_namespaceObject.watch)(newRoles, (currentRoles, oldRoles) => {
-          currentRoles.forEach((role, index) => {
-            const oldRole = oldRoles?.find(r => r.name === role.name);
-            if (oldRole && role.affectionState !== oldRole.affectionState) {
-              const emitter = particleEmitters.value[index];
-              if (emitter) {
-                if (role.affectionState === "love") emitter.burst("heart", 10); else if (role.affectionState === "hate") emitter.burst("skull", 8);
-              }
-            }
-          });
-        }, {
-          deep: true
-        });
-        otherRoles.value = newRoles;
-        particleEmitters.value = new Array(newRoles.length);
-      } catch (e) {
-        logger.error(funcName, `更新“其他角色”列表时出错`, e);
-        otherRoles.value = [];
-      }
-    };
-    const onSkipVisitChange = () => {
-      updateEraVariable(ERA_VARIABLE_PATH.SKIP_VISIT_HUNTERS, skipVisitHunters.value);
-    };
-    const onSkipSleepChange = () => {
-      updateEraVariable(ERA_VARIABLE_PATH.SKIP_SLEEP_HUNTERS, skipSleepHunters.value);
-    };
-    const handleToggle = e => {
-      const btn = e.target.closest(".GensokyoOrigin-ContentOthers-card-toggle");
-      if (!btn) return;
-      const card = btn.closest(".GensokyoOrigin-ContentOthers-role-card");
-      if (!card) return;
-      const expand = !card.classList.contains("expanded");
-      card.classList.toggle("expanded", expand);
-      card.classList.toggle("collapsed", !expand);
-      btn.setAttribute("aria-expanded", String(expand));
-      btn.textContent = expand ? "▲" : "▼";
-    };
-    __expose({
-      update
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[6] || (_cache[6] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
-      class: "emoji"
-    }, "🧑‍🤝‍🧑"), (0, external_Vue_namespaceObject.createTextVNode)("其他角色") ], -1)), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" ===== 其他角色工具条 ===== "), (0, external_Vue_namespaceObject.createElementVNode)("div", ContentOthersvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("span", ContentOthersvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
-    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("input", {
-      id: "life-skip-visit-hunters",
-      "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => skipVisitHunters.value = $event),
-      type: "checkbox",
-      onChange: onSkipVisitChange
-    }, null, 544), [ [ external_Vue_namespaceObject.vModelCheckbox, skipVisitHunters.value ] ]), _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createTextVNode)(" 异变中退治者不拜访 ", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("span", ContentOthersvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
-    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("input", {
-      id: "life-skip-sleep-hunters",
-      "onUpdate:modelValue": _cache[1] || (_cache[1] = $event => skipSleepHunters.value = $event),
-      type: "checkbox",
-      onChange: onSkipSleepChange
-    }, null, 544), [ [ external_Vue_namespaceObject.vModelCheckbox, skipSleepHunters.value ] ]), _cache[3] || (_cache[3] = (0, 
-    external_Vue_namespaceObject.createTextVNode)(" 异变中退治者不睡觉 ", -1)) ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      id: "other-roles-list",
-      class: "GensokyoOrigin-ContentOthers-incident-list",
-      onClick: handleToggle
-    }, [ otherRoles.value.length ? ((0, external_Vue_namespaceObject.openBlock)(true), 
-    (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, {
-      key: 0
-    }, (0, external_Vue_namespaceObject.renderList)(otherRoles.value, (role, index) => ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: role.name,
-      class: "GensokyoOrigin-ContentOthers-role-card collapsed",
-      "data-name": role.name
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_6, (0, external_Vue_namespaceObject.toDisplayString)(role.name.slice(0, 1)), 1), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_7, (0, 
-    external_Vue_namespaceObject.toDisplayString)(role.name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_8, (0, 
-    external_Vue_namespaceObject.toDisplayString)(role.location), 1) ]), _cache[4] || (_cache[4] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "GensokyoOrigin-ContentOthers-card-toggle",
-      "aria-expanded": "false",
-      "aria-label": "展开/收起"
-    }, " ▼ ", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_9, [ ((0, 
-    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-    external_Vue_namespaceObject.renderList)(role.fields, field => ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: field.label,
-      class: "GensokyoOrigin-ContentOthers-role-line"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(field.label) + "：", 1), (0, 
-    external_Vue_namespaceObject.createTextVNode)((0, external_Vue_namespaceObject.toDisplayString)(field.value), 1) ]))), 128)), (0, 
-    external_Vue_namespaceObject.createVNode)(AffectionDisplay, {
-      character: role.raw,
-      "stat-without-meta": stat.value,
-      runtime: runtime.value,
-      size: "large"
-    }, null, 8, [ "character", "stat-without-meta", "runtime" ]), (0, external_Vue_namespaceObject.createVNode)(ParticleEmitter, {
-      ref_for: true,
-      ref: el => particleEmitters.value[index] = el,
-      active: role.affectionState === "love" || role.affectionState === "hate",
-      "particle-type": role.affectionState === "hate" ? "skull" : "heart",
-      "emission-rate": 2
-    }, null, 8, [ "active", "particle-type" ]) ]) ], 8, ContentOthersvue_type_script_setup_true_lang_ts_hoisted_4))), 128)) : ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_10, [ ..._cache[5] || (_cache[5] = [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "GensokyoOrigin-ContentOthers-role-card-header"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "GensokyoOrigin-ContentOthers-role-avatar"
-    }, "✔"), (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "GensokyoOrigin-ContentOthers-role-name"
-    }, "当前无“其他角色”"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "GensokyoOrigin-ContentOthers-role-meta"
-    }, "与玩家不同区的角色为 0") ]) ], -1) ]) ])) ]) ]));
-  }
-});
-
-const ContentOthers_exports_ = ContentOthersvue_type_script_setup_true_lang_ts;
-
-const ContentOthers = ContentOthers_exports_;
-
-const external_namespaceObject = _;
-
-var external_default = __webpack_require__.n(external_namespaceObject);
 
 const ContentSettingsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "row",
@@ -1853,472 +1655,235 @@ const ContentSettings_exports_ = (0, exportHelper.A)(ContentSettingsvue_type_scr
 
 const ContentSettings = ContentSettings_exports_;
 
-const T0_PATH = "incident.异变冷却基准时间";
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  id: "incident-toolbar",
+  class: "debug-select",
+  style: {
+    display: "flex",
+    "align-items": "center",
+    gap: "12px",
+    "flex-wrap": "wrap"
+  }
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  id: "incident-countdown"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "debug-switch",
+  title: "来自 config.incident.forceTrigger；修改即写回到配置"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  class: "debug-switch",
+  title: "来自 config.incident.isRandomPool；修改即写回到配置"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  id: "incident-list",
+  class: "incident-list"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "role-card-header"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  class: "role-name"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_8 = {
+  class: "role-meta"
+};
+
+const Incidentsvue_type_script_setup_true_lang_ts_hoisted_9 = {
+  key: 1,
+  class: "role-card"
+};
 
 const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "Incidents",
-  setup(__props, {expose: __expose}) {
+  props: {
+    stat: {},
+    runtime: {}
+  },
+  setup(__props) {
     const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/tabs/Incidents");
-    function extractIncidents(data) {
-      let root = get(data, "incidents");
-      if (typeof root === "string") {
-        try {
-          root = JSON.parse(root);
-        } catch {
-          root = null;
+    const props = __props;
+    const incidentCards = (0, external_Vue_namespaceObject.computed)(() => {
+      const stat = props.stat;
+      if (!stat || !stat.incidents) return [];
+      const entries = Object.entries(stat.incidents).filter(([key, value]) => !key.startsWith("$") && !!value);
+      return entries.map(([name, detail]) => {
+        const incident = detail;
+        const solver = incident.异变退治者;
+        const solverText = Array.isArray(solver) ? solver.join("、") : solver ?? "";
+        const mainLoc = incident.主要地区?.join("、") ?? "";
+        const fields = [];
+        if (incident.异变细节) {
+          fields.push({
+            label: "异变细节",
+            value: incident.异变细节
+          });
         }
-      }
-      if (!root || typeof root !== "object" || Array.isArray(root)) return [];
-      return Object.entries(root).filter(([k, v]) => !String(k).startsWith("$") && v && typeof v === "object" && !Array.isArray(v)).map(([__name, __data]) => ({
-        __name,
-        __data
-      }));
-    }
-    function renderIncidents(state) {
-      const funcName = "renderIncidents";
-      const host = document.getElementById("incident-list");
-      if (!host) {
-        logger.warn(funcName, "未找到 #incident-list 容器。");
-        return;
-      }
-      host.innerHTML = "";
-      const items = extractIncidents(state);
-      logger.log(funcName, `开始渲染 ${items.length} 个异变卡片。`);
-      items.forEach(({__name, __data}) => {
-        const name = toText(get(__data, "异变名称", __name));
-        const status = get(__data, "异变已结束") ? "已结束" : "进行中";
-        const fields = [ [ "影响", "异变影响" ], [ "退治者", "异变退治者" ], [ "发起者", "异变发起者" ], [ "黑幕", "异变黑幕" ], [ "其他信息", "其他异变信息" ] ];
-        const card = document.createElement("div");
-        card.className = "role-card";
-        card.innerHTML = `\n<div class="role-card-header">\n    <div class="role-avatar">异</div>\n    <div><div class="role-name">${name}</div><div class="role-meta">进程：${status}</div></div>\n</div>\n${fields.map(([label, key]) => {
-          const val = key === "异变退治者" ? getRaw(__data, key, []) : get(__data, key, "—");
-          return `<div class="role-line"><strong>${label}：</strong>${toText(val)}</div>`;
-        }).join("")}\n`;
-        host.appendChild(card);
+        if (mainLoc) {
+          fields.push({
+            label: "主要地区",
+            value: mainLoc
+          });
+        }
+        if (solverText) {
+          fields.push({
+            label: "异变退治者",
+            value: solverText
+          });
+        }
+        return {
+          key: name,
+          name,
+          statusText: incident.异变已结束 ? "已结束" : "进行中",
+          fields
+        };
       });
-      logger.log(funcName, "异变卡片渲染完成。");
-    }
-    function readT0(runtime) {
-      if (!runtime) {
-        logger.warn("readT0", "runtime 对象不存在，无法读取 T0。");
+    });
+    const countdownMinutes = (0, external_Vue_namespaceObject.computed)(() => {
+      const runtimeCountdown = props.runtime?.incident?.remainingCooldown;
+      if (typeof runtimeCountdown === "number" && Number.isFinite(runtimeCountdown)) {
+        return Math.max(0, Math.floor(runtimeCountdown));
+      }
+      const config = props.stat?.config?.incident;
+      const timeProgress = props.stat?.世界?.timeProgress;
+      if (!config || typeof config.cooldownMinutes !== "number" || typeof timeProgress !== "number") {
         return null;
       }
-      const t0 = get(runtime, T0_PATH, null);
-      if (t0 != null) {
-        const n = Number(toText(t0));
-        if (Number.isFinite(n)) {
-          logger.log("readT0", `从 runtime 读取到 t0: ${n}`);
-          return n;
-        }
+      const anchor = props.stat?.cache?.incident?.incidentCooldownAnchor;
+      if (anchor == null) {
+        return Math.max(0, Math.floor(config.cooldownMinutes));
       }
-      logger.log("readT0", "未在 runtime 中读取到合法 t0。");
-      return null;
-    }
-    function readCooldownMinutes(state) {
-      const cooldown = get(state, ERA_VARIABLE_PATH.INCIDENT_COOLDOWN, 0);
-      const n = Number(toText(cooldown));
-      if (Number.isFinite(n) && n >= 0) {
-        return Math.floor(n);
-      }
-      return 0;
-    }
-    function readTimeProgress(state) {
-      const timeProgress = get(state, ERA_VARIABLE_PATH.TIME_PROGRESS, 0);
-      const n = Number(toText(timeProgress));
-      return Number.isFinite(n) ? Math.floor(n) : 0;
-    }
-    function calcCountdownMinutes(context) {
-      const {statWithoutMeta, runtime} = context;
-      const t0 = readT0(runtime);
-      if (t0 === null) {
-        logger.log("calcCountdownMinutes", "t0 不存在/非法，本轮倒计时按 0 处理。");
-        return 0;
-      }
-      const tp = readTimeProgress(statWithoutMeta);
-      const cd = readCooldownMinutes(statWithoutMeta);
-      const left = Math.max(0, Math.floor(cd - (tp - t0)));
-      logger.log("calcCountdownMinutes", `计算倒计时（分钟）: { t0: ${t0}, timeProgress: ${tp}, cooldown: ${cd}, 剩余: ${left} }`);
-      return left;
-    }
-    function updateIncidentToolbar(context) {
-      const funcName = "updateIncidentToolbar";
-      const {statWithoutMeta} = context;
-      const cdEl = document.getElementById("incident-countdown");
-      const triggerNowEl = document.getElementById("incident-trigger-now");
-      const randomPoolEl = document.getElementById("incident-pool-random");
-      if (cdEl) {
-        const left = calcCountdownMinutes(context);
-        cdEl.textContent = left == null ? "—" : String(left);
-        logger.log(funcName, `异变倒计时已更新为: ${cdEl.textContent}`);
-      }
-      if (triggerNowEl) {
-        const shouldTrigger = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, false);
-        triggerNowEl.checked = !!shouldTrigger;
-        logger.log(funcName, `“立即引发异变”状态已更新为: ${triggerNowEl.checked}`);
-      }
-      if (randomPoolEl) {
-        const useRandom = get(statWithoutMeta, ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, false);
-        randomPoolEl.checked = !!useRandom;
-        logger.log(funcName, `“乱序异变”状态已更新为: ${randomPoolEl.checked}`);
-      }
-    }
-    const update = context => {
-      const {statWithoutMeta} = context || {};
-      if (!statWithoutMeta) {
-        logger.warn("update", "上下文信息不完整，缺少 statWithoutMeta，已中止。");
+      const remaining = config.cooldownMinutes - (timeProgress - anchor);
+      return Math.max(0, Math.floor(remaining));
+    });
+    const countdownText = (0, external_Vue_namespaceObject.computed)(() => {
+      const value = countdownMinutes.value;
+      return value == null ? "—" : String(value);
+    });
+    const immediateTrigger = (0, external_Vue_namespaceObject.ref)(false);
+    const randomPool = (0, external_Vue_namespaceObject.ref)(false);
+    let skipImmediatePropagation = false;
+    let skipRandomPropagation = false;
+    (0, external_Vue_namespaceObject.watch)(() => props.stat?.config?.incident?.forceTrigger ?? false, value => {
+      skipImmediatePropagation = true;
+      immediateTrigger.value = value;
+      logger.log("syncImmediateTrigger", `已同步“立即引发异变”状态: ${value}`);
+    }, {
+      immediate: true
+    });
+    (0, external_Vue_namespaceObject.watch)(() => props.stat?.config?.incident?.isRandomPool ?? false, value => {
+      skipRandomPropagation = true;
+      randomPool.value = value;
+      logger.log("syncRandomPool", `已同步“乱序异变”状态: ${value}`);
+    }, {
+      immediate: true
+    });
+    (0, external_Vue_namespaceObject.watch)(immediateTrigger, value => {
+      if (skipImmediatePropagation) {
+        skipImmediatePropagation = false;
         return;
       }
-      renderIncidents(statWithoutMeta);
-      updateIncidentToolbar(context);
-    };
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      const funcName = "onMounted";
-      const triggerNowEl = document.getElementById("incident-trigger-now");
-      const randomPoolEl = document.getElementById("incident-pool-random");
-      if (triggerNowEl) {
-        triggerNowEl.onchange = () => {
-          const newValue = triggerNowEl.checked;
-          logger.log(funcName, `用户切换“立即引发异变”为: ${newValue}`);
-          updateEraVariable(ERA_VARIABLE_PATH.INCIDENT_IMMEDIATE_TRIGGER, newValue);
-        };
-      }
-      if (randomPoolEl) {
-        randomPoolEl.onchange = () => {
-          const newValue = randomPoolEl.checked;
-          logger.log(funcName, `用户切换“乱序异变”为: ${newValue}`);
-          updateEraVariable(ERA_VARIABLE_PATH.INCIDENT_RANDOM_POOL, newValue);
-        };
-      }
-      logger.log(funcName, "异变工具栏事件已绑定。");
+      logger.log("onImmediateTriggerChange", `用户切换“立即引发异变”为: ${value}`);
+      updateEraVariableByObject({
+        config: {
+          incident: {
+            forceTrigger: value
+          }
+        }
+      });
+    }, {
+      flush: "post"
     });
-    __expose({
-      update
+    (0, external_Vue_namespaceObject.watch)(randomPool, value => {
+      if (skipRandomPropagation) {
+        skipRandomPropagation = false;
+        return;
+      }
+      logger.log("onRandomPoolChange", `用户切换“乱序异变”为: ${value}`);
+      updateEraVariableByObject({
+        config: {
+          incident: {
+            isRandomPool: value
+          }
+        }
+      });
+    }, {
+      flush: "post"
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[0] || (_cache[0] = (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", null, [ _cache[7] || (_cache[7] = (0, 
     external_Vue_namespaceObject.createElementVNode)("h4", null, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
     }, "⚠️"), (0, external_Vue_namespaceObject.createTextVNode)("异变啊异变！") ], -1)), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" ===== 异变工具栏（倒计时 + 立即引发） ===== "), _cache[1] || (_cache[1] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div id="incident-toolbar" class="debug-select" style="display:flex;align-items:center;gap:12px;flex-wrap:wrap;" data-v-382a017e><span class="label" style="min-width:auto;margin:0;" data-v-382a017e><span class="emoji" data-v-382a017e>⏳</span>异变倒计时（分钟）: </span><strong id="incident-countdown" data-v-382a017e>—</strong><span class="debug-switch" title="来自世界书 config 的初始值；修改即写回到聊天变量的 config.incidents.triggerImmediate" data-v-382a017e><input id="incident-trigger-now" type="checkbox" data-v-382a017e> 立即引发异变 </span><span class="debug-switch" title="来自 config.incident.random_pool" data-v-382a017e><input id="incident-pool-random" type="checkbox" data-v-382a017e> 乱序异变 </span></div><div id="incident-list" class="incident-list" data-v-382a017e></div>', 2)) ]));
+    external_Vue_namespaceObject.createCommentVNode)(" ===== 异变工具栏（倒计时 + 立即引发） ===== "), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[4] || (_cache[4] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "label",
+      style: {
+        "min-width": "auto",
+        margin: "0"
+      }
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "emoji"
+    }, "⏳"), (0, external_Vue_namespaceObject.createTextVNode)("异变倒计时（分钟）: ") ], -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", Incidentsvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(countdownText.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", Incidentsvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "incident-trigger-now",
+      "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => immediateTrigger.value = $event),
+      type: "checkbox"
+    }, null, 512), [ [ external_Vue_namespaceObject.vModelCheckbox, immediateTrigger.value ] ]), _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 立即引发异变 ", -1)) ]), (0, external_Vue_namespaceObject.createElementVNode)("span", Incidentsvue_type_script_setup_true_lang_ts_hoisted_4, [ (0, 
+    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("input", {
+      id: "incident-pool-random",
+      "onUpdate:modelValue": _cache[1] || (_cache[1] = $event => randomPool.value = $event),
+      type: "checkbox"
+    }, null, 512), [ [ external_Vue_namespaceObject.vModelCheckbox, randomPool.value ] ]), _cache[3] || (_cache[3] = (0, 
+    external_Vue_namespaceObject.createTextVNode)(" 乱序异变 ", -1)) ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_5, [ incidentCards.value.length ? ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, {
+      key: 0
+    }, (0, external_Vue_namespaceObject.renderList)(incidentCards.value, incident => ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: incident.key,
+      class: "role-card"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_6, [ _cache[5] || (_cache[5] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-avatar"
+    }, "异", -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_7, (0, 
+    external_Vue_namespaceObject.toDisplayString)(incident.name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_8, "进程：" + (0, 
+    external_Vue_namespaceObject.toDisplayString)(incident.statusText), 1) ]) ]), ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(incident.fields, field => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      key: field.label,
+      class: "role-line"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(field.label) + "：", 1), (0, 
+    external_Vue_namespaceObject.createTextVNode)((0, external_Vue_namespaceObject.toDisplayString)(field.value), 1) ]))), 128)) ]))), 128)) : ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", Incidentsvue_type_script_setup_true_lang_ts_hoisted_9, [ ..._cache[6] || (_cache[6] = [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-card-header"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-avatar"
+    }, "✔"), (0, external_Vue_namespaceObject.createElementVNode)("div", null, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-name"
+    }, "暂无记录"), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "role-meta"
+    }, "最近没有可展示的异变") ]) ], -1) ]) ])) ]) ]));
   }
 });
 
-const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-382a017e" ] ]);
+const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-fb0bbb04" ] ]);
 
 const Incidents = Incidents_exports_;
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "map-component",
-  id: "mapComponent"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_2 = {
-  class: "map-wrapper"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  class: "map-info",
-  ref: "mapInfo"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_4 = {
-  id: "coords"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_5 = {
-  class: "map-container",
-  id: "mapContainer"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_6 = [ "innerHTML", "onClick" ];
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_7 = {
-  class: "dialog"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_8 = {
-  class: "location-name"
-};
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_9 = [ "innerHTML" ];
-
-const Mapvue_type_script_setup_true_lang_ts_hoisted_10 = [ "innerHTML" ];
-
-const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "Map",
-  props: {
-    context: null
-  },
-  setup(__props) {
-    const props = __props;
-    (0, external_Vue_namespaceObject.watch)(() => props.context, (newValue, oldValue) => {
-      console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
-    });
-    const mapSize = (0, external_Vue_namespaceObject.computed)(() => {
-      if (props.context?.runtime?.area?.mapSize) {
-        return props.context.runtime.area.mapSize;
-      }
-      return {
-        width: 800,
-        height: 600
-      };
-    });
-    const markers = (0, external_Vue_namespaceObject.computed)(() => {
-      if (props.context?.runtime?.area?.legal_locations) {
-        return props.context.runtime.area.legal_locations;
-      }
-      return [];
-    });
-    const locationMap = (0, external_Vue_namespaceObject.computed)(() => {
-      const locationMap = new Map;
-      if (props.context?.runtime?.area?.legal_locations) {
-        props.context.runtime.area.legal_locations.forEach(item => {
-          locationMap.set(item.name, item.pos);
-        });
-      }
-      return locationMap;
-    });
-    const roads = (0, external_Vue_namespaceObject.computed)(() => {
-      const connections = [];
-      if (props.context?.runtime?.area?.graph) {
-        for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
-          const startLocation = locationMap.value.get(startName);
-          if (!startLocation) continue;
-          const startInfo = {
-            name: startName,
-            x: startLocation.x,
-            y: startLocation.y
-          };
-          for (const [endName, isConnected] of Object.entries(connectionsObj)) {
-            if (isConnected) {
-              const endLocation = locationMap.value.get(endName);
-              if (endLocation) {
-                const endInfo = {
-                  name: endName,
-                  x: endLocation.x,
-                  y: endLocation.y
-                };
-                connections.push({
-                  start: startInfo,
-                  end: endInfo
-                });
-              }
-            }
-          }
-        }
-      }
-      return connections;
-    });
-    const playerMarker = (0, external_Vue_namespaceObject.computed)(() => {
-      if (props.context?.runtime?.characterDistribution?.playerLocation) {
-        const location = locationMap.value.get(props.context?.runtime?.characterDistribution.playerLocation);
-        if (location) {
-          return {
-            name: "玩家",
-            pos: {
-              x: location.x,
-              y: location.y
-            },
-            htmlEle: "<div>📍</div>"
-          };
-        }
-      }
-      return null;
-    });
-    let mapState = (0, external_Vue_namespaceObject.ref)({
-      offsetX: 0,
-      offsetY: 0,
-      zoom: 1,
-      isDragging: false,
-      lastMouseX: 0,
-      lastMouseY: 0,
-      mapWidth: mapSize.value.width,
-      mapHeight: mapSize.value.height
-    });
-    let selectedMarker = (0, external_Vue_namespaceObject.ref)(null);
-    function selectLocation(markerData) {
-      try {
-        const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
-        const npcList = npcIdList.map(id => props.context.runtime.characterSettings[id]);
-        let htmlEle = "";
-        npcList.map(npc => {
-          htmlEle += `<div>${npc.name}:${npc.routine[0].action.do}</div>`;
-        });
-        selectedMarker.value = {
-          ...markerData,
-          htmlEle
-        };
-      } catch (error) {
-        console.error(error);
-      }
-    }
-    (0, external_Vue_namespaceObject.onMounted)(() => {
-      const mapComponent = document.getElementById("mapComponent");
-      const mapContainer = document.getElementById("mapContainer");
-      const canvas = document.getElementById("mapCanvas");
-      const ctx = canvas.getContext("2d");
-      mapComponent.style.width = `${mapState.value.mapWidth}px`;
-      mapComponent.style.height = `${mapState.value.mapHeight}px`;
-      function generateMap() {
-        try {
-          resetView();
-          canvas.width = mapState.value.mapWidth;
-          canvas.height = mapState.value.mapHeight;
-          drawMap();
-        } catch (error) {
-          alert("数据格式错误，请检查输入数据：" + error.message);
-        }
-      }
-      function drawMap() {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.save();
-        ctx.translate(mapState.value.offsetX, mapState.value.offsetY);
-        ctx.scale(mapState.value.zoom, mapState.value.zoom);
-        drawMapBackground();
-        drawRoads();
-        ctx.restore();
-      }
-      function drawMapBackground() {
-        ctx.fillStyle = "#7f8c8d";
-        ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
-      }
-      function drawRoads() {
-        try {
-          ctx.strokeStyle = "#333";
-          ctx.lineWidth = 4;
-          ctx.lineCap = "round";
-          roads.value.forEach(road => {
-            ctx.beginPath();
-            ctx.moveTo(road.start.x, road.start.y);
-            ctx.lineTo(road.end.x, road.end.y);
-            ctx.stroke();
-          });
-        } catch (error) {
-          console.error("道路数据格式错误:", error);
-        }
-      }
-      function resetView() {
-        mapState.value = {
-          ...mapState.value,
-          zoom: 1,
-          offsetX: (mapContainer.clientWidth - mapState.value.mapWidth) / 2,
-          offsetY: (mapContainer.clientHeight - mapState.value.mapHeight) / 2
-        };
-        drawMap();
-      }
-      mapContainer.addEventListener("mousedown", e => {
-        mapState.value = {
-          ...mapState.value,
-          isDragging: true,
-          lastMouseX: e.clientX,
-          lastMouseY: e.clientY
-        };
-        mapContainer.style.cursor = "grabbing";
-      });
-      mapContainer.addEventListener("mousemove", e => {
-        if (mapState.value.isDragging) {
-          const deltaX = e.clientX - mapState.value.lastMouseX;
-          const deltaY = e.clientY - mapState.value.lastMouseY;
-          mapState.value.offsetX += deltaX;
-          mapState.value.offsetY += deltaY;
-          mapState.value.lastMouseX = e.clientX;
-          mapState.value.lastMouseY = e.clientY;
-          drawMap();
-        }
-      });
-      mapContainer.addEventListener("mouseup", () => {
-        mapState.value.isDragging = false;
-        mapContainer.style.cursor = "grab";
-      });
-      mapContainer.addEventListener("mouseleave", () => {
-        mapState.value.isDragging = false;
-        mapContainer.style.cursor = "grab";
-      });
-      mapContainer.addEventListener("wheel", e => {
-        e.preventDefault();
-        const zoomFactor = e.deltaY > 0 ? .9 : 1.1;
-        const newZoom = mapState.value.zoom * zoomFactor;
-        if (newZoom >= .2 && newZoom <= 5) {
-          const rect = mapContainer.getBoundingClientRect();
-          const mouseX = e.clientX - rect.left;
-          const mouseY = e.clientY - rect.top;
-          const worldX = (mouseX - mapState.value.offsetX) / mapState.value.zoom;
-          const worldY = (mouseY - mapState.value.offsetY) / mapState.value.zoom;
-          mapState.value = {
-            ...mapState.value,
-            zoom: newZoom,
-            offsetX: mouseX - worldX * mapState.value.zoom,
-            offsetY: mouseY - worldY * mapState.value.zoom
-          };
-          drawMap();
-        }
-      });
-      generateMap();
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_3, [ _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createTextVNode)(" 缩放: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
-    external_Vue_namespaceObject.toDisplayString)((0, external_Vue_namespaceObject.unref)(mapState).zoom.toFixed(1)), 1), _cache[1] || (_cache[1] = (0, 
-    external_Vue_namespaceObject.createTextVNode)(" x | 坐标: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", Mapvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
-    external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, external_Vue_namespaceObject.unref)(mapState).offsetX / (0, 
-    external_Vue_namespaceObject.unref)(mapState).zoom)) + ", " + (0, external_Vue_namespaceObject.toDisplayString)(Math.round(-(0, 
-    external_Vue_namespaceObject.unref)(mapState).offsetY / (0, external_Vue_namespaceObject.unref)(mapState).zoom)), 1) ], 512), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_5, [ _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("canvas", {
-      id: "mapCanvas"
-    }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 动态生成marker "), ((0, 
-    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
-    external_Vue_namespaceObject.renderList)((0, external_Vue_namespaceObject.unref)(markers), (marker, index) => ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: index,
-      class: "marker",
-      innerHTML: marker.htmlEle,
-      style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: marker.pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: marker.pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
-        transform: `translate(-50%, -50%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
-      }),
-      onClick: $event => selectLocation(marker)
-    }, null, 12, Mapvue_type_script_setup_true_lang_ts_hoisted_6))), 128)), (0, external_Vue_namespaceObject.createCommentVNode)(" 点击marker的tip弹出 "), (0, 
-    external_Vue_namespaceObject.unref)(selectedMarker) ? ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: 0,
-      class: "tip-container",
-      style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetY - 10 + "px",
-        transform: `translate(-50%, -100%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
-      })
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", Mapvue_type_script_setup_true_lang_ts_hoisted_7, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("h2", Mapvue_type_script_setup_true_lang_ts_hoisted_8, (0, 
-    external_Vue_namespaceObject.toDisplayString)((0, external_Vue_namespaceObject.unref)(selectedMarker).name), 1), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      innerHTML: (0, external_Vue_namespaceObject.unref)(selectedMarker).htmlEle
-    }, null, 8, Mapvue_type_script_setup_true_lang_ts_hoisted_9) ]) ], 4)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
-    external_Vue_namespaceObject.createCommentVNode)(" 玩家 "), (0, external_Vue_namespaceObject.unref)(playerMarker) ? ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
-      key: 1,
-      class: "marker player-marker pulsate",
-      innerHTML: (0, external_Vue_namespaceObject.unref)(playerMarker).htmlEle,
-      style: (0, external_Vue_namespaceObject.normalizeStyle)({
-        left: (0, external_Vue_namespaceObject.unref)(playerMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
-        top: (0, external_Vue_namespaceObject.unref)(playerMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
-        external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
-        transform: `translate(-50%, -100%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
-      })
-    }, null, 12, Mapvue_type_script_setup_true_lang_ts_hoisted_10)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]) ]) ]));
-  }
-});
-
-const Map_exports_ = Mapvue_type_script_setup_true_lang_ts;
-
-const Map_Map = Map_exports_;
 
 const FontSizeControlsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "font-size-controls"
@@ -2376,7 +1941,13 @@ const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     const persistFontSize = pct => {
       currentPercent.value = pct;
       applyToDOM(pct);
-      updateEraVariable(ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, pct);
+      updateEraVariableByObject({
+        config: {
+          ui: {
+            mainFontPercent: pct
+          }
+        }
+      });
     };
     const increaseFont = () => {
       const newValue = clamp(currentPercent.value + stepPct.value);
@@ -2399,7 +1970,7 @@ const FontSizeControlsvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const FontSizeControls_exports_ = (0, exportHelper.A)(FontSizeControlsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-2f49ff89" ] ]);
+const FontSizeControls_exports_ = (0, exportHelper.A)(FontSizeControlsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-b1dba0d6" ] ]);
 
 const FontSizeControls = FontSizeControls_exports_;
 
@@ -2425,8 +1996,6 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   setup(__props, {expose: __expose}) {
     const logger = new Logger("幻想乡缘起-主页面/components/StatusTab/StatusTabContent");
     const worldMap = (0, external_Vue_namespaceObject.ref)(null);
-    const incidents = (0, external_Vue_namespaceObject.ref)(null);
-    const contentOthers = (0, external_Vue_namespaceObject.ref)(null);
     const contentBio = (0, external_Vue_namespaceObject.ref)(null);
     const contentSettingsConfig = (0, external_Vue_namespaceObject.ref)(null);
     const fontSizeUiConfig = (0, external_Vue_namespaceObject.ref)(null);
@@ -2451,6 +2020,8 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     } ];
     const activeTab = (0, external_Vue_namespaceObject.ref)("main");
     const contextRef = (0, external_Vue_namespaceObject.ref)(null);
+    const statForTabs = (0, external_Vue_namespaceObject.computed)(() => contextRef.value?.statWithoutMeta ?? null);
+    const runtimeForTabs = (0, external_Vue_namespaceObject.computed)(() => contextRef.value?.runtime ?? null);
     const switchTab = tabId => {
       logger.log("switchTab", `切换选项卡到: ${tabId}`);
       activeTab.value = tabId;
@@ -2474,14 +2045,6 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
         worldMap.value.update(statWithoutMeta);
         logger.debug(funcName, "已调用 WorldMap.update");
       }
-      if (incidents.value && typeof incidents.value.update === "function") {
-        incidents.value.update(context);
-        logger.debug(funcName, "已调用 Incidents.update");
-      }
-      if (contentOthers.value && typeof contentOthers.value.update === "function") {
-        contentOthers.value.update(context);
-        logger.debug(funcName, "已调用 ContentOthers.update");
-      }
       if (contentBio.value && typeof contentBio.value.update === "function") {
         contentBio.value.update(context);
         logger.debug(funcName, "已调用 ContentBio.update");
@@ -2492,7 +2055,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       });
       const mainExtraEl = document.getElementById("main-extra");
       if (mainExtraEl) {
-        const contentString = getStr(statWithoutMeta, ERA_VARIABLE_PATH.EXTRA_MAIN, "");
+        const contentString = typeof statWithoutMeta.附加正文 === "string" ? statWithoutMeta.附加正文 : "";
         mainExtraEl.textContent = contentString;
         logger.debug(funcName, "已更新附加正文", {
           content: contentString.slice(0, 50) + "..."
@@ -2506,8 +2069,6 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     __expose({
       update,
       worldMap,
-      incidents,
-      contentOthers,
       contentBio
     });
     return (_ctx, _cache) => {
@@ -2556,18 +2117,9 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
           active: activeTab.value === "incidents"
         } ])
       }, [ (0, external_Vue_namespaceObject.createVNode)(Incidents, {
-        ref_key: "incidents",
-        ref: incidents
-      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 其他角色 Tab "), (0, 
-      external_Vue_namespaceObject.createElementVNode)("div", {
-        id: "content_others",
-        class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
-          active: activeTab.value === "others"
-        } ])
-      }, [ (0, external_Vue_namespaceObject.createVNode)(ContentOthers, {
-        ref_key: "contentOthers",
-        ref: contentOthers
-      }, null, 512) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 履历与关系 Tab "), (0, 
+        stat: statForTabs.value,
+        runtime: runtimeForTabs.value
+      }, null, 8, [ "stat", "runtime" ]) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 履历与关系 Tab "), (0, 
       external_Vue_namespaceObject.createElementVNode)("div", {
         id: "content_bio",
         class: (0, external_Vue_namespaceObject.normalizeClass)([ "status-tab-content", {
@@ -2590,7 +2142,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3f7da338" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-79eb1a2a" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -2704,6 +2256,243 @@ const AyaNewsContainervue_type_script_setup_true_lang_ts = (0, external_Vue_name
 const AyaNewsContainer_exports_ = (0, exportHelper.A)(AyaNewsContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-dfff4c24" ] ]);
 
 const AyaNewsContainer = AyaNewsContainer_exports_;
+
+const Particlevue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "Particle",
+  props: {
+    particleType: {},
+    dx: {},
+    dy: {},
+    rot: {},
+    delay: {},
+    initialX: {},
+    initialY: {}
+  },
+  emits: [ "destroy" ],
+  setup(__props, {emit: __emit}) {
+    const props = __props;
+    const emit = __emit;
+    const particleContent = (0, external_Vue_namespaceObject.computed)(() => props.particleType === "skull" ? "☠" : "❤");
+    const particleStyle = (0, external_Vue_namespaceObject.computed)(() => ({
+      left: `${props.initialX}%`,
+      top: `${props.initialY}%`,
+      "--dx": `${props.dx}px`,
+      "--dy": `${props.dy}px`,
+      "--rot": `${props.rot}deg`,
+      animationDelay: `${props.delay}s`
+    }));
+    (0, external_Vue_namespaceObject.onMounted)(() => {
+      setTimeout(() => {
+        emit("destroy");
+      }, 1500);
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("span", {
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "GensokyoOrigin-Particle", `GensokyoOrigin-Particle--${__props.particleType}` ]),
+      style: (0, external_Vue_namespaceObject.normalizeStyle)(particleStyle.value)
+    }, (0, external_Vue_namespaceObject.toDisplayString)(particleContent.value), 7));
+  }
+});
+
+const Particle_exports_ = Particlevue_type_script_setup_true_lang_ts;
+
+const Particle = Particle_exports_;
+
+const ParticleEmittervue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "particle-emitter-root"
+};
+
+const ParticleEmittervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "ParticleEmitter",
+  props: {
+    active: {
+      type: Boolean
+    },
+    particleType: {},
+    emissionRate: {}
+  },
+  setup(__props, {expose: __expose}) {
+    const props = __props;
+    const particles = (0, external_Vue_namespaceObject.ref)([]);
+    let particleIdCounter = 0;
+    const ticker = (0, external_Vue_namespaceObject.ref)(null);
+    const createParticle = (type, delay = 0) => {
+      particleIdCounter++;
+      particles.value.push({
+        id: particleIdCounter,
+        type,
+        initialX: 5 + Math.random() * 90,
+        initialY: 10 + Math.random() * 80,
+        dx: (Math.random() - .5) * 60,
+        dy: -40 - Math.random() * 40,
+        rot: (Math.random() - .5) * 40,
+        delay
+      });
+    };
+    const removeParticle = id => {
+      particles.value = particles.value.filter(p => p.id !== id);
+    };
+    const startTicker = () => {
+      if (ticker.value) return;
+      const rate = props.emissionRate || 2;
+      ticker.value = setInterval(() => {
+        createParticle(props.particleType);
+      }, 1e3 / rate);
+    };
+    const stopTicker = () => {
+      if (ticker.value) {
+        clearInterval(ticker.value);
+        ticker.value = null;
+      }
+    };
+    (0, external_Vue_namespaceObject.watch)(() => props.active, isActive => {
+      if (isActive) {
+        startTicker();
+      } else {
+        stopTicker();
+      }
+    }, {
+      immediate: true
+    });
+    const burst = (type, count) => {
+      for (let i = 0; i < count; i++) {
+        createParticle(type, i * .05);
+      }
+    };
+    (0, external_Vue_namespaceObject.onUnmounted)(() => {
+      stopTicker();
+    });
+    __expose({
+      burst
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", ParticleEmittervue_type_script_setup_true_lang_ts_hoisted_1, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(particles.value, p => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createBlock)(Particle, {
+      key: p.id,
+      "particle-type": p.type,
+      "initial-x": p.initialX,
+      "initial-y": p.initialY,
+      dx: p.dx,
+      dy: p.dy,
+      rot: p.rot,
+      delay: p.delay,
+      onDestroy: $event => removeParticle(p.id)
+    }, null, 8, [ "particle-type", "initial-x", "initial-y", "dx", "dy", "rot", "delay", "onDestroy" ]))), 128)) ]));
+  }
+});
+
+const ParticleEmitter_exports_ = ParticleEmittervue_type_script_setup_true_lang_ts;
+
+const ParticleEmitter = ParticleEmitter_exports_;
+
+const StyledProgressBarvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StyledProgressBar",
+  props: {
+    value: {},
+    max: {},
+    loveThreshold: {},
+    hateThreshold: {},
+    size: {}
+  },
+  setup(__props) {
+    const props = __props;
+    const barWidth = (0, external_Vue_namespaceObject.computed)(() => {
+      const max = props.max || 100;
+      return `${Math.min(Math.abs(props.value) / max * 100, 100)}%`;
+    });
+    const barClasses = (0, external_Vue_namespaceObject.computed)(() => {
+      const classes = {
+        "size-small": props.size === "small",
+        "size-large": props.size !== "small",
+        rtl: props.value < 0
+      };
+      if (props.hateThreshold !== undefined && props.value <= props.hateThreshold) {
+        classes["very-hate"] = true;
+      } else if (props.value < 0) {
+        classes["negative"] = true;
+      } else if (props.loveThreshold !== undefined && props.value >= props.loveThreshold) {
+        classes["very-love"] = true;
+      }
+      return classes;
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "styled-progress-bar", barClasses.value ])
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "val",
+      style: (0, external_Vue_namespaceObject.normalizeStyle)({
+        width: barWidth.value
+      })
+    }, null, 4) ], 2));
+  }
+});
+
+const StyledProgressBar_exports_ = (0, exportHelper.A)(StyledProgressBarvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0390f826" ] ]);
+
+const StyledProgressBar = StyledProgressBar_exports_;
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "affection-display"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "info-line"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "aff-num"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  class: "aff-stage"
+};
+
+const AffectionDisplayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "AffectionDisplay",
+  props: {
+    character: {
+      type: Object,
+      required: true
+    },
+    statWithoutMeta: {
+      type: Object,
+      required: true
+    },
+    runtime: {
+      type: Object,
+      required: true
+    },
+    size: {
+      type: String,
+      required: true
+    }
+  },
+  setup(__props) {
+    const props = __props;
+    const affectionValue = (0, external_Vue_namespaceObject.computed)(() => props.character?.好感度 || 0);
+    const loveThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.loveThreshold) || 100);
+    const hateThreshold = (0, external_Vue_namespaceObject.computed)(() => Number(props.statWithoutMeta?.config?.affection?.hateThreshold) || -100);
+    const affectionStage = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!props.runtime || !props.character?.id) return "—";
+      return props.runtime.character?.chars[props.character.id]?.affectionStage?.name || "—";
+    });
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_2, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, "好感度：", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_3, (0, 
+    external_Vue_namespaceObject.toDisplayString)(affectionValue.value), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", AffectionDisplayvue_type_script_setup_true_lang_ts_hoisted_4, (0, 
+    external_Vue_namespaceObject.toDisplayString)(affectionStage.value), 1) ]), (0, 
+    external_Vue_namespaceObject.createVNode)(StyledProgressBar, {
+      value: affectionValue.value,
+      "love-threshold": loveThreshold.value,
+      "hate-threshold": hateThreshold.value,
+      size: __props.size
+    }, null, 8, [ "value", "love-threshold", "hate-threshold", "size" ]) ]));
+  }
+});
+
+const AffectionDisplay_exports_ = (0, exportHelper.A)(AffectionDisplayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-d6059de4" ] ]);
+
+const AffectionDisplay = AffectionDisplay_exports_;
 
 const RoleCardvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "GensokyoOrigin-RoleCard-header"
@@ -3922,22 +3711,21 @@ $(() => {
     logger.warn("requestDataOnInit", "eventEmit 未定义，无法在初始化时请求数据。");
   }
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
-h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-3e602d5b]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-3e602d5b]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-3e602d5b]{border:none;border-top:1px dashed var(--line);margin:20px 0}
-.styled-progress-bar[data-v-0390f826]{background:var(--bar-bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;position:relative;flex-grow:1}.styled-progress-bar.size-large[data-v-0390f826]{height:10px}.styled-progress-bar.size-small[data-v-0390f826]{height:8px;max-width:80px}.styled-progress-bar .val[data-v-0390f826]{position:absolute;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.styled-progress-bar.rtl .val[data-v-0390f826]{left:auto;right:0}.styled-progress-bar.negative .val[data-v-0390f826]{background:#b00020}.styled-progress-bar.very-hate .val[data-v-0390f826]{background:#000}.styled-progress-bar.very-love .val[data-v-0390f826]{background:linear-gradient(90deg,#7e3ff2,#c084fc)}
-.affection-display[data-v-d6059de4]{width:100%}.info-line[data-v-d6059de4]{display:flex;align-items:center;gap:8px;font-size:.9em;margin-bottom:4px}.aff-stage[data-v-d6059de4]{font-size:.9em;color:var(--muted);margin-left:auto}
-.GensokyoOrigin-Particle{position:absolute;line-height:1;-webkit-user-select:none;user-select:none;opacity:0;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25));animation:GensokyoOrigin-Particle-pop 1.2s ease-out forwards;font-size:16px}@keyframes GensokyoOrigin-Particle-pop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}.GensokyoOrigin-Particle--heart{color:#b65ff7;text-shadow:0 0 8px rgba(182,95,247,.7),0 0 4px hsla(0,0%,100%,.8)}.GensokyoOrigin-Particle--skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5),0 0 3px #fff}:root[data-theme=dark] .GensokyoOrigin-Particle--skull{color:#714f4f;text-shadow:0 0 7px rgba(185,88,88,.7),0 0 3px rgba(255,210,210,.8)}
-.particle-emitter-root{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
-.GensokyoOrigin-ContentOthers-debug-toolbar{display:flex;align-items:center;gap:8px;margin-bottom:10px;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-debug-switch{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:hsla(0,0%,100%,.08)}.GensokyoOrigin-ContentOthers-incident-list{display:flex;flex-direction:column;gap:12px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card{flex:1 1 auto;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);position:relative;overflow:hidden;transition:box-shadow .2s ease,transform .02s ease}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card-header>div:nth-child(2){flex:1 1 auto;min-width:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-meta{font-size:.85em;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:100%}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-card-toggle{margin-left:auto;border:1px solid var(--line);background:var(--paper);border-radius:6px;padding:4px 8px;font-weight:700;cursor:pointer;flex:0 0 auto}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-body{margin-top:8px;border-top:1px dashed var(--line);padding-top:8px;position:relative}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-line{margin:6px 0;font-size:.9em;display:flex;flex-wrap:wrap}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed{padding-bottom:8px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-body{display:none}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.collapsed .GensokyoOrigin-ContentOthers-role-card-header{margin-bottom:0;padding-bottom:6px}.GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{padding-bottom:calc(var(--pad) + 8px);box-shadow:0 2px 12px rgba(0,0,0,.06);max-height:none;overflow:visible}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-debug-switch{background:hsla(0,0%,100%,.05)}:root[data-theme=dark] .GensokyoOrigin-ContentOthers-incident-list .GensokyoOrigin-ContentOthers-role-card.expanded{box-shadow:0 2px 12px rgba(0,0,0,.35)}
-[data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
-#content_incidents h4[data-v-382a017e]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-382a017e]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-382a017e]{margin-bottom:15px}.debug-select[data-v-382a017e],.debug-switch[data-v-382a017e]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-382a017e]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-382a017e] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-382a017e] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-382a017e] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-name{font-weight:700}.incident-list[data-v-382a017e] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-382a017e] .role-card .role-line{margin:6px 0;font-size:.9em}
 .map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-size:12px;background-color:#fff;border-radius:4px;padding:4px}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .player-marker{background-color:rgba(0,0,0,0);transform-origin:bottom center;font-size:24px;z-index:10}
-.font-size-controls[data-v-2f49ff89]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-2f49ff89]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-3f7da338]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-3f7da338]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-3f7da338]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-3f7da338]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-3f7da338]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-3f7da338]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-3f7da338]{padding:15px}}[data-v-3f7da338] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-3f7da338] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-3f7da338] .incident-list{display:flex;flex-direction:column;gap:12px}
+h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-3e602d5b]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-3e602d5b]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-3e602d5b]{border:none;border-top:1px dashed var(--line);margin:20px 0}
+[data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
+#content_incidents h4[data-v-fb0bbb04]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-fb0bbb04]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-fb0bbb04]{margin-bottom:15px}.debug-select[data-v-fb0bbb04],.debug-switch[data-v-fb0bbb04]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-fb0bbb04]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-fb0bbb04] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-fb0bbb04] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-fb0bbb04] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-fb0bbb04] .role-card .role-name{font-weight:700}.incident-list[data-v-fb0bbb04] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-fb0bbb04] .role-card .role-line{margin:6px 0;font-size:.9em}
+.font-size-controls[data-v-b1dba0d6]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-b1dba0d6]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
+.status-tabs[data-v-79eb1a2a]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-79eb1a2a]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-79eb1a2a]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-79eb1a2a]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-79eb1a2a]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-79eb1a2a]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-79eb1a2a]{padding:15px}}[data-v-79eb1a2a] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-79eb1a2a] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-79eb1a2a] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
 .aya-news-popup[data-v-08972433]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-08972433]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-08972433]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-08972433]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .aya-news-container[data-v-dfff4c24]{position:relative}
 
+.GensokyoOrigin-Particle{position:absolute;line-height:1;-webkit-user-select:none;user-select:none;opacity:0;filter:drop-shadow(0 0 6px rgba(0,0,0,0.25));animation:GensokyoOrigin-Particle-pop 1.2s ease-out forwards;font-size:16px}@keyframes GensokyoOrigin-Particle-pop{0%{transform:translate(0,0) scale(0.8) rotate(0deg);opacity:0}20%{opacity:1}100%{transform:translate(var(--dx,0),var(--dy,-40px)) scale(1.1) rotate(var(--rot,0deg));opacity:0}}.GensokyoOrigin-Particle--heart{color:#b65ff7;text-shadow:0 0 8px rgba(182,95,247,.7),0 0 4px hsla(0,0%,100%,.8)}.GensokyoOrigin-Particle--skull{color:#222;text-shadow:0 0 6px rgba(0,0,0,.5),0 0 3px #fff}:root[data-theme=dark] .GensokyoOrigin-Particle--skull{color:#714f4f;text-shadow:0 0 7px rgba(185,88,88,.7),0 0 3px rgba(255,210,210,.8)}
+.particle-emitter-root{position:absolute;top:0;left:0;width:100%;height:100%;pointer-events:none;overflow:hidden}
+.styled-progress-bar[data-v-0390f826]{background:var(--bar-bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;position:relative;flex-grow:1}.styled-progress-bar.size-large[data-v-0390f826]{height:10px}.styled-progress-bar.size-small[data-v-0390f826]{height:8px;max-width:80px}.styled-progress-bar .val[data-v-0390f826]{position:absolute;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.styled-progress-bar.rtl .val[data-v-0390f826]{left:auto;right:0}.styled-progress-bar.negative .val[data-v-0390f826]{background:#b00020}.styled-progress-bar.very-hate .val[data-v-0390f826]{background:#000}.styled-progress-bar.very-love .val[data-v-0390f826]{background:linear-gradient(90deg,#7e3ff2,#c084fc)}
+.affection-display[data-v-d6059de4]{width:100%}.info-line[data-v-d6059de4]{display:flex;align-items:center;gap:8px;font-size:.9em;margin-bottom:4px}.aff-stage[data-v-d6059de4]{font-size:.9em;color:var(--muted);margin-left:auto}
 .GensokyoOrigin-RoleCard-wrapper{position:relative;flex:0 0 220px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;scroll-snap-align:start;cursor:pointer;transition:background .2s ease}.GensokyoOrigin-RoleCard-wrapper:hover{background:color-mix(in srgb,var(--bg) 90%,var(--ink) 10%)}.GensokyoOrigin-RoleCard-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-RoleCard-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-RoleCard-name{font-weight:700;font-size:.95em}.GensokyoOrigin-RoleCard-meta{font-size:.8em;color:var(--muted)}
 .GensokyoOrigin-RoleDetailPopup-overlay{position:fixed;top:0;left:0;right:0;bottom:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:1000}.GensokyoOrigin-RoleDetailPopup-popup{position:relative;width:90vw;max-width:600px;max-height:80vh;overflow-y:auto;background:var(--paper);border:1px solid var(--line);border-radius:12px;padding:24px;box-shadow:0 8px 24px rgba(0,0,0,.2)}.GensokyoOrigin-RoleDetailPopup-close-btn{position:absolute;top:12px;right:12px;width:30px;height:30px;border:none;background:rgba(0,0,0,0);font-size:24px;cursor:pointer;color:var(--muted)}.GensokyoOrigin-RoleDetailPopup-header{display:flex;align-items:center;gap:16px;margin-bottom:16px;padding-bottom:16px;border-bottom:1px solid var(--line)}.GensokyoOrigin-RoleDetailPopup-avatar{width:60px;height:60px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-size:24px;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-RoleDetailPopup-name{font-size:1.5em;font-weight:700}.GensokyoOrigin-RoleDetailPopup-meta{font-size:1em;color:var(--muted)}.GensokyoOrigin-RoleDetailPopup-details-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:16px}.GensokyoOrigin-RoleDetailPopup-section{margin-top:20px;padding-top:16px;border-top:1px dashed var(--line)}.GensokyoOrigin-RoleDetailPopup-section-title{font-size:1.1em;font-weight:700;margin-bottom:8px}.GensokyoOrigin-RoleDetailPopup-section-desc{font-size:.9em;color:var(--muted);margin-bottom:12px}.GensokyoOrigin-RoleDetailPopup-detail-item{background:var(--bg);padding:8px;border-radius:4px;font-size:.95em}.GensokyoOrigin-RoleDetailPopup-detail-item strong{color:var(--muted);margin-right:8px}.GensokyoOrigin-RoleDetailPopup-detail-item.full-width{grid-column:1/-1}
 .role-ribbon-container[data-v-57aa0965]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-57aa0965]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-57aa0965]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-57aa0965]{left:8px}.ribbon-arrow.right[data-v-57aa0965]{right:8px}.role-card-placeholder[data-v-57aa0965]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}

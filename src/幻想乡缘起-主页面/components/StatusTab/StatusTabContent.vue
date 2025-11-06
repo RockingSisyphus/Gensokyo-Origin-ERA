@@ -25,9 +25,9 @@
 
       <!-- 世界 Tab (WorldMap) -->
       <div
+        v-if="activeTab === 'status'"
         id="content_status"
         class="status-tab-content"
-        v-if="activeTab === 'status'"
         :class="{ active: activeTab === 'status' }"
       >
         <Map :context="contextRef" />
@@ -35,12 +35,7 @@
 
       <!-- 异变 Tab -->
       <div id="content_incidents" class="status-tab-content" :class="{ active: activeTab === 'incidents' }">
-        <Incidents ref="incidents" />
-      </div>
-
-      <!-- 其他角色 Tab -->
-      <div id="content_others" class="status-tab-content" :class="{ active: activeTab === 'others' }">
-        <ContentOthers ref="contentOthers" />
+        <Incidents :stat="statForTabs" :runtime="runtimeForTabs" />
       </div>
 
       <!-- 履历与关系 Tab -->
@@ -58,16 +53,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../utils/constants';
-import { getStr } from '../../utils/format';
-import { Logger } from '../../utils/log';
+import { computed, ref } from 'vue';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import type { UiConfig } from '../../../GSKO-BASE/schema/ui';
+import Map from '../../components/Map/Map.vue';
+import { Logger } from '../../utils/log';
 import ContentBio from './tabs/ContentBio.vue';
-import ContentOthers from './tabs/ContentOthers.vue';
 import ContentSettings from './tabs/ContentSettings.vue';
 import Incidents from './tabs/Incidents.vue';
-import Map from '../../components/Map/Map.vue';
 // [重构] FontSizeControls 已移入 tabs 文件夹内
 import FontSizeControls from './tabs/FontSizeControls.vue';
 
@@ -79,8 +73,6 @@ type Updatable = { update: (payload: any) => void };
 
 // ▼ [移植] 严格参考 app.vue，为所有子组件创建 ref
 const worldMap = ref<Updatable | null>(null);
-const incidents = ref<Updatable | null>(null);
-const contentOthers = ref<Updatable | null>(null);
 const contentBio = ref<Updatable | null>(null);
 const contentSettingsConfig = ref<Record<string, any> | null>(null);
 const fontSizeUiConfig = ref<UiConfig | null>(null);
@@ -91,13 +83,16 @@ const tabs = [
   { id: 'main', name: '正文' },
   { id: 'status', name: '世界' },
   { id: 'incidents', name: '异变啊异变！' },
-  { id: 'others', name: '其他角色' },
   { id: 'bio', name: '履历与关系' },
   { id: 'settings', name: '设置' },
 ];
 const activeTab = ref('main'); // 默认激活 '正文' 选项卡
 
-const contextRef = ref<null | { statWithoutMeta: any; runtime: any }>(null);
+type StatusTabContext = { statWithoutMeta: Stat; runtime: Runtime | null };
+const contextRef = ref<StatusTabContext | null>(null);
+
+const statForTabs = computed<Stat | null>(() => contextRef.value?.statWithoutMeta ?? null);
+const runtimeForTabs = computed<Runtime | null>(() => contextRef.value?.runtime ?? null);
 
 /**
  * @description 切换选项卡。这是对 index.ts 中原始 DOM 事件监听器的 Vue 化改造。
@@ -115,7 +110,7 @@ const switchTab = (tabId: string) => {
  *              这个方法的核心逻辑来自于 index.ts 中对 GSKO:showUI 事件的响应。
  * @param {object} context - 包含 statWithoutMeta 和 runtime 的上下文对象。
  */
-const update = (context: { statWithoutMeta: any; runtime: any }) => {
+const update = (context: StatusTabContext) => {
   contextRef.value = context;
   const funcName = 'update';
   const { statWithoutMeta, runtime } = context || {};
@@ -138,19 +133,6 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
     logger.debug(funcName, '已调用 WorldMap.update');
   }
 
-  // [移植自 index.ts] 调用异变组件的更新函数
-  // [改造] Incidents.vue 组件现在需要完整的 context 来访问 runtime
-  if (incidents.value && typeof incidents.value.update === 'function') {
-    incidents.value.update(context);
-    logger.debug(funcName, '已调用 Incidents.update');
-  }
-
-  // [移植自 index.ts] 调用其他角色组件的更新函数
-  if (contentOthers.value && typeof contentOthers.value.update === 'function') {
-    contentOthers.value.update(context);
-    logger.debug(funcName, '已调用 ContentOthers.update');
-  }
-
   // [移植自 index.ts] 调用履历与关系组件的更新函数
   if (contentBio.value && typeof contentBio.value.update === 'function') {
     contentBio.value.update(context);
@@ -166,7 +148,7 @@ const update = (context: { statWithoutMeta: any; runtime: any }) => {
   // [移植自 index.ts 的 MVU.render.mainColumns] 更新附加正文
   const mainExtraEl = document.getElementById('main-extra');
   if (mainExtraEl) {
-    const contentString = getStr(statWithoutMeta, ERA_VARIABLE_PATH.EXTRA_MAIN, '');
+    const contentString = typeof statWithoutMeta.附加正文 === 'string' ? statWithoutMeta.附加正文 : '';
     mainExtraEl.textContent = contentString;
     logger.debug(funcName, '已更新附加正文', { content: contentString.slice(0, 50) + '...' });
   }
@@ -183,8 +165,6 @@ const handleContentSettingsSaved = (payload: { ok: number; fail: number; patch: 
 defineExpose({
   update,
   worldMap,
-  incidents,
-  contentOthers,
   contentBio,
 });
 </script>

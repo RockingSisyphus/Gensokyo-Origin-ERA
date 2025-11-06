@@ -1,8 +1,8 @@
-import { ERA_VARIABLE_PATH } from './constants';
 import { get } from './format';
 import { Logger } from './log';
 
 const logger = new Logger();
+const RUNTIME_PREFIX = 'runtime.';
 
 /**
  * @description 从聊天作用域的 runtime 对象中读取指定路径的变量。
@@ -18,7 +18,7 @@ export function getRuntimeVar<T>(path: string, defaultValue?: T): T | undefined 
       return defaultValue;
     }
     const chatVars = getVariables({ type: 'chat' });
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    const runtimePath = `${RUNTIME_PREFIX}${path}`;
     const value = get(chatVars, runtimePath, defaultValue);
     logger.log(funcName, `从 chat.runtime 读取: ${path}`, { value });
     return value;
@@ -42,7 +42,7 @@ export async function setRuntimeVar(path: string, value: any): Promise<boolean> 
       return false;
     }
 
-    const runtimePath = `${ERA_VARIABLE_PATH.RUNTIME_PREFIX}${path}`;
+    const runtimePath = `${RUNTIME_PREFIX}${path}`;
     logger.log(funcName, `准备更新 chat.runtime: ${path}`, { value });
 
     await updateVariablesWith(
@@ -75,7 +75,7 @@ export function getRuntimeObject(): object {
       return {};
     }
     const chatVars = getVariables({ type: 'chat' });
-    const runtime = get(chatVars, ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1), {}); // 移除末尾的点
+    const runtime = get(chatVars, RUNTIME_PREFIX.slice(0, -1), {}); // 移除末尾的点
     logger.log(funcName, '成功获取 runtime 对象', { runtime });
     return runtime || {};
   } catch (error) {
@@ -103,7 +103,7 @@ export async function setRuntimeObject(
       return false;
     }
 
-    const runtimePrefix = ERA_VARIABLE_PATH.RUNTIME_PREFIX.slice(0, -1); // 移除末尾的点
+    const runtimePrefix = RUNTIME_PREFIX.slice(0, -1); // 移除末尾的点
     logger.log(funcName, `准备设置 chat.runtime (mode: ${mode})`, { runtimeObject });
 
     await updateVariablesWith(

@@ -8,8 +8,7 @@
 <script setup lang="ts">
 import { ref, watch } from 'vue';
 import type { UiConfig } from '../../../../GSKO-BASE/schema/ui';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
-import { updateEraVariable } from '../../../utils/eraWriter';
+import { updateEraVariableByObject } from '../../../utils/eraWriter';
 import { Logger } from '../../../utils/log';
 
 interface FontSizeControlsProps {
@@ -76,7 +75,13 @@ watch(
 const persistFontSize = (pct: number) => {
   currentPercent.value = pct;
   applyToDOM(pct);
-  updateEraVariable(ERA_VARIABLE_PATH.MAIN_FONT_PERCENT, pct);
+  updateEraVariableByObject({
+    config: {
+      ui: {
+        mainFontPercent: pct,
+      },
+    },
+  });
 };
 
 const increaseFont = () => {

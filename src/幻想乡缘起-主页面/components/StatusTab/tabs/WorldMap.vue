@@ -25,7 +25,6 @@
 
 <script setup lang="ts">
 import { defineExpose, onMounted, ref } from 'vue';
-import { ERA_VARIABLE_PATH } from '../../../utils/constants';
 import { get, getRaw } from '../../../utils/format';
 import { Logger } from '../../../utils/log';
 
@@ -131,8 +130,10 @@ async function computeHighlightedHtml(
   const text = mapText.value;
 
   // 确定当前高亮关键字（玩家所在地区）
-  const fallbackPlace = get(state, ERA_VARIABLE_PATH.FALLBACK_PLACE, '博丽神社');
-  const keyword = get(state, ERA_VARIABLE_PATH.USER_LOCATION, fallbackPlace).trim();
+  const fallbackPlace =
+    typeof state?.world?.fallbackPlace === 'string' ? state.world.fallbackPlace : '博丽神社';
+  const keywordSource = state?.user?.所在地区 ?? fallbackPlace;
+  const keyword = String(keywordSource ?? fallbackPlace).trim();
   logger.log(funcName, `当前高亮关键字: ${keyword}`);
 
   // 从图谱数据计算邻近地区
@@ -187,8 +188,9 @@ const update = async (statWithoutMeta: any): Promise<boolean> => {
   logger.log(funcName, '接收到更新请求，开始更新世界地图组件。');
 
   // 从传入的数据中获取地图文本和图谱
-  mapText.value = get(statWithoutMeta, ERA_VARIABLE_PATH.MAP_ASCII, '');
-  mapGraph.value = get(statWithoutMeta, ERA_VARIABLE_PATH.MAP_GRAPH, null);
+  const worldSection = statWithoutMeta.world ?? {};
+  mapText.value = typeof worldSection.map_ascii === 'string' ? worldSection.map_ascii : '';
+  mapGraph.value = worldSection.map_graph ?? null;
 
   if (!mapText.value) {
     logger.warn(funcName, '地图文本(world.map_ascii)为空，无法渲染地图。');
@@ -211,8 +213,9 @@ const update = async (statWithoutMeta: any): Promise<boolean> => {
   // 更新“附近地区”文本
   const nearbyPlacesEl = document.getElementById('nearby-places');
   if (nearbyPlacesEl) {
-    const fallbackPlace = get(statWithoutMeta, ERA_VARIABLE_PATH.FALLBACK_PLACE, '博丽神社');
-    const base = get(statWithoutMeta, ERA_VARIABLE_PATH.USER_LOCATION, fallbackPlace);
+    const fallbackPlace =
+      typeof worldSection.fallbackPlace === 'string' ? worldSection.fallbackPlace : '博丽神社';
+    const base = statWithoutMeta.user?.所在地区 ?? fallbackPlace;
     try {
       const adj = buildAdjacencyMap(mapGraph.value);
       const neighbors = Array.from(adj.get(base) || []);
