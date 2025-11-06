@@ -34,6 +34,7 @@ import { processTimeChatMkSync } from './core/time-chat-mk-sync';
 import { processTime } from './core/time-processor';
 import { writeChangesToEra } from './io';
 import { ayaNewsProcessor } from './subsidiary/aya-news-processor';
+import './subsidiary/show-ui-relay';
 
 // --- 事件与 Schema 导入 ---
 import { WriteDonePayload } from './events/constants';

@@ -3774,6 +3774,15 @@ $(() => {
       logContext.mk = "";
     }
   });
+  if (typeof eventEmit === "function") {
+    Promise.resolve(eventEmit("GSKO:requireData")).then(() => {
+      logger.log("requestDataOnInit", "已在初始化时请求最新数据。");
+    }).catch(error => {
+      logger.error("requestDataOnInit", "初始化请求数据时发生异常。", error);
+    });
+  } else {
+    logger.warn("requestDataOnInit", "eventEmit 未定义，无法在初始化时请求数据。");
+  }
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
 h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-3e602d5b]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-3e602d5b]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-3e602d5b]{border:none;border-top:1px dashed var(--line);margin:20px 0}
 .styled-progress-bar[data-v-0390f826]{background:var(--bar-bg);border:1px solid var(--line);border-radius:5px;overflow:hidden;position:relative;flex-grow:1}.styled-progress-bar.size-large[data-v-0390f826]{height:10px}.styled-progress-bar.size-small[data-v-0390f826]{height:8px;max-width:80px}.styled-progress-bar .val[data-v-0390f826]{position:absolute;top:0;bottom:0;height:100%;width:0%;background:linear-gradient(90deg,#c0a58a,#8c7b6a);transition:width .3s ease}.styled-progress-bar.rtl .val[data-v-0390f826]{left:auto;right:0}.styled-progress-bar.negative .val[data-v-0390f826]{background:#b00020}.styled-progress-bar.very-hate .val[data-v-0390f826]{background:#000}.styled-progress-bar.very-love .val[data-v-0390f826]{background:linear-gradient(90deg,#7e3ff2,#c084fc)}

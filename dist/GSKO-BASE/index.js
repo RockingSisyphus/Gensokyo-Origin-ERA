@@ -4439,6 +4439,53 @@ function ayaNewsProcessor(runtime) {
   return runtime;
 }
 
+const show_ui_relay_logger = new Logger("GSKO-BASE/subsidiary/show-ui-relay");
+
+const SELF_DISPATCH_FLAG = true;
+
+let cachedArgs = null;
+
+let isReplaying = false;
+
+function isSelfDispatched(args) {
+  if (args.length === 0) return false;
+  const maybeFlag = args[args.length - 1];
+  return typeof maybeFlag === "boolean" && maybeFlag === SELF_DISPATCH_FLAG;
+}
+
+eventOn("GSKO:showUI", (...args) => {
+  const funcName = "onShowUI";
+  if (isSelfDispatched(args)) {
+    if (isReplaying) {
+      show_ui_relay_logger.debug(funcName, "检测到由自身转发的事件，忽略以避免循环。");
+      isReplaying = false;
+    } else {
+      show_ui_relay_logger.debug(funcName, "检测到带有转发标记的事件，已忽略。");
+    }
+    return;
+  }
+  cachedArgs = [ ...args ];
+  show_ui_relay_logger.debug(funcName, "已缓存最新的 GSKO:showUI 参数。", cachedArgs);
+});
+
+eventOn("GSKO:requireData", () => {
+  const funcName = "onRequireData";
+  if (!cachedArgs) {
+    show_ui_relay_logger.debug(funcName, "收到 GSKO:requireData 但尚未缓存任何数据，忽略。");
+    return;
+  }
+  show_ui_relay_logger.debug(funcName, "收到 GSKO:requireData，准备重放缓存的 UI 数据。");
+  isReplaying = true;
+  const dispatchResult = eventEmit("GSKO:showUI", ...cachedArgs, SELF_DISPATCH_FLAG);
+  Promise.resolve(dispatchResult).catch(error => {
+    show_ui_relay_logger.error(funcName, "重放缓存数据时 eventEmit 失败。", error);
+  }).finally(() => {
+    if (isReplaying) {
+      isReplaying = false;
+    }
+  });
+});
+
 function onWriteDone(listener, options = {}) {
   const {ignoreApiWrite = false} = options;
   const wrappedListener = payload => {

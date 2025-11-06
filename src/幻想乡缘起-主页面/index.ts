@@ -143,4 +143,16 @@ $(() => {
       logContext.mk = '';
     }
   });
+
+  if (typeof eventEmit === 'function') {
+    Promise.resolve(eventEmit('GSKO:requireData'))
+      .then(() => {
+        logger.log('requestDataOnInit', '已在初始化时请求最新数据。');
+      })
+      .catch(error => {
+        logger.error('requestDataOnInit', '初始化请求数据时发生异常。', error);
+      });
+  } else {
+    logger.warn('requestDataOnInit', 'eventEmit 未定义，无法在初始化时请求数据。');
+  }
 });
