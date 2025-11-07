@@ -1,8 +1,8 @@
 import _ from 'lodash';
 import { Runtime } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
-import { Logger } from '../../../utils/log';
 import { pickAffectionStage } from '../../../utils/accessor/affection';
+import { Logger } from '../../../utils/log';
 
 const logger = new Logger();
 
@@ -25,7 +25,7 @@ export function buildCoLocatedCharsAffectionPrompt({ stat, runtime }: { stat: St
     return '';
   }
 
-  const charactersInfo: Record<string, any> = {};
+  const characterSummaries: string[] = [];
 
   _.forEach(coLocatedCharIds, charId => {
     const charData = stat.chars[charId];
@@ -49,26 +49,17 @@ export function buildCoLocatedCharsAffectionPrompt({ stat, runtime }: { stat: St
       return;
     }
 
-    charactersInfo[charId] = {
-      name: charData.name,
-      好感度等级: currentStage.name,
-      好感度说明: currentStage.describe,
-    };
+    const stageName = currentStage.name || '未知等级';
+    const stageDescribe = currentStage.describe || '暂无描述';
+    characterSummaries.push(`- ${charData.name}：当前好感等级为「${stageName}」，${stageDescribe}`);
   });
 
-  if (_.isEmpty(charactersInfo)) {
+  if (characterSummaries.length === 0) {
     return '';
   }
 
-  const charactersJson = JSON.stringify({ chars: charactersInfo }, null, 2);
-
-  const prompt = `
-以下是当前场景中角色的好感度信息。
-
-\`\`\`json
-${charactersJson}
-\`\`\`
-`;
+  const promptLines = ['以下为当前同区角色的好感度等级与解释：', ...characterSummaries];
+  const prompt = promptLines.join('\n');
 
   logger.debug(funcName, '成功生成同区角色好感度提示词。');
   return prompt;

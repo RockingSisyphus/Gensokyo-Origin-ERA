@@ -3381,7 +3381,7 @@ function buildCoLocatedCharsAffectionPrompt({stat, runtime}) {
     co_located_characters_affection_logger.debug(funcName, "没有同区角色，跳过提示词生成。");
     return "";
   }
-  const charactersInfo = {};
+  const characterSummaries = [];
   external_default().forEach(coLocatedCharIds, charId => {
     const charData = stat.chars[charId];
     const charSettings = runtime.characterSettings?.[charId];
@@ -3400,19 +3400,15 @@ function buildCoLocatedCharsAffectionPrompt({stat, runtime}) {
       co_located_characters_affection_logger.warn(funcName, `无法确定角色 ${charId} 的好感度阶段。`);
       return;
     }
-    charactersInfo[charId] = {
-      name: charData.name,
-      好感度等级: currentStage.name,
-      好感度说明: currentStage.describe
-    };
+    const stageName = currentStage.name || "未知等级";
+    const stageDescribe = currentStage.describe || "暂无描述";
+    characterSummaries.push(`- ${charData.name}：当前好感等级为「${stageName}」，${stageDescribe}`);
   });
-  if (external_default().isEmpty(charactersInfo)) {
+  if (characterSummaries.length === 0) {
     return "";
   }
-  const charactersJson = JSON.stringify({
-    chars: charactersInfo
-  }, null, 2);
-  const prompt = `\n以下是当前场景中角色的好感度信息。\n\n\`\`\`json\n${charactersJson}\n\`\`\`\n`;
+  const promptLines = [ "以下为当前同行角色的好感度等级与解释：", ...characterSummaries ];
+  const prompt = promptLines.join("\n");
   co_located_characters_affection_logger.debug(funcName, "成功生成同区角色好感度提示词。");
   return prompt;
 }
