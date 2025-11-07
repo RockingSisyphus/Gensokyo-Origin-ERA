@@ -3367,7 +3367,7 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
   const charactersJson = JSON.stringify({
     chars: charactersInfo
   }, null, 2);
-  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态。\n\n\`\`\`json\n${charactersJson}\n\`\`\`\n`;
+  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态。\n\n${charactersJson}\n`;
   co_located_characters_logger.debug(funcName, "成功生成同区角色提示词。");
   return prompt;
 }
@@ -3504,7 +3504,7 @@ function buildMainCharacterPrompt({stat}) {
     }
     const userJson = JSON.stringify(user, null, 2);
     const header = "主角状态提示：请根据以下 stat.user JSON 更新主角的叙述与状态。";
-    const prompt = `${header}\n\`\`\`json\n${userJson}\n\`\`\``;
+    const prompt = `${header}\n${userJson}\n`;
     main_character_logger.debug(funcName, "主角提示词生成完成��");
     return prompt;
   } catch (err) {
@@ -3599,7 +3599,7 @@ function buildTimeProgressPrompt({stat}) {
         timeProgress
       }
     };
-    const promptLines = [ "时间进度提示：以下 JSON 展示 stat.世界.timeProgress 的实际结构与当前值。", "请根据本轮剧情的发展估算新增分钟数，在该值基础上累加，并将更新结果写回 stat.世界.timeProgress。", "```json", JSON.stringify(snapshot, null, 2), "```" ];
+    const promptLines = [ "时间进度提示：以下 展示当前世界已经经过的分钟数 timeProgress 的实际结构与当前值。", "请根据本轮剧情的发展估算新增分钟数，在该值基础上累加，并将更新结果写回。", JSON.stringify(snapshot, null, 2) ];
     const prompt = promptLines.join("\n");
     time_progress_logger.debug(funcName, "时间进度提示词生成完成。");
     return prompt;
