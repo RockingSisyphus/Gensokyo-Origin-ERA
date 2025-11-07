@@ -8,6 +8,7 @@ import { buildFestivalPrompt } from './festival';
 import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildRoutePrompt } from './route';
 import { buildTimePrompt } from './time';
+import { buildWeatherPrompt } from './weather';
 
 const logger = new Logger();
 
@@ -27,6 +28,12 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const timePrompt = buildTimePrompt({ runtime });
   if (timePrompt) {
     prompts.push(timePrompt);
+  }
+
+  // 添加天气提示词（紧随时间模块之后）
+  const weatherPrompt = buildWeatherPrompt({ runtime });
+  if (weatherPrompt) {
+    prompts.push(weatherPrompt);
   }
 
   // 构建节日提示词

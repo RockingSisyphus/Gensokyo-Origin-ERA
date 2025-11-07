@@ -3562,6 +3562,66 @@ function buildTimePrompt({runtime}) {
   }
 }
 
+const weather_logger = new Logger("GSKO-BASE/core/prompt-builder/weather");
+
+function buildWeatherPrompt({runtime}) {
+  const funcName = "buildWeatherPrompt";
+  try {
+    const weather = runtime?.weather;
+    if (!weather || !Array.isArray(weather.days) || weather.days.length === 0) {
+      weather_logger.debug(funcName, "缺少 weather.days，跳过天气提示词。");
+      return null;
+    }
+    const today = weather.days[0];
+    const tomorrow = weather.days[1];
+    const lines = [];
+    if (today) {
+      lines.push(formatWeatherLine("今天", today));
+    }
+    if (tomorrow) {
+      lines.push(formatWeatherLine("明天", tomorrow));
+    }
+    if (lines.length === 0) {
+      return null;
+    }
+    const prompt = [ "天气情况：", ...lines.map(line => `- ${line}`) ].join("\n");
+    weather_logger.debug(funcName, "天气提示词生成成功。", {
+      prompt
+    });
+    return prompt;
+  } catch (err) {
+    weather_logger.error(funcName, "生成天气提示词失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
+function formatWeatherLine(label, day) {
+  const condition = day.condition?.label || "未知天气";
+  const temp = formatTemperature(day);
+  const precipitation = formatPercent(day.precipitationChance);
+  const humidity = formatPercent(day.humidity);
+  const wind = Number.isFinite(day.windLevel) ? `${day.windLevel}级` : "未知风力";
+  const detailParts = [ `温度 ${temp}`, `降水 ${precipitation}`, `湿度 ${humidity}`, `风力 ${wind}` ];
+  const detail = detailParts.join("，");
+  return `${label}：${condition}，${detail}。`;
+}
+
+function formatTemperature(day) {
+  const temperature = day.temperature;
+  const maxValue = temperature?.maxC;
+  const minValue = temperature?.minC;
+  const max = Number.isFinite(maxValue) ? `${maxValue}°C` : "未知";
+  const min = Number.isFinite(minValue) ? `${minValue}°C` : "未知";
+  return `${max} / ${min}`;
+}
+
+function formatPercent(value) {
+  if (typeof value !== "number" || !Number.isFinite(value)) {
+    return "未知";
+  }
+  return `${Math.round(value * 100)}%`;
+}
+
 const prompt_builder_logger = new Logger("GSKO-BASE/core/prompt-builder");
 
 function buildPrompt({runtime, stat}) {
@@ -3573,6 +3633,12 @@ function buildPrompt({runtime, stat}) {
   });
   if (timePrompt) {
     prompts.push(timePrompt);
+  }
+  const weatherPrompt = buildWeatherPrompt({
+    runtime
+  });
+  if (weatherPrompt) {
+    prompts.push(weatherPrompt);
   }
   const festivalPrompts = buildFestivalPrompt({
     runtime
