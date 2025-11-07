@@ -350,7 +350,12 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
           configFile: path.join(__dirname, 'tsconfig.json'),
         }),
       ],
-      alias: {},
+      alias: {
+        '幻想乡缘起-测试面板': path.resolve(__dirname, 'src/幻想乡缘起-测试面板'),
+        '幻想乡缘起-开局页面': path.resolve(__dirname, 'src/幻想乡缘起-开局页面'),
+        '幻想乡缘起-主页面': path.resolve(__dirname, 'src/幻想乡缘起-主页面'),
+        'GSKO-BASE': path.resolve(__dirname, 'src/GSKO-BASE'),
+      },
     },
     plugins: (entry.html === undefined
       ? [new MiniCssExtractPlugin()]
@@ -440,6 +445,11 @@ function parse_configuration(entry: Entry): (_env: any, argv: any) => webpack.Co
     },
     externals: ({ context, request }, callback) => {
       if (!context || !request) {
+        return callback();
+      }
+
+      const localModules = ['幻想乡缘起-测试面板', '幻想乡缘起-开局页面', '幻想乡缘起-主页面', 'GSKO-BASE'];
+      if (localModules.some(mod => request.startsWith(mod))) {
         return callback();
       }
 
