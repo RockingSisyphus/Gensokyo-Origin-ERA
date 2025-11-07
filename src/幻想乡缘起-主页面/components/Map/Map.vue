@@ -1,7 +1,7 @@
 <template>
   <div class="map-component" id="mapComponent">
     <div class="map-wrapper">
-      <div class="map-info" ref="mapInfo">
+      <div class="map-info" ref="mapInfo" v-if="false">
         缩放: <span>{{ mapState.zoom.toFixed(1) }}</span>
         x | 坐标:
         <span id="coords"
@@ -388,7 +388,7 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     cursor: pointer;
     font-size: 12px;
-    background-color: #fff;
+    background-color: var(--bg);
     border-radius: 4px;
     padding: 4px;
   }
@@ -438,18 +438,18 @@ onMounted(() => {
   }
 
   .dialog {
-    background-color: #fff;
     border-radius: 8px;
     padding: 20px;
     box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-    color: #333333;
+    color: var(--ink);
+    background-color: var(--bg);
     position: relative;
-    border: 1px solid #fff;
+    border: 1px solid var(--bg);
 
     .location-name {
       font-size: 16px;
       font-weight: bold;
-      border-bottom: 1px solid #333333;
+      border-bottom: 1px solid var(--ink);
       padding-bottom: 6px;
       margin-bottom: 6px;
     }
@@ -462,7 +462,7 @@ onMounted(() => {
     left: 50%;
     transform: translateX(-50%);
     border: 12px solid transparent;
-    border-top-color: #fff;
+    border-top-color:  var(--bg);
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
   }
 
