@@ -811,14 +811,16 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     function selectLocation(markerData) {
       try {
         const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
-        const npcList = npcIdList.map(id => props.context.runtime.characterSettings[id]);
         let htmlEle = "";
-        npcList.map(npc => {
-          htmlEle += `<div>${npc.name}:${npc.routine[0].action.do}</div>`;
-        });
+        if (npcIdList) {
+          const npcList = npcIdList.map(id => props.context.statWithoutMeta.chars[id]);
+          npcList.map(npc => {
+            htmlEle += `<div>${npc.name}：${npc["目标"] || "未知"}</div>`;
+          });
+        }
         selectedMarker.value = {
           ...markerData,
-          htmlEle
+          htmlEle: htmlEle || `<div>空无一人</div>`
         };
       } catch (error) {
         console.error(error);
