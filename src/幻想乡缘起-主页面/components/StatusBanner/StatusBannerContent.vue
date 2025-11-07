@@ -9,13 +9,14 @@
     <span class="banner-sep" aria-hidden="true"></span>
 
     <!-- 天气组件 -->
-    <WeatherContainer :stat="statData" />
+    <WeatherContainer :runtime="runtimeData" />
   </div>
 </template>
 
 <script setup lang="ts">
 import _ from 'lodash';
 import { ref } from 'vue';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
 import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import { Logger } from '../../utils/log';
 import TimeContainer from './Icons/TimeContainer/TimeContainer.vue';
@@ -25,12 +26,12 @@ const logger = new Logger();
 
 // 状态
 const statData = ref<Stat | null>(null);
-const runtimeData = ref<any>(null);
+const runtimeData = ref<Runtime | null>(null);
 
 /**
  * @description 【暴露给外部的唯一入口】更新整个状态横幅。
  */
-const update = ({ statWithoutMeta, runtime }: { statWithoutMeta: Stat; runtime: any }) => {
+const update = ({ statWithoutMeta, runtime }: { statWithoutMeta: Stat; runtime: Runtime }) => {
   const funcName = 'update';
   logger.log(funcName, '状态横幅内容区开始更新，接收到的数据：', { statWithoutMeta, runtime });
 

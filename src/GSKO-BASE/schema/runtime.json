@@ -124,6 +124,27 @@
       }
     }
   },
+  "weather": {
+    "generatedAtISO": "string",
+    "anchorDayISO": "string",
+    "days": [
+      {
+        "condition": {
+          "type": "string ('clear' | 'partly_cloudy' | 'overcast' | 'light_rain' | 'heavy_rain' | 'storm' | 'snow' | 'fog')",
+          "label": "string",
+          "description": "string"
+        },
+        "temperature": {
+          "minC": "number",
+          "maxC": "number"
+        },
+        "precipitationChance": "number (0-1)",
+        "humidity": "number (0-1)",
+        "windLevel": "number",
+        "narrative": "string"
+      }
+    ]
+  },
   "area": {
     "graph": {
       "[locationName]": {

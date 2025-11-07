@@ -2539,6 +2539,36 @@ const IncidentDetailSchema = external_z_namespaceObject.z.object({
 
 const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
 
+const WEATHER_CONDITION_TYPES = [ "clear", "partly_cloudy", "overcast", "light_rain", "heavy_rain", "storm", "snow", "fog" ];
+
+const WeatherConditionTypeEnum = external_z_namespaceObject.z.enum(WEATHER_CONDITION_TYPES);
+
+const WeatherConditionSchema = external_z_namespaceObject.z.object({
+  type: WeatherConditionTypeEnum,
+  label: external_z_namespaceObject.z.string(),
+  description: external_z_namespaceObject.z.string()
+});
+
+const WeatherTemperatureSchema = external_z_namespaceObject.z.object({
+  minC: external_z_namespaceObject.z.number(),
+  maxC: external_z_namespaceObject.z.number()
+});
+
+const WeatherDaySchema = external_z_namespaceObject.z.object({
+  condition: WeatherConditionSchema,
+  temperature: WeatherTemperatureSchema,
+  precipitationChance: external_z_namespaceObject.z.number().min(0).max(1),
+  humidity: external_z_namespaceObject.z.number().min(0).max(1),
+  windLevel: external_z_namespaceObject.z.number().min(0),
+  narrative: external_z_namespaceObject.z.string()
+});
+
+const WeatherRuntimeSchema = external_z_namespaceObject.z.object({
+  generatedAtISO: external_z_namespaceObject.z.string(),
+  anchorDayISO: external_z_namespaceObject.z.string(),
+  days: external_z_namespaceObject.z.array(WeatherDaySchema).min(1)
+});
+
 const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
   detail: external_z_namespaceObject.z.string(),
@@ -2629,6 +2659,7 @@ const AreaRuntimeInfoSchema = external_z_namespaceObject.z.object({
 const RuntimeSchema = external_z_namespaceObject.z.object({
   incident: IncidentSchema.optional(),
   clock: ClockSchema.optional(),
+  weather: WeatherRuntimeSchema.optional(),
   area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
   characterDistribution: CharacterDistributionSchema.optional(),
@@ -4377,6 +4408,257 @@ async function time_processor_processTime({stat, runtime}) {
   }
 }
 
+const FORECAST_RANGE_DAYS = 8;
+
+const SEASON_CONDITION_POOL = {
+  0: [ "clear", "partly_cloudy", "overcast", "light_rain", "storm" ],
+  1: [ "clear", "partly_cloudy", "overcast", "light_rain", "heavy_rain", "storm" ],
+  2: [ "clear", "partly_cloudy", "overcast", "light_rain", "fog" ],
+  3: [ "clear", "overcast", "snow", "fog", "storm" ]
+};
+
+const CONDITION_DETAIL_MAP = {
+  clear: {
+    type: "clear",
+    label: "晴朗",
+    description: "天空澄净，阳光透彻。",
+    precipitationBias: .05,
+    humidityBias: .35,
+    windBias: 2,
+    tempOffset: 2
+  },
+  partly_cloudy: {
+    type: "partly_cloudy",
+    label: "多云",
+    description: "云层舒展开来，偶有日光穿透。",
+    precipitationBias: .2,
+    humidityBias: .45,
+    windBias: 3,
+    tempOffset: 0
+  },
+  overcast: {
+    type: "overcast",
+    label: "阴天",
+    description: "厚重云层笼罩，光线柔和。",
+    precipitationBias: .35,
+    humidityBias: .55,
+    windBias: 3,
+    tempOffset: -1
+  },
+  light_rain: {
+    type: "light_rain",
+    label: "小雨",
+    description: "细雨如丝，空气湿润。",
+    precipitationBias: .65,
+    humidityBias: .75,
+    windBias: 4,
+    tempOffset: -2
+  },
+  heavy_rain: {
+    type: "heavy_rain",
+    label: "大雨",
+    description: "雨势强劲，需要注意出行安全。",
+    precipitationBias: .85,
+    humidityBias: .85,
+    windBias: 5,
+    tempOffset: -3
+  },
+  storm: {
+    type: "storm",
+    label: "雷暴",
+    description: "雷霆交织，风雨大作。",
+    precipitationBias: .95,
+    humidityBias: .9,
+    windBias: 6,
+    tempOffset: -3
+  },
+  snow: {
+    type: "snow",
+    label: "降雪",
+    description: "雪花轻覆大地，气温寒凉。",
+    precipitationBias: .7,
+    humidityBias: .8,
+    windBias: 4,
+    tempOffset: -4
+  },
+  fog: {
+    type: "fog",
+    label: "薄雾",
+    description: "雾气弥漫，视野受限。",
+    precipitationBias: .25,
+    humidityBias: .9,
+    windBias: 2,
+    tempOffset: -1
+  }
+};
+
+const SEASON_TEMPERATURE_PRESET = [ {
+  min: 5,
+  max: 20
+}, {
+  min: 22,
+  max: 35
+}, {
+  min: 10,
+  max: 24
+}, {
+  min: -5,
+  max: 8
+} ];
+
+function buildWeatherRuntime({clock, current}) {
+  if (!clock?.now) {
+    return current;
+  }
+  const baseDate = getAnchorDate(clock);
+  if (!baseDate) {
+    return current;
+  }
+  const anchorIso = formatDate(baseDate);
+  const newDayFlag = Boolean(clock.flags?.newDay);
+  const needsRefresh = !current || current.anchorDayISO !== anchorIso;
+  if (!needsRefresh && !newDayFlag) {
+    return current;
+  }
+  const days = [];
+  for (let offset = 0; offset < FORECAST_RANGE_DAYS; offset += 1) {
+    days.push(buildWeatherDay(baseDate, offset));
+  }
+  return {
+    generatedAtISO: (new Date).toISOString(),
+    anchorDayISO: anchorIso,
+    days
+  };
+}
+
+function buildWeatherDay(baseDate, offsetDays) {
+  const targetDate = addDays(baseDate, offsetDays);
+  const year = targetDate.getUTCFullYear();
+  const month = targetDate.getUTCMonth() + 1;
+  const day = targetDate.getUTCDate();
+  const weekdayIndex = (targetDate.getUTCDay() - 1 + 7) % 7;
+  const weekdayName = TIME_WEEK_NAMES[weekdayIndex] ?? TIME_WEEK_NAMES[0];
+  const seasonIndex = seasonIndexOf(month);
+  const seedBase = year * 1e4 + month * 100 + day;
+  const conditionType = pickConditionType(seedBase, seasonIndex);
+  const condition = CONDITION_DETAIL_MAP[conditionType];
+  const temperature = calculateTemperature(seedBase, seasonIndex, condition.tempOffset);
+  const precipitationChance = calculateProbability(seedBase + 17, condition.precipitationBias);
+  const humidity = calculateProbability(seedBase + 23, condition.humidityBias, .1);
+  const windLevel = calculateWindLevel(seedBase + 31, condition.windBias);
+  const narrative = buildNarrative({
+    weekdayName,
+    conditionLabel: condition.label,
+    temperature,
+    precipitationChance,
+    windLevel
+  });
+  return {
+    condition: {
+      type: condition.type,
+      label: condition.label,
+      description: condition.description
+    },
+    temperature,
+    precipitationChance,
+    humidity,
+    windLevel,
+    narrative
+  };
+}
+
+function getAnchorDate(clock) {
+  const {year, month, day} = clock.now;
+  if (!year || !month || !day) {
+    return null;
+  }
+  return new Date(Date.UTC(year, month - 1, day));
+}
+
+function addDays(date, offset) {
+  return new Date(date.getTime() + offset * 864e5);
+}
+
+function formatDate(date) {
+  return `${date.getUTCFullYear()}-${pad(date.getUTCMonth() + 1)}-${pad(date.getUTCDate())}`;
+}
+
+function pad(value) {
+  return value < 10 ? `0${value}` : `${value}`;
+}
+
+function pickConditionType(seed, seasonIdx) {
+  const pool = SEASON_CONDITION_POOL[seasonIdx] ?? WEATHER_CONDITION_TYPES;
+  const value = pseudoRandom(seed);
+  const index = Math.floor(value * pool.length) % pool.length;
+  return pool[index];
+}
+
+function calculateTemperature(seed, seasonIdx, offset) {
+  const preset = SEASON_TEMPERATURE_PRESET[seasonIdx] ?? {
+    min: 8,
+    max: 20
+  };
+  const variance = 6;
+  const min = Math.round(preset.min + offset + (pseudoRandom(seed) - .5) * variance);
+  const rawMax = Math.round(preset.max + offset + (pseudoRandom(seed + 7) - .5) * variance);
+  const max = Math.max(rawMax, min + 2);
+  return {
+    minC: min,
+    maxC: max
+  };
+}
+
+function calculateProbability(seed, bias, spread = .2) {
+  const value = bias + (pseudoRandom(seed) - .5) * spread * 2;
+  return clamp(value, 0, 1);
+}
+
+function calculateWindLevel(seed, bias) {
+  const value = bias + Math.round((pseudoRandom(seed) - .5) * 4);
+  return Math.max(1, Math.min(12, value));
+}
+
+function buildNarrative({weekdayName, conditionLabel, temperature, precipitationChance, windLevel}) {
+  const precipText = precipitationChance > .6 ? "降水概率较高" : precipitationChance < .2 ? "几乎无降水可能" : "有零散降水机会";
+  return `${weekdayName} ${conditionLabel}，最高 ${temperature.maxC}C / 最低 ${temperature.minC}C，${precipText}，风力等级 ${windLevel} 级。`;
+}
+
+function pseudoRandom(seed) {
+  const x = Math.sin(seed) * 1e4;
+  return x - Math.floor(x);
+}
+
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+const weather_processor_logger = new Logger("GSKO-BASE/core/weather-processor");
+
+function processWeather({stat, runtime}) {
+  const funcName = "processWeather";
+  weather_processor_logger.debug(funcName, "开始计算天气预报...");
+  try {
+    void stat;
+    const weather = buildWeatherRuntime({
+      clock: runtime.clock,
+      current: runtime.weather
+    });
+    if (weather) {
+      runtime.weather = weather;
+    }
+    weather_processor_logger.debug(funcName, "天气处理完成。");
+    return {
+      runtime
+    };
+  } catch (err) {
+    weather_processor_logger.error(funcName, "天气处理失败:", err);
+    return {
+      runtime
+    };
+  }
+}
+
 const io_logger = new Logger("IOModule");
 
 async function writeChangesToEra({changes, stat}) {
@@ -4747,6 +5029,16 @@ $(() => {
       currentRuntime = timeResult.runtime;
       const timeChanges = timeResult.changes;
       logState("Time Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      const weatherResult = processWeather({
+        stat: currentStat,
+        runtime: currentRuntime
+      });
+      currentRuntime = weatherResult.runtime;
+      logState("Weather Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

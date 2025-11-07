@@ -8,6 +8,7 @@ import { AffectionStageWithForgetSchema, CharacterSettingsMapSchema, type Action
 import { ClockSchema, type Clock } from './clock';
 import { IncidentDetailSchema } from './incident';
 import { MapLeafSchema, MapSizeSchema } from './world';
+import { WeatherRuntimeSchema } from './weather';
 export { ClockSchema };
 
 const IncidentRuntimeInfoSchema = z.object({
@@ -113,6 +114,7 @@ export type AreaRuntimeInfo = z.infer<typeof AreaRuntimeInfoSchema>;
 export const RuntimeSchema = z.object({
   incident: IncidentSchema.optional(),
   clock: ClockSchema.optional(),
+  weather: WeatherRuntimeSchema.optional(),
   area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
   // 角色分布（主角位置 + 各地点 NPC）

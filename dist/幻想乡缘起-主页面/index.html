@@ -374,6 +374,36 @@ const 世界Schema = external_z_namespaceObject.z.object({
   timeProgress: external_z_namespaceObject.z.number()
 }).passthrough();
 
+const WEATHER_CONDITION_TYPES = [ "clear", "partly_cloudy", "overcast", "light_rain", "heavy_rain", "storm", "snow", "fog" ];
+
+const WeatherConditionTypeEnum = external_z_namespaceObject.z.enum(WEATHER_CONDITION_TYPES);
+
+const WeatherConditionSchema = external_z_namespaceObject.z.object({
+  type: WeatherConditionTypeEnum,
+  label: external_z_namespaceObject.z.string(),
+  description: external_z_namespaceObject.z.string()
+});
+
+const WeatherTemperatureSchema = external_z_namespaceObject.z.object({
+  minC: external_z_namespaceObject.z.number(),
+  maxC: external_z_namespaceObject.z.number()
+});
+
+const WeatherDaySchema = external_z_namespaceObject.z.object({
+  condition: WeatherConditionSchema,
+  temperature: WeatherTemperatureSchema,
+  precipitationChance: external_z_namespaceObject.z.number().min(0).max(1),
+  humidity: external_z_namespaceObject.z.number().min(0).max(1),
+  windLevel: external_z_namespaceObject.z.number().min(0),
+  narrative: external_z_namespaceObject.z.string()
+});
+
+const WeatherRuntimeSchema = external_z_namespaceObject.z.object({
+  generatedAtISO: external_z_namespaceObject.z.string(),
+  anchorDayISO: external_z_namespaceObject.z.string(),
+  days: external_z_namespaceObject.z.array(WeatherDaySchema).min(1)
+});
+
 const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
   detail: external_z_namespaceObject.z.string(),
@@ -464,6 +494,7 @@ const AreaRuntimeInfoSchema = external_z_namespaceObject.z.object({
 const RuntimeSchema = external_z_namespaceObject.z.object({
   incident: IncidentSchema.optional(),
   clock: ClockSchema.optional(),
+  weather: WeatherRuntimeSchema.optional(),
   area: AreaRuntimeInfoSchema.optional(),
   festival: FestivalSchema.optional(),
   characterDistribution: CharacterDistributionSchema.optional(),
@@ -1887,7 +1918,7 @@ const Incidentsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceOb
   }
 });
 
-const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-01ab2bb9" ] ]);
+const Incidents_exports_ = (0, exportHelper.A)(Incidentsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6bff0ba1" ] ]);
 
 const Incidents = Incidents_exports_;
 
@@ -3184,46 +3215,78 @@ const TimeContainer_exports_ = (0, exportHelper.A)(TimeContainervue_type_script_
 
 const TimeContainer = TimeContainer_exports_;
 
+const WeatherButtonClosedvue_type_script_setup_true_lang_ts_hoisted_1 = [ "disabled" ];
+
+const WeatherButtonClosedvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "summary"
+};
+
 const WeatherButtonClosedvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WeatherButtonClosed",
   props: {
-    weather: {}
+    summary: {},
+    disabled: {
+      type: Boolean
+    }
   },
   emits: [ "open-weather" ],
   setup(__props) {
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
       id: "banner-weather-closed",
-      class: "banner-chip",
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "banner-chip", {
+        "banner-chip--disabled": __props.disabled
+      } ]),
+      disabled: __props.disabled,
       onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("open-weather"))
     }, [ _cache[1] || (_cache[1] = (0, external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
-    }, "☀️", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", null, (0, 
-    external_Vue_namespaceObject.toDisplayString)(__props.weather || "—"), 1) ]));
+    }, "🌤️", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", WeatherButtonClosedvue_type_script_setup_true_lang_ts_hoisted_2, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.summary), 1) ], 10, WeatherButtonClosedvue_type_script_setup_true_lang_ts_hoisted_1));
   }
 });
 
-const WeatherButtonClosed_exports_ = (0, exportHelper.A)(WeatherButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-11b37370" ] ]);
+const WeatherButtonClosed_exports_ = (0, exportHelper.A)(WeatherButtonClosedvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1ca16986" ] ]);
 
 const WeatherButtonClosed = WeatherButtonClosed_exports_;
 
+const WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_1 = {
+  class: "open-left"
+};
+
+const WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  class: "open-text"
+};
+
+const WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "summary"
+};
+
 const WeatherButtonOpenvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WeatherButtonOpen",
+  props: {
+    summary: {}
+  },
   emits: [ "close-weather" ],
   setup(__props) {
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
       id: "banner-weather-open",
       class: "banner-chip-open",
       onClick: _cache[0] || (_cache[0] = $event => _ctx.$emit("close-weather"))
-    }, [ ..._cache[1] || (_cache[1] = [ (0, external_Vue_namespaceObject.createElementVNode)("span", {
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
       class: "emoji"
-    }, "🌦️", -1), (0, external_Vue_namespaceObject.createElementVNode)("span", null, "天气详情", -1), (0, 
+    }, "☀️", -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_2, [ _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", {
+      class: "title"
+    }, "天气详情", -1)), (0, external_Vue_namespaceObject.createElementVNode)("small", WeatherButtonOpenvue_type_script_setup_true_lang_ts_hoisted_3, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.summary), 1) ]) ]), _cache[3] || (_cache[3] = (0, 
     external_Vue_namespaceObject.createElementVNode)("span", {
       class: "close-icon"
-    }, "收起", -1) ]) ]));
+    }, "收起", -1)) ]));
   }
 });
 
-const WeatherButtonOpen_exports_ = (0, exportHelper.A)(WeatherButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-1a6d77c8" ] ]);
+const WeatherButtonOpen_exports_ = (0, exportHelper.A)(WeatherButtonOpenvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-08143b0d" ] ]);
 
 const WeatherButtonOpen = WeatherButtonOpen_exports_;
 
@@ -3231,19 +3294,164 @@ const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "weather-content"
 };
 
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_2 = {
+  key: 0,
+  class: "current-weather"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_3 = {
+  class: "current-header"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_4 = {
+  class: "header-left"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_5 = {
+  class: "label"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "date"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_7 = {
+  class: "temperature"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_8 = {
+  class: "current-body"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_9 = {
+  class: "condition"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_10 = {
+  class: "narrative"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_11 = {
+  class: "current-stats"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_12 = {
+  key: 1,
+  class: "forecast-list"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_13 = {
+  class: "item-header"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_14 = {
+  class: "label"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_15 = {
+  class: "date"
+};
+
+const WeatherContentvue_type_script_setup_true_lang_ts_hoisted_16 = {
+  class: "condition"
+};
+
+const _hoisted_17 = {
+  class: "temp"
+};
+
+const _hoisted_18 = {
+  class: "meta"
+};
+
+const _hoisted_19 = {
+  key: 2,
+  class: "generated-at"
+};
+
 const WeatherContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WeatherContent",
   props: {
-    weather: {}
+    current: {},
+    forecast: {},
+    generatedAt: {}
   },
   setup(__props) {
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("p", null, "当前天气: " + (0, external_Vue_namespaceObject.toDisplayString)(__props.weather || "未知"), 1), _cache[0] || (_cache[0] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("p", null, [ (0, external_Vue_namespaceObject.createElementVNode)("em", null, "(未来可扩充天气预报等详细信息)") ], -1)) ]));
+    const props = __props;
+    const generatedLabel = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!props.generatedAt) {
+        return null;
+      }
+      const date = new Date(props.generatedAt);
+      if (Number.isNaN(date.getTime())) {
+        return null;
+      }
+      return date.toLocaleString("zh-CN", {
+        month: "2-digit",
+        day: "2-digit",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: false
+      });
+    });
+    function formatPercent(value) {
+      if (typeof value !== "number" || Number.isNaN(value)) {
+        return "—";
+      }
+      return `${Math.round(value * 100)}%`;
+    }
+    function formatTemperature(day) {
+      const {maxC, minC} = day.temperature;
+      return `${maxC}° / ${minC}°`;
+    }
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_1, [ __props.current ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("section", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("header", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_4, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_5, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.current.label), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_6, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.current.dateText), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_7, (0, 
+    external_Vue_namespaceObject.toDisplayString)(formatTemperature(__props.current)), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_8, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_9, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.current.condition.label), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_10, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.current.narrative), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("ul", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_11, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("li", null, [ _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", null, "降水概率", -1)), (0, 
+    external_Vue_namespaceObject.createElementVNode)("strong", null, (0, external_Vue_namespaceObject.toDisplayString)(formatPercent(__props.current.precipitationChance)), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("li", null, [ _cache[1] || (_cache[1] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", null, "湿度", -1)), (0, external_Vue_namespaceObject.createElementVNode)("strong", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)(formatPercent(__props.current.humidity)), 1) ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("li", null, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", null, "风力", -1)), (0, external_Vue_namespaceObject.createElementVNode)("strong", null, (0, 
+    external_Vue_namespaceObject.toDisplayString)(__props.current.windLevel) + "级", 1) ]) ]) ])) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true), __props.forecast.length ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("section", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_12, [ ((0, 
+    external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
+    external_Vue_namespaceObject.renderList)(__props.forecast, item => ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("article", {
+      key: item.label + item.dateText,
+      class: "forecast-item"
+    }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_13, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("span", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_14, (0, 
+    external_Vue_namespaceObject.toDisplayString)(item.label), 1), (0, external_Vue_namespaceObject.createElementVNode)("span", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_15, (0, 
+    external_Vue_namespaceObject.toDisplayString)(item.dateText), 1) ]), (0, external_Vue_namespaceObject.createElementVNode)("p", WeatherContentvue_type_script_setup_true_lang_ts_hoisted_16, (0, 
+    external_Vue_namespaceObject.toDisplayString)(item.condition.label), 1), (0, external_Vue_namespaceObject.createElementVNode)("p", _hoisted_17, (0, 
+    external_Vue_namespaceObject.toDisplayString)(formatTemperature(item)), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", _hoisted_18, " 降水 " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(formatPercent(item.precipitationChance)) + " · 湿度 " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(formatPercent(item.humidity)) + " · 风 " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(item.windLevel) + "级 ", 1) ]))), 128)) ])) : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true), generatedLabel.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("p", _hoisted_19, "更新于 " + (0, 
+    external_Vue_namespaceObject.toDisplayString)(generatedLabel.value), 1)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]));
   }
 });
 
-const WeatherContent_exports_ = (0, exportHelper.A)(WeatherContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-16c06ed4" ] ]);
+const WeatherContent_exports_ = (0, exportHelper.A)(WeatherContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-4d09005a" ] ]);
 
 const WeatherContent = WeatherContent_exports_;
 
@@ -3251,10 +3459,15 @@ const WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "weather-container"
 };
 
+const WeatherContainervue_type_script_setup_true_lang_ts_hoisted_2 = {
+  key: 3,
+  class: "weather-empty"
+};
+
 const WeatherContainervue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "WeatherContainer",
   props: {
-    stat: {
+    runtime: {
       type: Object,
       required: true
     }
@@ -3262,23 +3475,84 @@ const WeatherContainervue_type_script_setup_true_lang_ts = (0, external_Vue_name
   setup(__props) {
     const props = __props;
     const weatherVisible = (0, external_Vue_namespaceObject.ref)(false);
-    const weather = (0, external_Vue_namespaceObject.computed)(() => props.stat?.weather ?? null);
+    const weatherRuntime = (0, external_Vue_namespaceObject.computed)(() => props.runtime?.weather ?? null);
+    const generatedAtISO = (0, external_Vue_namespaceObject.computed)(() => weatherRuntime.value?.generatedAtISO ?? null);
+    const anchorDate = (0, external_Vue_namespaceObject.computed)(() => parseAnchorDate(weatherRuntime.value?.anchorDayISO));
+    const forecastWithLabels = (0, external_Vue_namespaceObject.computed)(() => decorateForecast(weatherRuntime.value, anchorDate.value));
+    const currentWeather = (0, external_Vue_namespaceObject.computed)(() => forecastWithLabels.value[0] ?? null);
+    const upcomingForecast = (0, external_Vue_namespaceObject.computed)(() => forecastWithLabels.value.length > 1 ? forecastWithLabels.value.slice(1, 6) : []);
+    const hasWeather = (0, external_Vue_namespaceObject.computed)(() => Boolean(currentWeather.value));
+    const currentSummary = (0, external_Vue_namespaceObject.computed)(() => currentWeather.value?.condition.label ?? "天气未刷新");
+    const handleOpen = () => {
+      if (!hasWeather.value) {
+        return;
+      }
+      weatherVisible.value = true;
+    };
+    const handleClose = () => {
+      weatherVisible.value = false;
+    };
+    (0, external_Vue_namespaceObject.watch)(hasWeather, ready => {
+      if (!ready) {
+        weatherVisible.value = false;
+      }
+    });
+    function parseAnchorDate(anchorISO) {
+      if (!anchorISO) {
+        return null;
+      }
+      const date = new Date(`${anchorISO}T00:00:00Z`);
+      return Number.isNaN(date.getTime()) ? null : date;
+    }
+    function decorateForecast(runtime, baseDate) {
+      const days = runtime?.days ?? [];
+      return days.map((day, index) => {
+        const date = baseDate ? new Date(baseDate.getTime() + index * 864e5) : null;
+        return {
+          ...day,
+          label: labelForIndex(index, date),
+          dateText: formatDateLabel(date, index)
+        };
+      });
+    }
+    function labelForIndex(index, date) {
+      if (index === 0) return "今天";
+      if (index === 1) return "明天";
+      if (index === 2) return "后天";
+      return date ? date.toLocaleDateString("zh-CN", {
+        weekday: "short"
+      }) : `+${index}天`;
+    }
+    function formatDateLabel(date, index) {
+      if (!date) {
+        return `+${index}天`;
+      }
+      return `${date.getMonth() + 1}月${date.getDate()}日`;
+    }
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContainervue_type_script_setup_true_lang_ts_hoisted_1, [ !weatherVisible.value ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(WeatherButtonClosed, {
       key: 0,
-      onOpenWeather: _cache[0] || (_cache[0] = $event => weatherVisible.value = true),
-      weather: weather.value
-    }, null, 8, [ "weather" ])) : ((0, external_Vue_namespaceObject.openBlock)(), (0, 
-    external_Vue_namespaceObject.createBlock)(WeatherButtonOpen, {
+      summary: currentSummary.value,
+      disabled: !hasWeather.value,
+      onOpenWeather: handleOpen
+    }, null, 8, [ "summary", "disabled" ])) : ((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createBlock)(WeatherButtonOpen, {
       key: 1,
-      onCloseWeather: _cache[1] || (_cache[1] = $event => weatherVisible.value = false)
-    })), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createVNode)(WeatherContent, {
-      weather: weather.value
-    }, null, 8, [ "weather" ]), [ [ external_Vue_namespaceObject.vShow, weatherVisible.value ] ]) ]));
+      summary: currentSummary.value,
+      onCloseWeather: handleClose
+    }, null, 8, [ "summary" ])), hasWeather.value ? (0, external_Vue_namespaceObject.withDirectives)(((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createBlock)(WeatherContent, {
+      key: 2,
+      current: currentWeather.value,
+      forecast: upcomingForecast.value,
+      "generated-at": generatedAtISO.value
+    }, null, 8, [ "current", "forecast", "generated-at" ])), [ [ external_Vue_namespaceObject.vShow, weatherVisible.value ] ]) : (0, 
+    external_Vue_namespaceObject.withDirectives)(((0, external_Vue_namespaceObject.openBlock)(), 
+    (0, external_Vue_namespaceObject.createElementBlock)("div", WeatherContainervue_type_script_setup_true_lang_ts_hoisted_2, " 暂未生成天气数据，请等待下一次时间推进。 ", 512)), [ [ external_Vue_namespaceObject.vShow, weatherVisible.value ] ]) ]));
   }
 });
 
-const WeatherContainer_exports_ = (0, exportHelper.A)(WeatherContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-0c8bdfda" ] ]);
+const WeatherContainer_exports_ = (0, exportHelper.A)(WeatherContainervue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-5cfce3f1" ] ]);
 
 const WeatherContainer = WeatherContainer_exports_;
 
@@ -3329,12 +3603,12 @@ const StatusBannerContentvue_type_script_setup_true_lang_ts = (0, external_Vue_n
       "aria-hidden": "true"
     }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 天气组件 "), (0, 
     external_Vue_namespaceObject.createVNode)(WeatherContainer, {
-      stat: statData.value
-    }, null, 8, [ "stat" ]) ]) ], 2112));
+      runtime: runtimeData.value
+    }, null, 8, [ "runtime" ]) ]) ], 2112));
   }
 });
 
-const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-55265fac" ] ]);
+const StatusBannerContent_exports_ = (0, exportHelper.A)(StatusBannerContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-6184098d" ] ]);
 
 const StatusBannerContent = StatusBannerContent_exports_;
 
@@ -3717,7 +3991,7 @@ $(() => {
 .map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-size:12px;background-color:#fff;border-radius:4px;padding:4px}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{background-color:#fff;border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:#333;position:relative;border:1px solid #fff}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid #333;padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .player-marker{background-color:rgba(0,0,0,0);transform-origin:bottom center;font-size:24px;z-index:10}
 h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-3e602d5b]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-3e602d5b]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-3e602d5b]{border:none;border-top:1px dashed var(--line);margin:20px 0}
 [data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
-#content_incidents h4[data-v-01ab2bb9]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-01ab2bb9]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-01ab2bb9]{margin-bottom:15px}.debug-select[data-v-01ab2bb9],.debug-switch[data-v-01ab2bb9]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-01ab2bb9]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-01ab2bb9] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-01ab2bb9] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-01ab2bb9] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-01ab2bb9] .role-card .role-name{font-weight:700}.incident-list[data-v-01ab2bb9] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-01ab2bb9] .role-card .role-line{margin:6px 0;font-size:.9em}
+#content_incidents h4[data-v-6bff0ba1]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-6bff0ba1]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-6bff0ba1]{margin-bottom:15px}.debug-select[data-v-6bff0ba1],.debug-switch[data-v-6bff0ba1]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-6bff0ba1]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-6bff0ba1] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-6bff0ba1] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-6bff0ba1] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-6bff0ba1] .role-card .role-name{font-weight:700}.incident-list[data-v-6bff0ba1] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-6bff0ba1] .role-card .role-line{margin:6px 0;font-size:.9em}
 .font-size-controls[data-v-b1dba0d6]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-b1dba0d6]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
 .status-tabs[data-v-1ec3d772]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-1ec3d772]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-1ec3d772]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-1ec3d772]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-1ec3d772]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-1ec3d772]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-1ec3d772]{padding:15px}}[data-v-1ec3d772] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-1ec3d772] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-1ec3d772] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
@@ -3738,12 +4012,13 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .cal-content[data-v-40fd130e]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-40fd130e]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-40fd130e]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-40fd130e]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-40fd130e]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-40fd130e]{display:flex;gap:6px}.cal-btn[data-v-40fd130e]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-40fd130e]:active{transform:translateY(1px)}.cal-body[data-v-40fd130e]{padding:10px 12px 12px}.cal-week[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-40fd130e]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
 .time-container[data-v-517ae222]{position:relative}
 
-.banner-chip[data-v-11b37370]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-11b37370]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-11b37370]:active{transform:translateY(1px) scale(0.99)}.emoji[data-v-11b37370]{margin-right:0;font-size:1.1em}
-.banner-chip-open[data-v-1a6d77c8]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-1a6d77c8]{font-size:1.2em;margin-right:8px}.close-icon[data-v-1a6d77c8]{font-size:.9em;color:var(--ink)}
-.weather-content[data-v-16c06ed4]{position:static;width:100%;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--ink)}p[data-v-16c06ed4]{margin:4px 0}em[data-v-16c06ed4]{color:var(--muted);font-size:.9em}
-.weather-container[data-v-0c8bdfda]{position:relative}
+.banner-chip[data-v-1ca16986]{display:inline-flex;align-items:center;gap:.65em;padding:8px 14px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease;min-width:150px}.banner-chip[data-v-1ca16986]:hover:not(.banner-chip--disabled){box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-1ca16986]:active:not(.banner-chip--disabled){transform:translateY(1px) scale(0.99)}.banner-chip--disabled[data-v-1ca16986]{cursor:not-allowed;opacity:.6}.emoji[data-v-1ca16986]{font-size:1.2em}.summary[data-v-1ca16986]{font-size:1em}
+.banner-chip-open[data-v-08143b0d]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:12px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.open-left[data-v-08143b0d]{display:flex;align-items:center;gap:10px}.open-text[data-v-08143b0d]{display:flex;flex-direction:column;gap:2px}.emoji[data-v-08143b0d]{font-size:1.2em}.title[data-v-08143b0d]{font-size:1em}.summary[data-v-08143b0d]{font-size:.78em;color:color-mix(in srgb,var(--ink-bright) 70%,white 30%)}.close-icon[data-v-08143b0d]{font-size:.9em;color:var(--ink)}
+.weather-content[data-v-4d09005a]{width:100%;padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--ink);display:flex;flex-direction:column;gap:16px}.current-weather[data-v-4d09005a]{display:flex;flex-direction:column;gap:10px}.current-header[data-v-4d09005a]{display:flex;align-items:center;justify-content:space-between;gap:10px}.header-left[data-v-4d09005a]{display:flex;align-items:baseline;gap:8px}.label[data-v-4d09005a]{font-weight:700}.date[data-v-4d09005a]{font-size:0.85em;color:var(--muted)}.temperature[data-v-4d09005a]{font-size:1.1em;font-variant-numeric:tabular-nums}.current-body .condition[data-v-4d09005a]{font-size:1em;font-weight:600}.current-body .narrative[data-v-4d09005a]{margin-top:2px;color:var(--muted);font-size:0.9em}.current-stats[data-v-4d09005a]{display:grid;grid-template-columns:repeat(auto-fit,minmax(120px,1fr));gap:8px;padding:0;margin:0;list-style:none}.current-stats li[data-v-4d09005a]{padding:8px 10px;background:color-mix(in srgb,var(--tab-active) 15%,transparent);border-radius:8px;display:flex;flex-direction:column;gap:4px;font-size:0.85em}.current-stats strong[data-v-4d09005a]{font-size:1.05em}.forecast-list[data-v-4d09005a]{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.forecast-item[data-v-4d09005a]{padding:10px;border:1px solid color-mix(in srgb,var(--line) 70%,transparent);border-radius:8px;display:flex;flex-direction:column;gap:4px;background:color-mix(in srgb,var(--paper) 80%,var(--tab-active) 20%)}.forecast-item .condition[data-v-4d09005a]{font-weight:600}.forecast-item .temp[data-v-4d09005a]{font-size:0.95em}.forecast-item .meta[data-v-4d09005a]{font-size:0.8em;color:var(--muted)}.generated-at[data-v-4d09005a]{font-size:0.78em;color:var(--muted);text-align:right}
 
-.emoji[data-v-55265fac]{margin-right:8px;font-size:1.1em}.status-banner[data-v-55265fac]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-55265fac]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-55265fac]{margin-right:0}.banner-sep[data-v-55265fac]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
+.weather-container[data-v-5cfce3f1]{position:relative}.weather-empty[data-v-5cfce3f1]{padding:16px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;color:var(--muted);font-size:0.95em}
+
+.emoji[data-v-6184098d]{margin-right:8px;font-size:1.1em}.status-banner[data-v-6184098d]{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin:8px 10px 6px;padding:10px 12px;background:var(--paper);border:1px solid var(--line);border-radius:10px;box-shadow:0 1px 0 rgba(0,0,0,.03),0 6px 18px rgba(0,0,0,.05);position:relative}.status-banner .banner-title[data-v-6184098d]{display:flex;align-items:center;gap:8px;color:var(--muted);font-weight:700;margin-right:6px}.status-banner .banner-title .emoji[data-v-6184098d]{margin-right:0}.banner-sep[data-v-6184098d]{width:1px;height:18px;background:var(--line);align-self:center;margin:0 2px}:root[data-theme="dark"]{box-shadow:0 1px 0 rgba(0,0,0,.1),0 6px 18px rgba(0,0,0,.2)}
 .theme-toggle[data-v-676236f6]{position:absolute;top:8px;right:8px;width:34px;height:34px;display:grid;place-items:center;border-radius:8px;border:1px solid var(--line);background:var(--paper);color:var(--muted);font-size:18px;cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .05s ease,box-shadow .15s ease,background .15s ease,border-color .15s ease;z-index:20}.theme-toggle[data-v-676236f6]:active{transform:translateY(1px)}.theme-toggle[data-v-676236f6]:focus-visible{outline:none;box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 25%,transparent);border-color:var(--control-focus)}:root[data-theme="light"],:root:not([data-theme]){box-shadow:0 2px 10px rgba(0,0,0,.05)}:root[data-theme="light"],:root:not([data-theme]){background:color-mix(in srgb,var(--paper) 88%,black 12%)}:root[data-theme="dark"]{border-color:color-mix(in srgb,var(--line) 70%,white 30%);background:color-mix(in srgb,var(--paper) 85%,white 0%);color:var(--ink);box-shadow:0 2px 12px rgba(0,0,0,.35)}:root[data-theme="dark"]{background:color-mix(in srgb,var(--paper) 75%,white 0%)}
 .user-state-button-closed[data-v-89abe3c0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.user-state-button-closed[data-v-89abe3c0]:hover{background-color:var(--paper)}
 .user-state-button-open[data-v-682280a6]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.user-state-button-open[data-v-682280a6]:hover{background-color:var(--paper)}

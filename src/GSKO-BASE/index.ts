@@ -32,6 +32,7 @@ import { buildPrompt } from './core/prompt-builder';
 import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
 import { processTimeChatMkSync } from './core/time-chat-mk-sync';
 import { processTime } from './core/time-processor';
+import { processWeather } from './core/weather-processor';
 import { writeChangesToEra } from './io';
 import { ayaNewsProcessor } from './subsidiary/aya-news-processor';
 import './subsidiary/show-ui-relay';
@@ -191,6 +192,18 @@ $(() => {
       currentRuntime = timeResult.runtime;
       const timeChanges = timeResult.changes;
       logState('Time Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [天气处理器] 依据时间旗标在必要时刷新 runtime.weather。
+      const weatherResult = processWeather({
+        stat: currentStat,
+        runtime: currentRuntime,
+      });
+      currentRuntime = weatherResult.runtime;
+      logState('Weather Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),
