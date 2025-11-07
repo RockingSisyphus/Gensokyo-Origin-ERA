@@ -715,19 +715,23 @@ const _hoisted_5 = {
   id: "mapContainer"
 };
 
-const _hoisted_6 = [ "innerHTML", "onClick" ];
+const _hoisted_6 = [ "innerHTML", "onClick", "onMouseenter" ];
 
 const _hoisted_7 = {
   class: "dialog"
 };
 
 const _hoisted_8 = {
+  class: "dialog-header"
+};
+
+const _hoisted_9 = {
   class: "location-name"
 };
 
-const _hoisted_9 = [ "innerHTML" ];
-
 const _hoisted_10 = [ "innerHTML" ];
+
+const _hoisted_11 = [ "innerHTML" ];
 
 const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "Map",
@@ -804,7 +808,7 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
               x: location.x,
               y: location.y
             },
-            htmlEle: "<div>📍</div>"
+            htmlEle: '<div class="player-icon">📍</div>'
           };
         }
       }
@@ -821,6 +825,7 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       mapHeight: mapSize.value.height
     });
     let selectedMarker = (0, external_Vue_namespaceObject.ref)(null);
+    let hoverMarker = (0, external_Vue_namespaceObject.ref)(null);
     function selectLocation(markerData) {
       if (markerData.name === selectedMarker.value?.name) {
         selectedMarker.value = null;
@@ -830,13 +835,17 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       let htmlEle = "";
       if (npcIdList) {
         const npcList = npcIdList.map(id => props.context.statWithoutMeta.chars[id]);
+        htmlEle = '<div class="npc-list">';
         npcList.map(npc => {
-          htmlEle += `<div>${npc.name}：${npc["目标"] || "未知"}</div>`;
+          htmlEle += `<div class="npc-item">\n        <span class="npc-name">${npc.name}：</span>\n        <span class="npc-target">${npc["目标"] || "未知"}</span>\n      </div>`;
         });
+        htmlEle += "</div>";
+      } else {
+        htmlEle = '<div class="empty-location">空无一人</div>';
       }
       selectedMarker.value = {
         ...markerData,
-        htmlEle: htmlEle || `<div>空无一人</div>`
+        htmlEle
       };
     }
     (0, external_Vue_namespaceObject.onMounted)(() => {
@@ -866,19 +875,56 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
         ctx.restore();
       }
       function drawMapBackground() {
-        ctx.fillStyle = "#7f8c8d";
+        const gradient = ctx.createLinearGradient(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
+        gradient.addColorStop(0, "#8e9eab");
+        gradient.addColorStop(1, "#eef2f3");
+        ctx.fillStyle = gradient;
         ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
+        ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+        ctx.lineWidth = 1;
+        const gridSize = 50;
+        for (let x = 0; x <= mapState.value.mapWidth; x += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(x, 0);
+          ctx.lineTo(x, mapState.value.mapHeight);
+          ctx.stroke();
+        }
+        for (let y = 0; y <= mapState.value.mapHeight; y += gridSize) {
+          ctx.beginPath();
+          ctx.moveTo(0, y);
+          ctx.lineTo(mapState.value.mapWidth, y);
+          ctx.stroke();
+        }
       }
       function drawRoads() {
         try {
-          ctx.strokeStyle = "#333";
-          ctx.lineWidth = 4;
-          ctx.lineCap = "round";
           roads.value.forEach(road => {
+            ctx.strokeStyle = "rgba(0, 0, 0, 0.2)";
+            ctx.lineWidth = 8;
+            ctx.lineCap = "round";
+            ctx.beginPath();
+            ctx.moveTo(road.start.x + 2, road.start.y + 2);
+            ctx.lineTo(road.end.x + 2, road.end.y + 2);
+            ctx.stroke();
+            const gradient = ctx.createLinearGradient(road.start.x, road.start.y, road.end.x, road.end.y);
+            gradient.addColorStop(0, "#5d4037");
+            gradient.addColorStop(.5, "#6d4c41");
+            gradient.addColorStop(1, "#5d4037");
+            ctx.strokeStyle = gradient;
+            ctx.lineWidth = 6;
+            ctx.lineCap = "round";
             ctx.beginPath();
             ctx.moveTo(road.start.x, road.start.y);
             ctx.lineTo(road.end.x, road.end.y);
             ctx.stroke();
+            ctx.strokeStyle = "rgba(255, 255, 255, 0.3)";
+            ctx.lineWidth = 1;
+            ctx.setLineDash([ 5, 3 ]);
+            ctx.beginPath();
+            ctx.moveTo(road.start.x, road.start.y);
+            ctx.lineTo(road.end.x, road.end.y);
+            ctx.stroke();
+            ctx.setLineDash([]);
           });
         } catch (error) {
           console.error("道路数据格式错误:", error);
@@ -943,8 +989,8 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       generateMap();
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ false ? 0 : (0, 
-    external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [ _cache[2] || (_cache[2] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ (0, external_Vue_namespaceObject.createCommentVNode)(" 地图信息显示，暂时隐藏 "), false ? 0 : (0, 
+    external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_5, [ _cache[4] || (_cache[4] = (0, 
     external_Vue_namespaceObject.createElementVNode)("canvas", {
       id: "mapCanvas"
     }, null, -1)), (0, external_Vue_namespaceObject.createCommentVNode)(" 动态生成marker "), ((0, 
@@ -952,33 +998,44 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     external_Vue_namespaceObject.renderList)((0, external_Vue_namespaceObject.unref)(markers), (marker, index) => ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
       key: index,
-      class: "marker",
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "marker location-marker", {
+        "marker-highlighted": (0, external_Vue_namespaceObject.unref)(selectedMarker)?.name === marker.name
+      } ]),
       innerHTML: marker.htmlEle,
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
         left: marker.pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
         top: marker.pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
-        transform: `translate(-50%, -50%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+        transform: `translate(-50%, -50%)`
       }),
-      onClick: $event => selectLocation(marker)
-    }, null, 12, _hoisted_6))), 128)), (0, external_Vue_namespaceObject.createCommentVNode)(" 点击marker的tip弹出 "), (0, 
+      onClick: $event => selectLocation(marker),
+      onMouseenter: $event => (0, external_Vue_namespaceObject.isRef)(hoverMarker) ? hoverMarker.value = marker.name : hoverMarker = marker.name,
+      onMouseleave: _cache[0] || (_cache[0] = $event => (0, external_Vue_namespaceObject.isRef)(hoverMarker) ? hoverMarker.value = null : hoverMarker = null)
+    }, null, 46, _hoisted_6))), 128)), (0, external_Vue_namespaceObject.createCommentVNode)(" 点击marker的tip弹出 "), (0, 
     external_Vue_namespaceObject.unref)(selectedMarker) ? ((0, external_Vue_namespaceObject.openBlock)(), 
     (0, external_Vue_namespaceObject.createElementBlock)("div", {
       key: 0,
-      class: "tip-container",
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "tip-container", {
+        "tip-visible": (0, external_Vue_namespaceObject.unref)(selectedMarker)
+      } ]),
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
         left: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
         top: (0, external_Vue_namespaceObject.unref)(selectedMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY - 20 + "px",
-        transform: `translate(-50%, -100%) scale(${(0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+        transform: `translate(-50%, -100%)`
       })
     }, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_7, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("h2", _hoisted_8, (0, external_Vue_namespaceObject.toDisplayString)((0, 
-    external_Vue_namespaceObject.unref)(selectedMarker).name), 1), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+    external_Vue_namespaceObject.createElementVNode)("div", _hoisted_8, [ (0, external_Vue_namespaceObject.createElementVNode)("h2", _hoisted_9, (0, 
+    external_Vue_namespaceObject.toDisplayString)((0, external_Vue_namespaceObject.unref)(selectedMarker).name), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      class: "close-btn",
+      onClick: _cache[1] || (_cache[1] = $event => (0, external_Vue_namespaceObject.isRef)(selectedMarker) ? selectedMarker.value = null : selectedMarker = null)
+    }, "×") ]), (0, external_Vue_namespaceObject.createElementVNode)("div", {
+      class: "dialog-content",
       innerHTML: (0, external_Vue_namespaceObject.unref)(selectedMarker).htmlEle
-    }, null, 8, _hoisted_9) ]) ], 4)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
+    }, null, 8, _hoisted_10) ]) ], 6)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, 
     external_Vue_namespaceObject.createCommentVNode)(" 玩家 "), (0, external_Vue_namespaceObject.unref)(playerMarker) ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
       key: 1,
@@ -989,9 +1046,9 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",
         top: (0, external_Vue_namespaceObject.unref)(playerMarker).pos.y * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetY + "px",
-        transform: `translate(-50%, -100%) scale(${1 / (0, external_Vue_namespaceObject.unref)(mapState).zoom})`
+        transform: `translate(-50%, -100%)`
       })
-    }, null, 12, _hoisted_10)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]) ]) ]));
+    }, null, 12, _hoisted_11)) : (0, external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]) ]) ]));
   }
 });
 
@@ -2822,7 +2879,7 @@ const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_10 = {
   class: "GensokyoOrigin-RoleDetailPopup-section-title"
 };
 
-const _hoisted_11 = {
+const RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_11 = {
   class: "GensokyoOrigin-RoleDetailPopup-section-desc"
 };
 
@@ -2934,7 +2991,8 @@ const RoleDetailPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_names
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_9, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("h3", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_10, "好感度阶段: " + (0, 
     external_Vue_namespaceObject.toDisplayString)(affectionStageInfo.value.name), 1), (0, 
-    external_Vue_namespaceObject.createElementVNode)("p", _hoisted_11, (0, external_Vue_namespaceObject.toDisplayString)(affectionStageInfo.value.describe), 1), (0, 
+    external_Vue_namespaceObject.createElementVNode)("p", RoleDetailPopupvue_type_script_setup_true_lang_ts_hoisted_11, (0, 
+    external_Vue_namespaceObject.toDisplayString)(affectionStageInfo.value.describe), 1), (0, 
     external_Vue_namespaceObject.createElementVNode)("div", _hoisted_12, [ (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_13, [ _cache[4] || (_cache[4] = (0, 
     external_Vue_namespaceObject.createElementVNode)("strong", null, "耐心值:", -1)), (0, 
     external_Vue_namespaceObject.createTextVNode)(" " + (0, external_Vue_namespaceObject.toDisplayString)(toText(affectionStageInfo.value.patienceUnit)), 1) ]), affectionStageInfo.value.affectionGrowthLimit ? ((0, 
@@ -4162,7 +4220,7 @@ $(() => {
     logger.warn("requestDataOnInit", "eventEmit 未定义，无法在初始化时请求数据。");
   }
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
-.map-component{background:hsla(0,0%,100%,.9);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab}.map-component #mapCanvas{display:block;background:#7f8c8d}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;font-size:12px;background-color:var(--bg);border-radius:4px;padding:4px}.map-component .container{position:absolute;transform:translate(-50%,-100%)}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.8);padding:8px 12px;border-radius:6px;font-size:.9rem;z-index:40}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:20}.map-component .dialog{border-radius:8px;padding:20px;box-shadow:0 4px 12px rgba(0,0,0,.15);color:var(--ink);background-color:var(--bg);position:relative;border:1px solid var(--bg)}.map-component .dialog .location-name{font-size:16px;font-weight:bold;border-bottom:1px solid var(--ink);padding-bottom:6px;margin-bottom:6px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:var(--bg);filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}.map-component .player-marker{background-color:rgba(0,0,0,0);transform-origin:bottom center;font-size:24px;z-index:10}
+.map-component{background:linear-gradient(135deg,#f5f7fa 0%,#c3cfe2 100%);box-shadow:0 10px 30px rgba(0,0,0,.3);overflow:hidden;margin-bottom:20px;border-radius:12px}.map-component .map-wrapper{position:relative;width:100%;height:100%;background:#f0f0f0;border-radius:12px}.map-component .map-container{white-space:nowrap;position:absolute;top:0;left:0;width:100%;height:100%;overflow:hidden;cursor:grab;border-radius:12px}.map-component #mapCanvas{display:block;border-radius:12px}.map-component .marker{position:absolute;transform:translate(-50%,-50%);cursor:pointer;z-index:10}.map-component .location-marker{font-size:14px;background:var(--bg);border-radius:8px;padding:6px 10px;box-shadow:0 2px 8px rgba(0,0,0,.15),inset 0 1px 0 hsla(0,0%,100%,.8);border:1px solid hsla(0,0%,100%,.5);min-width:60px;text-align:center;font-weight:500;color:var(--ink)}.map-component .location-marker:hover{background:linear-gradient(145deg,#4fc3f7,#29b6f6);color:#fff;box-shadow:0 4px 16px rgba(41,182,246,.4)}.map-component .marker-highlighted{background:linear-gradient(145deg,#ff9800,#f57c00) !important;color:#fff !important;box-shadow:0 4px 20px rgba(255,152,0,.6) !important;z-index:20 !important}.map-component .marker-highlighted::before{border-top-color:#ff9800 !important}.map-component .player-marker{background:none !important;border:none !important;box-shadow:none !important;font-size:24px;z-index:25;filter:drop-shadow(0 2px 8px rgba(255,235,59,0.6));cursor:default}.map-component .player-marker .player-icon{display:block;animation:float 3s ease-in-out infinite}.map-component .map-info{position:absolute;top:20px;left:20px;background:hsla(0,0%,100%,.95);padding:8px 16px;border-radius:8px;font-size:.9rem;z-index:40;box-shadow:0 2px 8px rgba(0,0,0,.1);border:1px solid rgba(0,0,0,.1)}@keyframes bounce{0%,20%,50%,80%,100%{transform:translate(-50%,-100%)}40%{transform:translate(-50%,calc(-100% - 30px))}60%{transform:translate(-50%,calc(-100% - 15px))}}@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}.map-component .pulsate{animation:bounce 2s infinite}.map-component .tip-container{position:absolute;transform-origin:bottom center;z-index:30;opacity:0}.map-component .tip-container.tip-visible{opacity:1;animation:tipAppear .3s ease}@keyframes tipAppear{from{opacity:0;transform:translate(-50%,-80%) scale(0.8)}to{opacity:1;transform:translate(-50%,-100%) scale(1)}}.map-component .dialog{border-radius:12px;padding:0;box-shadow:0 8px 32px rgba(0,0,0,.2),0 2px 8px rgba(0,0,0,.1);color:var(--ink);background:linear-gradient(145deg,#ffffff,#f8f9fa);position:relative;border:1px solid hsla(0,0%,100%,.8);min-width:200px;backdrop-filter:blur(10px)}.map-component .dialog .dialog-header{display:flex;justify-content:space-between;align-items:center;padding:16px 20px;border-bottom:1px solid rgba(0,0,0,.1);background:linear-gradient(135deg,#667eea 0%,#764ba2 100%);border-radius:12px 12px 0 0;color:#fff}.map-component .dialog .dialog-header .location-name{font-size:18px;font-weight:600;margin:0;color:#fff}.map-component .dialog .dialog-header .close-btn{background:hsla(0,0%,100%,.2);border:none;color:#fff;width:24px;height:24px;border-radius:50%;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px;transition:background .2s ease}.map-component .dialog .dialog-header .close-btn:hover{background:hsla(0,0%,100%,.3)}.map-component .dialog .dialog-content{padding:20px}.map-component .dialog .dialog-content .npc-list{display:flex;flex-direction:column;gap:12px}.map-component .dialog .dialog-content .npc-item{display:flex;justify-content:space-between;align-items:center;padding:8px 12px;background:rgba(0,0,0,.03);border-radius:6px;transition:background .2s ease}.map-component .dialog .dialog-content .npc-item:hover{background:rgba(0,0,0,.06)}.map-component .dialog .dialog-content .npc-name{font-weight:500;color:#2c3e50}.map-component .dialog .dialog-content .npc-target{color:#7f8c8d;font-size:.9em}.map-component .dialog .dialog-content .empty-location{text-align:center;color:#95a5a6;font-style:italic;padding:20px}.map-component .dialog::after{content:"";position:absolute;top:100%;left:50%;transform:translateX(-50%);border:12px solid rgba(0,0,0,0);border-top-color:#fff;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.1))}
 h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--muted);margin:0 0 10px}h4 .emoji[data-v-3e602d5b]{margin-right:8px;font-size:1.1em}.preserve-format[data-v-3e602d5b]{white-space:pre-wrap;overflow-wrap:anywhere;word-break:break-word;line-height:1.6;font-size:.95em}hr.dashed[data-v-3e602d5b]{border:none;border-top:1px dashed var(--line);margin:20px 0}
 [data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
 #content_incidents h4[data-v-6bff0ba1]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-6bff0ba1]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-6bff0ba1]{margin-bottom:15px}.debug-select[data-v-6bff0ba1],.debug-switch[data-v-6bff0ba1]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-6bff0ba1]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-6bff0ba1] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-6bff0ba1] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-6bff0ba1] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-6bff0ba1] .role-card .role-name{font-weight:700}.incident-list[data-v-6bff0ba1] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-6bff0ba1] .role-card .role-line{margin:6px 0;font-size:.9em}
