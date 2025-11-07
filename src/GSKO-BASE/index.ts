@@ -343,7 +343,7 @@ $(() => {
   // `ignoreApiWrite: true` 选项是为了防止脚本响应由自身 API 调用（如 sendData）触发的 `writeDone` 事件，从而避免无限循环。
   onWriteDone(
     (detail: WriteDonePayload) => {
-      logger.log('main', '接收到 era:writeDone 事件');
+      logger.log('main', '接收到 era:writeDone 事件', detail);
       // 如果是 apiWrite 触发的，说明正在执行写入，避免循环
       if (detail?.actions?.apiWrite === true) {
         logger.log('onWriteDone', '检测到 apiWrite 标记事件，跳过刷新逻辑');

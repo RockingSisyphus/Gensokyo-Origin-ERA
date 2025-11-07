@@ -3492,6 +3492,27 @@ function buildLegalLocationsPrompt({runtime}) {
   return prompt;
 }
 
+const main_character_logger = new Logger("GSKO-BASE/core/prompt-builder/main-character");
+
+function buildMainCharacterPrompt({stat}) {
+  const funcName = "buildMainCharacterPrompt";
+  try {
+    const user = stat?.user;
+    if (!user) {
+      main_character_logger.warn(funcName, "stat.user ��ȱ�ڣ��޷�����主角提示词��");
+      return null;
+    }
+    const userJson = JSON.stringify(user, null, 2);
+    const header = "主角状态提示：请根据以下 stat.user JSON 更新主角的叙述与状态。";
+    const prompt = `${header}\n\`\`\`json\n${userJson}\n\`\`\``;
+    main_character_logger.debug(funcName, "主角提示词生成完成��");
+    return prompt;
+  } catch (err) {
+    main_character_logger.error(funcName, "生成主角提示词失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
 const prompt_builder_route_logger = new Logger("GSKO-BASE/core/prompt-builder/route");
 
 function formatPath(path) {
@@ -3628,6 +3649,8 @@ function buildPrompt({runtime, stat}) {
   const funcName = "buildPrompt";
   prompt_builder_logger.debug(funcName, "开始构建提示词...");
   const prompts = [];
+  prompts.push("<剧情编写基准>");
+  prompts.push("### 以下为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以下设定");
   const timePrompt = buildTimePrompt({
     runtime
   });
@@ -3646,43 +3669,16 @@ function buildPrompt({runtime, stat}) {
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
+  prompts.push("### 以上为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以下设定");
+  prompts.push("</剧情编写基准>");
+  prompts.push("<沉浸感核心>");
+  prompts.push("### 为了提高你编写的剧情的沉浸感，请参考以下内容编写最新剧情");
   const routePrompt = buildRoutePrompt({
     runtime,
     stat
   });
   if (routePrompt) {
     prompts.push(routePrompt);
-  }
-  const legalLocationsPrompt = buildLegalLocationsPrompt({
-    runtime
-  });
-  if (legalLocationsPrompt) {
-    prompts.push(legalLocationsPrompt);
-  }
-  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
-  if (ayaNewsPrompt) {
-    prompts.push(ayaNewsPrompt);
-  }
-  const companionDecisionPrompt = buildCompanionDecisionPrompt({
-    runtime,
-    stat
-  });
-  if (companionDecisionPrompt) {
-    prompts.push(companionDecisionPrompt);
-  }
-  const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({
-    runtime,
-    stat
-  });
-  if (coLocatedCharactersPrompt) {
-    prompts.push(coLocatedCharactersPrompt);
-  }
-  const coLocatedCharsAffectionPrompt = buildCoLocatedCharsAffectionPrompt({
-    runtime,
-    stat
-  });
-  if (coLocatedCharsAffectionPrompt) {
-    prompts.push(coLocatedCharsAffectionPrompt);
   }
   const characterMovementPrompts = buildCharacterMovementPrompt({
     runtime,
@@ -3691,6 +3687,49 @@ function buildPrompt({runtime, stat}) {
   if (characterMovementPrompts.length > 0) {
     prompts.push(...characterMovementPrompts);
   }
+  const coLocatedCharsAffectionPrompt = buildCoLocatedCharsAffectionPrompt({
+    runtime,
+    stat
+  });
+  if (coLocatedCharsAffectionPrompt) {
+    prompts.push(coLocatedCharsAffectionPrompt);
+  }
+  const companionDecisionPrompt = buildCompanionDecisionPrompt({
+    runtime,
+    stat
+  });
+  if (companionDecisionPrompt) {
+    prompts.push(companionDecisionPrompt);
+  }
+  prompts.push("### 为了提高你编写的剧情的沉浸感，请参考以上内容编写最新剧情");
+  prompts.push("</沉浸感核心>");
+  prompts.push("<本轮需更新的ERA变量>");
+  prompts.push("### 以下是你应当在本轮参照ERA变量更新规则更新的变量及其结构。");
+  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
+  if (ayaNewsPrompt) {
+    prompts.push(ayaNewsPrompt);
+  }
+  const legalLocationsPrompt = buildLegalLocationsPrompt({
+    runtime
+  });
+  if (legalLocationsPrompt) {
+    prompts.push(legalLocationsPrompt);
+  }
+  const mainCharacterPrompt = buildMainCharacterPrompt({
+    stat
+  });
+  if (mainCharacterPrompt) {
+    prompts.push(mainCharacterPrompt);
+  }
+  const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({
+    runtime,
+    stat
+  });
+  if (coLocatedCharactersPrompt) {
+    prompts.push(coLocatedCharactersPrompt);
+  }
+  prompts.push("### 以下是你应当在本轮参照ERA变量更新规则更新的变量及其结构。");
+  prompts.push("</本轮需更新的ERA变量>");
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");
   return finalPrompt;
@@ -5221,7 +5260,7 @@ $(() => {
     }
   };
   onWriteDone(detail => {
-    GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件");
+    GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件", detail);
     if (detail?.actions?.apiWrite === true) {
       GSKO_BASE_logger.log("onWriteDone", "检测到 apiWrite 标记事件，跳过刷新逻辑");
       return;
