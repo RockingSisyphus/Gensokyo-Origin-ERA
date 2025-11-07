@@ -3407,7 +3407,7 @@ function buildCoLocatedCharsAffectionPrompt({stat, runtime}) {
   if (characterSummaries.length === 0) {
     return "";
   }
-  const promptLines = [ "以下为当前同行角色的好感度等级与解释：", ...characterSummaries ];
+  const promptLines = [ "以下为当前同区角色的好感度等级与解释：", ...characterSummaries ];
   const prompt = promptLines.join("\n");
   co_located_characters_affection_logger.debug(funcName, "成功生成同区角色好感度提示词。");
   return prompt;
