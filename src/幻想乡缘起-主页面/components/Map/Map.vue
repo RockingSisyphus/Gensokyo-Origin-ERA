@@ -32,7 +32,7 @@
           class="tip-container"
           :style="{
             left: selectedMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
-            top: selectedMarker.pos.y * mapState.zoom + mapState.offsetY - 10 + 'px',
+            top: selectedMarker.pos.y * mapState.zoom + mapState.offsetY - 20 + 'px',
             transform: `translate(-50%, -100%) scale(${mapState.zoom})`,
           }"
         >
@@ -175,22 +175,24 @@ let mapState = ref<MapState>({
 let selectedMarker = ref<MapMarker | null>(null);
 
 function selectLocation(markerData: MapMarker) {
-  try {
-    const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
-    let htmlEle = '';
-    if (npcIdList) {
-      const npcList = npcIdList.map((id: string) => {
-        return props.context.statWithoutMeta.chars[id];
-      });
-      npcList.map((npc: any) => {
-        htmlEle += `<div>${npc.name}：${npc['目标'] || '未知'}</div>`;
-      });
-    }
-
-    selectedMarker.value = { ...markerData, htmlEle: htmlEle || `<div>空无一人</div>` };
-  } catch (error) {
-    console.error(error);
+  // 点击相同地点关闭弹出
+  if (markerData.name === selectedMarker.value?.name) {
+    selectedMarker.value = null;
+    return;
   }
+
+  const npcIdList = props.context?.runtime?.characterDistribution?.npcByLocation?.[markerData.name];
+  let htmlEle = '';
+  if (npcIdList) {
+    const npcList = npcIdList.map((id: string) => {
+      return props.context.statWithoutMeta.chars[id];
+    });
+    npcList.map((npc: any) => {
+      htmlEle += `<div>${npc.name}：${npc['目标'] || '未知'}</div>`;
+    });
+  }
+
+  selectedMarker.value = { ...markerData, htmlEle: htmlEle || `<div>空无一人</div>` };
 }
 
 onMounted(() => {
