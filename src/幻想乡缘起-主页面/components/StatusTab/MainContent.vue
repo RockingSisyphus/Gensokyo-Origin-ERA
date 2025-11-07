@@ -25,8 +25,7 @@ const pendingTimer = ref<ReturnType<typeof window.setTimeout> | null>(null);
 const MAX_RETRY = 5;
 const RETRY_DELAY_MS = 200;
 
-const CONTENT_REGEX =
-  /<content>\s*(?=[\s\S]*?\S[\s\S]*?<\/content>)((?:(?!<content>)[\s\S])*?)\s*<\/content>/gi;
+const CONTENT_REGEX = /<content>\s*(?=[\s\S]*?\S[\s\S]*?<\/content>)((?:(?!<content>)[\s\S])*?)\s*<\/content>/gi;
 
 const clearPendingTimer = () => {
   if (pendingTimer.value !== null) {
