@@ -1,19 +1,24 @@
 {
   "compilerOptions": {
-    "types": [
-      "jquery",
-      "jqueryui",
-      "lodash",
-      "toastr",
-      "type-fest",
-      "yaml",
-      "zod",
-    ],
+    "types": ["jquery", "jqueryui", "lodash", "toastr", "type-fest", "yaml", "zod"],
     "target": "ESNext",
     "module": "ESNext",
     "outDir": "dist",
     "baseUrl": "src",
-    "paths": {},
+    "paths": {
+      "幻想乡缘起-测试面板/*": [
+        "幻想乡缘起-测试面板/*"
+      ],
+      "幻想乡缘起-开局页面/*": [
+        "幻想乡缘起-开局页面/*"
+      ],
+      "幻想乡缘起-主页面/*": [
+        "幻想乡缘起-主页面/*"
+      ],
+      "GSKO-BASE/*": [
+        "GSKO-BASE/*"
+      ]
+    },
     "moduleDetection": "auto",
     "moduleResolution": "bundler",
     "allowUmdGlobalAccess": true,
@@ -30,13 +35,6 @@
     "esModuleInterop": true,
     "forceConsistentCasingInFileNames": true
   },
-  "include": [
-    "@types",
-    "src",
-    "*.d.ts",
-  ],
-  "exclude": [
-    "**/dist/**",
-    "**/node_modules/**",
-  ]
+  "include": ["@types", "src", "*.d.ts"],
+  "exclude": ["**/dist/**", "**/node_modules/**"]
 }
