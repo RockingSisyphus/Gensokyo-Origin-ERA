@@ -1,5 +1,10 @@
 {
   "config": {
+    "$meta": {
+      "unInsertAble": "self",
+      "necessary": "self",
+      "updatable": true
+    },
     "affection": {
       "affectionStages": [
         {
@@ -222,6 +227,11 @@
     }
   },
   "chars": {
+    "$meta": {
+      "unInsertAble": "self",
+      "necessary": "self",
+      "updatable": true
+    },
     "reimu": {
       "name": "博丽灵梦",
       "好感度": 5,
@@ -3591,6 +3601,11 @@
     }
   },
   "user": {
+    "$meta": {
+      "unInsertAble": "all",
+      "necessary": "all",
+      "updatable": true
+    },
     "姓名": "测试用户",
     "身份": "外来者",
     "性别": "未知",
@@ -3602,6 +3617,11 @@
     "人际关系": "暂无"
   },
   "world": {
+    "$meta": {
+      "unInsertAble": "all",
+      "necessary": "all",
+      "updatable": false
+    },
     "map_graph": {
       "mapSize": { "width": 1000, "height": 1000 },
       "tree": {
@@ -3946,6 +3966,11 @@
     "fallbackPlace": "博丽神社"
   },
   "世界": {
+    "$meta": {
+      "unInsertAble": "all",
+      "necessary": "all",
+      "updatable": true
+    },
     "timeProgress": 400
   },
   "cache": {
@@ -3973,15 +3998,23 @@
     }
   },
   "incidents": {
-    "红雾异变": {
-      "异变细节": "天空中弥漫着不祥的红色雾气。",
-      "主要地区": ["红魔馆"],
-      "异变退治者": ["博丽灵梦", "雾雨魔理沙"],
-      "异变已结束": true
+    "$meta": {
+      "necessary": "self",
+      "updatable": true
+    },
+    "$template": {
+      "异变细节": "暂无",
+      "主要地区": ["博丽神社"],
+      "异变退治者": [],
+      "异变已结束": false
     }
   },
-  "festivals_list": [
-    {
+  "festivals_list": {
+    "$meta": {
+      "necessary": "all",
+      "updatable": true
+    },
+    "NEW_YEAR": {
       "month": 1,
       "start_day": 1,
       "end_day": 3,
@@ -3995,7 +4028,7 @@
       "importance": 5,
       "host": "博丽神社"
     },
-    {
+    "COMING_OF_AGE_DAY": {
       "month": 1,
       "start_day": 13,
       "end_day": 13,
@@ -4005,7 +4038,7 @@
       "importance": 3,
       "host": "人间之里"
     },
-    {
+    "USOKAE_SHINJI": {
       "month": 1,
       "start_day": 24,
       "end_day": 25,
@@ -4018,7 +4051,7 @@
       "importance": 2,
       "host": "博丽神社"
     },
-    {
+    "SETSUBUN": {
       "month": 2,
       "start_day": 3,
       "end_day": 3,
@@ -4031,7 +4064,7 @@
       "importance": 4,
       "host": "博丽神社"
     },
-    {
+    "KOTOYOUKA_FEB": {
       "month": 2,
       "start_day": 8,
       "end_day": 8,
@@ -4041,7 +4074,7 @@
       "importance": 1,
       "host": "人间之里"
     },
-    {
+    "MISTY_LAKE_SNOW_FESTIVAL": {
       "month": 2,
       "start_day": 10,
       "end_day": 11,
@@ -4051,7 +4084,7 @@
       "importance": 3,
       "host": "雾之湖"
     },
-    {
+    "VALENTINES_DAY": {
       "month": 2,
       "start_day": 14,
       "end_day": 14,
@@ -4061,7 +4094,7 @@
       "importance": 4,
       "host": "人间之里"
     },
-    {
+    "NEHAN_E": {
       "month": 2,
       "start_day": 15,
       "end_day": 15,
@@ -4071,8 +4104,7 @@
       "importance": 2,
       "host": "命莲寺"
     },
-
-    {
+    "HINAMATSURI": {
       "month": 3,
       "start_day": 3,
       "end_day": 3,
@@ -4089,7 +4121,7 @@
       "importance": 3,
       "host": "人间之里"
     },
-    {
+    "WHITE_DAY": {
       "month": 3,
       "start_day": 14,
       "end_day": 14,
@@ -4099,7 +4131,7 @@
       "importance": 4,
       "host": "人间之里"
     },
-    {
+    "VERNAL_EQUINOX_DAY": {
       "month": 3,
       "start_day": 20,
       "end_day": 20,
@@ -4116,7 +4148,7 @@
       "importance": 3,
       "host": "墓地"
     },
-    {
+    "HANAMI": {
       "month": 3,
       "start_day": 25,
       "end_day": 31,
@@ -4126,7 +4158,7 @@
       "importance": 2,
       "host": "无名之丘"
     },
-    {
+    "CHILDRENS_DAY": {
       "month": 5,
       "start_day": 5,
       "end_day": 5,
@@ -4136,7 +4168,7 @@
       "importance": 4,
       "host": "人间之里"
     },
-    {
+    "HAKUREI_SHRINE_REITAISAI": {
       "month": 5,
       "start_day": 16,
       "end_day": 18,
@@ -4146,7 +4178,7 @@
       "importance": 4,
       "host": "博丽神社"
     },
-    {
+    "MORIYA_SHRINE_GRAND_FESTIVAL": {
       "month": 5,
       "start_day": 20,
       "end_day": 23,
@@ -4156,7 +4188,7 @@
       "importance": 4,
       "host": "守矢神社"
     },
-    {
+    "SHINREIBYO_GRAND_FESTIVAL": {
       "month": 6,
       "start_day": 7,
       "end_day": 14,
@@ -4166,7 +4198,7 @@
       "importance": 4,
       "host": "神灵庙"
     },
-    {
+    "TANABATA": {
       "month": 7,
       "start_day": 7,
       "end_day": 7,
@@ -4176,7 +4208,7 @@
       "importance": 3,
       "host": "人间之里"
     },
-    {
+    "YOUKAI_MOUNTAIN_TENGU_FESTIVAL": {
       "month": 7,
       "start_day": 27,
       "end_day": 31,
@@ -4186,7 +4218,7 @@
       "importance": 4,
       "host": "妖怪之山"
     },
-    {
+    "MARINE_DAY": {
       "month": 7,
       "start_day": 21,
       "end_day": 21,
@@ -4196,7 +4228,7 @@
       "importance": 3,
       "host": "风神之湖"
     },
-    {
+    "TENJIN_MATSURI": {
       "month": 7,
       "start_day": 24,
       "end_day": 25,
@@ -4206,7 +4238,7 @@
       "importance": 4,
       "host": "神灵庙"
     },
-    {
+    "MOUNTAIN_DAY": {
       "month": 8,
       "start_day": 11,
       "end_day": 11,
@@ -4216,7 +4248,7 @@
       "importance": 2,
       "host": "妖怪之山"
     },
-    {
+    "GOURYUDOU_NEBUTA_FESTIVAL": {
       "month": 8,
       "start_day": 2,
       "end_day": 7,
@@ -4226,7 +4258,7 @@
       "importance": 4,
       "host": "虹龙洞"
     },
-    {
+    "HUMAN_VILLAGE_BON_DANCE_FESTIVAL": {
       "month": 8,
       "start_day": 12,
       "end_day": 12,
@@ -4236,7 +4268,7 @@
       "importance": 4,
       "host": "人间之里"
     },
-    {
+    "OBON": {
       "month": 8,
       "start_day": 13,
       "end_day": 16,
@@ -4246,7 +4278,7 @@
       "importance": 5,
       "host": "命莲寺"
     },
-    {
+    "AUTUMNAL_EQUINOX_DAY": {
       "month": 9,
       "start_day": 23,
       "end_day": 23,
@@ -4263,7 +4295,7 @@
       "importance": 3,
       "host": "墓地"
     },
-    {
+    "TSUKIMI": {
       "month": 9,
       "start_day": 21,
       "end_day": 21,
@@ -4278,7 +4310,7 @@
       "importance": 3,
       "host": "永远亭"
     },
-    {
+    "HARVEST_FESTIVAL": {
       "month": 10,
       "start_day": 1,
       "end_day": 2,
@@ -4292,7 +4324,7 @@
       "importance": 1,
       "host": "博丽神社"
     },
-    {
+    "SHICHI_GO_SAN": {
       "month": 11,
       "start_day": 15,
       "end_day": 15,
@@ -4302,7 +4334,7 @@
       "importance": 3,
       "host": "博丽神社"
     },
-    {
+    "TORI_NO_ICHI": {
       "month": 11,
       "start_day": 24,
       "end_day": 25,
@@ -4312,7 +4344,7 @@
       "importance": 2,
       "host": "博丽神社"
     },
-    {
+    "KOTOYOUKA_DEC": {
       "month": 12,
       "start_day": 8,
       "end_day": 8,
@@ -4322,7 +4354,7 @@
       "importance": 1,
       "host": "人间之里"
     },
-    {
+    "CHRISTMAS": {
       "month": 12,
       "start_day": 25,
       "end_day": 25,
@@ -4332,7 +4364,7 @@
       "importance": 3,
       "host": "红魔馆"
     },
-    {
+    "OMISOKA": {
       "month": 12,
       "start_day": 31,
       "end_day": 31,
@@ -4348,7 +4380,7 @@
       "importance": 4,
       "host": "博丽神社"
     }
-  ],
+  },
   "weather": "晴",
   "文文新闻": "文文偷懒ing"
 }

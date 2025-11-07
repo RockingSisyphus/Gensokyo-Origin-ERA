@@ -5047,7 +5047,19 @@ const FestivalDefinitionSchema = external_z_namespaceObject.z.object({
   host: external_z_namespaceObject.z.string()
 });
 
-const FestivalsListSchema = external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)).default([]);
+const festival_FestivalSchema = FestivalDefinitionSchema.extend({
+  id: external_z_namespaceObject.z.string().optional()
+});
+
+const FestivalsListSchema = external_z_namespaceObject.z.union([ external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), PreprocessStringifiedObject(FestivalDefinitionSchema)) ]).transform(val => {
+  if (Array.isArray(val)) {
+    return val;
+  }
+  return Object.entries(val).map(([id, festivalData]) => ({
+    ...festivalData,
+    id
+  }));
+}).default([]);
 
 const StatSchema = external_z_namespaceObject.z.object({
   config: ConfigSchema,
