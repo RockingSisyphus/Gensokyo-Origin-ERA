@@ -462,7 +462,7 @@ onMounted(() => {
     left: 50%;
     transform: translateX(-50%);
     border: 12px solid transparent;
-    border-top-color:  var(--bg);
+    border-top-color: var(--bg);
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
   }
 
