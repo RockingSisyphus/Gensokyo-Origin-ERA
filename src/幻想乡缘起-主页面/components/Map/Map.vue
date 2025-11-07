@@ -1,6 +1,7 @@
 <template>
   <div class="map-component" id="mapComponent">
     <div class="map-wrapper">
+      <!-- 地图信息显示，暂时隐藏 -->
       <div class="map-info" ref="mapInfo" v-if="false">
         缩放: <span>{{ mapState.zoom.toFixed(1) }}</span>
         x | 坐标:
@@ -12,33 +13,41 @@
 
       <div class="map-container" id="mapContainer">
         <canvas id="mapCanvas"></canvas>
+
         <!-- 动态生成marker -->
         <div
           v-for="(marker, index) in markers"
           :key="index"
-          class="marker"
+          class="marker location-marker"
+          :class="{ 'marker-highlighted': selectedMarker?.name === marker.name }"
           v-html="marker.htmlEle"
           :style="{
             left: marker.pos.x * mapState.zoom + mapState.offsetX + 'px',
             top: marker.pos.y * mapState.zoom + mapState.offsetY + 'px',
-            transform: `translate(-50%, -50%) scale(${mapState.zoom})`,
+            transform: `translate(-50%, -50%)`,
           }"
           @click="selectLocation(marker)"
+          @mouseenter="hoverMarker = marker.name"
+          @mouseleave="hoverMarker = null"
         ></div>
 
         <!-- 点击marker的tip弹出 -->
         <div
           v-if="selectedMarker"
           class="tip-container"
+          :class="{ 'tip-visible': selectedMarker }"
           :style="{
             left: selectedMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
             top: selectedMarker.pos.y * mapState.zoom + mapState.offsetY - 20 + 'px',
-            transform: `translate(-50%, -100%) scale(${mapState.zoom})`,
+            transform: `translate(-50%, -100%)`,
           }"
         >
           <div class="dialog">
-            <h2 class="location-name">{{ selectedMarker.name }}</h2>
-            <div v-html="selectedMarker.htmlEle"></div>
+            <div class="dialog-header">
+              <h2 class="location-name">{{ selectedMarker.name }}</h2>
+              <button class="close-btn" @click="selectedMarker = null">×</button>
+            </div>
+            <div class="dialog-content" v-html="selectedMarker.htmlEle"></div>
           </div>
         </div>
 
@@ -50,7 +59,7 @@
           :style="{
             left: playerMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
             top: playerMarker.pos.y * mapState.zoom + mapState.offsetY + 'px',
-            transform: `translate(-50%, -100%) scale(${1 / mapState.zoom})`,
+            transform: `translate(-50%, -100%)`,
           }"
         ></div>
       </div>
@@ -153,7 +162,7 @@ const playerMarker: ComputedRef<MapMarker | null> = computed(() => {
       return {
         name: '玩家',
         pos: { x: location.x, y: location.y },
-        htmlEle: '<div>📍</div>',
+        htmlEle: '<div class="player-icon">📍</div>',
       };
     }
   }
@@ -173,6 +182,7 @@ let mapState = ref<MapState>({
 });
 
 let selectedMarker = ref<MapMarker | null>(null);
+let hoverMarker = ref<string | null>(null);
 
 function selectLocation(markerData: MapMarker) {
   // 点击相同地点关闭弹出
@@ -187,12 +197,19 @@ function selectLocation(markerData: MapMarker) {
     const npcList = npcIdList.map((id: string) => {
       return props.context.statWithoutMeta.chars[id];
     });
+    htmlEle = '<div class="npc-list">';
     npcList.map((npc: any) => {
-      htmlEle += `<div>${npc.name}：${npc['目标'] || '未知'}</div>`;
+      htmlEle += `<div class="npc-item">
+        <span class="npc-name">${npc.name}：</span>
+        <span class="npc-target">${npc['目标'] || '未知'}</span>
+      </div>`;
     });
+    htmlEle += '</div>';
+  } else {
+    htmlEle = '<div class="empty-location">空无一人</div>';
   }
 
-  selectedMarker.value = { ...markerData, htmlEle: htmlEle || `<div>空无一人</div>` };
+  selectedMarker.value = { ...markerData, htmlEle };
 }
 
 onMounted(() => {
@@ -244,23 +261,69 @@ onMounted(() => {
 
   // 绘制地图背景
   function drawMapBackground() {
-    // 灰色背景
-    ctx.fillStyle = '#7f8c8d';
+    // 创建渐变背景
+    const gradient = ctx.createLinearGradient(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
+    gradient.addColorStop(0, '#8e9eab');
+    gradient.addColorStop(1, '#eef2f3');
+    ctx.fillStyle = gradient;
     ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
+
+    // 添加网格线
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+    ctx.lineWidth = 1;
+    const gridSize = 50;
+
+    for (let x = 0; x <= mapState.value.mapWidth; x += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, mapState.value.mapHeight);
+      ctx.stroke();
+    }
+
+    for (let y = 0; y <= mapState.value.mapHeight; y += gridSize) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(mapState.value.mapWidth, y);
+      ctx.stroke();
+    }
   }
 
   // 绘制道路
   function drawRoads() {
     try {
-      ctx.strokeStyle = '#333';
-      ctx.lineWidth = 4;
-      ctx.lineCap = 'round';
-
       roads.value.forEach(road => {
+        // 绘制道路阴影
+        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        ctx.moveTo(road.start.x + 2, road.start.y + 2);
+        ctx.lineTo(road.end.x + 2, road.end.y + 2);
+        ctx.stroke();
+
+        // 绘制主要道路
+        const gradient = ctx.createLinearGradient(road.start.x, road.start.y, road.end.x, road.end.y);
+        gradient.addColorStop(0, '#5d4037');
+        gradient.addColorStop(0.5, '#6d4c41');
+        gradient.addColorStop(1, '#5d4037');
+
+        ctx.strokeStyle = gradient;
+        ctx.lineWidth = 6;
+        ctx.lineCap = 'round';
         ctx.beginPath();
         ctx.moveTo(road.start.x, road.start.y);
         ctx.lineTo(road.end.x, road.end.y);
         ctx.stroke();
+
+        // 绘制道路中心线（如果是主要道路）
+        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+        ctx.lineWidth = 1;
+        ctx.setLineDash([5, 3]);
+        ctx.beginPath();
+        ctx.moveTo(road.start.x, road.start.y);
+        ctx.lineTo(road.end.x, road.end.y);
+        ctx.stroke();
+        ctx.setLineDash([]);
       });
     } catch (error) {
       console.error('道路数据格式错误:', error);
@@ -355,16 +418,18 @@ onMounted(() => {
 
 <style lang="scss">
 .map-component {
-  background: rgba(255, 255, 255, 0.9);
+  background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
   box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
   overflow: hidden;
   margin-bottom: 20px;
+  border-radius: 12px;
 
   .map-wrapper {
     position: relative;
     width: 100%;
     height: 100%;
     background: #f0f0f0;
+    border-radius: 12px;
   }
 
   .map-container {
@@ -376,37 +441,79 @@ onMounted(() => {
     height: 100%;
     overflow: hidden;
     cursor: grab;
+    border-radius: 12px;
   }
 
   #mapCanvas {
     display: block;
-    background: #7f8c8d;
+    border-radius: 12px;
   }
 
   .marker {
     position: absolute;
     transform: translate(-50%, -50%);
     cursor: pointer;
-    font-size: 12px;
-    background-color: var(--bg);
-    border-radius: 4px;
-    padding: 4px;
+    z-index: 10;
   }
 
-  .container {
-    position: absolute;
-    transform: translate(-50%, -100%);
+  .location-marker {
+    font-size: 14px;
+    background: var(--bg);
+    border-radius: 8px;
+    padding: 6px 10px;
+    box-shadow:
+      0 2px 8px rgba(0, 0, 0, 0.15),
+      inset 0 1px 0 rgba(255, 255, 255, 0.8);
+    border: 1px solid rgba(255, 255, 255, 0.5);
+    min-width: 60px;
+    text-align: center;
+    font-weight: 500;
+    color: var(--ink);
+
+    &:hover {
+      background: linear-gradient(145deg, #4fc3f7, #29b6f6);
+      color: white;
+      box-shadow: 0 4px 16px rgba(41, 182, 246, 0.4);
+    }
+  }
+
+  .marker-highlighted {
+    background: linear-gradient(145deg, #ff9800, #f57c00) !important;
+    color: white !important;
+    box-shadow: 0 4px 20px rgba(255, 152, 0, 0.6) !important;
+    z-index: 20 !important;
+
+    &::before {
+      border-top-color: #ff9800 !important;
+    }
+  }
+
+  .player-marker {
+    background: none !important;
+    border: none !important;
+    box-shadow: none !important;
+    font-size: 24px;
+    z-index: 25;
+    filter: drop-shadow(0 2px 8px rgba(255, 235, 59, 0.6));
+    cursor: default;
+
+    .player-icon {
+      display: block;
+      animation: float 3s ease-in-out infinite;
+    }
   }
 
   .map-info {
     position: absolute;
     top: 20px;
     left: 20px;
-    background: rgba(255, 255, 255, 0.8);
-    padding: 8px 12px;
-    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 16px;
+    border-radius: 8px;
     font-size: 0.9rem;
     z-index: 40;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
   }
 
   @keyframes bounce {
@@ -427,6 +534,16 @@ onMounted(() => {
     }
   }
 
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0);
+    }
+    50% {
+      transform: translateY(-8px);
+    }
+  }
+
   .pulsate {
     animation: bounce 2s infinite;
   }
@@ -434,24 +551,115 @@ onMounted(() => {
   .tip-container {
     position: absolute;
     transform-origin: bottom center;
-    z-index: 20;
+    z-index: 30;
+    opacity: 0;
+
+    &.tip-visible {
+      opacity: 1;
+      animation: tipAppear 0.3s ease;
+    }
+  }
+
+  @keyframes tipAppear {
+    from {
+      opacity: 0;
+      transform: translate(-50%, -80%) scale(0.8);
+    }
+    to {
+      opacity: 1;
+      transform: translate(-50%, -100%) scale(1);
+    }
   }
 
   .dialog {
-    border-radius: 8px;
-    padding: 20px;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-radius: 12px;
+    padding: 0;
+    box-shadow:
+      0 8px 32px rgba(0, 0, 0, 0.2),
+      0 2px 8px rgba(0, 0, 0, 0.1);
     color: var(--ink);
-    background-color: var(--bg);
+    background: linear-gradient(145deg, #ffffff, #f8f9fa);
     position: relative;
-    border: 1px solid var(--bg);
+    border: 1px solid rgba(255, 255, 255, 0.8);
+    min-width: 200px;
+    backdrop-filter: blur(10px);
 
-    .location-name {
-      font-size: 16px;
-      font-weight: bold;
-      border-bottom: 1px solid var(--ink);
-      padding-bottom: 6px;
-      margin-bottom: 6px;
+    .dialog-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 16px 20px;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      border-radius: 12px 12px 0 0;
+      color: white;
+
+      .location-name {
+        font-size: 18px;
+        font-weight: 600;
+        margin: 0;
+        color: white;
+      }
+
+      .close-btn {
+        background: rgba(255, 255, 255, 0.2);
+        border: none;
+        color: white;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 16px;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+      }
+    }
+
+    .dialog-content {
+      padding: 20px;
+
+      .npc-list {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+      }
+
+      .npc-item {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 8px 12px;
+        background: rgba(0, 0, 0, 0.03);
+        border-radius: 6px;
+        transition: background 0.2s ease;
+
+        &:hover {
+          background: rgba(0, 0, 0, 0.06);
+        }
+      }
+
+      .npc-name {
+        font-weight: 500;
+        color: #2c3e50;
+      }
+
+      .npc-target {
+        color: #7f8c8d;
+        font-size: 0.9em;
+      }
+
+      .empty-location {
+        text-align: center;
+        color: #95a5a6;
+        font-style: italic;
+        padding: 20px;
+      }
     }
   }
 
@@ -462,15 +670,8 @@ onMounted(() => {
     left: 50%;
     transform: translateX(-50%);
     border: 12px solid transparent;
-    border-top-color: var(--bg);
+    border-top-color: #fff;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
-  }
-
-  .player-marker {
-    background-color: transparent;
-    transform-origin: bottom center;
-    font-size: 24px;
-    z-index: 10;
   }
 }
 </style>
