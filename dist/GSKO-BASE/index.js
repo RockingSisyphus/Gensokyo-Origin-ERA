@@ -1901,6 +1901,15 @@ const DEFAULT_VALUES = {
 
 const aggregator_logger = new Logger("GSKO-BASE/core/character-processor/aggregator");
 
+function getCharHomeOrFallback(stat, charId) {
+  const char = getChar(stat, charId);
+  const homeLocation = char?.[CHARACTER_FIELDS.home];
+  if (typeof homeLocation === "string" && homeLocation.trim() !== "") {
+    return homeLocation;
+  }
+  return accessors_getUserLocation(stat);
+}
+
 function resolveTargetLocation(charId, to, stat, runtime) {
   if (to === "RANDOM") {
     const legalLocations = runtime.area?.legal_locations;
@@ -1910,17 +1919,15 @@ function resolveTargetLocation(charId, to, stat, runtime) {
         return sampled;
       }
     }
-    return accessors_getUserLocation(stat);
+    return getCharHomeOrFallback(stat, charId);
   }
   if (to === "$HOME") {
-    const char = getChar(stat, charId);
-    const homeLocation = char?.[CHARACTER_FIELDS.home] ?? undefined;
-    if (typeof homeLocation === "string" && homeLocation.trim() !== "") {
-      return homeLocation;
-    }
-    return accessors_getUserLocation(stat);
+    return getCharHomeOrFallback(stat, charId);
   }
-  if (!to || to === "HERO") {
+  if (!to) {
+    return getCharHomeOrFallback(stat, charId);
+  }
+  if (to === "HERO") {
     return accessors_getUserLocation(stat);
   }
   return to;
