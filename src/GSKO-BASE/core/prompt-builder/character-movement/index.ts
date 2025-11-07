@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { Runtime } from '../../../schema/runtime';
 import { Stat } from '../../../schema/stat';
 import { getCharName } from '../../character-processor/accessors';
@@ -31,12 +30,12 @@ export function buildCharacterMovementPrompt({ runtime, stat }: { runtime: Runti
 
     // 情况一：角色进入主角所在地
     if (to === playerLocation && from !== playerLocation) {
-      prompts.push(`[${charName}从${from}来到了这里，目的是${action}]`);
+      prompts.push(`[${charName}**已经**从${from}来到了这里，目的是${action}]`);
     }
 
     // 情况二：角色从主角所在地离开
     if (from === playerLocation && to !== playerLocation) {
-      prompts.push(`[${charName}离开了这里，前往${to}，目的是${action}]`);
+      prompts.push(`[${charName}**已经**离开了这里，前往${to}，目的是${action}]`);
     }
   }
 

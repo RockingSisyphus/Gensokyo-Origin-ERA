@@ -272,9 +272,7 @@
       "routine": [
         {
           "when": {
-            "byFlag": [
-              "newDay"
-            ]
+            "byFlag": ["newDay"]
           },
           "action": {
             "do": "打扫神社",
@@ -294,9 +292,7 @@
       "routine": [
         {
           "when": {
-            "byFlag": [
-              "newDay"
-            ]
+            "byFlag": ["newDay"]
           },
           "action": {
             "do": "进行魔法研究",
@@ -382,9 +378,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "漫无目的地游荡",
@@ -406,9 +400,7 @@
             "byNow": {
               "periodName": "中午"
             },
-            "byFlag": [
-              "bySeason.newSummer"
-            ]
+            "byFlag": ["bySeason.newSummer"]
           },
           "priority": 10,
           "action": {
@@ -486,9 +478,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在湖边玩耍",
@@ -510,9 +500,7 @@
             "byNow": {
               "periodName": "上午"
             },
-            "byFlag": [
-              "bySeason.newWinter"
-            ]
+            "byFlag": ["bySeason.newWinter"]
           },
           "priority": 10,
           "action": {
@@ -525,9 +513,7 @@
             "byNow": {
               "periodName": "中午"
             },
-            "byFlag": [
-              "bySeason.newSummer"
-            ]
+            "byFlag": ["bySeason.newSummer"]
           },
           "priority": 10,
           "action": {
@@ -616,9 +602,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "寻找对手恶作剧",
@@ -739,9 +723,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newDay"
-            ]
+            "byFlag": ["newDay"]
           },
           "action": {
             "do": "进行武术的修行",
@@ -783,9 +765,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "整理图书馆的书籍",
@@ -827,9 +807,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在大图书馆读书",
@@ -948,9 +926,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "处理馆内杂务",
@@ -1134,10 +1110,7 @@
       "specials": [
         {
           "when": {
-            "byFlag": [
-              "newDay",
-              "bySeason.newWinter"
-            ]
+            "byFlag": ["newDay", "bySeason.newWinter"]
           },
           "priority": 10,
           "action": {
@@ -1215,9 +1188,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newWinter"
-            ]
+            "byFlag": ["bySeason.newWinter"]
           },
           "action": {
             "do": "享受冬天",
@@ -1226,9 +1197,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSpring"
-            ]
+            "byFlag": ["bySeason.newSpring"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1237,9 +1206,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSummer"
-            ]
+            "byFlag": ["bySeason.newSummer"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1248,9 +1215,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newAutumn"
-            ]
+            "byFlag": ["bySeason.newAutumn"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1458,9 +1423,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "制作或保养人偶",
@@ -1479,10 +1442,7 @@
       "specials": [
         {
           "when": {
-            "byFlag": [
-              "newDay",
-              "bySeason.newSpring"
-            ]
+            "byFlag": ["newDay", "bySeason.newSpring"]
           },
           "priority": 100,
           "action": {
@@ -1560,9 +1520,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSpring"
-            ]
+            "byFlag": ["bySeason.newSpring"]
           },
           "action": {
             "do": "到处散播春天的气息",
@@ -1571,9 +1529,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newWinter"
-            ]
+            "byFlag": ["bySeason.newWinter"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1582,9 +1538,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSummer"
-            ]
+            "byFlag": ["bySeason.newSummer"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1593,9 +1547,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newAutumn"
-            ]
+            "byFlag": ["bySeason.newAutumn"]
           },
           "action": {
             "do": "在某处蛰伏",
@@ -1647,9 +1599,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "练习小提琴",
@@ -1701,9 +1651,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "练习小号",
@@ -1755,9 +1703,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "练习键盘",
@@ -1875,9 +1821,7 @@
       "specials": [
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSpring"
-            ]
+            "byFlag": ["bySeason.newSpring"]
           },
           "priority": 10,
           "action": {
@@ -1955,9 +1899,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在白玉楼中优雅地散步",
@@ -2056,9 +1998,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "用数学消遣或处理家务",
@@ -2133,9 +2073,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "通过隙间观察幻想乡",
@@ -2154,9 +2092,7 @@
       "specials": [
         {
           "when": {
-            "byFlag": [
-              "bySeason.newWinter"
-            ]
+            "byFlag": ["bySeason.newWinter"]
           },
           "priority": 10,
           "action": {
@@ -2166,9 +2102,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "bySeason.newSummer"
-            ]
+            "byFlag": ["bySeason.newSummer"]
           },
           "priority": 5,
           "action": {
@@ -2626,9 +2560,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在永远亭处理杂务",
@@ -2703,9 +2635,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "制作药物或进行研究",
@@ -2793,9 +2723,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在房间里悠闲度日",
@@ -2894,9 +2822,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "在竹林中巡逻",
@@ -2949,9 +2875,7 @@
         },
         {
           "when": {
-            "byFlag": [
-              "newPeriod"
-            ]
+            "byFlag": ["newPeriod"]
           },
           "action": {
             "do": "寻找大新闻",
@@ -2991,9 +2915,7 @@
       "routine": [
         {
           "when": {
-            "byFlag": [
-              "newDay"
-            ]
+            "byFlag": ["newDay"]
           },
           "action": {
             "do": "进行风祝的修行",
@@ -3596,20 +3518,13 @@
         }
       ],
       "aliases": {
-        "博丽神社": [
-          "博麗神社",
-          "博丽",
-          "博丽神社周边"
-        ],
-        "人间之里": [
-          "人里",
-          "人間之里"
-        ]
+        "博丽神社": ["博麗神社", "博丽", "博丽神社周边"],
+        "人间之里": ["人里", "人間之里"]
       }
     },
     "fallbackPlace": "博丽神社"
   },
-  "世界": {
+  "time": {
     "timeProgress": 120
   },
   "cache": {
@@ -3639,13 +3554,8 @@
   "incidents": {
     "红雾异变": {
       "异变细节": "天空中弥漫着不祥的红色雾气。",
-      "主要地区": [
-        "红魔馆"
-      ],
-      "异变退治者": [
-        "博丽灵梦",
-        "雾雨魔理沙"
-      ],
+      "主要地区": ["红魔馆"],
+      "异变退治者": ["博丽灵梦", "雾雨魔理沙"],
       "异变已结束": true
     }
   },

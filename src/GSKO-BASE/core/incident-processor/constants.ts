@@ -14,7 +14,7 @@
  * ## 冷却锚点 (`incidentCooldownAnchor`) 生命周期
  * `incidentCooldownAnchor` 是实现“两次异变间固定休息期”的核心。
  * 1. **初始状态 (null)**: 当系统中没有锚点时。
- * 2. **设置锚点**: 在“无异变”状态下的首次检查，系统不会触发异变，而是将当前的 `stat.世界.timeProgress` 记录为 `incidentCooldownAnchor`，并进入“日常”逻辑。
+ * 2. **设置锚点**: 在“无异变”状态下的首次检查，系统不会触发异变，而是将当前的 `stat.time.timeProgress` 记录为 `incidentCooldownAnchor`，并进入“日常”逻辑。
  * 3. **冷却中**: 在后续检查中，只要 `timeProgress - anchor < cooldownMinutes`，系统就处于冷却期，继续“日常”逻辑。
  * 4. **触发并清除**: 当冷却结束后 (`timeProgress - anchor >= cooldownMinutes`)，系统会触发一个新异变，并立即将 `incidentCooldownAnchor` 清除为 `null`。
  * 5. **异变期间**: 只要有异变在“进行中”，`incidentCooldownAnchor` 会一直保持为 `null`，确保异变持续期间不会计算冷却时间。
@@ -35,7 +35,7 @@
  * #### 2. `stat` (状态)
  * - `stat.incidents`: 一个对象，存储所有异变。处理器通过检查 `'异变已结束'` 是否为 `false` 或 `undefined` 来判断异变是否在进行中。
  *   - **格式**: `{ [incidentName: string]: { '异变已结束'?: boolean, '异变细节'?: string, '主要地区'?: string | string[], '异变退治者'?: string | string[] } }`
- * - `stat.世界.timeProgress`: 全局时间进度（分钟），用于冷却计算。
+ * - `stat.time.timeProgress`: 全局时间进度（分钟），用于冷却计算。
  *
  * #### 3. `runtime` (运行时)
  * - `runtime.incident.incidentCooldownAnchor`: 冷却锚点，详见生命周期部分。

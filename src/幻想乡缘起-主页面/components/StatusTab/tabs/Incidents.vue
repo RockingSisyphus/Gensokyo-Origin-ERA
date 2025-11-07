@@ -116,7 +116,7 @@ const countdownMinutes = computed<number | null>(() => {
   }
 
   const config = props.stat?.config?.incident;
-  const timeProgress = props.stat?.世界?.timeProgress;
+  const timeProgress = props.stat?.time?.timeProgress;
   if (!config || typeof config.cooldownMinutes !== 'number' || typeof timeProgress !== 'number') {
     return null;
   }

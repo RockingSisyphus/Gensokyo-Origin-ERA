@@ -181,7 +181,7 @@
     },
     "fallbackPlace": "string"
   },
-  "世界": {
+  "time": {
     "timeProgress": "number"
   },
   "cache": {

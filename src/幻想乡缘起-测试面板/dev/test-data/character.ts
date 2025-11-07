@@ -18,7 +18,7 @@ _.set(charTest_S1_R1_Standard, 'cache.character', {});
 // ==================================================================
 // 预期: reimu(routine,耐心耗尽), marisa(routine,冷却中), sanae(special,祭典)
 export const charTest_S2_R2_StandardNextDay = _.cloneDeep(baseTestData);
-charTest_S2_R2_StandardNextDay.世界.timeProgress = 24 * 60; // 推进一天
+charTest_S2_R2_StandardNextDay.time.timeProgress = 24 * 60; // 推进一天
 charTest_S2_R2_StandardNextDay.chars.marisa.所在地区 = '博丽神社'; // marisa 已到达
 // 模拟 marisa 在前一天来访后进入冷却状态
 _.set(charTest_S2_R2_StandardNextDay, 'cache.character.marisa.visit.cooling', true);
@@ -66,7 +66,7 @@ _.set(charTest_S5_NoUserLocation, 'cache.character', {});
 // 预期: reimu 同时满足“相伴”和“routine”条件时，应优先执行“相伴”。
 export const charTest_S6_CompanionPriority = _.cloneDeep(baseTestData);
 // 推进2小时，确保 newPeriod 为 true
-charTest_S6_CompanionPriority.世界.timeProgress = 120;
+charTest_S6_CompanionPriority.time.timeProgress = 120;
 // 修改 reimu 的 routine，使其在任何时段变化时都触发
 charTest_S6_CompanionPriority.chars.reimu.routine = [
   { when: { byFlag: ['newPeriod'] }, action: { to: '博丽神社', do: '打扫神社' } },
@@ -116,7 +116,7 @@ export const charTest_S7_MovementPrompt = _.cloneDeep(baseTestData);
   目标: '',
 };
 // 推进时间到夜晚 (假设当前是 8:00, 推进 12 小时即 720 分钟)
-charTest_S7_MovementPrompt.世界.timeProgress = 120 + 720;
+charTest_S7_MovementPrompt.time.timeProgress = 120 + 720;
 // 重置 cache
 _.set(charTest_S7_MovementPrompt, 'cache.character', {});
 // 确保 clockAck 保持不变

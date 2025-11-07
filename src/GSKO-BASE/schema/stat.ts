@@ -5,7 +5,7 @@ import { ConfigSchema } from './config';
 import { FestivalsListSchema } from './festival';
 import { IncidentsSchema } from './incident';
 import { UserSchema } from './user';
-import { WorldSchema, 世界Schema } from './world';
+import { WorldSchema, timeSchema } from './world';
 
 // 最终的 Stat Schema
 export const StatSchema = z.object({
@@ -13,7 +13,7 @@ export const StatSchema = z.object({
   chars: CharsSchema,
   user: UserSchema,
   world: WorldSchema.optional(),
-  世界: 世界Schema,
+  time: timeSchema,
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,

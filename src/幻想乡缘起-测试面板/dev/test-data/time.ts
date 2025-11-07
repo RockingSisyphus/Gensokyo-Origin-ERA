@@ -174,7 +174,7 @@ const LONG_HISTORY_NEW_YEAR_ANCHOR = LONG_HISTORY_SELECTED_MKS[60];
 // ------------------------------------------------------------------
 function createScenario(config: ScenarioConfig): TimeTestScenario {
   const stat = _.cloneDeep(baseTestData);
-  stat.世界.timeProgress = config.timeProgress;
+  stat.time.timeProgress = config.timeProgress;
 
   if (config.dropCache) {
     // 首次运行的场景需要完全丢弃 cache，以便验证初始化逻辑

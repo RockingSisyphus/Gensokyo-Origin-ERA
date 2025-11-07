@@ -46,8 +46,8 @@ import { Stat, StatSchema } from './schema/stat';
 // --- 工具函数导入 ---
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
-import { getRuntimeObject } from './utils/runtime';
 import { refreshInjectedPrompt } from './utils/prompt-injection';
+import { getRuntimeObject } from './utils/runtime';
 
 const logger = new Logger();
 

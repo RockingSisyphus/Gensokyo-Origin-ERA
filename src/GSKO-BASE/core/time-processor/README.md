@@ -2,7 +2,7 @@
 
 ## 1. 模块职责
 
-本模块的核心职责是根据 `stat` 中记录的游戏内时间进度（`世界.timeProgress`，单位为分钟），计算出当前详细、结构化的时间信息，并判断自上一轮计算以来，各个时间单位（时段、日、周、月、季节、年）是否发生了变更。
+本模块的核心职责是根据 `stat` 中记录的游戏内时间进度（`time.timeProgress`，单位为分钟），计算出当前详细、结构化的时间信息，并判断自上一轮计算以来，各个时间单位（时段、日、周、月、季节、年）是否发生了变更。
 
 最终，它会将计算结果写入 `runtime.clock` 对象，为其他模块提供统一、可靠的时间数据源和时间变化标志。
 
@@ -12,7 +12,7 @@
 
 ### 2.1. 从 `stat` 读取
 
-- **`stat.世界.timeProgress`** (`number`, 必须)
+- **`stat.time.timeProgress`** (`number`, 必须)
   - 描述：从游戏纪元开始所经过的总分钟数。这是时间计算的唯一时间源。
   - 示例：`1440` (表示从纪元开始经过了 1 天)
 
@@ -45,7 +45,7 @@
 1. **清理旧数据**：预先删除 `runtime.clock.now` 和 `runtime.clock.flags`，但保留 `runtime.clock.clockAck`，以遵循 `runtime` 的“显式覆盖”原则。
 2. **读取配置和时间源**：
     - 从 `stat.config.time` 读取各项配置，若无则使用 `data.ts` 中的默认值。
-    - 从 `stat.世界.timeProgress` 获取总流逝分钟数。
+    - 从 `stat.time.timeProgress` 获取总流逝分钟数。
     - 从 `runtime.clock.clockAck` 获取上一轮的时间快照。
 3. **计算当前时间**：
     - 基于 `epochISO` 和 `timeProgress` 计算出当前的 UTC 毫秒数。

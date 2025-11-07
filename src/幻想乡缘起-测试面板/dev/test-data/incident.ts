@@ -29,7 +29,7 @@ export const incidentTestData = {
           isRandomPool: false,
         },
       },
-      世界: { timeProgress: 120 },
+      time: { timeProgress: 120 },
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: null },
@@ -46,7 +46,7 @@ export const incidentTestData = {
           isRandomPool: false,
         },
       },
-      世界: { timeProgress: 180 }, // 仍处于冷却期
+      time: { timeProgress: 180 }, // 仍处于冷却期
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: 60 },
@@ -64,7 +64,7 @@ export const incidentTestData = {
           pool: [{ name: '星光逆流异变', detail: '夜空的星光在白昼逆流而下，幻象扭曲。', mainLoc: ['无名丘'] }],
         },
       },
-      世界: { timeProgress: 200 }, // 200 - 80 > 90
+      time: { timeProgress: 200 }, // 200 - 80 > 90
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: 80 },
@@ -84,7 +84,7 @@ export const incidentTestData = {
           randomType: ['偏移'],
         },
       },
-      世界: { timeProgress: 200 }, // 200 - 120 > 60
+      time: { timeProgress: 200 }, // 200 - 120 > 60
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: 120 },
@@ -107,7 +107,7 @@ export const incidentTestData = {
           randomType: ['共鸣'],
         },
       },
-      世界: { timeProgress: 300 }, // 300 - 200 > 45
+      time: { timeProgress: 300 }, // 300 - 200 > 45
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: 200 },
@@ -130,7 +130,7 @@ export const incidentTestData = {
           randomType: ['倒影'],
         },
       },
-      世界: { timeProgress: 410 }, // 410 - 300 > 80
+      time: { timeProgress: 410 }, // 410 - 300 > 80
       incidents: {
         梦境余响异变: {
           异变已结束: true,
@@ -155,7 +155,7 @@ export const incidentTestData = {
           pool: [{ name: '春雪异变', detail: '春天到了但鹅毛大雪仍在飘落。', mainLoc: ['白玉楼'] }],
         },
       },
-      世界: { timeProgress: 260 }, // 未到冷却，但强制触发
+      time: { timeProgress: 260 }, // 未到冷却，但强制触发
       incidents: {},
       cache: {
         incident: { incidentCooldownAnchor: 200 },
@@ -173,7 +173,7 @@ export const incidentTestData = {
           pool: [{ name: '红雾异变', detail: '红雾仍在蔓延，调查暂未结束。', mainLoc: ['红魔馆', '雾之湖'] }],
         },
       },
-      世界: { timeProgress: 420 },
+      time: { timeProgress: 420 },
       incidents: {
         红雾异变: {
           异变已结束: false,
@@ -198,7 +198,7 @@ export const incidentTestData = {
           pool: [{ name: '花映冢异变', detail: '花海异动蔓延至人间之里。', mainLoc: ['人间之里'] }],
         },
       },
-      世界: { timeProgress: 540 },
+      time: { timeProgress: 540 },
       incidents: {
         红雾异变: {
           异变已结束: true,

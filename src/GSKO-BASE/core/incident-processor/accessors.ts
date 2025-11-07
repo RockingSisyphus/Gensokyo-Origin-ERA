@@ -20,7 +20,7 @@ export function setIncidents(stat: Stat, incidents: Incidents) {
 }
 
 export function getTimeProgress(stat: Stat): number {
-  return stat.世界?.timeProgress ?? 0;
+  return stat.time?.timeProgress ?? 0;
 }
 
 // Runtime Accessors

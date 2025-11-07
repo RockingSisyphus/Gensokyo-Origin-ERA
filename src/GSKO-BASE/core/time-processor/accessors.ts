@@ -1,9 +1,9 @@
 import { Cache } from '../../schema/cache';
-import { TimeConfig } from '../../schema/config';
 import { ClockAck } from '../../schema/clock';
+import { TimeConfig } from '../../schema/config';
 import { Clock, Runtime } from '../../schema/runtime';
-import { TimeProcessorResult } from '../../schema/time-processor-result';
 import { Stat } from '../../schema/stat';
+import { TimeProcessorResult } from '../../schema/time-processor-result';
 
 // --- Getters ---
 
@@ -23,7 +23,7 @@ export function getTimeConfig(stat: Stat): TimeConfig {
  * @returns The time progress in minutes.
  */
 export function getTimeProgress(stat: Stat): number {
-  return stat.世界.timeProgress;
+  return stat.time.timeProgress;
 }
 
 /**

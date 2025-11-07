@@ -61,7 +61,7 @@ const getProgress = (targetMonth: number, targetDay: number): number => {
 const createFestivalStat = (month: number, day: number) => {
   const stat = _.cloneDeep(baseFestivalStat);
   const progress = getProgress(month, day);
-  _.set(stat, ['世界', 'timeProgress'], progress);
+  _.set(stat, ['time', 'timeProgress'], progress);
 
   if (_.has(stat, 'world')) {
     _.set(stat, ['world', 'timeProgress'], progress);

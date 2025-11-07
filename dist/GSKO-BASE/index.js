@@ -1204,7 +1204,7 @@ const WorldSchema = external_z_namespaceObject.z.object({
   fallbackPlace: external_z_namespaceObject.z.string().default(WORLD_DEFAULTS.fallbackPlace)
 }).passthrough();
 
-const 世界Schema = external_z_namespaceObject.z.object({
+const timeSchema = external_z_namespaceObject.z.object({
   timeProgress: external_z_namespaceObject.z.number()
 }).passthrough();
 
@@ -2887,7 +2887,7 @@ function setIncidents(stat, incidents) {
 }
 
 function getTimeProgress(stat) {
-  return stat.世界?.timeProgress ?? 0;
+  return stat.time?.timeProgress ?? 0;
 }
 
 function getLegalLocations(runtime) {
@@ -3591,14 +3591,14 @@ const time_progress_logger = new Logger("GSKO-BASE/core/prompt-builder/time-prog
 function buildTimeProgressPrompt({stat}) {
   const funcName = "buildTimeProgressPrompt";
   try {
-    const world = stat?.["世界"];
+    const world = stat?.["time"];
     const timeProgress = world?.timeProgress;
     if (typeof timeProgress !== "number" || Number.isNaN(timeProgress)) {
-      time_progress_logger.warn(funcName, "stat.世界.timeProgress 缺失或无效，跳过时间进度提示。");
+      time_progress_logger.warn(funcName, "stat.time.timeProgress 缺失或无效，跳过时间进度提示。");
       return null;
     }
     const snapshot = {
-      世界: {
+      time: {
         timeProgress
       }
     };
@@ -4300,7 +4300,7 @@ function getTimeConfig(stat) {
 }
 
 function accessors_getTimeProgress(stat) {
-  return stat.世界.timeProgress;
+  return stat.time.timeProgress;
 }
 
 function getClockAck(cache) {
@@ -5066,7 +5066,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   chars: CharsSchema,
   user: UserSchema,
   world: WorldSchema.optional(),
-  世界: 世界Schema,
+  time: timeSchema,
   cache: CacheSchema.optional(),
   incidents: IncidentsSchema.default({}),
   festivals_list: FestivalsListSchema,

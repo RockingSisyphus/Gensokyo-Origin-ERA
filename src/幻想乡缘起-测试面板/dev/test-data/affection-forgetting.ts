@@ -4,11 +4,11 @@
  * 以确保数据在 mk, message_id, selectedMks 和 mkAnchors 之间保持一致。
  */
 import _ from 'lodash';
+import { ClockAck } from '../../../GSKO-BASE/schema/clock';
 import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import { TimeChatMkAnchors } from '../../../GSKO-BASE/schema/time-chat-mk-sync';
 import { WriteDonePayload } from '../../utils/era';
 import baseTestData from '../stat-test-data.json';
-import { TimeChatMkAnchors } from '../../../GSKO-BASE/schema/time-chat-mk-sync';
-import { ClockAck } from '../../../GSKO-BASE/schema/clock';
 
 // ==================================================
 // 辅助定义和函数
@@ -149,7 +149,7 @@ export const Anchor_Week_Payload: WriteDonePayload = (() => {
  */
 export const Met_ShouldNotForget: WriteDonePayload = (() => {
   const stat = createBaseStatForForgetting();
-  stat.世界.timeProgress = 24 * 60;
+  stat.time.timeProgress = 24 * 60;
   stat.cache!.time!.clockAck = PREV_DAY_ACK;
   stat.cache!.timeChatMkSync!.anchors = PREV_ANCHORS;
   stat.user.所在地区 = '博丽神社';
@@ -173,7 +173,7 @@ export const Met_ShouldNotForget: WriteDonePayload = (() => {
  */
 export const NotMet_ShouldForget: WriteDonePayload = (() => {
   const stat = createBaseStatForForgetting();
-  stat.世界.timeProgress = 24 * 60;
+  stat.time.timeProgress = 24 * 60;
   stat.cache!.time!.clockAck = PREV_DAY_ACK;
   stat.cache!.timeChatMkSync!.anchors = PREV_ANCHORS;
   stat.user.所在地区 = '人间之里';
@@ -197,7 +197,7 @@ export const NotMet_ShouldForget: WriteDonePayload = (() => {
  */
 export const NoTrigger_ShouldNotForget: WriteDonePayload = (() => {
   const stat = createBaseStatForForgetting();
-  stat.世界.timeProgress = 10;
+  stat.time.timeProgress = 10;
   stat.cache!.time!.clockAck = NO_CHANGE_ACK;
   stat.cache!.timeChatMkSync!.anchors = PREV_ANCHORS;
   stat.user.所在地区 = '人间之里';
@@ -221,7 +221,7 @@ export const NoTrigger_ShouldNotForget: WriteDonePayload = (() => {
  */
 export const MultiTriggers_ShouldForgetMore: WriteDonePayload = (() => {
   const stat = createBaseStatForForgetting();
-  stat.世界.timeProgress = 8 * 24 * 60;
+  stat.time.timeProgress = 8 * 24 * 60;
   stat.cache!.time!.clockAck = PREV_WEEK_ACK;
   stat.cache!.timeChatMkSync!.anchors = PREV_ANCHORS;
   stat.user.所在地区 = '人间之里';

@@ -6,6 +6,9 @@
 import { onBeforeUnmount, ref, watch } from 'vue';
 import { Logger } from '../../../utils/log';
 
+// 模块级变量，用于存储首次更新时的消息 ID
+let initialMessageId: number | null = null;
+
 interface MainContentProps {
   messageId: number | null | undefined;
   refreshKey: number;
@@ -136,6 +139,18 @@ const applyContent = (messageId: number, chunks: string[]) => {
 const attemptUpdate = (attempt = 1) => {
   clearPendingTimer();
   const targetId = resolveTargetMessageId();
+
+  // 如果 initialMessageId 尚未设置，则将其设置为当前 targetId
+  if (initialMessageId === null && typeof targetId === 'number') {
+    initialMessageId = targetId;
+    logger.log('attemptUpdate', `记录首次消息 ID: ${initialMessageId}`);
+  }
+
+  // 如果当前 targetId 与首次记录的 ID 不匹配，则不执行更新
+  if (targetId !== initialMessageId) {
+    logger.log('attemptUpdate', `当前消息 ID (${targetId}) 与首次记录的 ID (${initialMessageId}) 不匹配，跳过更新。`);
+    return;
+  }
 
   if (targetId === null) {
     if (attempt < MAX_RETRY) {

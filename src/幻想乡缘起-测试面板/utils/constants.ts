@@ -62,9 +62,9 @@ export const ERA_VARIABLE_PATH = {
 
   /**
    * 世界时间进度。
-   * 路径: 世界.timeProgress
+   * 路径: time.timeProgress
    */
-  TIME_PROGRESS: '世界.timeProgress',
+  TIME_PROGRESS: 'time.timeProgress',
 
   /**
    * 节日列表。

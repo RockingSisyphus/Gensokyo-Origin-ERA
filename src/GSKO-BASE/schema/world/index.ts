@@ -59,7 +59,7 @@ export const WorldSchema = z
   })
   .passthrough();
 
-export const 世界Schema = z
+export const timeSchema = z
   .object({
     timeProgress: z.number(),
   })

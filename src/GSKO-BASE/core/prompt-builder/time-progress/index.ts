@@ -4,22 +4,22 @@ import { Logger } from '../../../utils/log';
 const logger = new Logger();
 
 /**
- * @description 展示 stat.世界.timeProgress 的真实存储结构，并提示 AI 在该值基础上累加本轮新增分钟数。
+ * @description 展示 stat.time.timeProgress 的真实存储结构，并提示 AI 在该值基础上累加本轮新增分钟数。
  */
 export function buildTimeProgressPrompt({ stat }: { stat: Stat | null }): string | null {
   const funcName = 'buildTimeProgressPrompt';
 
   try {
-    const world = stat?.['世界'];
+    const world = stat?.['time'];
     const timeProgress = world?.timeProgress;
 
     if (typeof timeProgress !== 'number' || Number.isNaN(timeProgress)) {
-      logger.warn(funcName, 'stat.世界.timeProgress 缺失或无效，跳过时间进度提示。');
+      logger.warn(funcName, 'stat.time.timeProgress 缺失或无效，跳过时间进度提示。');
       return null;
     }
 
     const snapshot = {
-      世界: {
+      time: {
         timeProgress,
       },
     };
