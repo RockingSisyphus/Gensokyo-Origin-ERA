@@ -1,0 +1,3667 @@
+{
+  "config": {
+    "affection": {
+      "affectionStages": [
+        {
+          "threshold": -99999,
+          "name": "死敌",
+          "describe": "将不惜一切代价试图杀死对方。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": false,
+            "probBase": 0,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 2,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": -100,
+          "name": "憎恨",
+          "describe": "会主动寻找并攻击对方。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": false,
+            "probBase": 0,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 2,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": -20,
+          "name": "厌恶",
+          "describe": "会避开对方，如果无法避开则会恶语相向。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": false,
+            "probBase": 0,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 2,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 0,
+          "name": "陌生",
+          "describe": "如同对待陌生人一样，保持距离和警惕。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.1,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 5,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 10,
+          "name": "普通",
+          "describe": "会进行普通的对话和互动。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.2,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 5,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 20,
+          "name": "熟悉",
+          "describe": "会主动打招呼，并进行更深入的对话。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.3,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 5,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 40,
+          "name": "亲近",
+          "describe": "会分享自己的心事，并主动邀请对方。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.5,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 10,
+            "divisor": 3
+          }
+        },
+        {
+          "threshold": 70,
+          "name": "亲密",
+          "describe": "会将对方视为重要的人，并愿意为其付出。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.7,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 10,
+            "divisor": 3
+          }
+        },
+        {
+          "threshold": 100,
+          "name": "思慕",
+          "describe": "深深地爱着对方，愿意为其做任何事。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.9,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 10,
+            "divisor": 3
+          }
+        },
+        {
+          "threshold": 99999,
+          "name": "不渝",
+          "describe": "无论发生什么，都会永远爱着对方。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 1.0,
+            "coolUnit": "day"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newMonth",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 10,
+            "divisor": 3
+          }
+        }
+      ]
+    },
+    "time": {
+      "epochISO": "2025-10-24T06:00:00Z",
+      "flagHistoryLimits": {
+        "newPeriod": 12,
+        "newDay": 72,
+        "newWeek": 120,
+        "newMonth": 240,
+        "newSeason": 360,
+        "newYear": 400,
+        "period": {
+          "newDawn": 72,
+          "newMorning": 72,
+          "newNoon": 72,
+          "newAfternoon": 72,
+          "newDusk": 72,
+          "newNight": 72,
+          "newFirstHalfNight": 72,
+          "newSecondHalfNight": 72
+        },
+        "season": {
+          "newSpring": 400,
+          "newSummer": 400,
+          "newAutumn": 400,
+          "newWinter": 400
+        }
+      }
+    },
+    "incident": {
+      "cooldownMinutes": 100,
+      "forceTrigger": false,
+      "isRandomPool": false,
+      "pool": [
+        {
+          "name": "红雾异变",
+          "detail": "幻想乡被红色的雾气笼罩了。",
+          "mainLoc": "红魔馆"
+        },
+        {
+          "name": "春雪异变",
+          "detail": "春天来了，但雪还在下。",
+          "mainLoc": "白玉楼"
+        }
+      ],
+      "randomCore": [],
+      "randomType": []
+    }
+  },
+  "chars": {
+    "reimu": {
+      "name": "博丽灵梦",
+      "好感度": 60,
+      "所在地区": "博丽神社",
+      "居住地区": "博丽神社",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byFlag": [
+              "newDay"
+            ]
+          },
+          "action": {
+            "do": "打扫神社",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "目标": ""
+    },
+    "marisa": {
+      "name": "雾雨魔理沙",
+      "好感度": 20,
+      "所在地区": "魔法森林",
+      "居住地区": "雾雨魔法店",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byFlag": [
+              "newDay"
+            ]
+          },
+          "action": {
+            "do": "进行魔法研究",
+            "to": "魔法之森"
+          }
+        }
+      ],
+      "目标": ""
+    },
+    "rumia": {
+      "name": "露米娅",
+      "好感度": 0,
+      "所在地区": "魔法之森",
+      "居住地区": "不固定（魔法之森周边）",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "找个阴暗的地方睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "漫无目的地游荡",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "目标": "寻找食物"
+    },
+    "daiyousei": {
+      "name": "大妖精",
+      "好感度": 10,
+      "所在地区": "雾之湖",
+      "居住地区": "雾之湖",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            },
+            "byFlag": [
+              "bySeason.newSummer"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "和琪露诺去河里玩",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在湖边玩耍",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "目标": "与琪露诺玩耍"
+    },
+    "cirno": {
+      "name": "琪露诺",
+      "好感度": 5,
+      "所在地区": "雾之湖",
+      "居住地区": "雾之湖",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            },
+            "byFlag": [
+              "bySeason.newWinter"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "堆雪人",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            },
+            "byFlag": [
+              "bySeason.newSummer"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "和大妖精去河里玩",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "找东西吃",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "冰冻青蛙",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "寻找对手恶作剧",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "目标": "成为最强"
+    },
+    "meirin": {
+      "name": "红美铃",
+      "好感度": 20,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周日"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "修剪红魔馆的花园",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "在门口站岗",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "在岗位上打盹",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "在门口站岗",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "回房间睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newDay"
+            ]
+          },
+          "action": {
+            "do": "进行武术的修行",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "守护红魔馆的大门"
+    },
+    "koakuma": {
+      "name": "小恶魔",
+      "好感度": 15,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "整理图书馆的书籍",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "侍奉帕秋莉"
+    },
+    "patchouli": {
+      "name": "帕秋莉·诺蕾姬",
+      "好感度": 10,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "喝下午茶",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "吃点夜宵",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在大图书馆读书",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "研究魔法",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "钻研新的魔法"
+    },
+    "sakuya": {
+      "name": "十六夜咲夜",
+      "好感度": 25,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "打理红魔馆事务",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "购买食材与日用品",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "打理红魔馆事务,准备下午茶",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "去餐厅吃饭，饭后利用时停睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "侍奉大小姐和二小姐更衣",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "打理红魔馆事务",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "打理红魔馆事务",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "处理馆内杂务",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "完美地服务大小姐"
+    },
+    "remilia": {
+      "name": "蕾米莉亚·斯卡蕾特",
+      "好感度": 15,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "回房间睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "醒来，等待咲夜侍奉更衣",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "吃第一顿饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "吃第二顿饭",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "寻找有趣的事情"
+    },
+    "flandre": {
+      "name": "芙兰朵露·斯卡蕾特",
+      "好感度": -10,
+      "所在地区": "红魔馆",
+      "居住地区": "红魔馆",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "回房间睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "醒来，等待咲夜侍奉更衣",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "吃第一顿饭",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "在地下室玩耍",
+            "to": "红魔馆"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "吃第二顿饭",
+            "to": "红魔馆"
+          }
+        }
+      ],
+      "目标": "找人陪我玩"
+    },
+    "letty": {
+      "name": "蕾蒂·霍瓦特洛克",
+      "好感度": 5,
+      "所在地区": "雾之湖",
+      "居住地区": "不固定",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFlag": [
+              "newDay",
+              "bySeason.newWinter"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "在幻想乡散播寒气",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newWinter"
+            ]
+          },
+          "action": {
+            "do": "享受冬天",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSpring"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSummer"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newAutumn"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "目标": "让人们感受冬天的美好"
+    },
+    "chen": {
+      "name": "橙",
+      "好感度": 15,
+      "所在地区": "迷途之家",
+      "居住地区": "迷途之家",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "迷途之家"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "在附近玩耍",
+            "to": "迷途之家"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "训练野猫们",
+            "to": "迷途之家"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "迷途之家"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "迷途之家"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "迷途之家"
+          }
+        }
+      ],
+      "目标": "帮上蓝大人的忙"
+    },
+    "alice": {
+      "name": "爱丽丝·玛格特罗伊德",
+      "好感度": 20,
+      "所在地区": "魔法之森",
+      "居住地区": "魔法之森",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周六"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "去人间之里表演人偶剧",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byFestival": "宴会邀请"
+          },
+          "priority": 20,
+          "action": {
+            "do": "去神社表演人偶剧",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "打理家务",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在家里吃饭",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在家里吃饭",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "进行人偶魔法的研究",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "进行人偶魔法的研究",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "进行人偶魔法的研究",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "制作或保养人偶",
+            "to": "魔法之森"
+          }
+        }
+      ],
+      "目标": "创造出究极的自律人偶"
+    },
+    "lilywhite": {
+      "name": "莉莉霍瓦特",
+      "好感度": 5,
+      "所在地区": "博丽神社",
+      "居住地区": "不固定",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFlag": [
+              "newDay",
+              "bySeason.newSpring"
+            ]
+          },
+          "priority": 100,
+          "action": {
+            "do": "宣告春天的到来！",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "魔法之森"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSpring"
+            ]
+          },
+          "action": {
+            "do": "到处散播春天的气息",
+            "to": "RANDOM"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newWinter"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSummer"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newAutumn"
+            ]
+          },
+          "action": {
+            "do": "在某处蛰伏",
+            "to": "魔法森林"
+          }
+        }
+      ],
+      "目标": "让大家知道春天来了"
+    },
+    "lunasa": {
+      "name": "露娜萨·普莉兹姆利巴",
+      "好感度": 15,
+      "所在地区": "白玉楼",
+      "居住地区": "白玉楼附近",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFestival": "宴会邀请"
+          },
+          "action": {
+            "do": "前往会场进行演奏",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "练习小提琴",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "目标": "追求完美的演奏"
+    },
+    "merlin": {
+      "name": "梅露兰·普莉兹姆利巴",
+      "好感度": 15,
+      "所在地区": "白玉楼",
+      "居住地区": "白玉楼附近",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFestival": "宴会邀请"
+          },
+          "action": {
+            "do": "前往会场进行演奏",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "练习小号",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "目标": "演奏能让大家开心的音乐"
+    },
+    "lyrica": {
+      "name": "莉莉卡·普莉兹姆利巴",
+      "好感度": 15,
+      "所在地区": "白玉楼",
+      "居住地区": "白玉楼附近",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFestival": "宴会邀请"
+          },
+          "action": {
+            "do": "前往会场进行演奏",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "雾之湖"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "练习键盘",
+            "to": "雾之湖"
+          }
+        }
+      ],
+      "目标": "尝试新奇的音乐"
+    },
+    "youmu": {
+      "name": "魂魄妖梦",
+      "好感度": 30,
+      "所在地区": "白玉楼",
+      "居住地区": "白玉楼",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来，进行剑术晨练",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "修剪庭院",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在白玉楼吃饭",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "进行剑术修行",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在白玉楼吃饭",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "在白玉楼赏月",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "白玉楼"
+          }
+        }
+      ],
+      "目标": "保护幽幽子大人"
+    },
+    "yuyuko": {
+      "name": "西行寺幽幽子",
+      "好感度": 25,
+      "所在地区": "白玉楼",
+      "居住地区": "白玉楼",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSpring"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "在西行妖下赏樱",
+            "to": "白玉楼"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在白玉楼吃饭",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在白玉楼吃饭",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "在白玉楼赏月",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "白玉楼"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在白玉楼中优雅地散步",
+            "to": "白玉楼"
+          }
+        }
+      ],
+      "目标": "品尝幻想乡所有的美食"
+    },
+    "ran": {
+      "name": "八云蓝",
+      "好感度": 20,
+      "所在地区": "艮之境",
+      "居住地区": "艮之境",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周日"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "去神社检查大结界",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "做饭并吃饭",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "做饭并吃饭",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "用数学消遣或处理家务",
+            "to": "艮之境"
+          }
+        }
+      ],
+      "目标": "维持八云家的正常运转"
+    },
+    "yukari": {
+      "name": "八云紫",
+      "好感度": 10,
+      "所在地区": "艮之境",
+      "居住地区": "艮之境",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在家吃饭",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "通过隙间观察幻想乡",
+            "to": "艮之境"
+          }
+        }
+      ],
+      "目标": "维持幻想乡的平衡与存续"
+    },
+    "wriggle": {
+      "name": "莉格露·奈特巴格",
+      "好感度": 5,
+      "所在地区": "魔法之森",
+      "居住地区": "草丛",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newWinter"
+            ]
+          },
+          "priority": 10,
+          "action": {
+            "do": "躲起来避寒",
+            "to": "魔法森林"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "bySeason.newSummer"
+            ]
+          },
+          "priority": 5,
+          "action": {
+            "do": "和昆虫们一起狂欢",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "艮之境"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "指挥昆虫，寻找食物",
+            "to": "魔法之森"
+          }
+        }
+      ],
+      "目标": "建立昆虫们的乐园"
+    },
+    "mystia": {
+      "name": "米斯蒂娅·萝蕾拉",
+      "好感度": 10,
+      "所在地区": "兽道",
+      "居住地区": "兽道",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byFestival": "任何"
+          },
+          "priority": 15,
+          "action": {
+            "do": "在庆典上经营烤八目鳗摊",
+            "to": "人间之里"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "准备开摊",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "唱歌并经营小吃摊",
+            "to": "兽道"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "经营小吃摊",
+            "to": "兽道"
+          }
+        }
+      ],
+      "目标": "让自己的烤鳗鱼摊生意兴隆，唱更好听的歌"
+    },
+    "keine": {
+      "name": "上白泽慧音",
+      "好感度": 30,
+      "所在地区": "人间之里",
+      "居住地区": "人间之里",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "day": 15,
+              "periodName": "夜晚"
+            }
+          },
+          "priority": 100,
+          "action": {
+            "do": "变身为白泽，赶工积累下来的工作",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周六"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "去看望妹红",
+            "to": "迷途竹林"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "在寺子屋教书",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "去店里吃饭",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "在寺子屋教书",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "去店里吃饭",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "休息或备课",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "人间之里"
+          }
+        }
+      ],
+      "目标": "守护并教导人类"
+    },
+    "tewi": {
+      "name": "因幡帝",
+      "好感度": 15,
+      "所在地区": "迷途竹林",
+      "居住地区": "永远亭",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上午"
+            }
+          },
+          "action": {
+            "do": "四处打探，指挥兔子们",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "回永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下午"
+            }
+          },
+          "action": {
+            "do": "指挥兔子们打理竹林",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "回永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "在竹林里挖陷阱",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "回永远亭睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "永远亭"
+          }
+        }
+      ],
+      "目标": "寻找有趣的恶作剧"
+    },
+    "reisen": {
+      "name": "铃仙·优昙华院·因幡",
+      "好感度": 25,
+      "所在地区": "永远亭",
+      "居住地区": "永远亭",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周五"
+            }
+          },
+          "priority": 5,
+          "action": {
+            "do": "出去采集药材",
+            "to": "魔法之森"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在永远亭处理杂务",
+            "to": "永远亭"
+          }
+        }
+      ],
+      "目标": "完成永琳师匠交待的任务"
+    },
+    "eirin": {
+      "name": "八意永琳",
+      "好感度": 20,
+      "所在地区": "永远亭",
+      "居住地区": "永远亭",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "制作药物或进行研究",
+            "to": "永远亭"
+          }
+        }
+      ],
+      "目标": "守护辉夜，享受幻想乡的生活"
+    },
+    "kaguya": {
+      "name": "蓬莱山辉夜",
+      "好感度": 10,
+      "所在地区": "永远亭",
+      "居住地区": "永远亭",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周日"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "和妹红去人间之里玩",
+            "to": "人间之里"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "在永远亭吃饭",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "永远亭"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在房间里悠闲度日",
+            "to": "永远亭"
+          }
+        }
+      ],
+      "目标": "寻找有趣的事情打发时间"
+    },
+    "mokou": {
+      "name": "藤原妹红",
+      "好感度": 25,
+      "所在地区": "迷途竹林",
+      "居住地区": "迷途竹林",
+      "affectionStages": [],
+      "specials": [
+        {
+          "when": {
+            "byNow": {
+              "weekdayName": "周日"
+            }
+          },
+          "priority": 10,
+          "action": {
+            "do": "带辉夜去人间之里玩",
+            "to": "人间之里"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "清晨"
+            }
+          },
+          "action": {
+            "do": "醒来",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "中午"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "黄昏"
+            }
+          },
+          "action": {
+            "do": "寻找食物",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "去找辉夜挑事",
+            "to": "人间之里"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "去睡觉",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "睡觉",
+            "to": "迷途竹林"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "在竹林中巡逻",
+            "to": "迷途竹林"
+          }
+        }
+      ],
+      "目标": "漫无目的"
+    },
+    "aya": {
+      "name": "射命丸文",
+      "好感度": 30,
+      "所在地区": "博丽神社",
+      "居住地区": "妖怪之山",
+      "affectionStages": [],
+      "specials": [],
+      "routine": [
+        {
+          "when": {
+            "byNow": {
+              "periodName": "夜晚"
+            }
+          },
+          "action": {
+            "do": "回家睡觉",
+            "to": "妖怪之山"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "上半夜"
+            }
+          },
+          "action": {
+            "do": "在家里休息",
+            "to": "妖怪之山"
+          }
+        },
+        {
+          "when": {
+            "byNow": {
+              "periodName": "下半夜"
+            }
+          },
+          "action": {
+            "do": "在家里休息",
+            "to": "妖怪之山"
+          }
+        },
+        {
+          "when": {
+            "byFlag": [
+              "newPeriod"
+            ]
+          },
+          "action": {
+            "do": "寻找大新闻",
+            "to": "RANDOM"
+          }
+        }
+      ],
+      "目标": "寻找大新闻"
+    },
+    "sanae": {
+      "name": "东风谷早苗",
+      "好感度": 10,
+      "所在地区": "守矢神社",
+      "居住地区": "守矢神社",
+      "affectionStages": [
+        {
+          "threshold": 0,
+          "name": "陌生",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": false
+          }
+        }
+      ],
+      "specials": [
+        {
+          "when": {
+            "byFestival": "夏日祭"
+          },
+          "priority": 10,
+          "action": {
+            "do": "参加祭典",
+            "to": "博丽神社"
+          }
+        }
+      ],
+      "routine": [
+        {
+          "when": {
+            "byFlag": [
+              "newDay"
+            ]
+          },
+          "action": {
+            "do": "进行风祝的修行",
+            "to": "守矢神社"
+          }
+        }
+      ],
+      "目标": ""
+    }
+  },
+  "user": {
+    "姓名": "测试用户",
+    "所在地区": "博丽神社",
+    "居住地区": "人间之里"
+  },
+  "world": {
+    "map_graph": {
+      "mapSize": {
+        "width": 1000,
+        "height": 1000
+      },
+      "tree": {
+        "幻想乡及周边": {
+          "幻想乡本土": {
+            "东境丘陵带": {
+              "博丽神社": {
+                "pos": {
+                  "x": 850,
+                  "y": 450
+                },
+                "htmlEle": "<div class='location-label'>博丽神社</div>"
+              },
+              "永远亭": {
+                "pos": {
+                  "x": 800,
+                  "y": 550
+                },
+                "htmlEle": "<div class='location-label'>永远亭</div>"
+              },
+              "迷途竹林": {
+                "pos": {
+                  "x": 780,
+                  "y": 580
+                },
+                "htmlEle": "<div class='location-label'>迷途竹林</div>"
+              },
+              "神灵庙": {
+                "pos": {
+                  "x": 900,
+                  "y": 400
+                },
+                "htmlEle": "<div class='location-label'>神灵庙</div>"
+              },
+              "梦殿大祀庙": {
+                "pos": {
+                  "x": 920,
+                  "y": 420
+                },
+                "htmlEle": "<div class='location-label'>梦殿大祀庙</div>"
+              }
+            },
+            "中部平原带": {
+              "人间之里": {
+                "pos": {
+                  "x": 500,
+                  "y": 500
+                },
+                "htmlEle": "<div class='location-label'>人间之里</div>"
+              },
+              "铃奈庵": {
+                "pos": {
+                  "x": 520,
+                  "y": 520
+                },
+                "htmlEle": "<div class='location-label'>铃奈庵</div>"
+              },
+              "命莲寺": {
+                "pos": {
+                  "x": 600,
+                  "y": 480
+                },
+                "htmlEle": "<div class='location-label'>命莲寺</div>"
+              },
+              "墓地": {
+                "pos": {
+                  "x": 620,
+                  "y": 460
+                },
+                "htmlEle": "<div class='location-label'>墓地</div>"
+              },
+              "香霖堂": {
+                "pos": {
+                  "x": 450,
+                  "y": 450
+                },
+                "htmlEle": "<div class='location-label'>香霖堂</div>"
+              }
+            },
+            "魔法之森带": {
+              "魔法之森": {
+                "pos": {
+                  "x": 700,
+                  "y": 750
+                },
+                "htmlEle": "<div class='location-label'>魔法之森</div>"
+              },
+              "迷途之家": {
+                "pos": {
+                  "x": 680,
+                  "y": 780
+                },
+                "htmlEle": "<div class='location-label'>迷途之家</div>"
+              },
+              "雾雨魔法店": {
+                "pos": {
+                  "x": 750,
+                  "y": 800
+                },
+                "htmlEle": "<div class='location-label'>雾雨魔法店</div>"
+              }
+            },
+            "西境水域带": {
+              "雾之湖": {
+                "pos": {
+                  "x": 200,
+                  "y": 450
+                },
+                "htmlEle": "<div class='location-label'>雾之湖</div>"
+              },
+              "红魔馆": {
+                "pos": {
+                  "x": 150,
+                  "y": 400
+                },
+                "htmlEle": "<div class='location-label'>红魔馆</div>"
+              }
+            },
+            "西北山地带": {
+              "妖怪之山": {
+                "pos": {
+                  "x": 200,
+                  "y": 200
+                },
+                "htmlEle": "<div class='location-label'>妖怪之山</div>"
+              },
+              "守矢神社": {
+                "pos": {
+                  "x": 200,
+                  "y": 150
+                },
+                "htmlEle": "<div class='location-label'>守矢神社</div>"
+              },
+              "九天瀑布": {
+                "pos": {
+                  "x": 250,
+                  "y": 220
+                },
+                "htmlEle": "<div class='location-label'>九天瀑布</div>"
+              },
+              "风神之湖": {
+                "pos": {
+                  "x": 200,
+                  "y": 100
+                },
+                "htmlEle": "<div class='location-label'>风神之湖</div>"
+              },
+              "玄武之泽": {
+                "pos": {
+                  "x": 150,
+                  "y": 250
+                },
+                "htmlEle": "<div class='location-label'>玄武之泽</div>"
+              },
+              "虹龙洞": {
+                "pos": {
+                  "x": 280,
+                  "y": 180
+                },
+                "htmlEle": "<div class='location-label'>虹龙洞</div>"
+              },
+              "秘天崖": {
+                "pos": {
+                  "x": 280,
+                  "y": 130
+                },
+                "htmlEle": "<div class='location-label'>秘天崖</div>"
+              },
+              "兽道": {
+                "pos": {
+                  "x": 350,
+                  "y": 350
+                },
+                "htmlEle": "<div class='location-label'>兽道</div>"
+              },
+              "大蛤蟆之池": {
+                "pos": {
+                  "x": 150,
+                  "y": 150
+                },
+                "htmlEle": "<div class='location-label'>大蛤蟆之池</div>"
+              }
+            },
+            "南境丘陵带": {
+              "无名之丘": {
+                "pos": {
+                  "x": 500,
+                  "y": 850
+                },
+                "htmlEle": "<div class='location-label'>无名之丘</div>"
+              },
+              "太阳花田": {
+                "pos": {
+                  "x": 550,
+                  "y": 900
+                },
+                "htmlEle": "<div class='location-label'>太阳花田</div>"
+              },
+              "辉针城": {
+                "pos": {
+                  "x": 450,
+                  "y": 900
+                },
+                "htmlEle": "<div class='location-label'>辉针城</div>"
+              }
+            }
+          },
+          "冥界": {
+            "幽冥结界": {
+              "pos": {
+                "x": 50,
+                "y": 50
+              },
+              "htmlEle": "<div class='location-label'>幽冥结界</div>"
+            },
+            "白玉楼": {
+              "pos": {
+                "x": 20,
+                "y": 20
+              },
+              "htmlEle": "<div class='location-label'>白玉楼</div>"
+            }
+          },
+          "地底·地狱系": {
+            "幻想风穴": {
+              "pos": {
+                "x": 920,
+                "y": 920
+              },
+              "htmlEle": "<div class='location-label'>幻想风穴</div>"
+            },
+            "间歇泉": {
+              "pos": {
+                "x": 930,
+                "y": 930
+              },
+              "htmlEle": "<div class='location-label'>间歇泉</div>"
+            },
+            "旧都": {
+              "pos": {
+                "x": 950,
+                "y": 950
+              },
+              "htmlEle": "<div class='location-label'>旧都</div>"
+            },
+            "血之湖": {
+              "pos": {
+                "x": 960,
+                "y": 960
+              },
+              "htmlEle": "<div class='location-label'>血之湖</div>"
+            },
+            "地灵殿": {
+              "pos": {
+                "x": 970,
+                "y": 970
+              },
+              "htmlEle": "<div class='location-label'>地灵殿</div>"
+            },
+            "灼热地狱遗址": {
+              "pos": {
+                "x": 980,
+                "y": 980
+              },
+              "htmlEle": "<div class='location-label'>灼热地狱遗址</div>"
+            },
+            "地狱": {
+              "pos": {
+                "x": 990,
+                "y": 990
+              },
+              "htmlEle": "<div class='location-label'>地狱</div>"
+            },
+            "畜生界（兽王园）": {
+              "pos": {
+                "x": 995,
+                "y": 995
+              },
+              "htmlEle": "<div class='location-label'>畜生界（兽王园）</div>"
+            }
+          },
+          "彼岸·中阴界": {
+            "中有之道": {
+              "pos": {
+                "x": 50,
+                "y": 950
+              },
+              "htmlEle": "<div class='location-label'>中有之道</div>"
+            },
+            "三途河": {
+              "pos": {
+                "x": 50,
+                "y": 970
+              },
+              "htmlEle": "<div class='location-label'>三途河</div>"
+            },
+            "彼岸": {
+              "pos": {
+                "x": 50,
+                "y": 990
+              },
+              "htmlEle": "<div class='location-label'>彼岸</div>"
+            },
+            "柳之运河": {
+              "pos": {
+                "x": 70,
+                "y": 930
+              },
+              "htmlEle": "<div class='location-label'>柳之运河</div>"
+            },
+            "无缘冢": {
+              "pos": {
+                "x": 20,
+                "y": 920
+              },
+              "htmlEle": "<div class='location-label'>无缘冢</div>"
+            }
+          },
+          "天界等上层": {
+            "天界": {
+              "pos": {
+                "x": 950,
+                "y": 50
+              },
+              "htmlEle": "<div class='location-label'>天界</div>"
+            },
+            "有顶天": {
+              "pos": {
+                "x": 960,
+                "y": 40
+              },
+              "htmlEle": "<div class='location-label'>有顶天</div>"
+            },
+            "仙界": {
+              "pos": {
+                "x": 970,
+                "y": 30
+              },
+              "htmlEle": "<div class='location-label'>仙界</div>"
+            },
+            "梦境世界": {
+              "pos": {
+                "x": 980,
+                "y": 20
+              },
+              "htmlEle": "<div class='location-label'>梦境世界</div>"
+            }
+          },
+          "月面": {
+            "月都": {
+              "pos": {
+                "x": 500,
+                "y": 25
+              },
+              "htmlEle": "<div class='location-label'>月都</div>"
+            }
+          },
+          "外界": {
+            "秘封俱乐部": {
+              "pos": {
+                "x": 975,
+                "y": 500
+              },
+              "htmlEle": "<div class='location-label'>秘封俱乐部</div>"
+            }
+          }
+        }
+      },
+      "edges": [
+        {
+          "a": "博丽神社",
+          "b": "兽道"
+        },
+        {
+          "a": "人间之里",
+          "b": "兽道"
+        },
+        {
+          "a": "人间之里",
+          "b": "铃奈庵"
+        },
+        {
+          "a": "雾之湖",
+          "b": "博丽神社"
+        },
+        {
+          "a": "雾之湖",
+          "b": "红魔馆"
+        },
+        {
+          "a": "雾之湖",
+          "b": "妖怪之山"
+        },
+        {
+          "a": "雾之湖",
+          "b": "魔法之森"
+        },
+        {
+          "a": "风神之湖",
+          "b": "妖怪之山"
+        },
+        {
+          "a": "妖怪之山",
+          "b": "玄武之泽"
+        },
+        {
+          "a": "守矢神社",
+          "b": "大蛤蟆之池"
+        },
+        {
+          "a": "玄武之泽",
+          "b": "大蛤蟆之池"
+        },
+        {
+          "a": "妖怪之山",
+          "b": "大蛤蟆之池"
+        },
+        {
+          "a": "风神之湖",
+          "b": "守矢神社"
+        },
+        {
+          "a": "秘天崖",
+          "b": "九天瀑布"
+        },
+        {
+          "a": "秘天崖",
+          "b": "守矢神社"
+        },
+        {
+          "a": "秘天崖",
+          "b": "天界"
+        },
+        {
+          "a": "虹龙洞",
+          "b": "九天瀑布"
+        },
+        {
+          "a": "魔法之森",
+          "b": "人间之里"
+        },
+        {
+          "a": "魔法之森",
+          "b": "雾雨魔法店"
+        },
+        {
+          "a": "雾雨魔法店",
+          "b": "香霖堂"
+        },
+        {
+          "a": "魔法之森",
+          "b": "迷途之家"
+        },
+        {
+          "a": "墓地",
+          "b": "命莲寺"
+        },
+        {
+          "a": "人间之里",
+          "b": "香霖堂"
+        },
+        {
+          "a": "人间之里",
+          "b": "命莲寺"
+        },
+        {
+          "a": "命莲寺",
+          "b": "神灵庙"
+        },
+        {
+          "a": "命莲寺",
+          "b": "迷途竹林"
+        },
+        {
+          "a": "神灵庙",
+          "b": "梦殿大祀庙"
+        },
+        {
+          "a": "迷途竹林",
+          "b": "永远亭"
+        },
+        {
+          "a": "迷途竹林",
+          "b": "辉针城"
+        },
+        {
+          "a": "太阳花田",
+          "b": "无名之丘"
+        },
+        {
+          "a": "太阳花田",
+          "b": "幻想风穴"
+        },
+        {
+          "a": "太阳花田",
+          "b": "魔法之森"
+        },
+        {
+          "a": "无名之丘",
+          "b": "幻想风穴"
+        },
+        {
+          "a": "幻想风穴",
+          "b": "间歇泉"
+        },
+        {
+          "a": "间歇泉",
+          "b": "地灵殿"
+        },
+        {
+          "a": "旧都",
+          "b": "血之湖"
+        },
+        {
+          "a": "血之湖",
+          "b": "地灵殿"
+        },
+        {
+          "a": "旧都",
+          "b": "灼热地狱遗址"
+        },
+        {
+          "a": "灼热地狱遗址",
+          "b": "地狱"
+        },
+        {
+          "a": "地狱",
+          "b": "畜生界（兽王园）"
+        },
+        {
+          "a": "无缘冢",
+          "b": "柳之运河"
+        },
+        {
+          "a": "墓地",
+          "b": "中有之道"
+        },
+        {
+          "a": "柳之运河",
+          "b": "中有之道"
+        },
+        {
+          "a": "中有之道",
+          "b": "三途河"
+        },
+        {
+          "a": "无缘冢",
+          "b": "畜生界（兽王园）"
+        },
+        {
+          "a": "彼岸",
+          "b": "三途河"
+        },
+        {
+          "a": "无缘冢",
+          "b": "幽冥结界"
+        },
+        {
+          "a": "幽冥结界",
+          "b": "白玉楼"
+        },
+        {
+          "a": "天界",
+          "b": "有顶天"
+        },
+        {
+          "a": "有顶天",
+          "b": "仙界"
+        },
+        {
+          "a": "仙界",
+          "b": "梦境世界"
+        },
+        {
+          "a": "梦境世界",
+          "b": "月都"
+        },
+        {
+          "a": "红魔馆",
+          "b": "月都"
+        }
+      ],
+      "aliases": {
+        "博丽神社": [
+          "博麗神社",
+          "博丽",
+          "博丽神社周边"
+        ],
+        "人间之里": [
+          "人里",
+          "人間之里"
+        ]
+      }
+    },
+    "fallbackPlace": "博丽神社"
+  },
+  "世界": {
+    "timeProgress": 120
+  },
+  "cache": {
+    "time": {
+      "clockAck": {
+        "dayID": 20251024,
+        "weekID": 20251020,
+        "monthID": 202510,
+        "yearID": 2025,
+        "periodID": 202510240,
+        "periodIdx": 0,
+        "seasonID": 20252,
+        "seasonIdx": 2
+      }
+    },
+    "incident": {
+      "incidentCooldownAnchor": 10
+    },
+    "character": {
+      "reimu": {
+        "visit": {
+          "cooling": false
+        }
+      }
+    }
+  },
+  "incidents": {
+    "红雾异变": {
+      "异变细节": "天空中弥漫着不祥的红色雾气。",
+      "主要地区": [
+        "红魔馆"
+      ],
+      "异变退治者": [
+        "博丽灵梦",
+        "雾雨魔理沙"
+      ],
+      "异变已结束": true
+    }
+  },
+  "festivals_list": [
+    {
+      "name": "正月（三天）",
+      "month": 1,
+      "start_day": 1,
+      "end_day": 3
+    },
+    {
+      "name": "节分",
+      "month": 2,
+      "start_day": 3,
+      "end_day": 3
+    }
+  ],
+  "文文新闻": ""
+}

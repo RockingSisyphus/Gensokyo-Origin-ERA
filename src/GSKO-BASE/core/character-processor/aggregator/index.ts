@@ -26,6 +26,15 @@ const logger = new Logger();
  * @param runtime - The runtime object.
  * @returns 解析后的实际地点名称。
  */
+function getCharHomeOrFallback(stat: Stat, charId: string): string {
+  const char = getChar(stat, charId);
+  const homeLocation = char?.[CHARACTER_FIELDS.home];
+  if (typeof homeLocation === 'string' && homeLocation.trim() !== '') {
+    return homeLocation;
+  }
+  return getUserLocation(stat);
+}
+
 function resolveTargetLocation(charId: string, to: string | undefined, stat: Stat, runtime: Runtime): string {
   if (to === 'RANDOM') {
     const legalLocations = runtime.area?.legal_locations;
@@ -35,20 +44,19 @@ function resolveTargetLocation(charId: string, to: string | undefined, stat: Sta
         return sampled;
       }
     }
-    // 如果没有合法地点列表或采样结果不是字符串，则退回到玩家位置
-    return getUserLocation(stat);
+    // 如果没有合法地点列表或采样结果不是字符串，则退回到角色的居住地区
+    return getCharHomeOrFallback(stat, charId);
   }
 
   if (to === '$HOME') {
-    const char = getChar(stat, charId);
-    const homeLocation = char?.[CHARACTER_FIELDS.home] ?? undefined;
-    if (typeof homeLocation === 'string' && homeLocation.trim() !== '') {
-      return homeLocation;
-    }
-    return getUserLocation(stat);
+    return getCharHomeOrFallback(stat, charId);
   }
 
-  if (!to || to === 'HERO') {
+  if (!to) {
+    return getCharHomeOrFallback(stat, charId);
+  }
+
+  if (to === 'HERO') {
     return getUserLocation(stat);
   }
   // TODO: 实现 FIXED, NEIGHBOR, FROM, ANY 等更复杂的地点解析逻辑
