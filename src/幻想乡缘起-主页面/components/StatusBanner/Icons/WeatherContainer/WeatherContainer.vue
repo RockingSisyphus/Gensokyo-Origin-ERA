@@ -15,9 +15,7 @@
       :forecast="upcomingForecast"
       :generated-at="generatedAtISO"
     />
-    <div v-else class="weather-empty" v-show="weatherVisible">
-      暂未生成天气数据，请等待下一次时间推进。
-    </div>
+    <div v-else class="weather-empty" v-show="weatherVisible">暂未生成天气数据，请等待下一次时间推进。</div>
   </div>
 </template>
 
@@ -66,7 +64,7 @@ const handleClose = () => {
   weatherVisible.value = false;
 };
 
-watch(hasWeather, (ready) => {
+watch(hasWeather, ready => {
   if (!ready) {
     weatherVisible.value = false;
   }

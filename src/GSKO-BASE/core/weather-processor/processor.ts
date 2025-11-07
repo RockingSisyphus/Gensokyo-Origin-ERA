@@ -273,7 +273,8 @@ function buildNarrative({
   precipitationChance: number;
   windLevel: number;
 }): string {
-  const precipText = precipitationChance > 0.6 ? '降水概率较高' : precipitationChance < 0.2 ? '几乎无降水可能' : '有零散降水机会';
+  const precipText =
+    precipitationChance > 0.6 ? '降水概率较高' : precipitationChance < 0.2 ? '几乎无降水可能' : '有零散降水机会';
   return `${weekdayName} ${conditionLabel}，最高 ${temperature.maxC}C / 最低 ${temperature.minC}C，${precipText}，风力等级 ${windLevel} 级。`;
 }
 

@@ -5,13 +5,7 @@ import { buildWeatherRuntime } from './processor';
 
 const logger = new Logger();
 
-export function processWeather({
-  stat,
-  runtime,
-}: {
-  stat: Stat;
-  runtime: Runtime;
-}): { runtime: Runtime } {
+export function processWeather({ stat, runtime }: { stat: Stat; runtime: Runtime }): { runtime: Runtime } {
   const funcName = 'processWeather';
   logger.debug(funcName, '开始计算天气预报...');
 

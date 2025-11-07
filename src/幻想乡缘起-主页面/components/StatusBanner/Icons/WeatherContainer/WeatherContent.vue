@@ -39,7 +39,8 @@
         <p class="condition">{{ item.condition.label }}</p>
         <p class="temp">{{ formatTemperature(item) }}</p>
         <p class="meta">
-          降水 {{ formatPercent(item.precipitationChance) }} · 湿度 {{ formatPercent(item.humidity) }} · 风 {{ item.windLevel }}级
+          降水 {{ formatPercent(item.precipitationChance) }} · 湿度 {{ formatPercent(item.humidity) }} · 风
+          {{ item.windLevel }}级
         </p>
       </article>
     </section>
