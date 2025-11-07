@@ -3335,10 +3335,10 @@ function buildCharacterMovementPrompt({runtime, stat}) {
     if (!from || !to || from === to) continue;
     const charName = getCharName(stat, charId);
     if (to === playerLocation && from !== playerLocation) {
-      prompts.push(`[${charName}从${from}来到了这里，目的是${action}]`);
+      prompts.push(`[${charName}**已经**从${from}来到了这里，目的是${action}]`);
     }
     if (from === playerLocation && to !== playerLocation) {
-      prompts.push(`[${charName}离开了这里，前往${to}，目的是${action}]`);
+      prompts.push(`[${charName}**已经**离开了这里，前往${to}，目的是${action}]`);
     }
   }
   return prompts;
