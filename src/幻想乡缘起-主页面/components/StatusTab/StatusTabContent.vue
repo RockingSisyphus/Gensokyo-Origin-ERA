@@ -62,7 +62,7 @@ import ContentSettings from './tabs/ContentSettings.vue';
 import Incidents from './tabs/Incidents.vue';
 // [重构] FontSizeControls 已移入 tabs 文件夹内
 import FontSizeControls from './tabs/FontSizeControls.vue';
-import MainContent from './MainContent.vue';
+import MainContent from './tabs/MainContent.vue';
 
 // 日志工具
 const logger = new Logger();

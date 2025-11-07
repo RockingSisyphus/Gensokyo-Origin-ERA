@@ -4,7 +4,7 @@
 
 <script setup lang="ts">
 import { onBeforeUnmount, ref, watch } from 'vue';
-import { Logger } from '../../utils/log';
+import { Logger } from '../../../utils/log';
 
 interface MainContentProps {
   messageId: number | null | undefined;
