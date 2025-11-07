@@ -18,7 +18,7 @@ export function buildMainCharacterPrompt({ stat }: { stat: Stat | null }): strin
 
     const userJson = JSON.stringify(user, null, 2);
     const header = '主角状态提示：请根据以下 stat.user JSON 更新主角的叙述与状态。';
-    const prompt = `${header}\n\`\`\`json\n${userJson}\n\`\`\``;
+    const prompt = `${header}\n${userJson}\n`;
     logger.debug(funcName, '主角提示词生成完成��');
     return prompt;
   } catch (err: any) {

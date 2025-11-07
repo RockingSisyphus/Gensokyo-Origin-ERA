@@ -3583,6 +3583,32 @@ function buildTimePrompt({runtime}) {
   }
 }
 
+const time_progress_logger = new Logger("GSKO-BASE/core/prompt-builder/time-progress");
+
+function buildTimeProgressPrompt({stat}) {
+  const funcName = "buildTimeProgressPrompt";
+  try {
+    const world = stat?.["世界"];
+    const timeProgress = world?.timeProgress;
+    if (typeof timeProgress !== "number" || Number.isNaN(timeProgress)) {
+      time_progress_logger.warn(funcName, "stat.世界.timeProgress 缺失或无效，跳过时间进度提示。");
+      return null;
+    }
+    const snapshot = {
+      世界: {
+        timeProgress
+      }
+    };
+    const promptLines = [ "时间进度提示：以下 JSON 展示 stat.世界.timeProgress 的实际结构与当前值。", "请根据本轮剧情的发展估算新增分钟数，在该值基础上累加，并将更新结果写回 stat.世界.timeProgress。", "```json", JSON.stringify(snapshot, null, 2), "```" ];
+    const prompt = promptLines.join("\n");
+    time_progress_logger.debug(funcName, "时间进度提示词生成完成。");
+    return prompt;
+  } catch (err) {
+    time_progress_logger.error(funcName, "生成时间进度提示词失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
 const weather_logger = new Logger("GSKO-BASE/core/prompt-builder/weather");
 
 function buildWeatherPrompt({runtime}) {
@@ -3720,6 +3746,12 @@ function buildPrompt({runtime, stat}) {
   });
   if (mainCharacterPrompt) {
     prompts.push(mainCharacterPrompt);
+  }
+  const timeProgressPrompt = buildTimeProgressPrompt({
+    stat
+  });
+  if (timeProgressPrompt) {
+    prompts.push(timeProgressPrompt);
   }
   const coLocatedCharactersPrompt = buildCoLocatedCharactersPrompt({
     runtime,

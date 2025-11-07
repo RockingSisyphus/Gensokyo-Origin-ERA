@@ -55,9 +55,7 @@ export function buildCoLocatedCharactersPrompt({ stat, runtime }: { stat: Stat; 
   const prompt = `
 以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态。
 
-\`\`\`json
 ${charactersJson}
-\`\`\`
 `;
 
   logger.debug(funcName, '成功生成同区角色提示词。');

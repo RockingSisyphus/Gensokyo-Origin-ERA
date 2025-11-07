@@ -9,6 +9,7 @@ import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildMainCharacterPrompt } from './main-character';
 import { buildRoutePrompt } from './route';
 import { buildTimePrompt } from './time';
+import { buildTimeProgressPrompt } from './time-progress';
 import { buildWeatherPrompt } from './weather';
 
 const logger = new Logger();
@@ -93,6 +94,12 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   const mainCharacterPrompt = buildMainCharacterPrompt({ stat });
   if (mainCharacterPrompt) {
     prompts.push(mainCharacterPrompt);
+  }
+
+  // 时间进度提示词
+  const timeProgressPrompt = buildTimeProgressPrompt({ stat });
+  if (timeProgressPrompt) {
+    prompts.push(timeProgressPrompt);
   }
 
   // 构建同区角色提示词
