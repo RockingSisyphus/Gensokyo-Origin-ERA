@@ -177,14 +177,17 @@ let selectedMarker = ref<MapMarker | null>(null);
 function selectLocation(markerData: MapMarker) {
   try {
     const npcIdList = props.context.runtime.characterDistribution.npcByLocation[markerData.name];
-    const npcList = npcIdList.map((id: string) => {
-      return props.context.runtime.characterSettings[id];
-    });
     let htmlEle = '';
-    npcList.map((npc: any) => {
-      htmlEle += `<div>${npc.name}:${npc.routine[0].action.do}</div>`;
-    });
-    selectedMarker.value = { ...markerData, htmlEle };
+    if (npcIdList) {
+      const npcList = npcIdList.map((id: string) => {
+        return props.context.statWithoutMeta.chars[id];
+      });
+      npcList.map((npc: any) => {
+        htmlEle += `<div>${npc.name}：${npc['目标'] || '未知'}</div>`;
+      });
+    }
+
+    selectedMarker.value = { ...markerData, htmlEle: htmlEle || `<div>空无一人</div>` };
   } catch (error) {
     console.error(error);
   }
