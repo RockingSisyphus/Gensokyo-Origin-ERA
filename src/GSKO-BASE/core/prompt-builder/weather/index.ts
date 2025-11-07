@@ -33,7 +33,7 @@ export function buildWeatherPrompt({ runtime }: { runtime: Runtime | null }): st
       return null;
     }
 
-    const prompt = ['天气情况：', ...lines.map((line) => `- ${line}`)].join('\n');
+    const prompt = ['天气情况：', ...lines.map(line => `- ${line}`)].join('\n');
     logger.debug(funcName, '天气提示词生成成功。', { prompt });
     return prompt;
   } catch (err: any) {
