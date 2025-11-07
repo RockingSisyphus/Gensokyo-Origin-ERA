@@ -47,6 +47,7 @@ import { Stat, StatSchema } from './schema/stat';
 import { getCache } from './utils/cache';
 import { Logger } from './utils/log';
 import { getRuntimeObject } from './utils/runtime';
+import { refreshInjectedPrompt } from './utils/prompt-injection';
 
 const logger = new Logger();
 
@@ -305,6 +306,7 @@ $(() => {
 
       // [提示词构建器]：将 `runtime` 中的所有计算结果汇总，生成最终注入给 LLM 的提示词。
       const prompt = buildPrompt({ runtime: currentRuntime, stat: currentStat });
+      refreshInjectedPrompt(prompt);
       logger.log('handleWriteDone', '提示词构建完毕:', prompt);
 
       // [数据发送器]：将所有 `stat` 的变更和生成的提示词发送回 ERA 框架。

@@ -5056,6 +5056,36 @@ const StatSchema = external_z_namespaceObject.z.object({
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
 
+const prompt_injection_logger = new Logger("GSKO-BASE/utils/prompt-injection");
+
+const PROMPT_INJECTION_ID = "gsk_base_prompt_injection";
+
+function refreshInjectedPrompt(prompt) {
+  if (!prompt.trim()) {
+    prompt_injection_logger.warn("refreshInjectedPrompt", "prompt 为空，跳过注入。");
+    return;
+  }
+  try {
+    if (typeof uninjectPrompts === "function") {
+      uninjectPrompts([ PROMPT_INJECTION_ID ]);
+    }
+    if (typeof injectPrompts === "function") {
+      injectPrompts([ {
+        id: PROMPT_INJECTION_ID,
+        position: "in_chat",
+        depth: 0,
+        role: "user",
+        content: prompt,
+        should_scan: false
+      } ]);
+    } else {
+      prompt_injection_logger.warn("refreshInjectedPrompt", "injectPrompts 不可用，跳过提示词注入。");
+    }
+  } catch (err) {
+    prompt_injection_logger.error("refreshInjectedPrompt", "注入提示词失败: " + (err?.message || String(err)), err);
+  }
+}
+
 const GSKO_BASE_logger = new Logger("GSKO-BASE");
 
 function logState(moduleName, modified, {stat, runtime, cache}) {
@@ -5265,6 +5295,7 @@ $(() => {
         runtime: currentRuntime,
         stat: currentStat
       });
+      refreshInjectedPrompt(prompt);
       GSKO_BASE_logger.log("handleWriteDone", "提示词构建完毕:", prompt);
       const allChanges = normalizationChanges.concat(affectionChanges).concat(timeChanges).concat(mkSyncChanges).concat(forgettingChanges).concat(incidentChanges).concat(charChanges);
       await writeChangesToEra({
