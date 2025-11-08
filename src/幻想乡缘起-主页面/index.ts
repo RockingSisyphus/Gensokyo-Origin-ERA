@@ -90,7 +90,12 @@ $(() => {
       const parsedStat = StatSchema.parse(statWithoutMeta);
       const parsedRuntime = RuntimeSchema.parse(runtime);
 
-      const context = { statWithoutMeta: parsedStat, runtime: parsedRuntime, messageId: lockedMessageId, latestMessage };
+      const context = {
+        statWithoutMeta: parsedStat,
+        runtime: parsedRuntime,
+        messageId: lockedMessageId,
+        latestMessage,
+      };
       logger.debug(funcName, '传给各子模块的上下文对象:', context);
 
       // 获取 Vue 组件实例引用
