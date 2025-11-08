@@ -24,7 +24,7 @@ const updateNews = (stat: Stat) => {
   }
 
   try {
-    const newsContent = stat.文文新闻 ?? '';
+    const newsContent = stat.AyaNews ?? '';
     logger.log(funcName, '将更新新闻文本', { preview: String(newsContent).slice(0, 50) });
     text('aya-news-content-popup', newsContent);
     logger.debug(funcName, '新闻文本已写入 DOM 完成');

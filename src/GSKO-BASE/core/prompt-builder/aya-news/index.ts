@@ -1,6 +1,7 @@
 import _ from 'lodash';
 import { AyaNewsSchema, type AyaNews } from '../../../schema/aya-news';
 import { type Runtime } from '../../../schema/runtime';
+import { type Stat } from '../../../schema/stat';
 import { formatTime } from '../../../utils/format';
 
 function formatNewsEntry(entry: AyaNews['entries'][number]): string {
@@ -16,14 +17,29 @@ function formatNewsEntry(entry: AyaNews['entries'][number]): string {
   return `${time}；在【${location}】；${ayaTarget}；${otherChars}。`;
 }
 
-export function buildAyaNewsPrompt(runtime: Runtime): string | null {
-  const ayaNews = AyaNewsSchema.safeParse(runtime.ayaNews);
+export function buildAyaNewsPrompt({ runtime, stat }: { runtime: Runtime; stat: Stat }): string | null {
+  const currentAyaNews = AyaNewsSchema.safeParse(runtime.ayaNews);
 
-  if (!ayaNews.success || _.isEmpty(ayaNews.data.entries)) {
-    return null;
+  let ayaNewsContent: unknown;
+  if (stat.AyaNews == null) {
+    ayaNewsContent = '本轮新闻';
+  } else if (_.isEmpty(stat.AyaNews)) {
+    ayaNewsContent = '暂无';
+  } else {
+    ayaNewsContent = stat.AyaNews;
   }
 
-  const promptLines = ayaNews.data.entries.map(formatNewsEntry);
+  const previousAyaNewsPrompt = `上一轮的新闻内容和结构参考如下：\n${JSON.stringify(
+    { AyaNews: ayaNewsContent },
+    null,
+    2,
+  )}`;
+
+  if (!currentAyaNews.success || _.isEmpty(currentAyaNews.data.entries)) {
+    return previousAyaNewsPrompt;
+  }
+
+  const promptLines = currentAyaNews.data.entries.map(formatNewsEntry);
 
   // 对行程进行去重和整理，相似的行程可以合并
   const processedLines = _.chain(promptLines)
@@ -31,9 +47,12 @@ export function buildAyaNewsPrompt(runtime: Runtime): string | null {
     .value();
 
   if (_.isEmpty(processedLines)) {
-    return null;
+    return previousAyaNewsPrompt;
   }
 
-  const header = '本轮必须更新文文新闻，文文在过去的一天里的行程如下：';
-  return `${header}\n${processedLines.join('\n')}`;
+  const header =
+    '本轮必须更新文文新闻的ERA变量（注意，不要在正文里更新，必须更新到变量里），文文在过去的一天里的行程如下：';
+  const new行程Prompt = `${header}\n${processedLines.join('\n')}`;
+
+  return `${previousAyaNewsPrompt}\n\n${new行程Prompt}`;
 }

@@ -76,7 +76,7 @@ export const ERA_VARIABLE_PATH = {
    * 文文新闻正文。
    * 路径: 文文新闻
    */
-  NEWS_TEXT: '文文新闻',
+  NEWS_TEXT: 'AyaNews',
 
   /**
    * 附加正文。

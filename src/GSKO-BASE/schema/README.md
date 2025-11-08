@@ -211,7 +211,7 @@
 
 ### `ayaNews` (可选)
 
-`runtime.ayaNews` 是 `stat.文文新闻` 的原始数据结构，包含了生成最终新闻稿所需的所有条目。
+`runtime.ayaNews` 是 `stat.AyaNews` 的原始数据结构，包含了生成最终新闻稿所需的所有条目。
 
 -   `entries`: 一个新闻条目 (`AyaNewsEntry`) 的数组。
     -   `location`: 新闻发生的地点。

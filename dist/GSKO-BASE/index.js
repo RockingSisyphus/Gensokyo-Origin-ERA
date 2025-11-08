@@ -3435,18 +3435,30 @@ function formatNewsEntry(entry) {
   return `${time}；在【${location}】；${ayaTarget}；${otherChars}。`;
 }
 
-function buildAyaNewsPrompt(runtime) {
-  const ayaNews = AyaNewsSchema.safeParse(runtime.ayaNews);
-  if (!ayaNews.success || external_default().isEmpty(ayaNews.data.entries)) {
-    return null;
+function buildAyaNewsPrompt({runtime, stat}) {
+  const currentAyaNews = AyaNewsSchema.safeParse(runtime.ayaNews);
+  let ayaNewsContent;
+  if (stat.AyaNews == null) {
+    ayaNewsContent = "本轮新闻";
+  } else if (external_default().isEmpty(stat.AyaNews)) {
+    ayaNewsContent = "暂无";
+  } else {
+    ayaNewsContent = stat.AyaNews;
   }
-  const promptLines = ayaNews.data.entries.map(formatNewsEntry);
+  const previousAyaNewsPrompt = `上一轮的新闻内容和结构参考如下：\n${JSON.stringify({
+    AyaNews: ayaNewsContent
+  }, null, 2)}`;
+  if (!currentAyaNews.success || external_default().isEmpty(currentAyaNews.data.entries)) {
+    return previousAyaNewsPrompt;
+  }
+  const promptLines = currentAyaNews.data.entries.map(formatNewsEntry);
   const processedLines = external_default().chain(promptLines).uniq().value();
   if (external_default().isEmpty(processedLines)) {
-    return null;
+    return previousAyaNewsPrompt;
   }
-  const header = "本轮必须更新文文新闻，文文在过去的一天里的行程如下：";
-  return `${header}\n${processedLines.join("\n")}`;
+  const header = "本轮必须更新文文新闻的ERA变量（注意，不要在正文里更新，必须更新到变量里），文文在过去的一天里的行程如下：";
+  const new行程Prompt = `${header}\n${processedLines.join("\n")}`;
+  return `${previousAyaNewsPrompt}\n\n${new行程Prompt}`;
 }
 
 function buildCharacterMovementPrompt({runtime, stat}) {
@@ -5313,7 +5325,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   festivals_list: FestivalsListSchema,
   附加正文: external_z_namespaceObject.z.string().optional(),
   weather: external_z_namespaceObject.z.string().optional(),
-  文文新闻: external_z_namespaceObject.z.string().optional()
+  AyaNews: external_z_namespaceObject.z.string().optional()
 });
 
 const TAG_REGEX = /\[\[(.*?)\]\]/;

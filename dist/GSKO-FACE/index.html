@@ -683,7 +683,7 @@ const StatSchema = external_z_namespaceObject.z.object({
   festivals_list: FestivalsListSchema,
   附加正文: external_z_namespaceObject.z.string().optional(),
   weather: external_z_namespaceObject.z.string().optional(),
-  文文新闻: external_z_namespaceObject.z.string().optional()
+  AyaNews: external_z_namespaceObject.z.string().optional()
 });
 
 const PROJECT_NAME = "GSKO-FACE";
@@ -4297,7 +4297,7 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
         return;
       }
       try {
-        const newsContent = stat.文文新闻 ?? "";
+        const newsContent = stat.AyaNews ?? "";
         logger.log(funcName, "将更新新闻文本", {
           preview: String(newsContent).slice(0, 50)
         });
@@ -4322,7 +4322,7 @@ const AyaNewsPopupvue_type_script_setup_true_lang_ts = (0, external_Vue_namespac
   }
 });
 
-const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-71da7f3c" ] ]);
+const AyaNewsPopup_exports_ = (0, exportHelper.A)(AyaNewsPopupvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-fe9df0ce" ] ]);
 
 const AyaNewsPopup = AyaNewsPopup_exports_;
 
@@ -5660,7 +5660,7 @@ h4[data-v-57d1591c]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .status-tabs[data-v-089aff66]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-089aff66]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-089aff66]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-089aff66]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-089aff66]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-089aff66]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-089aff66]{padding:15px}}[data-v-089aff66] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-089aff66] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-089aff66] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-74e497bf]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-74e497bf]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-91ed5eb4]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-91ed5eb4]:hover{background-color:var(--paper)}
-.aya-news-popup[data-v-71da7f3c]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-71da7f3c]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-71da7f3c]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-71da7f3c]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
+.aya-news-popup[data-v-fe9df0ce]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-fe9df0ce]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-fe9df0ce]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-fe9df0ce]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
 .aya-news-container[data-v-5c15b776]{position:relative}
 
 .GensokyoOrigin-RoleCard-wrapper{position:relative;flex:0 0 220px;min-width:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;scroll-snap-align:start;cursor:pointer;transition:background .2s ease}.GensokyoOrigin-RoleCard-wrapper:hover{background:color-mix(in srgb,var(--bg) 90%,var(--ink) 10%)}.GensokyoOrigin-RoleCard-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.GensokyoOrigin-RoleCard-avatar{width:36px;height:36px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted);flex-shrink:0}.GensokyoOrigin-RoleCard-name{font-weight:700;font-size:.95em}.GensokyoOrigin-RoleCard-meta{font-size:.8em;color:var(--muted)}

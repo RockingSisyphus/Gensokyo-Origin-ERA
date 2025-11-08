@@ -19,7 +19,7 @@ export const StatSchema = z.object({
   festivals_list: FestivalsListSchema,
   附加正文: z.string().optional(),
   weather: z.string().optional(),
-  文文新闻: z.string().optional(),
+  AyaNews: z.string().optional(),
 });
 
 // 从 Schema 推断出 TypeScript 类型
