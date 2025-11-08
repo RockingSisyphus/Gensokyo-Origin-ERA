@@ -3,7 +3,7 @@ import type { Runtime } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { matchMessages } from '../../utils/message';
 
-const logger = new Logger('MentionedCharProc');
+const logger = new Logger();
 
 /**
  * @description 从消息中提取提到的角色，并更新到 runtime

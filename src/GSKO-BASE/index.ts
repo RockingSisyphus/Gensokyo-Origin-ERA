@@ -21,13 +21,13 @@ import { processAffectionForgetting } from './core/affection-forgetting-processo
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
 import { processCharacterLocations } from './core/character-locations-processor';
-import { mentionedCharacterProcessor } from './core/mentioned-character-processor';
 import { processCharacterLog } from './core/character-log-processor';
 import { processCharacterDecisions } from './core/character-processor';
 import { process as processCharacterSettings } from './core/character-settings-processor';
 import { sendData } from './core/data-sender';
 import { processFestival } from './core/festival-processor';
 import { processIncidentDecisions } from './core/incident-processor';
+import { mentionedCharacterProcessor } from './core/mentioned-character-processor';
 import { normalizeLocationData } from './core/normalizer-processor/location';
 import { buildPrompt } from './core/prompt-builder';
 import { fetchSnapshotsForTimeFlags } from './core/snapshot-fetcher';
@@ -172,14 +172,6 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // [被提及角色处理器]：从消息中提取提到的角色，并更新到 runtime
-      currentRuntime = await mentionedCharacterProcessor({ runtime: currentRuntime });
-      logState('Mentioned Character Processor', 'runtime', {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat),
-      });
-
       // [角色设置处理器]：从 stat 中加载角色的配置信息（如好感度阶段、行动模式）到 runtime 中。
       currentRuntime = processCharacterSettings({ runtime: currentRuntime, stat: currentStat });
       logState('Character Settings Processor', 'runtime', {
@@ -269,22 +261,6 @@ $(() => {
         cache: getCache(currentStat),
       });
 
-      // [角色日志处理器]：获取最近的历史消息快照，为每个角色生成行动日志。
-      currentRuntime = processCharacterLog(currentRuntime);
-      logState('Character Log Processor', 'runtime', {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat),
-      });
-
-      // [文文新闻处理器]：在新的一天开始时，生成文文新闻。
-      currentRuntime = ayaNewsProcessor(currentRuntime);
-      logState('Aya News Processor', 'runtime', {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat),
-      });
-
       // [异变处理器]：根据当前状态决定是否触发、推进或结束游戏中的“异变”事件。
       const incidentResult = await processIncidentDecisions({ runtime: currentRuntime, stat: currentStat });
       currentStat = incidentResult.stat;
@@ -317,6 +293,30 @@ $(() => {
       currentRuntime = charResult.runtime;
       const charChanges = charResult.changes;
       logState('Character Processor', 'stat (cache), runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [角色日志处理器]：获取最近的历史消息快照，为每个角色生成行动日志。
+      currentRuntime = processCharacterLog(currentRuntime);
+      logState('Character Log Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [文文新闻处理器]：在新的一天开始时，生成文文新闻。
+      currentRuntime = ayaNewsProcessor(currentRuntime);
+      logState('Aya News Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [被提及角色处理器]：从消息中提取提到的角色，并更新到 runtime
+      currentRuntime = await mentionedCharacterProcessor({ runtime: currentRuntime });
+      logState('Mentioned Character Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

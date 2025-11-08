@@ -14,7 +14,7 @@ const logger = new Logger();
  * @returns 返回更新后的 runtime 对象。
  */
 export function processCharacterLog(runtime: Runtime) {
-  logger.log('processCharacterLog', '开始处理角色日志...');
+  logger.debug('processCharacterLog', '开始处理角色日志...');
 
   return processCharacterLogs(runtime);
 }

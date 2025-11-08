@@ -1638,82 +1638,49 @@ function getCharLocation(charObj) {
   return String(charObj[CHARACTER_FIELDS.currentLocation] ?? "").trim();
 }
 
-const mentioned_character_processor_logger = new Logger("MentionedCharProc");
-
-async function mentionedCharacterProcessor({runtime}) {
-  const funcName = "mentionedCharacterProcessor";
-  const updatedRuntime = external_default().cloneDeep(runtime);
-  if (!updatedRuntime.character) {
-    updatedRuntime.character = {
-      chars: {},
-      partitions: {
-        coLocated: [],
-        remote: []
-      },
-      mentionedCharIds: []
-    };
-  }
-  const chars = updatedRuntime.character.chars;
-  let mentionedCharIds = [];
-  try {
-    if (!chars || external_default().isEmpty(chars)) {
-      mentioned_character_processor_logger.debug(funcName, "角色列表为空，返回空数组。");
-      updatedRuntime.character.mentionedCharIds = [];
-      return updatedRuntime;
-    }
-    const charNameIdMap = new Map;
-    const charNames = [];
-    for (const id in chars) {
-      const name = chars[id]?.name;
-      if (name) {
-        charNames.push(name);
-        charNameIdMap.set(name, id);
-      }
-    }
-    const matchedNames = await matchMessages(charNames, {
-      depth: 3,
-      includeSwipes: false
-    });
-    if (matchedNames.length > 0) {
-      mentioned_character_processor_logger.debug(funcName, `在消息中匹配到的角色名: ${JSON.stringify(matchedNames)}`);
-      const ids = matchedNames.map(name => charNameIdMap.get(name)).filter(id => !!id);
-      mentionedCharIds = external_default().uniq(ids);
-    }
-    mentioned_character_processor_logger.debug(funcName, `最终识别出的角色ID: ${JSON.stringify(mentionedCharIds)}`);
-  } catch (error) {
-    mentioned_character_processor_logger.error(funcName, "处理被提及角色时发生异常", error);
-    mentionedCharIds = [];
-  }
-  updatedRuntime.character.mentionedCharIds = mentionedCharIds;
-  return updatedRuntime;
-}
+const character_log_processor_processor_logger = new Logger("GSKO-BASE/core/character-log-processor/processor");
 
 function processCharacterLogs(runtime) {
+  const funcName = "processCharacterLogs";
+  character_log_processor_processor_logger.debug(funcName, "开始处理角色日志...", {
+    runtime: (0, external_namespaceObject.cloneDeep)(runtime)
+  });
   const {snapshots, clock} = runtime;
   if (!snapshots || snapshots.length === 0 || !clock?.flags || !clock.mkAnchors) {
+    character_log_processor_processor_logger.warn(funcName, "缺少必要数据 (snapshots, clock.flags, or clock.mkAnchors)，提前返回。");
     return runtime;
   }
   const mkToIndexMap = new Map;
   snapshots.forEach((snapshot, index) => {
     mkToIndexMap.set(snapshot.mk, index);
   });
+  character_log_processor_processor_logger.debug(funcName, "创建 mkToIndexMap 完成。", {
+    size: mkToIndexMap.size
+  });
   const newCharacterLog = {};
   for (const flag of CLOCK_ROOT_FLAG_KEYS) {
+    character_log_processor_processor_logger.debug(funcName, `检查 flag: ${flag}`);
     if (clock.flags[flag]) {
+      character_log_processor_processor_logger.debug(funcName, `处理激活的 flag: ${flag}`);
       const startMk = clock.mkAnchors[flag];
       if (!startMk) {
+        character_log_processor_processor_logger.debug(funcName, `flag "${flag}" 没有找到 startMk，跳过。`);
         continue;
       }
       const startIndex = mkToIndexMap.get(startMk);
+      character_log_processor_processor_logger.debug(funcName, `flag "${flag}" 的 startMk 为 "${startMk}"，查找到的 startIndex 为 ${startIndex}。`);
       if (startIndex === undefined) {
+        character_log_processor_processor_logger.warn(funcName, `在 mkToIndexMap 中未找到 startMk "${startMk}" 对应的索引，跳过此 flag。`);
         continue;
       }
       const relevantSnapshots = snapshots.slice(startIndex);
+      character_log_processor_processor_logger.debug(funcName, `提取了 ${relevantSnapshots.length} 个相关快照 (从索引 ${startIndex} 开始)。`);
       const flagLog = {};
       for (const snapshot of relevantSnapshots) {
         const stat = snapshot.statWithoutMeta;
         const cache = stat.cache;
-        if (!stat?.chars || !cache?.clockAck) {
+        if (!stat?.chars || !cache?.time.clockAck) {
+          character_log_processor_processor_logger.debug(funcName, `快照 (mk: ${snapshot.mk}) 缺少 stat.chars 或 cache.time.clockAck，跳过。`);
           continue;
         }
         for (const charName in stat.chars) {
@@ -1721,31 +1688,43 @@ function processCharacterLogs(runtime) {
             const charData = stat.chars[charName];
             const location = charData.所在地区;
             const target = charData.目标;
-            const clockAck = cache.clockAck;
+            const clockAck = cache.time.clockAck;
             if (location && target) {
               if (!flagLog[charName]) {
                 flagLog[charName] = [];
+                character_log_processor_processor_logger.debug(funcName, `为角色 "${charName}" 初始化日志数组。`);
               }
-              flagLog[charName].push({
+              const newEntry = {
                 location,
                 target,
                 clockAck
+              };
+              flagLog[charName].push(newEntry);
+              character_log_processor_processor_logger.debug(funcName, `为角色 "${charName}" 添加新日志条目。`, {
+                entry: newEntry,
+                snapshotMk: snapshot.mk
               });
             }
           }
         }
       }
       newCharacterLog[flag] = flagLog;
+      character_log_processor_processor_logger.debug(funcName, `flag "${flag}" 的日志处理完成。`, {
+        flagLog: (0, external_namespaceObject.cloneDeep)(flagLog)
+      });
     }
   }
   runtime.characterLog = newCharacterLog;
+  character_log_processor_processor_logger.debug(funcName, "角色日志处理全部完成，更新 runtime。", {
+    newCharacterLog: (0, external_namespaceObject.cloneDeep)(newCharacterLog)
+  });
   return runtime;
 }
 
 const character_log_processor_logger = new Logger("GSKO-BASE/core/character-log-processor");
 
 function processCharacterLog(runtime) {
-  character_log_processor_logger.log("processCharacterLog", "开始处理角色日志...");
+  character_log_processor_logger.debug("processCharacterLog", "开始处理角色日志...");
   return processCharacterLogs(runtime);
 }
 
@@ -3259,6 +3238,56 @@ async function processIncidentDecisions({stat, runtime}) {
       changes: []
     };
   }
+}
+
+const mentioned_character_processor_logger = new Logger("GSKO-BASE/core/mentioned-character-processor");
+
+async function mentionedCharacterProcessor({runtime}) {
+  const funcName = "mentionedCharacterProcessor";
+  const updatedRuntime = external_default().cloneDeep(runtime);
+  if (!updatedRuntime.character) {
+    updatedRuntime.character = {
+      chars: {},
+      partitions: {
+        coLocated: [],
+        remote: []
+      },
+      mentionedCharIds: []
+    };
+  }
+  const chars = updatedRuntime.character.chars;
+  let mentionedCharIds = [];
+  try {
+    if (!chars || external_default().isEmpty(chars)) {
+      mentioned_character_processor_logger.debug(funcName, "角色列表为空，返回空数组。");
+      updatedRuntime.character.mentionedCharIds = [];
+      return updatedRuntime;
+    }
+    const charNameIdMap = new Map;
+    const charNames = [];
+    for (const id in chars) {
+      const name = chars[id]?.name;
+      if (name) {
+        charNames.push(name);
+        charNameIdMap.set(name, id);
+      }
+    }
+    const matchedNames = await matchMessages(charNames, {
+      depth: 3,
+      includeSwipes: false
+    });
+    if (matchedNames.length > 0) {
+      mentioned_character_processor_logger.debug(funcName, `在消息中匹配到的角色名: ${JSON.stringify(matchedNames)}`);
+      const ids = matchedNames.map(name => charNameIdMap.get(name)).filter(id => !!id);
+      mentionedCharIds = external_default().uniq(ids);
+    }
+    mentioned_character_processor_logger.debug(funcName, `最终识别出的角色ID: ${JSON.stringify(mentionedCharIds)}`);
+  } catch (error) {
+    mentioned_character_processor_logger.error(funcName, "处理被提及角色时发生异常", error);
+    mentionedCharIds = [];
+  }
+  updatedRuntime.character.mentionedCharIds = mentionedCharIds;
+  return updatedRuntime;
 }
 
 const location_logger = new Logger("GSKO-BASE/core/normalizer-processor/location");
@@ -5015,59 +5044,109 @@ async function writeChangesToEra({changes, stat}) {
   io_logger.debug(funcName, "所有变更已提交至 ERA。");
 }
 
-const AYA_NAME = "射命丸文";
+const aya_news_processor_processor_logger = new Logger("GSKO-BASE/subsidiary/aya-news-processor/processor");
+
+const AYA_ID = "aya";
 
 function processAyaNews(runtime) {
+  const funcName = "processAyaNews";
+  aya_news_processor_processor_logger.debug(funcName, "开始处理文文新闻...", {
+    runtime: (0, external_namespaceObject.cloneDeep)(runtime)
+  });
   const {snapshots, clock} = runtime;
   if (!snapshots || snapshots.length === 0 || !clock?.mkAnchors) {
+    aya_news_processor_processor_logger.warn(funcName, "缺少必要数据 (snapshots or clock.mkAnchors)，提前返回。");
     return runtime;
   }
   const startMk = clock.mkAnchors.newDay;
   if (!startMk) {
+    aya_news_processor_processor_logger.debug(funcName, "在 clock.mkAnchors 中未找到 newDay，无需处理，提前返回。");
     return runtime;
   }
+  aya_news_processor_processor_logger.debug(funcName, `找到了 newDay 的 startMk: ${startMk}`);
   const startIndex = snapshots.findIndex(s => s.mk === startMk);
   if (startIndex === -1) {
+    aya_news_processor_processor_logger.warn(funcName, `在 snapshots 中未找到 startMk "${startMk}" 对应的快照，提前返回。`);
     return runtime;
   }
   const relevantSnapshots = snapshots.slice(startIndex);
+  aya_news_processor_processor_logger.debug(funcName, `找到了起始索引 ${startIndex}，将处理 ${relevantSnapshots.length} 个相关快照。`);
   const newsEntries = [];
   for (const snapshot of relevantSnapshots) {
+    aya_news_processor_processor_logger.debug(funcName, `处理快照 (mk: ${snapshot.mk})`);
     const stat = snapshot.statWithoutMeta;
     const cache = stat.cache;
-    const ayaCharData = stat.chars?.[AYA_NAME];
-    if (!ayaCharData || !cache?.clockAck) {
+    if (!stat?.chars || !cache?.time?.clockAck) {
+      aya_news_processor_processor_logger.debug(funcName, `快照 (mk: ${snapshot.mk}) 缺少 stat.chars 或 cache.time.clockAck，跳过。`);
+      continue;
+    }
+    let ayaCharData;
+    let ayaCharId;
+    for (const charId in stat.chars) {
+      if (Object.prototype.hasOwnProperty.call(stat.chars, charId)) {
+        const charData = stat.chars[charId];
+        if (charId === AYA_ID) {
+          ayaCharData = charData;
+          ayaCharId = charId;
+          aya_news_processor_processor_logger.debug(funcName, `在快照中找到了射命丸文 (ID: ${AYA_ID})，角色名为: ${ayaCharId}`);
+          break;
+        }
+      }
+    }
+    if (!ayaCharData) {
+      aya_news_processor_processor_logger.debug(funcName, `当前快照 (mk: ${snapshot.mk}) 中未找到射命丸文 (ID: ${AYA_ID})，跳过。`);
       continue;
     }
     const ayaLocation = ayaCharData.所在地区;
     const ayaTarget = ayaCharData.目标;
-    const {clockAck} = cache;
+    const {time} = cache;
+    const {clockAck} = time;
     if (!ayaLocation || !ayaTarget) {
+      aya_news_processor_processor_logger.debug(funcName, `射命丸文的数据不完整 (缺少 所在地区 或 目标)，跳过。`, {
+        ayaCharData
+      });
       continue;
     }
     const otherCharactersInfo = [];
-    for (const charName in stat.chars) {
-      if (charName === AYA_NAME) continue;
-      if (Object.prototype.hasOwnProperty.call(stat.chars, charName)) {
-        const otherCharData = stat.chars[charName];
+    aya_news_processor_processor_logger.debug(funcName, `文文当前位置: ${ayaLocation}。开始查找同一地点的其他角色。`);
+    for (const charId in stat.chars) {
+      if (charId === ayaCharId) continue;
+      if (Object.prototype.hasOwnProperty.call(stat.chars, charId)) {
+        const otherCharData = stat.chars[charId];
         if (otherCharData.所在地区 === ayaLocation) {
-          otherCharactersInfo.push({
-            name: charName,
-            target: otherCharData.目标 || "不明"
+          let doing = "正在做奇怪的事";
+          if (otherCharData.目标) {
+            doing = "正在" + otherCharData.目标;
+          }
+          const otherInfo = {
+            id: charId,
+            name: otherCharData.name,
+            target: doing
+          };
+          otherCharactersInfo.push(otherInfo);
+          aya_news_processor_processor_logger.debug(funcName, `发现同区角色: ${charId}`, {
+            otherInfo
           });
         }
       }
     }
-    newsEntries.push({
+    const newEntry = {
       location: ayaLocation,
       otherCharacters: otherCharactersInfo,
       target: ayaTarget,
       clockAck
+    };
+    newsEntries.push(newEntry);
+    aya_news_processor_processor_logger.debug(funcName, "生成新的新闻条目。", {
+      newEntry: (0, external_namespaceObject.cloneDeep)(newEntry)
     });
   }
   runtime.ayaNews = {
     entries: newsEntries
   };
+  aya_news_processor_processor_logger.debug(funcName, "文文新闻处理完成。", {
+    ayaNews: (0, external_namespaceObject.cloneDeep)(runtime.ayaNews)
+  });
   return runtime;
 }
 
@@ -5446,14 +5525,6 @@ $(() => {
         runtime: currentRuntime,
         cache: getCache(currentStat)
       });
-      currentRuntime = await mentionedCharacterProcessor({
-        runtime: currentRuntime
-      });
-      logState("Mentioned Character Processor", "runtime", {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat)
-      });
       currentRuntime = process({
         runtime: currentRuntime,
         stat: currentStat
@@ -5536,18 +5607,6 @@ $(() => {
         runtime: currentRuntime,
         cache: getCache(currentStat)
       });
-      currentRuntime = processCharacterLog(currentRuntime);
-      logState("Character Log Processor", "runtime", {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat)
-      });
-      currentRuntime = ayaNewsProcessor(currentRuntime);
-      logState("Aya News Processor", "runtime", {
-        stat: currentStat,
-        runtime: currentRuntime,
-        cache: getCache(currentStat)
-      });
       const incidentResult = await processIncidentDecisions({
         runtime: currentRuntime,
         stat: currentStat
@@ -5578,6 +5637,26 @@ $(() => {
       currentRuntime = charResult.runtime;
       const charChanges = charResult.changes;
       logState("Character Processor", "stat (cache), runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = processCharacterLog(currentRuntime);
+      logState("Character Log Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = ayaNewsProcessor(currentRuntime);
+      logState("Aya News Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = await mentionedCharacterProcessor({
+        runtime: currentRuntime
+      });
+      logState("Mentioned Character Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)
