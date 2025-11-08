@@ -43,27 +43,35 @@ export function processFestival({ runtime, stat }: { runtime: Runtime; stat: Sta
     }
     // schema 保证了 clock.now 和 festivals_list 的存在，因此可以直接访问
     const { month: currentMonth, day: currentDay } = runtime.clock.now;
-    const { festivals_list: festivalList } = stat;
+    const { festivals_list: festivalList } = stat; // festivalList is a Record<string, Festival>
 
     // 如果节日列表为空，则直接写入默认值并返回
-    if (festivalList.length === 0) {
+    if (Object.keys(festivalList).length === 0) {
       logger.debug(funcName, '节日列表为空，写入默认节日信息。');
       return { festival: defaultFestivalInfo };
     }
-    logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
+    logger.debug(
+      funcName,
+      `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${Object.keys(festivalList).length}`,
+    );
 
     // ---------- 2. 判定今日是否在节日内 ----------
-    const todayFest =
-      festivalList.find(
-        fest => fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day,
-      ) || null;
+    let todayFest: (typeof festivalList)[string] | null = null;
+    for (const festId in festivalList) {
+      const fest = festivalList[festId];
+      if (fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day) {
+        todayFest = fest;
+        break; // 找到即可退出
+      }
+    }
 
     // ---------- 3. 寻找“下一个节日”（距今的最小正天数，含跨年） ----------
     const todayDayOfYear = dayOfYear(currentMonth, currentDay);
-    let nextFest: (typeof festivalList)[0] | null = null;
+    let nextFest: (typeof festivalList)[string] | null = null;
     let minDayGap = Infinity;
 
-    for (const fest of festivalList) {
+    for (const festId in festivalList) {
+      const fest = festivalList[festId];
       const startDayOfYear = dayOfYear(fest.month, fest.start_day);
       const rawGap = startDayOfYear - todayDayOfYear;
       // 将 gap 归一化到 [0, 364] 的环形距离

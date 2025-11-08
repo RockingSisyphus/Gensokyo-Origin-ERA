@@ -36,6 +36,7 @@ import { processWeather } from './core/weather-processor';
 import { writeChangesToEra } from './io';
 import { ayaNewsProcessor } from './subsidiary/aya-news-processor';
 import './subsidiary/show-ui-relay';
+import { worldBookConfigProcessor } from './subsidiary/world-book-config-processor';
 
 // --- 事件与 Schema 导入 ---
 import { WriteDonePayload } from './events/constants';
@@ -124,6 +125,14 @@ $(() => {
       const initialStat = _.cloneDeep(currentStat);
       let currentRuntime: Runtime = getRuntimeObject();
       logState('初始状态', '无', { stat: currentStat, runtime: currentRuntime, cache: getCache(currentStat) });
+
+      // [世界书配置处理器]：从世界书加载配置并合并到 stat
+      currentStat = await worldBookConfigProcessor({ stat: currentStat });
+      logState('WorldBook Config Processor', 'stat', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
 
       // 根据当前消息的 mk 获取对应的 editLog，用于分析 AI 输出。
       const currentEditLog = (editLogs as any)?.[mk];

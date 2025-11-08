@@ -2493,22 +2493,6 @@ function process({runtime, stat}) {
   return newRuntime;
 }
 
-const OtherCharacterInfoSchema = external_z_namespaceObject.z.object({
-  name: external_z_namespaceObject.z.string(),
-  target: external_z_namespaceObject.z.string()
-});
-
-const AyaNewsEntrySchema = external_z_namespaceObject.z.object({
-  location: external_z_namespaceObject.z.string(),
-  otherCharacters: external_z_namespaceObject.z.array(OtherCharacterInfoSchema),
-  target: external_z_namespaceObject.z.string(),
-  clockAck: ClockAckSchema
-});
-
-const AyaNewsSchema = external_z_namespaceObject.z.object({
-  entries: external_z_namespaceObject.z.array(AyaNewsEntrySchema)
-});
-
 const constants_ERA_EVENT_NAMES = {
   INSERT_BY_OBJECT: "era:insertByObject",
   UPDATE_BY_OBJECT: "era:updateByObject",
@@ -2535,6 +2519,22 @@ const QueryResultItemSchema = external_z_namespaceObject.z.object({
   is_user: external_z_namespaceObject.z.boolean(),
   stat: external_z_namespaceObject.z.any(),
   statWithoutMeta: external_z_namespaceObject.z.any()
+});
+
+const OtherCharacterInfoSchema = external_z_namespaceObject.z.object({
+  name: external_z_namespaceObject.z.string(),
+  target: external_z_namespaceObject.z.string()
+});
+
+const AyaNewsEntrySchema = external_z_namespaceObject.z.object({
+  location: external_z_namespaceObject.z.string(),
+  otherCharacters: external_z_namespaceObject.z.array(OtherCharacterInfoSchema),
+  target: external_z_namespaceObject.z.string(),
+  clockAck: ClockAckSchema
+});
+
+const AyaNewsSchema = external_z_namespaceObject.z.object({
+  entries: external_z_namespaceObject.z.array(AyaNewsEntrySchema)
 });
 
 const IncidentDetailSchema = external_z_namespaceObject.z.object({
@@ -2777,18 +2777,26 @@ function processFestival({runtime, stat}) {
     }
     const {month: currentMonth, day: currentDay} = runtime.clock.now;
     const {festivals_list: festivalList} = stat;
-    if (festivalList.length === 0) {
+    if (Object.keys(festivalList).length === 0) {
       festival_processor_processor_logger.debug(funcName, "节日列表为空，写入默认节日信息。");
       return {
         festival: defaultFestivalInfo
       };
     }
-    festival_processor_processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${festivalList.length}`);
-    const todayFest = festivalList.find(fest => fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day) || null;
+    festival_processor_processor_logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${Object.keys(festivalList).length}`);
+    let todayFest = null;
+    for (const festId in festivalList) {
+      const fest = festivalList[festId];
+      if (fest.month === currentMonth && fest.start_day <= currentDay && currentDay <= fest.end_day) {
+        todayFest = fest;
+        break;
+      }
+    }
     const todayDayOfYear = dayOfYear(currentMonth, currentDay);
     let nextFest = null;
     let minDayGap = Infinity;
-    for (const fest of festivalList) {
+    for (const festId in festivalList) {
+      const fest = festivalList[festId];
       const startDayOfYear = dayOfYear(fest.month, fest.start_day);
       const rawGap = startDayOfYear - todayDayOfYear;
       const normalizedGap = (rawGap % 365 + 365) % 365;
@@ -4936,27 +4944,6 @@ eventOn("GSKO:requireData", () => {
   });
 });
 
-function onWriteDone(listener, options = {}) {
-  const {ignoreApiWrite = false} = options;
-  const wrappedListener = payload => {
-    if (ignoreApiWrite && payload.actions.apiWrite) {
-      return;
-    }
-    listener(payload);
-  };
-  eventOn(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
-  return () => {
-    eventRemoveListener(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
-  };
-}
-
-function onQueryResult(listener) {
-  eventOn(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
-  return () => {
-    eventRemoveListener(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
-  };
-}
-
 const UiConfigSchema = external_z_namespaceObject.z.object({
   theme: external_z_namespaceObject.z.enum([ "light", "dark" ]).default("light"),
   mainFontPercent: external_z_namespaceObject.z.number().default(100),
@@ -5053,15 +5040,7 @@ const festival_FestivalSchema = FestivalDefinitionSchema.extend({
   id: external_z_namespaceObject.z.string().optional()
 });
 
-const FestivalsListSchema = external_z_namespaceObject.z.union([ external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), PreprocessStringifiedObject(FestivalDefinitionSchema)) ]).transform(val => {
-  if (Array.isArray(val)) {
-    return val;
-  }
-  return Object.entries(val).map(([id, festivalData]) => ({
-    ...festivalData,
-    id
-  }));
-}).default([]);
+const FestivalsListSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), PreprocessStringifiedObject(FestivalDefinitionSchema)).default({});
 
 const StatSchema = external_z_namespaceObject.z.object({
   config: ConfigSchema,
@@ -5076,6 +5055,99 @@ const StatSchema = external_z_namespaceObject.z.object({
   weather: external_z_namespaceObject.z.string().optional(),
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
+
+const TAG_REGEX = /\[\[(.*?)\]\]/;
+
+const world_book_config_processor_processor_logger = new Logger("GSKO-BASE/subsidiary/world-book-config-processor/processor");
+
+async function processWorldBookConfigs({stat}) {
+  const funcName = "processWorldBookConfigs";
+  const charWorldbooks = getCharWorldbookNames("current");
+  const primaryWorldbookName = charWorldbooks.primary;
+  if (!primaryWorldbookName) {
+    world_book_config_processor_processor_logger.log(funcName, "当前角色未设置主世界书，跳过配置解析。");
+    return stat;
+  }
+  try {
+    const worldBookEntries = await getWorldbook(primaryWorldbookName);
+    const taggedEntries = worldBookEntries.filter(entry => TAG_REGEX.test(entry.name));
+    const configsByTag = taggedEntries.reduce((acc, entry) => {
+      const match = entry.name.match(TAG_REGEX);
+      if (!match) return acc;
+      const tagName = match[1];
+      try {
+        const content = JSON.parse(entry.content);
+        if (!acc[tagName]) {
+          acc[tagName] = {};
+        }
+        external_default().merge(acc[tagName], content);
+      } catch (error) {
+        world_book_config_processor_processor_logger.error(funcName, `解析条目 "${entry.name}" 的 JSON 内容失败。`, error);
+      }
+      return acc;
+    }, {});
+    let finalStat = external_default().cloneDeep(stat);
+    let mergedCount = 0;
+    for (const [tagName, configContent] of Object.entries(configsByTag)) {
+      const tempStat = external_default().cloneDeep(finalStat);
+      external_default().merge(tempStat, {
+        [tagName]: configContent
+      });
+      const parseResult = StatSchema.safeParse(tempStat);
+      if (parseResult.success) {
+        finalStat = parseResult.data;
+        world_book_config_processor_processor_logger.log(funcName, `标签 [${tagName}] 的配置已成功合并并验证。`);
+        mergedCount++;
+      } else {
+        world_book_config_processor_processor_logger.warn(funcName, `标签 [${tagName}] 的配置合并后验证失败，已跳过。以下是验证错误详情：`);
+        parseResult.error.issues.forEach(issue => {
+          const path = issue.path.join(".");
+          world_book_config_processor_processor_logger.warn(`${funcName}-Validation`, `路径 "${path}": ${issue.message}`);
+        });
+      }
+    }
+    if (mergedCount > 0) {
+      world_book_config_processor_processor_logger.log(funcName, `共 ${mergedCount} 个标签的配置已成功合并到 stat。`);
+    } else {
+      world_book_config_processor_processor_logger.log(funcName, "没有从世界书成功合并任何配置。");
+    }
+    return finalStat;
+  } catch (error) {
+    if (error instanceof Error) {
+      world_book_config_processor_processor_logger.error(funcName, `获取或处理世界书 "${primaryWorldbookName}" 时失败:`, error.message);
+    } else {
+      world_book_config_processor_processor_logger.error(funcName, `处理世界书 "${primaryWorldbookName}" 时发生未知错误。`);
+    }
+    return stat;
+  }
+}
+
+function worldBookConfigProcessor({stat}) {
+  return processWorldBookConfigs({
+    stat
+  });
+}
+
+function onWriteDone(listener, options = {}) {
+  const {ignoreApiWrite = false} = options;
+  const wrappedListener = payload => {
+    if (ignoreApiWrite && payload.actions.apiWrite) {
+      return;
+    }
+    listener(payload);
+  };
+  eventOn(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
+  return () => {
+    eventRemoveListener(constants_ERA_BROADCAST_EVENT_NAMES.WRITE_DONE, wrappedListener);
+  };
+}
+
+function onQueryResult(listener) {
+  eventOn(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
+  return () => {
+    eventRemoveListener(ERA_BROADCAST_EVENT_NAMES.QUERY_RESULT, listener);
+  };
+}
 
 const prompt_injection_logger = new Logger("GSKO-BASE/utils/prompt-injection");
 
@@ -5148,6 +5220,14 @@ $(() => {
       const initialStat = external_default().cloneDeep(currentStat);
       let currentRuntime = getRuntimeObject();
       logState("初始状态", "无", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentStat = await worldBookConfigProcessor({
+        stat: currentStat
+      });
+      logState("WorldBook Config Processor", "stat", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

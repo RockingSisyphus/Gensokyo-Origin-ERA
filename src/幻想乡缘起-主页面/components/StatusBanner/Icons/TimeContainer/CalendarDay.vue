@@ -29,18 +29,7 @@
 
 <script setup lang="ts">
 import { computed, ref } from 'vue';
-
-interface Festival {
-  name: string;
-  month?: number;
-  start_day?: number;
-  end_day?: number;
-  description?: string;
-  customs?: string[];
-  host?: string;
-  importance?: number;
-  [key: string]: any;
-}
+import type { Festival } from '../../../../../GSKO-BASE/schema/festival';
 
 const props = defineProps<{
   day: {

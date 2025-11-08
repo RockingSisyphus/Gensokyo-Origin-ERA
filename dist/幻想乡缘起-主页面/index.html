@@ -1,7 +1,7 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>系统状态</title><script type="module">import "https://testingcf.jsdelivr.net/npm/pinia/+esm";
 
 var __webpack_modules__ = {
-  895: (__unused_webpack_module, exports) => {
+  42: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -62,6 +62,34 @@ var __webpack_exports__ = {};
 const external_Vue_namespaceObject = Vue;
 
 const external_z_namespaceObject = z;
+
+const ERA_EVENT_NAMES = {
+  INSERT_BY_OBJECT: "era:insertByObject",
+  UPDATE_BY_OBJECT: "era:updateByObject",
+  INSERT_BY_PATH: "era:insertByPath",
+  UPDATE_BY_PATH: "era:updateByPath",
+  DELETE_BY_OBJECT: "era:deleteByObject",
+  DELETE_BY_PATH: "era:deleteByPath",
+  GET_CURRENT_VARS: "era:getCurrentVars",
+  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
+  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
+  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
+  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
+  REQUEST_WRITE_DONE: "era:requestWriteDone"
+};
+
+const ERA_BROADCAST_EVENT_NAMES = {
+  WRITE_DONE: "era:writeDone",
+  QUERY_RESULT: "era:queryResult"
+};
+
+const QueryResultItemSchema = external_z_namespaceObject.z.object({
+  mk: external_z_namespaceObject.z.string(),
+  message_id: external_z_namespaceObject.z.number(),
+  is_user: external_z_namespaceObject.z.boolean(),
+  stat: external_z_namespaceObject.z.any(),
+  statWithoutMeta: external_z_namespaceObject.z.any()
+});
 
 const mkValueSchema = external_z_namespaceObject.z.string().nullable();
 
@@ -232,34 +260,6 @@ const AyaNewsSchema = external_z_namespaceObject.z.object({
   entries: external_z_namespaceObject.z.array(AyaNewsEntrySchema)
 });
 
-const ERA_EVENT_NAMES = {
-  INSERT_BY_OBJECT: "era:insertByObject",
-  UPDATE_BY_OBJECT: "era:updateByObject",
-  INSERT_BY_PATH: "era:insertByPath",
-  UPDATE_BY_PATH: "era:updateByPath",
-  DELETE_BY_OBJECT: "era:deleteByObject",
-  DELETE_BY_PATH: "era:deleteByPath",
-  GET_CURRENT_VARS: "era:getCurrentVars",
-  GET_SNAPSHOT_AT_MK: "era:getSnapshotAtMk",
-  GET_SNAPSHOTS_BETWEEN_MKS: "era:getSnapshotsBetweenMks",
-  GET_SNAPSHOT_AT_MID: "era:getSnapshotAtMId",
-  GET_SNAPSHOTS_BETWEEN_MIDS: "era:getSnapshotsBetweenMIds",
-  REQUEST_WRITE_DONE: "era:requestWriteDone"
-};
-
-const ERA_BROADCAST_EVENT_NAMES = {
-  WRITE_DONE: "era:writeDone",
-  QUERY_RESULT: "era:queryResult"
-};
-
-const QueryResultItemSchema = external_z_namespaceObject.z.object({
-  mk: external_z_namespaceObject.z.string(),
-  message_id: external_z_namespaceObject.z.number(),
-  is_user: external_z_namespaceObject.z.boolean(),
-  stat: external_z_namespaceObject.z.any(),
-  statWithoutMeta: external_z_namespaceObject.z.any()
-});
-
 const PreprocessStringifiedObject = schema => external_z_namespaceObject.z.preprocess(val => {
   if (typeof val === "string") {
     try {
@@ -332,6 +332,36 @@ const IncidentDetailSchema = external_z_namespaceObject.z.object({
 
 const IncidentsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), IncidentDetailSchema);
 
+const WEATHER_CONDITION_TYPES = [ "clear", "partly_cloudy", "overcast", "light_rain", "heavy_rain", "storm", "snow", "fog" ];
+
+const WeatherConditionTypeEnum = external_z_namespaceObject.z.enum(WEATHER_CONDITION_TYPES);
+
+const WeatherConditionSchema = external_z_namespaceObject.z.object({
+  type: WeatherConditionTypeEnum,
+  label: external_z_namespaceObject.z.string(),
+  description: external_z_namespaceObject.z.string()
+});
+
+const WeatherTemperatureSchema = external_z_namespaceObject.z.object({
+  minC: external_z_namespaceObject.z.number(),
+  maxC: external_z_namespaceObject.z.number()
+});
+
+const WeatherDaySchema = external_z_namespaceObject.z.object({
+  condition: WeatherConditionSchema,
+  temperature: WeatherTemperatureSchema,
+  precipitationChance: external_z_namespaceObject.z.number().min(0).max(1),
+  humidity: external_z_namespaceObject.z.number().min(0).max(1),
+  windLevel: external_z_namespaceObject.z.number().min(0),
+  narrative: external_z_namespaceObject.z.string()
+});
+
+const WeatherRuntimeSchema = external_z_namespaceObject.z.object({
+  generatedAtISO: external_z_namespaceObject.z.string(),
+  anchorDayISO: external_z_namespaceObject.z.string(),
+  days: external_z_namespaceObject.z.array(WeatherDaySchema).min(1)
+});
+
 const MapSizeSchema = external_z_namespaceObject.z.object({
   width: external_z_namespaceObject.z.number(),
   height: external_z_namespaceObject.z.number()
@@ -373,36 +403,6 @@ const WorldSchema = external_z_namespaceObject.z.object({
 const timeSchema = external_z_namespaceObject.z.object({
   timeProgress: external_z_namespaceObject.z.number()
 }).passthrough();
-
-const WEATHER_CONDITION_TYPES = [ "clear", "partly_cloudy", "overcast", "light_rain", "heavy_rain", "storm", "snow", "fog" ];
-
-const WeatherConditionTypeEnum = external_z_namespaceObject.z.enum(WEATHER_CONDITION_TYPES);
-
-const WeatherConditionSchema = external_z_namespaceObject.z.object({
-  type: WeatherConditionTypeEnum,
-  label: external_z_namespaceObject.z.string(),
-  description: external_z_namespaceObject.z.string()
-});
-
-const WeatherTemperatureSchema = external_z_namespaceObject.z.object({
-  minC: external_z_namespaceObject.z.number(),
-  maxC: external_z_namespaceObject.z.number()
-});
-
-const WeatherDaySchema = external_z_namespaceObject.z.object({
-  condition: WeatherConditionSchema,
-  temperature: WeatherTemperatureSchema,
-  precipitationChance: external_z_namespaceObject.z.number().min(0).max(1),
-  humidity: external_z_namespaceObject.z.number().min(0).max(1),
-  windLevel: external_z_namespaceObject.z.number().min(0),
-  narrative: external_z_namespaceObject.z.string()
-});
-
-const WeatherRuntimeSchema = external_z_namespaceObject.z.object({
-  generatedAtISO: external_z_namespaceObject.z.string(),
-  anchorDayISO: external_z_namespaceObject.z.string(),
-  days: external_z_namespaceObject.z.array(WeatherDaySchema).min(1)
-});
 
 const IncidentRuntimeInfoSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
@@ -645,15 +645,7 @@ const festival_FestivalSchema = FestivalDefinitionSchema.extend({
   id: external_z_namespaceObject.z.string().optional()
 });
 
-const FestivalsListSchema = external_z_namespaceObject.z.union([ external_z_namespaceObject.z.array(PreprocessStringifiedObject(FestivalDefinitionSchema)), external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), PreprocessStringifiedObject(FestivalDefinitionSchema)) ]).transform(val => {
-  if (Array.isArray(val)) {
-    return val;
-  }
-  return Object.entries(val).map(([id, festivalData]) => ({
-    ...festivalData,
-    id
-  }));
-}).default([]);
+const FestivalsListSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), PreprocessStringifiedObject(FestivalDefinitionSchema)).default({});
 
 const UserSchema = external_z_namespaceObject.z.object({
   姓名: external_z_namespaceObject.z.string().nullable(),
@@ -1364,7 +1356,7 @@ const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceO
   }
 });
 
-var exportHelper = __webpack_require__(895);
+var exportHelper = __webpack_require__(42);
 
 const ContentBio_exports_ = (0, exportHelper.A)(ContentBiovue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3e602d5b" ] ]);
 
@@ -3249,7 +3241,7 @@ const CalendarDayvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
   }
 });
 
-const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-465be192" ] ]);
+const CalendarDay_exports_ = (0, exportHelper.A)(CalendarDayvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-37b2d622" ] ]);
 
 const CalendarDay = CalendarDay_exports_;
 
@@ -3300,7 +3292,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
     const displayMonth = (0, external_Vue_namespaceObject.ref)(new Date);
     const monthLabel = (0, external_Vue_namespaceObject.computed)(() => `${displayMonth.value.getMonth() + 1}月`);
     const yearLabel = (0, external_Vue_namespaceObject.computed)(() => `${displayMonth.value.getFullYear()}年`);
-    const festivals = (0, external_Vue_namespaceObject.computed)(() => props.clockInfo?.festivals || []);
+    const festivals = (0, external_Vue_namespaceObject.computed)(() => props.clockInfo?.festivals || {});
     const updateMonth = direction => {
       const newMonth = new Date(displayMonth.value);
       newMonth.setMonth(newMonth.getMonth() + (direction === "prev" ? -1 : 1));
@@ -3325,7 +3317,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
         });
       }
       for (let i = 1; i <= daysInMonth; i++) {
-        const dayFestivals = festivals.value.filter(f => f.month === month + 1 && i >= f.start_day && i <= f.end_day);
+        const dayFestivals = Object.values(festivals.value).filter(f => f.month === month + 1 && i >= f.start_day && i <= f.end_day);
         const isToday = year === today.getFullYear() && month === today.getMonth() && i === today.getDate();
         days.push({
           date: i,
@@ -3365,7 +3357,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       title: "下一月",
       onClick: _cache[1] || (_cache[1] = $event => updateMonth("next"))
     }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_7, [ _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-40fd130e><div class="w" data-v-40fd130e>一</div><div class="w" data-v-40fd130e>二</div><div class="w" data-v-40fd130e>三</div><div class="w" data-v-40fd130e>四</div><div class="w" data-v-40fd130e>五</div><div class="w" data-v-40fd130e>六</div><div class="w" data-v-40fd130e>日</div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-cf7b8df4><div class="w" data-v-cf7b8df4>一</div><div class="w" data-v-cf7b8df4>二</div><div class="w" data-v-cf7b8df4>三</div><div class="w" data-v-cf7b8df4>四</div><div class="w" data-v-cf7b8df4>五</div><div class="w" data-v-cf7b8df4>六</div><div class="w" data-v-cf7b8df4>日</div></div>', 1)), (0, 
     external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
@@ -3376,7 +3368,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
   }
 });
 
-const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-40fd130e" ] ]);
+const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-cf7b8df4" ] ]);
 
 const CalendarContent = CalendarContent_exports_;
 
@@ -4239,8 +4231,8 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .role-ribbon-container[data-v-57aa0965]{position:relative;background:var(--paper);border-bottom:1px solid var(--line);padding:10px 40px;max-width:100%;overflow-x:hidden}.role-ribbon[data-v-57aa0965]{display:flex;gap:12px;overflow:auto hidden;scroll-snap-type:x proximity;padding-bottom:6px}.ribbon-arrow[data-v-57aa0965]{position:absolute;top:50%;transform:translateY(-50%);width:26px;height:26px;display:grid;place-items:center;border:1px solid var(--line);background:var(--bg);border-radius:4px;cursor:pointer;z-index:10}.ribbon-arrow.left[data-v-57aa0965]{left:8px}.ribbon-arrow.right[data-v-57aa0965]{right:8px}.role-card-placeholder[data-v-57aa0965]{flex:0 0 260px;padding:16px;background:var(--bg);border:1px dashed var(--line);border-radius:6px;color:var(--muted);display:grid;place-items:center}
 .emoji[data-v-37a35e60]{margin-right:0;font-size:1.1em}.banner-chip[data-v-37a35e60]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-37a35e60]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-37a35e60]:active{transform:translateY(1px) scale(0.99)}
 .banner-chip-open[data-v-a8d897e6]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-a8d897e6]{font-size:1.2em;margin-right:8px}.close-icon[data-v-a8d897e6]{font-size:.9em;color:var(--ink)}
-.cal-day-container[data-v-465be192]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-465be192]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-465be192]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-465be192]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-465be192]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-465be192]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-465be192]{--importance:5}.cal-day-btn[data-importance="4"][data-v-465be192]{--importance:4}.cal-day-btn[data-importance="3"][data-v-465be192]{--importance:3}.cal-day-btn[data-importance="2"][data-v-465be192]{--importance:2}.cal-day-btn[data-importance="1"][data-v-465be192]{--importance:1}.dnum[data-v-465be192]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-465be192]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-465be192]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-465be192]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-465be192]:first-child{border-top:none;padding-top:0}.fest-header[data-v-465be192]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-465be192]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-465be192]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-465be192]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
-.cal-content[data-v-40fd130e]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-40fd130e]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-40fd130e]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-40fd130e]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-40fd130e]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-40fd130e]{display:flex;gap:6px}.cal-btn[data-v-40fd130e]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-40fd130e]:active{transform:translateY(1px)}.cal-body[data-v-40fd130e]{padding:10px 12px 12px}.cal-week[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-40fd130e]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-40fd130e]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
+.cal-day-container[data-v-37b2d622]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-37b2d622]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-37b2d622]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-37b2d622]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-37b2d622]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-37b2d622]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-37b2d622]{--importance:5}.cal-day-btn[data-importance="4"][data-v-37b2d622]{--importance:4}.cal-day-btn[data-importance="3"][data-v-37b2d622]{--importance:3}.cal-day-btn[data-importance="2"][data-v-37b2d622]{--importance:2}.cal-day-btn[data-importance="1"][data-v-37b2d622]{--importance:1}.dnum[data-v-37b2d622]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-37b2d622]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-37b2d622]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-37b2d622]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-37b2d622]:first-child{border-top:none;padding-top:0}.fest-header[data-v-37b2d622]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-37b2d622]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-37b2d622]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-37b2d622]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
+.cal-content[data-v-cf7b8df4]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-cf7b8df4]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-cf7b8df4]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-cf7b8df4]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-cf7b8df4]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-cf7b8df4]{display:flex;gap:6px}.cal-btn[data-v-cf7b8df4]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-cf7b8df4]:active{transform:translateY(1px)}.cal-body[data-v-cf7b8df4]{padding:10px 12px 12px}.cal-week[data-v-cf7b8df4]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-cf7b8df4]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-cf7b8df4]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
 .time-container[data-v-517ae222]{position:relative}
 
 .banner-chip[data-v-1ca16986]{display:inline-flex;align-items:center;gap:.65em;padding:8px 14px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease;min-width:150px}.banner-chip[data-v-1ca16986]:hover:not(.banner-chip--disabled){box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-1ca16986]:active:not(.banner-chip--disabled){transform:translateY(1px) scale(0.99)}.banner-chip--disabled[data-v-1ca16986]{cursor:not-allowed;opacity:.6}.emoji[data-v-1ca16986]{font-size:1.2em}.summary[data-v-1ca16986]{font-size:1em}

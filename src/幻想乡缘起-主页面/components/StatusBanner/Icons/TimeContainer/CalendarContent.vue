@@ -32,6 +32,7 @@
 import { computed, ref, watch } from 'vue';
 import type { ClockInfo } from '../../../../utils/constants';
 import CalendarDay from './CalendarDay.vue';
+import type { Festival } from '../../../../../GSKO-BASE/schema/festival';
 
 const props = defineProps<{
   clockInfo: ClockInfo | null;
@@ -42,7 +43,7 @@ const displayMonth = ref(new Date());
 const monthLabel = computed(() => `${displayMonth.value.getMonth() + 1}月`);
 const yearLabel = computed(() => `${displayMonth.value.getFullYear()}年`);
 
-const festivals = computed(() => props.clockInfo?.festivals || []);
+const festivals = computed(() => props.clockInfo?.festivals || {});
 
 const updateMonth = (direction: 'prev' | 'next') => {
   const newMonth = new Date(displayMonth.value);
@@ -74,7 +75,7 @@ const calendarDays = computed(() => {
 
   for (let i = 1; i <= daysInMonth; i++) {
     // Corrected festival matching logic
-    const dayFestivals = festivals.value.filter((f: any) => {
+    const dayFestivals = (Object.values(festivals.value) as Festival[]).filter(f => {
       return f.month === month + 1 && i >= f.start_day && i <= f.end_day;
     });
 
