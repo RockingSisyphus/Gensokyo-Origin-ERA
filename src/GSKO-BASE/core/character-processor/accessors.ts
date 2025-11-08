@@ -34,7 +34,7 @@ export function getCharLocationPath(charId: string): string {
   return `chars.${charId}.${CHARACTER_FIELDS.currentLocation}`;
 }
 
-export function getCharGoal(stat: Stat, charId:string): string {
+export function getCharGoal(stat: Stat, charId: string): string {
   return getChar(stat, charId)?.['目标'] ?? '';
 }
 
