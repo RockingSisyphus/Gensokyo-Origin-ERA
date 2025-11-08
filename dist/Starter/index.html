@@ -1226,107 +1226,6 @@ const StatSchema = external_z_namespaceObject.z.object({
   文文新闻: external_z_namespaceObject.z.string().optional()
 });
 
-const GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_1 = {
-  class: "rounded-lg border-2 border-gray-400 p-4"
-};
-
-const GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_2 = {
-  key: 0,
-  class: "flex flex-col gap-4"
-};
-
-const GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_3 = {
-  key: 1
-};
-
-const GensokyoSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
-  __name: "GensokyoSettings",
-  props: {
-    detail: {}
-  },
-  setup(__props) {
-    const props = __props;
-    const configData = (0, external_Vue_namespaceObject.ref)(null);
-    const parsedStat = (0, external_Vue_namespaceObject.computed)(() => {
-      if (!props.detail || !props.detail.statWithoutMeta) return null;
-      const parseResult = StatSchema.safeParse(props.detail.statWithoutMeta);
-      if (parseResult.success) {
-        return parseResult.data;
-      }
-      console.error("GensokyoSettings: 解析 stat 数据失败", parseResult.error);
-      return null;
-    });
-    (0, external_Vue_namespaceObject.watch)(parsedStat, newStat => {
-      if (newStat && newStat.config) {
-        configData.value = (0, external_namespaceObject.cloneDeep)(newStat.config);
-      } else {
-        configData.value = null;
-      }
-    }, {
-      immediate: true,
-      deep: true
-    });
-    const arrayToString = arr => {
-      if (!arr) return "";
-      return arr.map(item => typeof item === "string" ? item : JSON.stringify(item)).join("\n");
-    };
-    const stringToArray = str => {
-      if (!str.trim()) return [];
-      return str.split("\n").map(line => {
-        try {
-          return JSON.parse(line);
-        } catch {
-          return line;
-        }
-      });
-    };
-    const specialsString = (0, external_Vue_namespaceObject.computed)({
-      get: () => arrayToString(configData.value?.specials),
-      set: value => {
-        if (configData.value) {
-          configData.value.specials = stringToArray(value);
-        }
-      }
-    });
-    const routineString = (0, external_Vue_namespaceObject.computed)({
-      get: () => arrayToString(configData.value?.routine),
-      set: value => {
-        if (configData.value) {
-          configData.value.routine = stringToArray(value);
-        }
-      }
-    });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[5] || (_cache[5] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("h2", {
-      class: "mb-2 text-xl font-bold"
-    }, "幻想乡缘起设定", -1)), configData.value ? ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("div", GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", null, [ _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("h3", {
-      class: "font-semibold"
-    }, "特殊日程(specials)", -1)), (0, external_Vue_namespaceObject.withDirectives)((0, 
-    external_Vue_namespaceObject.createElementVNode)("textarea", {
-      "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => specialsString.value = $event),
-      class: "mt-1 h-32 w-full rounded border p-2 font-mono text-sm",
-      placeholder: "每行一个日程条目,可以是字符串或JSON"
-    }, null, 512), [ [ external_Vue_namespaceObject.vModelText, specialsString.value ] ]) ]), (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", null, [ _cache[3] || (_cache[3] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("h3", {
-      class: "font-semibold"
-    }, "固定日程(routine)", -1)), (0, external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("textarea", {
-      "onUpdate:modelValue": _cache[1] || (_cache[1] = $event => routineString.value = $event),
-      class: "mt-1 h-32 w-full rounded border p-2 font-mono text-sm",
-      placeholder: "每行一个日程条目,可以是字符串或JSON"
-    }, null, 512), [ [ external_Vue_namespaceObject.vModelText, routineString.value ] ]) ]) ])) : ((0, 
-    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", GensokyoSettingsvue_type_script_setup_true_lang_ts_hoisted_3, [ ..._cache[4] || (_cache[4] = [ (0, 
-    external_Vue_namespaceObject.createElementVNode)("p", null, "正在加载或解析设定数据...", -1) ]) ])) ]));
-  }
-});
-
-const GensokyoSettings_exports_ = GensokyoSettingsvue_type_script_setup_true_lang_ts;
-
-const GensokyoSettings = GensokyoSettings_exports_;
-
 const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_1 = {
   class: "rounded-lg border-2 border-gray-400 p-4"
 };
@@ -1349,6 +1248,14 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_5 = {
 };
 
 const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_6 = {
+  class: "flex gap-2"
+};
+
+const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_7 = [ "disabled" ];
+
+const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_8 = [ "disabled" ];
+
+const StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_9 = {
   key: 1,
   class: "mt-4 text-center"
 };
@@ -1362,6 +1269,7 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
     const props = __props;
     const epochDate = (0, external_Vue_namespaceObject.ref)("");
     const epochTime = (0, external_Vue_namespaceObject.ref)("");
+    const originalEpochISO = (0, external_Vue_namespaceObject.ref)("");
     const parsedStat = (0, external_Vue_namespaceObject.computed)(() => {
       if (!props.detail || !props.detail.statWithoutMeta) return null;
       const parseResult = StatSchema.safeParse(props.detail.statWithoutMeta);
@@ -1373,6 +1281,7 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
     });
     (0, external_Vue_namespaceObject.watch)(parsedStat, newStat => {
       const isoString = newStat?.config?.time?.epochISO;
+      originalEpochISO.value = isoString || "";
       if (isoString) {
         try {
           const date = new Date(isoString);
@@ -1385,16 +1294,63 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
           epochDate.value = "";
           epochTime.value = "";
         }
+      } else {
+        epochDate.value = "";
+        epochTime.value = "";
       }
     }, {
       immediate: true,
       deep: true
     });
+    const isoFromInputs = (0, external_Vue_namespaceObject.computed)(() => {
+      if (!epochDate.value || !epochTime.value) return null;
+      const candidate = `${epochDate.value}T${epochTime.value}:00`;
+      const date = new Date(candidate);
+      if (Number.isNaN(date.getTime())) return null;
+      return date.toISOString();
+    });
+    const hasChanges = (0, external_Vue_namespaceObject.computed)(() => !!isoFromInputs.value && isoFromInputs.value !== originalEpochISO.value);
+    const canSave = (0, external_Vue_namespaceObject.computed)(() => hasChanges.value);
+    const canReset = (0, external_Vue_namespaceObject.computed)(() => Boolean(originalEpochISO.value || epochDate.value || epochTime.value));
+    const resetEpochInputs = () => {
+      if (originalEpochISO.value) {
+        try {
+          const date = new Date(originalEpochISO.value);
+          if (Number.isNaN(date.getTime())) throw new Error("Invalid epoch ISO value");
+          epochDate.value = date.toISOString().split("T")[0];
+          const hours = String(date.getHours()).padStart(2, "0");
+          const minutes = String(date.getMinutes()).padStart(2, "0");
+          epochTime.value = `${hours}:${minutes}`;
+          return;
+        } catch (e) {
+          console.error("StartTimeSettings: reset epochISO failed", e);
+        }
+      }
+      epochDate.value = "";
+      epochTime.value = "";
+    };
+    const writeEpochToEra = () => {
+      const isoString = isoFromInputs.value;
+      if (!isoString) {
+        toastr.warning("选择的日期不合法.");
+        return;
+      }
+      if (isoString === originalEpochISO.value) {
+        return;
+      }
+      try {
+        updateEraVariable("config.time.epochISO", isoString);
+        originalEpochISO.value = isoString;
+        toastr.info("开局日期修改成功");
+      } catch (e) {
+        toastr.error("写入出错" + String(e));
+      }
+    };
     const epochPreview = (0, external_Vue_namespaceObject.computed)(() => {
       if (!epochDate.value && !epochTime.value) return "—";
       return `${epochDate.value || "YYYY-MM-DD"}T${epochTime.value || "HH:mm"}`;
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[7] || (_cache[7] = (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[6] || (_cache[6] = (0, 
     external_Vue_namespaceObject.createElementVNode)("h2", {
       class: "mb-2 text-xl font-bold"
     }, "设置开局时间", -1)), parsedStat.value ? ((0, external_Vue_namespaceObject.openBlock)(), 
@@ -1424,17 +1380,22 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
     external_Vue_namespaceObject.createCommentVNode)("v-if", true), (0, external_Vue_namespaceObject.createElementVNode)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_3, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_4, [ _cache[4] || (_cache[4] = (0, 
     external_Vue_namespaceObject.createTextVNode)(" 预览: ", -1)), (0, external_Vue_namespaceObject.createElementVNode)("span", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_5, (0, 
-    external_Vue_namespaceObject.toDisplayString)(epochPreview.value), 1) ]), _cache[5] || (_cache[5] = (0, 
-    external_Vue_namespaceObject.createElementVNode)("div", {
-      class: "flex gap-2"
-    }, [ (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "muted-btn cursor-not-allowed opacity-50",
-      disabled: ""
-    }, "从配置读取"), (0, external_Vue_namespaceObject.createElementVNode)("button", {
-      class: "cursor-not-allowed opacity-50",
-      disabled: ""
-    }, "保存到配置") ], -1)) ]), !parsedStat.value ? ((0, external_Vue_namespaceObject.openBlock)(), 
-    (0, external_Vue_namespaceObject.createElementBlock)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_6, [ ..._cache[6] || (_cache[6] = [ (0, 
+    external_Vue_namespaceObject.toDisplayString)(epochPreview.value), 1) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_6, [ (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      class: (0, external_Vue_namespaceObject.normalizeClass)([ "muted-btn", {
+        "cursor-not-allowed opacity-50": !canReset.value
+      } ]),
+      disabled: !canReset.value,
+      onClick: resetEpochInputs
+    }, " 从配置读取 ", 10, StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_7), (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
+      class: (0, external_Vue_namespaceObject.normalizeClass)({
+        "cursor-not-allowed opacity-50": !canSave.value
+      }),
+      disabled: !canSave.value,
+      onClick: writeEpochToEra
+    }, " 保存到配置 ", 10, StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_8) ]) ]), !parsedStat.value ? ((0, 
+    external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", StartTimeSettingsvue_type_script_setup_true_lang_ts_hoisted_9, [ ..._cache[5] || (_cache[5] = [ (0, 
     external_Vue_namespaceObject.createElementVNode)("p", null, "正在加载或解析时间数据...", -1) ]) ])) : (0, 
     external_Vue_namespaceObject.createCommentVNode)("v-if", true) ]));
   }
@@ -1474,8 +1435,6 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_1, [ runtimeData.value ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
     external_Vue_namespaceObject.createVNode)(CharacterProfile, {
-      detail: runtimeData.value
-    }, null, 8, [ "detail" ]), (0, external_Vue_namespaceObject.createVNode)(GensokyoSettings, {
       detail: runtimeData.value
     }, null, 8, [ "detail" ]), (0, external_Vue_namespaceObject.createVNode)(StartTimeSettings, {
       detail: runtimeData.value

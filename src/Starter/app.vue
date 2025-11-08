@@ -3,7 +3,6 @@ import { cloneDeep } from 'lodash';
 import { defineExpose, ref } from 'vue';
 import CharacterProfile from './components/CharacterProfile.vue';
 import ExtraWorldSettings from './components/ExtraWorldSettings.vue';
-import GensokyoSettings from './components/GensokyoSettings.vue';
 import StartTimeSettings from './components/StartTimeSettings.vue';
 
 // 用于存储从事件接收到的运行时数据
@@ -31,7 +30,6 @@ export default {};
   <div class="flex flex-col gap-2">
     <div v-if="runtimeData" class="flex flex-col gap-2">
       <CharacterProfile :detail="runtimeData" />
-      <GensokyoSettings :detail="runtimeData" />
       <StartTimeSettings :detail="runtimeData" />
       <ExtraWorldSettings :detail="runtimeData" />
     </div>

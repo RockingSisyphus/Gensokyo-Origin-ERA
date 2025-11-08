@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
-import { Stat, StatSchema } from '../../GSKO-BASE/schema/stat';
+import { StatSchema } from '../../GSKO-BASE/schema/stat';
+import { updateEraVariable } from '../utils/eraWriter';
 
 const props = defineProps<{
   detail: any;
@@ -9,6 +10,7 @@ const props = defineProps<{
 // 用于 v-model 的响应式变量
 const epochDate = ref('');
 const epochTime = ref('');
+const originalEpochISO = ref('');
 
 // 从 props.detail 解析出 stat 对象
 const parsedStat = computed(() => {
@@ -24,8 +26,9 @@ const parsedStat = computed(() => {
 // 监听解析后的 stat 对象，并更新本地的 ref
 watch(
   parsedStat,
-  (newStat) => {
+  newStat => {
     const isoString = newStat?.config?.time?.epochISO;
+    originalEpochISO.value = isoString || '';
     if (isoString) {
       try {
         const date = new Date(isoString);
@@ -40,10 +43,62 @@ watch(
         epochDate.value = '';
         epochTime.value = '';
       }
+    } else {
+      epochDate.value = '';
+      epochTime.value = '';
     }
   },
   { immediate: true, deep: true },
 );
+
+const isoFromInputs = computed(() => {
+  if (!epochDate.value || !epochTime.value) return null;
+  const candidate = `${epochDate.value}T${epochTime.value}:00`;
+  const date = new Date(candidate);
+  if (Number.isNaN(date.getTime())) return null;
+  return date.toISOString();
+});
+
+const hasChanges = computed(() => !!isoFromInputs.value && isoFromInputs.value !== originalEpochISO.value);
+const canSave = computed(() => hasChanges.value);
+const canReset = computed(() => Boolean(originalEpochISO.value || epochDate.value || epochTime.value));
+
+const resetEpochInputs = () => {
+  if (originalEpochISO.value) {
+    try {
+      const date = new Date(originalEpochISO.value);
+      if (Number.isNaN(date.getTime())) throw new Error('Invalid epoch ISO value');
+      epochDate.value = date.toISOString().split('T')[0];
+      const hours = String(date.getHours()).padStart(2, '0');
+      const minutes = String(date.getMinutes()).padStart(2, '0');
+      epochTime.value = `${hours}:${minutes}`;
+      return;
+    } catch (e) {
+      console.error('StartTimeSettings: reset epochISO failed', e);
+    }
+  }
+  epochDate.value = '';
+  epochTime.value = '';
+};
+
+const writeEpochToEra = () => {
+  const isoString = isoFromInputs.value;
+  if (!isoString) {
+    toastr.warning('选择的日期不合法.');
+    return;
+  }
+  if (isoString === originalEpochISO.value) {
+    //alert('The current value is unchanged.');
+    return;
+  }
+  try {
+    updateEraVariable('config.time.epochISO', isoString);
+    originalEpochISO.value = isoString;
+    toastr.info('开局日期修改成功');
+  } catch (e) {
+    toastr.error('写入出错' + String(e));
+  }
+};
 
 // 预览计算属性
 const epochPreview = computed(() => {
@@ -85,8 +140,17 @@ const epochPreview = computed(() => {
         预览: <span class="font-mono">{{ epochPreview }}</span>
       </div>
       <div class="flex gap-2">
-        <button class="muted-btn cursor-not-allowed opacity-50" disabled>从配置读取</button>
-        <button class="cursor-not-allowed opacity-50" disabled>保存到配置</button>
+        <button
+          class="muted-btn"
+          :class="{ 'cursor-not-allowed opacity-50': !canReset }"
+          :disabled="!canReset"
+          @click="resetEpochInputs"
+        >
+          从配置读取
+        </button>
+        <button :class="{ 'cursor-not-allowed opacity-50': !canSave }" :disabled="!canSave" @click="writeEpochToEra">
+          保存到配置
+        </button>
       </div>
     </div>
     <div v-if="!parsedStat" class="mt-4 text-center">
