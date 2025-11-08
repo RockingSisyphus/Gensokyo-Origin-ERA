@@ -112,7 +112,9 @@
           </div>
         </div>
 
-        <div class="GensokyoOrigin-CharacterEntryEditor-condition-group GensokyoOrigin-CharacterEntryEditor-condition-group--festival">
+        <div
+          class="GensokyoOrigin-CharacterEntryEditor-condition-group GensokyoOrigin-CharacterEntryEditor-condition-group--festival"
+        >
           <div class="GensokyoOrigin-CharacterEntryEditor-festival-controls">
             <label class="GensokyoOrigin-CharacterEntryEditor-festival-label">
               <span>节日限定</span>
