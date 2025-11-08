@@ -6,7 +6,9 @@ import { buildCoLocatedCharsAffectionPrompt } from './co-located-characters-affe
 import { buildCompanionDecisionPrompt } from './companion-decision';
 import { buildFestivalPrompt } from './festival';
 import { buildLegalLocationsPrompt } from './legal-locations';
+import { buildMainBodyWrapperTagPrompt } from './main-body-wrapper-tag';
 import { buildMainCharacterPrompt } from './main-character';
+import { buildRemoteMentionedCharactersPrompt } from './remote-mentioned-characters';
 import { buildRoutePrompt } from './route';
 import { buildTimePrompt } from './time';
 import { buildTimeProgressPrompt } from './time-progress';
@@ -77,7 +79,7 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   prompts.push('</沉浸感核心>');
 
   prompts.push('<本轮**必须**更新的ERA变量>');
-  prompts.push('**以下是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**');
+  prompts.push('**以下是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**');
   // 构建文文新闻提示词
   const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
   if (ayaNewsPrompt) {
@@ -108,8 +110,26 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
     prompts.push(coLocatedCharactersPrompt);
   }
 
-  prompts.push('**以上是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**');
+  // 构建被提及但不在场角色提示词
+  const remoteMentionedCharactersPrompt = buildRemoteMentionedCharactersPrompt({ runtime, stat });
+  if (remoteMentionedCharactersPrompt) {
+    prompts.push(remoteMentionedCharactersPrompt);
+  }
+
+  prompts.push('**以上是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**');
   prompts.push('</本轮**必须**更新的ERA变量>');
+
+  // 构建正文包裹标签提示词
+  const mainBodyWrapperTagPrompt = buildMainBodyWrapperTagPrompt({ stat });
+  if (mainBodyWrapperTagPrompt) {
+    prompts.push('<格式要求>');
+    prompts.push(mainBodyWrapperTagPrompt);
+    prompts.push(
+      '而后，你**必须在生成正文之后，在以上正文标签之外生成variablThink**，并根据think的内容生成对应的变量更新内容块。',
+    );
+    prompts.push('</格式要求>');
+  }
+
   const finalPrompt = prompts.join('\n\n');
 
   logger.debug(funcName, '提示词构建完毕。');

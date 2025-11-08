@@ -4,7 +4,7 @@
 
 'use strict';
 
-const PROJECT_NAME = 'GSKO-BASE';
+const PROJECT_NAME = 'GSKO-Starter';
 
 // --- 新的运行时调试配置系统 (V3) ---
 

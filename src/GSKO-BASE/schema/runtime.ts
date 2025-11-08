@@ -126,6 +126,7 @@ export const RuntimeSchema = z.object({
         coLocated: z.array(z.string()),
         remote: z.array(z.string()),
       }),
+      mentionedCharIds: z.array(z.string()).optional(),
     })
     .optional(),
   characterLog: z.object({}).passthrough().optional(),

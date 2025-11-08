@@ -7,6 +7,10 @@ import { Stat } from '../../../schema/stat';
 import { Logger } from '../../../utils/log';
 import {
   getChar,
+  getCharGoal,
+  getCharGoalPath,
+  getCharLocation,
+  getCharLocationPath,
   getUserLocation,
   setCharGoalInStat,
   setCharLocationInStat,
@@ -77,17 +81,44 @@ function applyNonCompanionDecisions({
   runtime: Runtime;
   cache: Cache;
   nonCompanionDecisions: Record<string, Action>;
-}): void {
+}): ChangeLogEntry[] {
   const funcName = 'applyNonCompanionDecisions';
+  const changes: ChangeLogEntry[] = [];
+  const moduleName = 'character-processor';
 
   _.forEach(nonCompanionDecisions, (decision, charId) => {
     logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
 
-    // 1. 更新 stat
+    // 1. 更新 stat 并记录变更
+    // 1.1 更新位置
+    const oldLocation = getCharLocation(stat, charId);
     const newLocation = resolveTargetLocation(charId, decision.to, stat, runtime);
-    setCharLocationInStat(stat, charId, newLocation);
-    setCharGoalInStat(stat, charId, decision.do);
-    logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
+    if (oldLocation !== newLocation) {
+      setCharLocationInStat(stat, charId, newLocation);
+      changes.push({
+        module: moduleName,
+        path: getCharLocationPath(charId),
+        oldValue: oldLocation,
+        newValue: newLocation,
+        reason: `角色 ${charId} 根据决策 "${decision.do}" 移动位置。`,
+      });
+      logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}]`);
+    }
+
+    // 1.2 更新目标
+    const oldGoal = getCharGoal(stat, charId);
+    const newGoal = decision.do;
+    if (oldGoal !== newGoal) {
+      setCharGoalInStat(stat, charId, newGoal);
+      changes.push({
+        module: moduleName,
+        path: getCharGoalPath(charId),
+        oldValue: oldGoal,
+        newValue: newGoal,
+        reason: `角色 ${charId} 根据决策更新目标。`,
+      });
+      logger.debug(funcName, `[STAT] 角色 ${charId}: 目标 -> [${newGoal}]`);
+    }
 
     // 2. 更新 runtime (副作用)
     setDecisionInRuntime(runtime, charId, decision);
@@ -98,6 +129,8 @@ function applyNonCompanionDecisions({
       logger.debug(funcName, `[CACHE] 角色 ${charId}: 已设置来访冷却。`);
     }
   });
+
+  return changes;
 }
 
 /**
@@ -160,7 +193,13 @@ export function aggregateResults({
     applyCompanionDecisions({ runtime: newRuntime, companionDecisions });
 
     // 3. 应用“非同伴角色”的决策
-    applyNonCompanionDecisions({ stat: newStat, runtime: newRuntime, cache: newCache, nonCompanionDecisions });
+    const nonCompanionChanges = applyNonCompanionDecisions({
+      stat: newStat,
+      runtime: newRuntime,
+      cache: newCache,
+      nonCompanionDecisions,
+    });
+    changes.push(...nonCompanionChanges);
 
     // TODO: 在此添加其他聚合逻辑，如生成 changelog。
 

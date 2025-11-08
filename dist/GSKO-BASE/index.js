@@ -1,3 +1,5 @@
+import { default as __WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__ } from "https://testingcf.jsdelivr.net/npm/dedent/+esm";
+
 var __webpack_require__ = {};
 
 (() => {
@@ -1636,6 +1638,56 @@ function getCharLocation(charObj) {
   return String(charObj[CHARACTER_FIELDS.currentLocation] ?? "").trim();
 }
 
+const mentioned_character_processor_logger = new Logger("MentionedCharProc");
+
+async function mentionedCharacterProcessor({runtime}) {
+  const funcName = "mentionedCharacterProcessor";
+  const updatedRuntime = external_default().cloneDeep(runtime);
+  if (!updatedRuntime.character) {
+    updatedRuntime.character = {
+      chars: {},
+      partitions: {
+        coLocated: [],
+        remote: []
+      },
+      mentionedCharIds: []
+    };
+  }
+  const chars = updatedRuntime.character.chars;
+  let mentionedCharIds = [];
+  try {
+    if (!chars || external_default().isEmpty(chars)) {
+      mentioned_character_processor_logger.debug(funcName, "角色列表为空，返回空数组。");
+      updatedRuntime.character.mentionedCharIds = [];
+      return updatedRuntime;
+    }
+    const charNameIdMap = new Map;
+    const charNames = [];
+    for (const id in chars) {
+      const name = chars[id]?.name;
+      if (name) {
+        charNames.push(name);
+        charNameIdMap.set(name, id);
+      }
+    }
+    const matchedNames = await matchMessages(charNames, {
+      depth: 3,
+      includeSwipes: false
+    });
+    if (matchedNames.length > 0) {
+      mentioned_character_processor_logger.debug(funcName, `在消息中匹配到的角色名: ${JSON.stringify(matchedNames)}`);
+      const ids = matchedNames.map(name => charNameIdMap.get(name)).filter(id => !!id);
+      mentionedCharIds = external_default().uniq(ids);
+    }
+    mentioned_character_processor_logger.debug(funcName, `最终识别出的角色ID: ${JSON.stringify(mentionedCharIds)}`);
+  } catch (error) {
+    mentioned_character_processor_logger.error(funcName, "处理被提及角色时发生异常", error);
+    mentionedCharIds = [];
+  }
+  updatedRuntime.character.mentionedCharIds = mentionedCharIds;
+  return updatedRuntime;
+}
+
 function processCharacterLogs(runtime) {
   const {snapshots, clock} = runtime;
   if (!snapshots || snapshots.length === 0 || !clock?.flags || !clock.mkAnchors) {
@@ -1735,7 +1787,7 @@ function getChar(stat, charId) {
 }
 
 function getGlobalAffectionStages(stat) {
-  return stat.config.affection.affectionStages;
+  return stat.config?.affection?.affectionStages ?? [];
 }
 
 function getCharAffectionStages(runtime, charId) {
@@ -1746,8 +1798,20 @@ function accessors_getUserLocation(stat) {
   return stat.user?.[USER_FIELDS.currentLocation] ?? "";
 }
 
-function accessors_getCharLocation(char) {
-  return char[CHARACTER_FIELDS.currentLocation] ?? "";
+function accessors_getCharLocation(stat, charId) {
+  return getChar(stat, charId)?.[CHARACTER_FIELDS.currentLocation] ?? "";
+}
+
+function getCharLocationPath(charId) {
+  return `chars.${charId}.${CHARACTER_FIELDS.currentLocation}`;
+}
+
+function getCharGoal(stat, charId) {
+  return getChar(stat, charId)?.["目标"] ?? "";
+}
+
+function getCharGoalPath(charId) {
+  return `chars.${charId}.目标`;
 }
 
 function getCharName(stat, charId) {
@@ -1935,12 +1999,36 @@ function resolveTargetLocation(charId, to, stat, runtime) {
 
 function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions}) {
   const funcName = "applyNonCompanionDecisions";
+  const changes = [];
+  const moduleName = "character-processor";
   external_default().forEach(nonCompanionDecisions, (decision, charId) => {
     aggregator_logger.debug(funcName, `开始应用角色 ${charId} 的决策: [${decision.do}]`);
+    const oldLocation = accessors_getCharLocation(stat, charId);
     const newLocation = resolveTargetLocation(charId, decision.to, stat, runtime);
-    setCharLocationInStat(stat, charId, newLocation);
-    setCharGoalInStat(stat, charId, decision.do);
-    aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}], 目标 -> [${decision.do}]`);
+    if (oldLocation !== newLocation) {
+      setCharLocationInStat(stat, charId, newLocation);
+      changes.push({
+        module: moduleName,
+        path: getCharLocationPath(charId),
+        oldValue: oldLocation,
+        newValue: newLocation,
+        reason: `角色 ${charId} 根据决策 "${decision.do}" 移动位置。`
+      });
+      aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 位置 -> [${newLocation}]`);
+    }
+    const oldGoal = getCharGoal(stat, charId);
+    const newGoal = decision.do;
+    if (oldGoal !== newGoal) {
+      setCharGoalInStat(stat, charId, newGoal);
+      changes.push({
+        module: moduleName,
+        path: getCharGoalPath(charId),
+        oldValue: oldGoal,
+        newValue: newGoal,
+        reason: `角色 ${charId} 根据决策更新目标。`
+      });
+      aggregator_logger.debug(funcName, `[STAT] 角色 ${charId}: 目标 -> [${newGoal}]`);
+    }
     setDecisionInRuntime(runtime, charId, decision);
     aggregator_logger.debug(funcName, `[RUNTIME] 角色 ${charId}: 已记录决策。`);
     if (decision.source === PREDEFINED_ACTIONS.VISIT_HERO.source) {
@@ -1948,6 +2036,7 @@ function applyNonCompanionDecisions({stat, runtime, cache, nonCompanionDecisions
       aggregator_logger.debug(funcName, `[CACHE] 角色 ${charId}: 已设置来访冷却。`);
     }
   });
+  return changes;
 }
 
 function applyCompanionDecisions({runtime, companionDecisions}) {
@@ -1972,12 +2061,13 @@ function aggregateResults({stat, runtime, cache, companionDecisions, nonCompanio
       runtime: newRuntime,
       companionDecisions
     });
-    applyNonCompanionDecisions({
+    const nonCompanionChanges = applyNonCompanionDecisions({
       stat: newStat,
       runtime: newRuntime,
       cache: newCache,
       nonCompanionDecisions
     });
+    changes.push(...nonCompanionChanges);
     aggregator_logger.debug(funcName, "结果聚合完毕。");
     return {
       stat: newStat,
@@ -2086,7 +2176,7 @@ function makeActionDecisions({runtime, stat, remainingChars}) {
       const finalAction = {
         ...action
       };
-      const currentLocation = accessors_getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+      const currentLocation = accessors_getCharLocation(stat, charId) || DEFAULT_VALUES.UNKNOWN_LOCATION;
       if (!finalAction.to) {
         finalAction.to = currentLocation;
       }
@@ -2675,7 +2765,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
     partitions: external_z_namespaceObject.z.object({
       coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
       remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
-    })
+    }),
+    mentionedCharIds: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
   }).optional(),
   characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
   characterSettings: CharacterSettingsMapSchema.optional(),
@@ -3503,6 +3594,39 @@ function buildLegalLocationsPrompt({runtime}) {
   return prompt;
 }
 
+const main_body_wrapper_tag_logger = new Logger("main-body-wrapper-tag");
+
+function buildMainBodyWrapperTagPrompt({stat}) {
+  const funcName = "buildMainBodyWrapperTagPrompt";
+  try {
+    if (!stat) {
+      main_body_wrapper_tag_logger.debug(funcName, "Stat 对象为空，跳过。");
+      return null;
+    }
+    const tags = stat.config?.mainBodyTags;
+    if (!tags || tags.length === 0) {
+      main_body_wrapper_tag_logger.debug(funcName, "config.mainBodyTags 未设置或为空，跳过。");
+      return null;
+    }
+    const tagExamples = tags.map(tag => {
+      const L = "<";
+      const R = ">";
+      const SL = "/";
+      return `${L}${tag}${R}...${L}${SL}${tag}${R}`;
+    }).join(" 或 ");
+    const prompt = __WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+      请在你的回复中，将故事正文用 ${tagExamples} 标签包裹起来。
+    `;
+    main_body_wrapper_tag_logger.debug(funcName, "生成正文包裹标签提示成功。", {
+      prompt
+    });
+    return prompt;
+  } catch (err) {
+    main_body_wrapper_tag_logger.error(funcName, "生成正文包裹标签提示失败: " + (err?.message || String(err)), err);
+    return null;
+  }
+}
+
 const main_character_logger = new Logger("GSKO-BASE/core/prompt-builder/main-character");
 
 function buildMainCharacterPrompt({stat}) {
@@ -3522,6 +3646,47 @@ function buildMainCharacterPrompt({stat}) {
     main_character_logger.error(funcName, "生成主角提示词失败: " + (err?.message || String(err)), err);
     return null;
   }
+}
+
+const remote_mentioned_characters_logger = new Logger("RemoteMentioned");
+
+function buildRemoteMentionedCharactersPrompt({stat, runtime}) {
+  const funcName = "buildRemoteMentionedCharactersPrompt";
+  const mentionedCharIds = runtime.character?.mentionedCharIds;
+  const coLocatedCharIds = runtime.character?.partitions?.coLocated ?? [];
+  if (external_default().isEmpty(mentionedCharIds)) {
+    remote_mentioned_characters_logger.debug(funcName, "没有被提及的角色，跳过提示词生成。");
+    return "";
+  }
+  const remoteMentionedIds = external_default().difference(mentionedCharIds, coLocatedCharIds);
+  if (external_default().isEmpty(remoteMentionedIds)) {
+    remote_mentioned_characters_logger.debug(funcName, "所有被提及的角色都在场，无需生成此提示词。");
+    return "";
+  }
+  const charactersInfo = {};
+  external_default().forEach(remoteMentionedIds, charId => {
+    const charData = stat.chars[charId];
+    if (!charData) {
+      remote_mentioned_characters_logger.warn(funcName, `在 stat.chars 中未找到被提及角色 ${charId} 的数据。`);
+      return;
+    }
+    charactersInfo[charId] = {
+      name: charData.name,
+      好感度: charData.好感度,
+      所在地区: charData.所在地区,
+      居住地区: charData.居住地区,
+      目标: charData.目标
+    };
+  });
+  if (external_default().isEmpty(charactersInfo)) {
+    return "";
+  }
+  const charactersJson = JSON.stringify({
+    chars: charactersInfo
+  }, null, 2);
+  const prompt = `\n以下角色在最近的对话中被提及，但他们目前并不在场。请根据当前剧情的需要，审查他们的状态变量，并使用ERA变量更新语句进行必要的调整。\n\n${charactersJson}\n`;
+  remote_mentioned_characters_logger.debug(funcName, "成功生成“被提及但不在场角色”的提示词。");
+  return prompt;
 }
 
 const prompt_builder_route_logger = new Logger("GSKO-BASE/core/prompt-builder/route");
@@ -3741,7 +3906,7 @@ function buildPrompt({runtime, stat}) {
   prompts.push("**为了提高你编写的剧情的沉浸感，请参考以上内容编写最新剧情。**");
   prompts.push("</沉浸感核心>");
   prompts.push("<本轮**必须**更新的ERA变量>");
-  prompts.push("**以下是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**");
+  prompts.push("**以下是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**");
   const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
   if (ayaNewsPrompt) {
     prompts.push(ayaNewsPrompt);
@@ -3771,8 +3936,24 @@ function buildPrompt({runtime, stat}) {
   if (coLocatedCharactersPrompt) {
     prompts.push(coLocatedCharactersPrompt);
   }
-  prompts.push("**以上是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**");
+  const remoteMentionedCharactersPrompt = buildRemoteMentionedCharactersPrompt({
+    runtime,
+    stat
+  });
+  if (remoteMentionedCharactersPrompt) {
+    prompts.push(remoteMentionedCharactersPrompt);
+  }
+  prompts.push("**以上是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**");
   prompts.push("</本轮**必须**更新的ERA变量>");
+  const mainBodyWrapperTagPrompt = buildMainBodyWrapperTagPrompt({
+    stat
+  });
+  if (mainBodyWrapperTagPrompt) {
+    prompts.push("<格式要求>");
+    prompts.push(mainBodyWrapperTagPrompt);
+    prompts.push("而后，你**必须在生成正文之后，在以上正文标签之外生成variablThink**，并根据think的内容生成对应的变量更新内容块。");
+    prompts.push("</格式要求>");
+  }
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");
   return finalPrompt;
@@ -5261,6 +5442,14 @@ $(() => {
       });
       currentRuntime = locResult.runtime;
       logState("Character Locations Processor", "runtime", {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat)
+      });
+      currentRuntime = await mentionedCharacterProcessor({
+        runtime: currentRuntime
+      });
+      logState("Mentioned Character Processor", "runtime", {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat)

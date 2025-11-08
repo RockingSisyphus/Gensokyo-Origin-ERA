@@ -34,6 +34,205 @@ const external_Vue_namespaceObject = Vue;
 
 const external_namespaceObject = _;
 
+const PROJECT_NAME = "GSKO-Starter";
+
+const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
+
+let enabledPatterns = [];
+
+let disabledPatterns = [];
+
+function loadDebugConfig() {
+  try {
+    const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+    const config = JSON.parse(configStr);
+    const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
+    enabledPatterns = (config.enabled || []).map(toRegex);
+    disabledPatterns = (config.disabled || []).map(toRegex);
+  } catch (e) {
+    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
+    enabledPatterns = [];
+    disabledPatterns = [];
+  }
+}
+
+function isDebugEnabled(moduleName) {
+  if (!moduleName) return false;
+  if (disabledPatterns.some(re => re.test(moduleName))) {
+    return false;
+  }
+  if (enabledPatterns.length === 0) {
+    return false;
+  }
+  if (enabledPatterns.some(re => re.test(moduleName))) {
+    return true;
+  }
+  return false;
+}
+
+function updateConfig(newConfig) {
+  const uniqueConfig = {
+    enabled: [ ...new Set(newConfig.enabled) ],
+    disabled: [ ...new Set(newConfig.disabled) ]
+  };
+  globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
+  loadDebugConfig();
+  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
+    "启用 (Enabled)": uniqueConfig.enabled,
+    "禁用 (Disabled)": uniqueConfig.disabled
+  });
+}
+
+loadDebugConfig();
+
+if (typeof globalThis !== "undefined") {
+  const eraDebug = {
+    add(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      enabled.add(pattern);
+      disabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    remove(pattern) {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      const enabled = new Set(config.enabled || []);
+      const disabled = new Set(config.disabled || []);
+      disabled.add(pattern);
+      enabled.delete(pattern);
+      updateConfig({
+        enabled: Array.from(enabled),
+        disabled: Array.from(disabled)
+      });
+    },
+    status() {
+      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
+      const config = JSON.parse(configStr);
+      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
+    },
+    clear() {
+      updateConfig({
+        enabled: [],
+        disabled: []
+      });
+    }
+  };
+  globalThis.eraDebug = eraDebug;
+}
+
+const logContext = {
+  mk: ""
+};
+
+class Logger {
+  moduleName;
+  constructor(...[moduleName]) {
+    const maybeModuleName = moduleName;
+    const injectedModuleName = typeof maybeModuleName === "string" ? maybeModuleName : undefined;
+    this.moduleName = injectedModuleName || this._getModuleNameFromStack() || "unknown";
+  }
+  _getModuleNameFromStack() {
+    try {
+      const stack = (new Error).stack || "";
+      const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
+      if (!callerLine) {
+        return null;
+      }
+      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
+      if (!match || !match[2]) {
+        return null;
+      }
+      const path = match[2];
+      return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
+    } catch (e) {
+      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
+      return null;
+    }
+  }
+  formatMessage(funcName, message) {
+    const mkString = logContext.mk ? `（${logContext.mk}）` : "";
+    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
+  }
+  debug(funcName, message, obj) {
+    if (!isDebugEnabled(this.moduleName)) {
+      return;
+    }
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.debug(formattedMessage, obj);
+    } else {
+      console.debug(formattedMessage);
+    }
+  }
+  log(funcName, message, obj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
+    } else {
+      console.log(`%c${formattedMessage}`, "color: #3498db;");
+    }
+  }
+  warn(funcName, message, obj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (obj !== undefined) {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
+    } else {
+      console.warn(`%c${formattedMessage}`, "color: #f39c12;");
+    }
+  }
+  error(funcName, message, errorObj) {
+    const formattedMessage = this.formatMessage(funcName, message);
+    if (errorObj !== undefined) {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
+    } else {
+      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
+    }
+  }
+}
+
+const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
+  __name: "StoryButton",
+  setup(__props) {
+    const logger = new Logger("Starter/components/StoryButton");
+    const requestStory = async () => {
+      const funcName = "requestStory";
+      try {
+        const guidelines = "请生成一段关于主角在当前场景的简短故事，侧重于描写场景氛围和人物间的非关键性互动，不要推进主线剧情，作为一切的开端。";
+        const payload = {
+          type: "GENERATE_STORY_SCENE",
+          guidelines
+        };
+        const msg = JSON.stringify(payload, null, 2);
+        const cmd = `/send ${msg}|/trigger`;
+        if (typeof triggerSlash === "function") {
+          await triggerSlash(cmd);
+          logger.log(funcName, "故事生成请求已发送。");
+        } else {
+          logger.warn(funcName, "未检测到 triggerSlash，无法自动发送。");
+          alert("未检测到 triggerSlash，无法自动发送。内容已打印到控制台。");
+          console.warn("将要发送的内容：\n", msg);
+        }
+      } catch (error) {
+        logger.error(funcName, "发送故事生成请求失败:", error);
+      }
+    };
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+      class: "GensokyoOrigin-Starter-storyButton",
+      onClick: requestStory
+    }, "开始幻想乡故事（请注意保存你的修改）"));
+  }
+});
+
+const __exports__ = StoryButtonvue_type_script_setup_true_lang_ts;
+
+const StoryButton = __exports__;
+
 const external_z_namespaceObject = z;
 
 const ERA_EVENT_NAMES = {
@@ -476,7 +675,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
     partitions: external_z_namespaceObject.z.object({
       coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
       remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
-    })
+    }),
+    mentionedCharIds: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
   }).optional(),
   characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
   characterSettings: CharacterSettingsMapSchema.optional(),
@@ -507,168 +707,6 @@ const USER_FIELDS = {
   events: "重要经历",
   relationships: "人际关系"
 };
-
-const PROJECT_NAME = "GSKO-BASE";
-
-const DEBUG_CONFIG_LS_KEY = "gsko_era_debug_config";
-
-let enabledPatterns = [];
-
-let disabledPatterns = [];
-
-function loadDebugConfig() {
-  try {
-    const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-    const config = JSON.parse(configStr);
-    const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
-    enabledPatterns = (config.enabled || []).map(toRegex);
-    disabledPatterns = (config.disabled || []).map(toRegex);
-  } catch (e) {
-    console.error(`《${PROJECT_NAME}-Log》: 加载调试配置失败。`, e);
-    enabledPatterns = [];
-    disabledPatterns = [];
-  }
-}
-
-function isDebugEnabled(moduleName) {
-  if (!moduleName) return false;
-  if (disabledPatterns.some(re => re.test(moduleName))) {
-    return false;
-  }
-  if (enabledPatterns.length === 0) {
-    return false;
-  }
-  if (enabledPatterns.some(re => re.test(moduleName))) {
-    return true;
-  }
-  return false;
-}
-
-function updateConfig(newConfig) {
-  const uniqueConfig = {
-    enabled: [ ...new Set(newConfig.enabled) ],
-    disabled: [ ...new Set(newConfig.disabled) ]
-  };
-  globalThis.localStorage?.setItem(DEBUG_CONFIG_LS_KEY, JSON.stringify(uniqueConfig));
-  loadDebugConfig();
-  console.log(`%c《${PROJECT_NAME}-Log》调试模式已更新。`, "color: #3498db; font-weight: bold;", {
-    "启用 (Enabled)": uniqueConfig.enabled,
-    "禁用 (Disabled)": uniqueConfig.disabled
-  });
-}
-
-loadDebugConfig();
-
-if (typeof globalThis !== "undefined") {
-  const eraDebug = {
-    add(pattern) {
-      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-      const config = JSON.parse(configStr);
-      const enabled = new Set(config.enabled || []);
-      const disabled = new Set(config.disabled || []);
-      enabled.add(pattern);
-      disabled.delete(pattern);
-      updateConfig({
-        enabled: Array.from(enabled),
-        disabled: Array.from(disabled)
-      });
-    },
-    remove(pattern) {
-      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-      const config = JSON.parse(configStr);
-      const enabled = new Set(config.enabled || []);
-      const disabled = new Set(config.disabled || []);
-      disabled.add(pattern);
-      enabled.delete(pattern);
-      updateConfig({
-        enabled: Array.from(enabled),
-        disabled: Array.from(disabled)
-      });
-    },
-    status() {
-      const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
-      const config = JSON.parse(configStr);
-      console.log(`%c《${PROJECT_NAME}-Log》当前调试配置:`, "color: #3498db; font-weight: bold;", config);
-    },
-    clear() {
-      updateConfig({
-        enabled: [],
-        disabled: []
-      });
-    }
-  };
-  globalThis.eraDebug = eraDebug;
-}
-
-const logContext = {
-  mk: ""
-};
-
-class Logger {
-  moduleName;
-  constructor(...[moduleName]) {
-    const maybeModuleName = moduleName;
-    const injectedModuleName = typeof maybeModuleName === "string" ? maybeModuleName : undefined;
-    this.moduleName = injectedModuleName || this._getModuleNameFromStack() || "unknown";
-  }
-  _getModuleNameFromStack() {
-    try {
-      const stack = (new Error).stack || "";
-      const callerLine = stack.split("\n").find(line => (line.includes(`/src/${PROJECT_NAME}/`) || line.includes(`/dist/${PROJECT_NAME}/`) || line.includes(`\\src\\${PROJECT_NAME}\\`) || line.includes(`\\dist\\${PROJECT_NAME}\\`)) && !line.includes("/utils/log.ts"));
-      if (!callerLine) {
-        return null;
-      }
-      const match = callerLine.match(new RegExp(`(src|dist)[\\\\/]${PROJECT_NAME}[\\\\/]([^?:]+)`));
-      if (!match || !match[2]) {
-        return null;
-      }
-      const path = match[2];
-      return path.replace(/\\/g, "/").replace(/\.(vue|ts|js)$/, "").replace(/\/index$/, "");
-    } catch (e) {
-      console.error(`《${PROJECT_NAME}-Log-Debug》: 解析模块名时发生意外错误。`, e);
-      return null;
-    }
-  }
-  formatMessage(funcName, message) {
-    const mkString = logContext.mk ? `（${logContext.mk}）` : "";
-    return `《${PROJECT_NAME}》${mkString}「${this.moduleName}」【${funcName}】${String(message)}`;
-  }
-  debug(funcName, message, obj) {
-    if (!isDebugEnabled(this.moduleName)) {
-      return;
-    }
-    const formattedMessage = this.formatMessage(funcName, message);
-    if (obj !== undefined) {
-      console.debug(formattedMessage, obj);
-    } else {
-      console.debug(formattedMessage);
-    }
-  }
-  log(funcName, message, obj) {
-    const formattedMessage = this.formatMessage(funcName, message);
-    if (obj !== undefined) {
-      console.log(`%c${formattedMessage}`, "color: #3498db;", obj);
-    } else {
-      console.log(`%c${formattedMessage}`, "color: #3498db;");
-    }
-  }
-  warn(funcName, message, obj) {
-    const formattedMessage = this.formatMessage(funcName, message);
-    if (obj !== undefined) {
-      console.warn(`%c${formattedMessage}`, "color: #f39c12;", obj);
-    } else {
-      console.warn(`%c${formattedMessage}`, "color: #f39c12;");
-    }
-  }
-  error(funcName, message, errorObj) {
-    const formattedMessage = this.formatMessage(funcName, message);
-    if (errorObj !== undefined) {
-      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;", errorObj);
-    } else {
-      console.error(`%c${formattedMessage}`, "color: #e74c3c; font-weight: bold;");
-    }
-  }
-}
 
 const logger = new Logger("Starter/utils/eraWriter");
 
@@ -963,9 +1001,9 @@ const CharacterProfilevue_type_script_setup_true_lang_ts = (0, external_Vue_name
 
 var exportHelper = __webpack_require__(895);
 
-const __exports__ = (0, exportHelper.A)(CharacterProfilevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3fd023b2" ] ]);
+const CharacterProfile_exports_ = (0, exportHelper.A)(CharacterProfilevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3fd023b2" ] ]);
 
-const CharacterProfile = __exports__;
+const CharacterProfile = CharacterProfile_exports_;
 
 const worldbook_logger = new Logger("Starter/utils/worldbook");
 
@@ -1466,7 +1504,8 @@ const appvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
     __expose({
       update
     });
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_1, [ runtimeData.value ? ((0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_1, [ (0, 
+    external_Vue_namespaceObject.createVNode)(StoryButton), runtimeData.value ? ((0, 
     external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", appvue_type_script_setup_true_lang_ts_hoisted_2, [ (0, 
     external_Vue_namespaceObject.createVNode)(CharacterProfile, {
       detail: runtimeData.value
@@ -1486,20 +1525,39 @@ const Starter_app = app_exports_;
 
 $(() => {
   const app = (0, external_Vue_namespaceObject.createApp)(Starter_app).mount("#app");
+  const logger = new Logger("Starter");
+  let lockedMessageId = null;
   let hasReceivedData = false;
   eventOn("GSKO:showUI", detail => {
     hasReceivedData = true;
+    const funcName = "onShowUI";
+    const currentEventMessageId = detail?.message_id;
+    if (typeof currentEventMessageId !== "number") {
+      logger.warn(funcName, "事件中未提供有效的 message_id，无法刷新 UI。");
+      return;
+    }
+    if (lockedMessageId === null) {
+      lockedMessageId = currentEventMessageId;
+      logger.log(funcName, `UI 已锁定到 messageId: ${lockedMessageId}`);
+    }
+    if (currentEventMessageId !== lockedMessageId) {
+      logger.log(funcName, `事件 messageId (${currentEventMessageId}) 与锁定的 ID (${lockedMessageId}) 不匹配，跳过刷新。`);
+      return;
+    }
     if (detail) {
+      logger.log(funcName, "正在使用收到的数据更新 App...", detail);
       app.update(detail);
     }
   });
   setTimeout(() => {
     if (!hasReceivedData) {
+      logger.log("init", "未收到初始数据，主动请求数据...");
       eventEmit("GSKO:requireData");
     }
   }, 500);
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap);
 @import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
+.GensokyoOrigin-Starter-storyButton{background-color:#4caf50;border:none;color:#fff;padding:10px 20px;text-align:center;text-decoration:none;display:inline-block;font-size:16px;margin:4px 2px;cursor:pointer;border-radius:8px;transition:background-color .3s}.GensokyoOrigin-Starter-storyButton:hover{background-color:#45a049}
 #character-profile[data-v-3fd023b2]{background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:3px 3px 8px rgba(107,90,75,0.2),inset 0 0 10px rgba(255,253,247,0.5);padding:24px;margin:18px 0}#character-profile h2[data-v-3fd023b2]{color:var(--muted);border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:20px}#character-profile .grid[data-v-3fd023b2]{display:grid;gap:16px}#character-profile .grid-2[data-v-3fd023b2]{grid-template-columns:1fr 1fr}#character-profile label[data-v-3fd023b2]{font-weight:700;color:var(--muted);display:block;margin-bottom:6px}#character-profile input[type='text'][data-v-3fd023b2],#character-profile textarea[data-v-3fd023b2],#character-profile select[data-v-3fd023b2]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:#fcfaf5;color:var(--ink);transition:border-color 0.2s,box-shadow 0.2s,background 0.2s}#character-profile input[type='text'][data-v-3fd023b2]:focus,#character-profile textarea[data-v-3fd023b2]:focus,#character-profile select[data-v-3fd023b2]:focus{border-color:#b59a7a;outline:none;box-shadow:0 0 5px rgba(168,152,131,0.3)}#character-profile textarea[data-v-3fd023b2]{min-height:100px;resize:vertical}#character-profile .row[data-v-3fd023b2]{display:flex;gap:12px;align-items:center;flex-wrap:wrap}#character-profile .row[data-v-3fd023b2]>*{flex:1}#character-profile .inline[data-v-3fd023b2]{display:inline-block;margin-right:12px}#character-profile .btn-bar[data-v-3fd023b2]{display:flex;gap:12px;margin-top:18px}#character-profile button[data-v-3fd023b2]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#character-profile button[data-v-3fd023b2]:hover{background:#7a6a5a;border-color:#6b5a4b}#character-profile .muted-btn[data-v-3fd023b2]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#character-profile .muted-btn[data-v-3fd023b2]:hover{background:#dcd1c4}
 
 #extra-world-settings button[data-v-fb630866]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#extra-world-settings button[data-v-fb630866]:hover{background:#7a6a5a;border-color:#6b5a4b}#extra-world-settings .muted-btn[data-v-fb630866]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#extra-world-settings .muted-btn[data-v-fb630866]:hover{background:#dcd1c4}

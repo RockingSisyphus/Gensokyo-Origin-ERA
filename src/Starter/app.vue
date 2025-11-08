@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { cloneDeep } from 'lodash';
 import { defineExpose, ref } from 'vue';
+import StoryButton from './components/StoryButton.vue';
 import CharacterProfile from './components/CharacterProfile.vue';
 import ExtraWorldSettings from './components/ExtraWorldSettings.vue';
 import StartTimeSettings from './components/StartTimeSettings.vue';
@@ -28,6 +29,7 @@ export default {};
 
 <template>
   <div class="flex flex-col gap-2">
+    <StoryButton />
     <div v-if="runtimeData" class="flex flex-col gap-2">
       <CharacterProfile :detail="runtimeData" />
       <StartTimeSettings :detail="runtimeData" />

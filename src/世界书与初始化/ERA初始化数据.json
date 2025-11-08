@@ -25,6 +25,7 @@
   },
   "chars": {
     "$meta": {
+      "unInsertAble": "self",
       "necessary": "self",
       "updatable": true
     },

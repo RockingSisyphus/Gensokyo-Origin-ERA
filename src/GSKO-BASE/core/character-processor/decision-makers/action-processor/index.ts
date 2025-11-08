@@ -135,7 +135,7 @@ export function makeActionDecisions({
 
     if (action) {
       const finalAction: Action = { ...action };
-      const currentLocation = getCharLocation(char) || DEFAULT_VALUES.UNKNOWN_LOCATION;
+      const currentLocation = getCharLocation(stat, charId) || DEFAULT_VALUES.UNKNOWN_LOCATION;
 
       // 如果行动没有指定目的地，则默认为角色当前所在地
       if (!finalAction.to) {

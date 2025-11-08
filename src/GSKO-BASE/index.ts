@@ -21,6 +21,7 @@ import { processAffectionForgetting } from './core/affection-forgetting-processo
 import { processAffectionDecisions } from './core/affection-processor';
 import { processArea } from './core/area-processor';
 import { processCharacterLocations } from './core/character-locations-processor';
+import { mentionedCharacterProcessor } from './core/mentioned-character-processor';
 import { processCharacterLog } from './core/character-log-processor';
 import { processCharacterDecisions } from './core/character-processor';
 import { process as processCharacterSettings } from './core/character-settings-processor';
@@ -166,6 +167,14 @@ $(() => {
       });
       currentRuntime = locResult.runtime;
       logState('Character Locations Processor', 'runtime', {
+        stat: currentStat,
+        runtime: currentRuntime,
+        cache: getCache(currentStat),
+      });
+
+      // [被提及角色处理器]：从消息中提取提到的角色，并更新到 runtime
+      currentRuntime = await mentionedCharacterProcessor({ runtime: currentRuntime });
+      logState('Mentioned Character Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,
         cache: getCache(currentStat),

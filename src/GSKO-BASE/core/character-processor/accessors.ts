@@ -15,7 +15,7 @@ export function getChar(stat: Stat, charId: string): Character | undefined {
 }
 
 export function getGlobalAffectionStages(stat: Stat): AffectionStageWithForget[] {
-  return stat.config.affection.affectionStages;
+  return stat.config?.affection?.affectionStages ?? [];
 }
 
 export function getCharAffectionStages(runtime: Runtime, charId: string): AffectionStageWithForget[] | undefined {
@@ -26,8 +26,20 @@ export function getUserLocation(stat: Stat): string {
   return stat.user?.[USER_FIELDS.currentLocation] ?? '';
 }
 
-export function getCharLocation(char: Character): string {
-  return char[CHARACTER_FIELDS.currentLocation] ?? '';
+export function getCharLocation(stat: Stat, charId: string): string {
+  return getChar(stat, charId)?.[CHARACTER_FIELDS.currentLocation] ?? '';
+}
+
+export function getCharLocationPath(charId: string): string {
+  return `chars.${charId}.${CHARACTER_FIELDS.currentLocation}`;
+}
+
+export function getCharGoal(stat: Stat, charId:string): string {
+  return getChar(stat, charId)?.['目标'] ?? '';
+}
+
+export function getCharGoalPath(charId: string): string {
+  return `chars.${charId}.目标`;
 }
 
 export function getCharName(stat: Stat, charId: string): string {

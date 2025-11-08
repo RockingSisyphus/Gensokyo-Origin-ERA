@@ -503,7 +503,8 @@ const RuntimeSchema = external_z_namespaceObject.z.object({
     partitions: external_z_namespaceObject.z.object({
       coLocated: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
       remote: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
-    })
+    }),
+    mentionedCharIds: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
   }).optional(),
   characterLog: external_z_namespaceObject.z.object({}).passthrough().optional(),
   characterSettings: CharacterSettingsMapSchema.optional(),
