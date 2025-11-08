@@ -85,6 +85,7 @@ export interface WriteDonePayload {
     api: boolean;
     /** 是否由 API 写入操作(如 update/insert)触发 */
     apiWrite: boolean;
+    swipedRollback: boolean;
   };
   /** 当前聊天的主干消息密钥链 */
   selectedMks: (string | null)[];

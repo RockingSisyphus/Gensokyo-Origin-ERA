@@ -365,7 +365,7 @@ $(() => {
     (detail: WriteDonePayload) => {
       logger.log('main', '接收到 era:writeDone 事件', detail);
       // 如果是 apiWrite 触发的，说明正在执行写入，避免循环
-      if (detail?.actions?.apiWrite === true) {
+      if (detail?.actions?.apiWrite === true || detail?.actions?.swipedRollback === true) {
         logger.log('onWriteDone', '检测到 apiWrite 标记事件，跳过刷新逻辑');
         return;
       }

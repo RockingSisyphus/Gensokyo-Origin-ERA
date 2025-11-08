@@ -5690,7 +5690,7 @@ $(() => {
   };
   onWriteDone(detail => {
     GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件", detail);
-    if (detail?.actions?.apiWrite === true) {
+    if (detail?.actions?.apiWrite === true || detail?.actions?.swipedRollback === true) {
       GSKO_BASE_logger.log("onWriteDone", "检测到 apiWrite 标记事件，跳过刷新逻辑");
       return;
     }
