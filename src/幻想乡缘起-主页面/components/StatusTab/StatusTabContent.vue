@@ -17,7 +17,7 @@
       <!-- 正文 Tab -->
       <div id="content_main" class="status-tab-content" :class="{ active: activeTab === 'main' }">
         <FontSizeControls :ui-config="fontSizeUiConfig" />
-        <MainContent :message-id="currentMessageId" :refresh-key="mainContentRefreshKey" />
+        <MainContent :latest-message="latestMessage" :refresh-key="mainContentRefreshKey" />
         <div id="main-extra" class="preserve-format"></div>
       </div>
 
@@ -86,10 +86,15 @@ const tabs = [
   { id: 'settings', name: '设置' },
 ];
 const activeTab = ref('main'); // 默认激活 '正文' 选项卡
-const currentMessageId = ref<number | null>(null);
 const mainContentRefreshKey = ref(0);
+const latestMessage = ref<ChatMessage | null>(null);
 
-type StatusTabContext = { statWithoutMeta: Stat; runtime: Runtime | null; messageId?: number | null };
+type StatusTabContext = {
+  statWithoutMeta: Stat;
+  runtime: Runtime | null;
+  messageId?: number | null;
+  latestMessage?: ChatMessage | null;
+};
 const contextRef = ref<StatusTabContext | null>(null);
 
 const statForTabs = computed<Stat | null>(() => contextRef.value?.statWithoutMeta ?? null);
@@ -114,7 +119,8 @@ const switchTab = (tabId: string) => {
 const update = (context: StatusTabContext) => {
   contextRef.value = context;
   const funcName = 'update';
-  const { statWithoutMeta, messageId } = context || {};
+  const { statWithoutMeta, latestMessage: msg } = context || {};
+  latestMessage.value = msg || null;
 
   logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, { context });
 
@@ -128,7 +134,6 @@ const update = (context: StatusTabContext) => {
     hasUiConfig: !!fontSizeUiConfig.value,
   });
 
-  currentMessageId.value = typeof messageId === 'number' ? messageId : null;
   mainContentRefreshKey.value += 1;
 
   // [移植自 index.ts] 调用世界地图组件的更新函数

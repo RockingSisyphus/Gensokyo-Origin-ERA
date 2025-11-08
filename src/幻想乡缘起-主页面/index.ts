@@ -20,6 +20,8 @@ $(() => {
 
   const logger = new Logger();
 
+  let lockedMessageId: number | null = null;
+
   // 监听 GSKO:showUI 事件，用于手动刷新 UI 的入口
   eventOn('GSKO:showUI', (detail: any) => {
     const funcName = 'onShowUI';
@@ -31,6 +33,38 @@ $(() => {
     }
 
     logger.log(funcName, '收到 GSKO:showUI 事件', detail);
+
+    const currentEventMessageId = detail?.message_id;
+
+    // 如果事件没有提供 message_id，则无法继续
+    if (typeof currentEventMessageId !== 'number') {
+      logger.warn(funcName, '事件中未提供有效的 message_id，无法刷新 UI。');
+      return;
+    }
+
+    // 锁定到第一个触发事件的消息 ID
+    if (lockedMessageId === null) {
+      lockedMessageId = currentEventMessageId;
+      logger.log(funcName, `UI 已锁定到 messageId: ${lockedMessageId}`);
+    }
+
+    // 如果后续事件的消息 ID 与锁定的 ID 不匹配，则忽略该事件
+    if (currentEventMessageId !== lockedMessageId) {
+      logger.log(
+        funcName,
+        `事件 messageId (${currentEventMessageId}) 与锁定的 ID (${lockedMessageId}) 不匹配，跳过刷新。`,
+      );
+      return;
+    }
+
+    // 根据锁定的 message_id 获取对应的消息
+    const latestMessage = getChatMessages(lockedMessageId)?.[0];
+
+    // 如果找不到对应的消息，则不刷新
+    if (!latestMessage) {
+      logger.warn(funcName, `无法找到 message_id 为 ${lockedMessageId} 的消息，跳过刷新。`);
+      return;
+    }
 
     // 如果是 apiWrite 触发的，说明正在执行写入，避免循环
     if (detail?.actions?.apiWrite === true) {
@@ -56,8 +90,7 @@ $(() => {
       const parsedStat = StatSchema.parse(statWithoutMeta);
       const parsedRuntime = RuntimeSchema.parse(runtime);
 
-      const messageId = typeof detail?.message_id === 'number' ? detail.message_id : null;
-      const context = { statWithoutMeta: parsedStat, runtime: parsedRuntime, messageId };
+      const context = { statWithoutMeta: parsedStat, runtime: parsedRuntime, messageId: lockedMessageId, latestMessage };
       logger.debug(funcName, '传给各子模块的上下文对象:', context);
 
       // 获取 Vue 组件实例引用

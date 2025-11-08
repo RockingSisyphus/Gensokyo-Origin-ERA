@@ -2079,14 +2079,10 @@ const FontSizeControls = FontSizeControls_exports_;
 
 const MainContentvue_type_script_setup_true_lang_ts_hoisted_1 = [ "innerHTML" ];
 
-const MAX_RETRY = 5;
-
-const RETRY_DELAY_MS = 200;
-
 const MainContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "MainContent",
   props: {
-    messageId: {
+    latestMessage: {
       default: null
     },
     refreshKey: {
@@ -2094,154 +2090,38 @@ const MainContentvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
     }
   },
   setup(__props) {
-    let initialMessageId = null;
     const props = __props;
     const logger = new Logger("StatusTab/MainContent");
     const displayHtml = (0, external_Vue_namespaceObject.ref)("");
-    const lastResolvedMessageId = (0, external_Vue_namespaceObject.ref)(null);
-    const pendingTimer = (0, external_Vue_namespaceObject.ref)(null);
     const CONTENT_REGEX = /<content>\s*(?=[\s\S]*?\S[\s\S]*?<\/content>)((?:(?!<content>)[\s\S])*?)\s*<\/content>/gi;
-    const clearPendingTimer = () => {
-      if (pendingTimer.value !== null) {
-        window.clearTimeout(pendingTimer.value);
-        pendingTimer.value = null;
+    const extractAndDisplayContent = () => {
+      if (!props.latestMessage) {
+        logger.log("extractAndDisplayContent", "传入的 message 为空，清空正文。");
+        displayHtml.value = "";
+        return;
       }
-    };
-    const extractContentChunks = source => {
-      if (!source || typeof source !== "string") {
-        return [];
-      }
+      const {message, message_id} = props.latestMessage;
       const regex = new RegExp(CONTENT_REGEX);
       const matches = [];
       let match;
-      while ((match = regex.exec(source)) !== null) {
+      while ((match = regex.exec(message)) !== null) {
         matches.push(match[1]?.trim() ?? "");
         if (regex.lastIndex === match.index) {
           regex.lastIndex += match[0].length;
         }
       }
-      return matches.filter(chunk => chunk.length > 0);
+      const chunks = matches.filter(chunk => chunk.length > 0);
+      if (chunks.length > 0) {
+        displayHtml.value = chunks.join("\n\n");
+        logger.debug("extractAndDisplayContent", `已刷新正文，来源消息 ID: ${message_id}`);
+      } else {
+        logger.warn("extractAndDisplayContent", `消息 ${message_id} 中未找到 <content> 区块，清空正文。`);
+        displayHtml.value = "";
+      }
     };
-    const getGlobalWithSt = () => window;
-    const getRawMessageText = messageId => {
-      try {
-        const globalWithSt = getGlobalWithSt();
-        const chatArray = globalWithSt.SillyTavern?.chat;
-        const target = Array.isArray(chatArray) ? chatArray[messageId] : null;
-        if (target && typeof target.mes === "string") {
-          return target.mes;
-        }
-      } catch (error) {
-        logger.warn("getRawMessageText", `读取 SillyTavern.chat[${messageId}] 失败。`, error);
-      }
-      return null;
-    };
-    const getRenderedMessageHtml = messageId => {
-      try {
-        const globalWithSt = getGlobalWithSt();
-        const retrieveDisplayedMessage = globalWithSt.retrieveDisplayedMessage;
-        if (typeof retrieveDisplayedMessage === "function") {
-          const result = retrieveDisplayedMessage(messageId);
-          if (result) {
-            if (typeof result.html === "function") {
-              return result.html();
-            }
-            if ("innerHTML" in result && typeof result.innerHTML === "string") {
-              return result.innerHTML;
-            }
-          }
-        }
-      } catch (error) {
-        logger.warn("getRenderedMessageHtml", "retrieveDisplayedMessage 调用失败。", error);
-      }
-      try {
-        const selector = `[data-mid="${messageId}"] .mes_text`;
-        const element = document.querySelector(selector);
-        if (element instanceof HTMLElement) {
-          return element.innerHTML;
-        }
-      } catch (error) {
-        logger.warn("getRenderedMessageHtml", "直接查询 DOM 失败。", error);
-      }
-      return null;
-    };
-    const resolveTargetMessageId = () => {
-      if (typeof props.messageId === "number" && props.messageId >= 0) {
-        return props.messageId;
-      }
-      try {
-        const globalWithSt = getGlobalWithSt();
-        const chatArray = globalWithSt.SillyTavern?.chat;
-        if (Array.isArray(chatArray) && chatArray.length > 0) {
-          return chatArray.length - 1;
-        }
-      } catch (error) {
-        logger.warn("resolveTargetMessageId", "推断最新消息 ID 失败。", error);
-      }
-      return null;
-    };
-    const mergeChunks = chunks => {
-      if (chunks.length === 0) {
-        return "";
-      }
-      return chunks.join("\n\n");
-    };
-    const applyContent = (messageId, chunks) => {
-      displayHtml.value = mergeChunks(chunks);
-      lastResolvedMessageId.value = messageId;
-      logger.debug("applyContent", `已刷新正文，来源消息 ID: ${messageId}`);
-    };
-    const attemptUpdate = (attempt = 1) => {
-      clearPendingTimer();
-      const targetId = resolveTargetMessageId();
-      if (initialMessageId === null && typeof targetId === "number") {
-        initialMessageId = targetId;
-        logger.log("attemptUpdate", `记录首次消息 ID: ${initialMessageId}`);
-      }
-      if (targetId !== initialMessageId) {
-        logger.log("attemptUpdate", `当前消息 ID (${targetId}) 与首次记录的 ID (${initialMessageId}) 不匹配，跳过更新。`);
-        return;
-      }
-      if (targetId === null) {
-        if (attempt < MAX_RETRY) {
-          pendingTimer.value = window.setTimeout(() => attemptUpdate(attempt + 1), RETRY_DELAY_MS);
-        } else {
-          logger.warn("attemptUpdate", "无法确定当前消息 ID，正文内容已清空。");
-          displayHtml.value = "";
-          lastResolvedMessageId.value = null;
-        }
-        return;
-      }
-      const rawMessage = getRawMessageText(targetId);
-      const rawChunks = extractContentChunks(rawMessage);
-      if (rawChunks.length > 0) {
-        applyContent(targetId, rawChunks);
-        return;
-      }
-      const renderedHtml = getRenderedMessageHtml(targetId);
-      const renderedChunks = extractContentChunks(renderedHtml);
-      if (renderedChunks.length > 0) {
-        applyContent(targetId, renderedChunks);
-        return;
-      }
-      if (attempt < MAX_RETRY) {
-        pendingTimer.value = window.setTimeout(() => attemptUpdate(attempt + 1), RETRY_DELAY_MS);
-        return;
-      }
-      logger.warn("attemptUpdate", `消息 ${targetId} 中未找到 <content> 区块，清空正文。`);
-      displayHtml.value = "";
-      lastResolvedMessageId.value = targetId;
-    };
-    const restartUpdateCycle = () => {
-      attemptUpdate(1);
-    };
-    (0, external_Vue_namespaceObject.watch)(() => [ props.messageId, props.refreshKey ], () => {
-      restartUpdateCycle();
-    }, {
-      immediate: true
-    });
-    (0, external_Vue_namespaceObject.onBeforeUnmount)(() => {
-      clearPendingTimer();
+    (0, external_Vue_namespaceObject.watch)(() => [ props.latestMessage, props.refreshKey ], extractAndDisplayContent, {
+      immediate: true,
+      deep: true
     });
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", {
       id: "main-content",
@@ -2292,8 +2172,8 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       name: "设置"
     } ];
     const activeTab = (0, external_Vue_namespaceObject.ref)("main");
-    const currentMessageId = (0, external_Vue_namespaceObject.ref)(null);
     const mainContentRefreshKey = (0, external_Vue_namespaceObject.ref)(0);
+    const latestMessage = (0, external_Vue_namespaceObject.ref)(null);
     const contextRef = (0, external_Vue_namespaceObject.ref)(null);
     const statForTabs = (0, external_Vue_namespaceObject.computed)(() => contextRef.value?.statWithoutMeta ?? null);
     const runtimeForTabs = (0, external_Vue_namespaceObject.computed)(() => contextRef.value?.runtime ?? null);
@@ -2304,7 +2184,8 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     const update = context => {
       contextRef.value = context;
       const funcName = "update";
-      const {statWithoutMeta, messageId} = context || {};
+      const {statWithoutMeta, latestMessage: msg} = context || {};
+      latestMessage.value = msg || null;
       logger.log(funcName, `接收到更新请求，开始更新所有子组件...`, {
         context
       });
@@ -2316,7 +2197,6 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
       logger.debug(funcName, "已同步 FontSizeControls 配置", {
         hasUiConfig: !!fontSizeUiConfig.value
       });
-      currentMessageId.value = typeof messageId === "number" ? messageId : null;
       mainContentRefreshKey.value += 1;
       if (worldMap.value && typeof worldMap.value.update === "function") {
         worldMap.value.update(statWithoutMeta);
@@ -2369,9 +2249,10 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
     }, [ (0, external_Vue_namespaceObject.createVNode)(FontSizeControls, {
       "ui-config": fontSizeUiConfig.value
     }, null, 8, [ "ui-config" ]), (0, external_Vue_namespaceObject.createVNode)(MainContent, {
-      "message-id": currentMessageId.value,
+      "latest-message": latestMessage.value,
       "refresh-key": mainContentRefreshKey.value
-    }, null, 8, [ "message-id", "refresh-key" ]), _cache[0] || (_cache[0] = (0, external_Vue_namespaceObject.createElementVNode)("div", {
+    }, null, 8, [ "latest-message", "refresh-key" ]), _cache[0] || (_cache[0] = (0, 
+    external_Vue_namespaceObject.createElementVNode)("div", {
       id: "main-extra",
       class: "preserve-format"
     }, null, -1)) ], 2), (0, external_Vue_namespaceObject.createCommentVNode)(" 世界 Tab (WorldMap) "), activeTab.value === "status" ? ((0, 
@@ -2414,7 +2295,7 @@ const StatusTabContentvue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-153af6e4" ] ]);
+const StatusTabContent_exports_ = (0, exportHelper.A)(StatusTabContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-f570e67c" ] ]);
 
 const StatusTabContent = StatusTabContent_exports_;
 
@@ -4115,6 +3996,7 @@ $(() => {
   const appInstance = app.mount("#app");
   window.vueApp = appInstance;
   const logger = new Logger("幻想乡缘起-主页面");
+  let lockedMessageId = null;
   eventOn("GSKO:showUI", detail => {
     const funcName = "onShowUI";
     try {
@@ -4123,6 +4005,24 @@ $(() => {
       logContext.mk = "";
     }
     logger.log(funcName, "收到 GSKO:showUI 事件", detail);
+    const currentEventMessageId = detail?.message_id;
+    if (typeof currentEventMessageId !== "number") {
+      logger.warn(funcName, "事件中未提供有效的 message_id，无法刷新 UI。");
+      return;
+    }
+    if (lockedMessageId === null) {
+      lockedMessageId = currentEventMessageId;
+      logger.log(funcName, `UI 已锁定到 messageId: ${lockedMessageId}`);
+    }
+    if (currentEventMessageId !== lockedMessageId) {
+      logger.log(funcName, `事件 messageId (${currentEventMessageId}) 与锁定的 ID (${lockedMessageId}) 不匹配，跳过刷新。`);
+      return;
+    }
+    const latestMessage = getChatMessages(lockedMessageId)?.[0];
+    if (!latestMessage) {
+      logger.warn(funcName, `无法找到 message_id 为 ${lockedMessageId} 的消息，跳过刷新。`);
+      return;
+    }
     if (detail?.actions?.apiWrite === true) {
       logger.log(funcName, "检测到 apiWrite 标记事件，跳过刷新逻辑");
       return;
@@ -4139,11 +4039,11 @@ $(() => {
       }
       const parsedStat = StatSchema.parse(statWithoutMeta);
       const parsedRuntime = RuntimeSchema.parse(runtime);
-      const messageId = typeof detail?.message_id === "number" ? detail.message_id : null;
       const context = {
         statWithoutMeta: parsedStat,
         runtime: parsedRuntime,
-        messageId
+        messageId: lockedMessageId,
+        latestMessage
       };
       logger.debug(funcName, "传给各子模块的上下文对象:", context);
       const {themeToggle, userState, statusBanner, ayaNews, statusTabContent, roleRibbon} = appInstance;
@@ -4234,7 +4134,7 @@ h4[data-v-3e602d5b]{display:flex;align-items:center;font-size:1.1em;color:var(--
 [data-v-5c4294ac] [data-path]{background:rgba(255,247,232,.06);border:1px dashed var(--line);border-radius:8px;padding:10px 12px;margin:10px 0}[data-v-5c4294ac] input[type="text"],[data-v-5c4294ac] input[type="number"],[data-v-5c4294ac] textarea,[data-v-5c4294ac] select{width:100%;background:var(--control-bg);border:1px solid var(--control-border);border-radius:6px;padding:9px 11px;font-size:14px;color:var(--ink);box-shadow:0 1px 0 rgba(0,0,0,.03) inset}[data-v-5c4294ac] input:focus,[data-v-5c4294ac] textarea:focus,[data-v-5c4294ac] select:focus{outline:none;border-color:var(--control-focus);box-shadow:0 0 0 3px color-mix(in srgb,var(--control-focus) 28%,transparent)}[data-v-5c4294ac] input[type="checkbox"]{accent-color:var(--control-focus)}[data-v-5c4294ac] button{cursor:pointer;border:1px solid rgba(0,0,0,0);border-radius:6px;padding:10px 14px;font-weight:700;background:var(--btn-accent);color:#fff;transition:background .2s,box-shadow .2s,border-color .2s,transform .02s}[data-v-5c4294ac] button:hover{background:var(--btn-accent-hover)}[data-v-5c4294ac] button:active{transform:translateY(1px)}[data-v-5c4294ac] .muted-btn{background:var(--btn-muted);color:var(--muted);border-color:var(--btn-muted-border)}[data-v-5c4294ac] .muted-btn:hover{filter:brightness(0.97)}[data-v-5c4294ac] details{border:1px solid var(--line);border-radius:8px;background:var(--paper);margin:10px 0;padding:8px 10px 10px}[data-v-5c4294ac] summary{font-weight:700;color:var(--muted);background:color-mix(in srgb,var(--paper) 88%,black 0%);border-radius:6px;padding:6px 8px;cursor:pointer;-webkit-user-select:none;user-select:none}[data-v-5c4294ac] details[open]>summary{background:color-mix(in srgb,var(--paper) 78%,black 0%)}[data-v-5c4294ac] #cfg_status{display:inline-flex;align-items:center;gap:6px;padding:2px 10px;border:1px solid color-mix(in srgb,var(--control-focus) 35%,white 65%);background:color-mix(in srgb,var(--control-focus) 10%,white 90%);color:color-mix(in srgb,var(--control-focus) 70%,black 30%);border-radius:999px;font-weight:700;line-height:1.8}
 #content_incidents h4[data-v-1096b2f8]{display:flex;align-items:center;margin:0 0 15px;padding-bottom:10px;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#content_incidents .emoji[data-v-1096b2f8]{font-size:1em;line-height:1;margin-right:8px}#incident-toolbar[data-v-1096b2f8]{margin-bottom:15px}.debug-select[data-v-1096b2f8],.debug-switch[data-v-1096b2f8]{display:flex;align-items:center;gap:6px;font-size:.9em;padding:4px 8px;border:1px dashed var(--line);border-radius:6px;background:color-mix(in srgb,var(--paper) 50%,var(--bg) 50%)}:root[data-theme="dark"],:root[data-theme="dark"]{background:hsla(0,0%,100%,.05)}.incident-list[data-v-1096b2f8]{display:flex;flex-direction:column;gap:12px}.incident-list[data-v-1096b2f8] .role-card{background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:var(--pad);overflow:hidden}.incident-list[data-v-1096b2f8] .role-card .role-card-header{display:flex;align-items:center;gap:10px;margin-bottom:8px;padding-bottom:8px;border-bottom:1px dashed var(--line)}.incident-list[data-v-1096b2f8] .role-card .role-avatar{width:40px;height:40px;border-radius:50%;border:1px solid var(--line);background:var(--avatar-bg);display:grid;place-items:center;font-weight:700;color:var(--muted)}.incident-list[data-v-1096b2f8] .role-card .role-name{font-weight:700}.incident-list[data-v-1096b2f8] .role-card .role-meta{font-size:.85em;color:var(--muted)}.incident-list[data-v-1096b2f8] .role-card .role-line{margin:6px 0;font-size:.9em}
 .font-size-controls[data-v-b1dba0d6]{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}.font-size-btn[data-v-b1dba0d6]{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}
-.status-tabs[data-v-153af6e4]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-153af6e4]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-153af6e4]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-153af6e4]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-153af6e4]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-153af6e4]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-153af6e4]{padding:15px}}[data-v-153af6e4] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-153af6e4] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-153af6e4] .incident-list{display:flex;flex-direction:column;gap:12px}
+.status-tabs[data-v-f570e67c]{display:flex;gap:8px;border-bottom:1px solid var(--line);background:var(--paper);padding:0 15px;overflow:auto hidden;-webkit-overflow-scrolling:touch;scroll-snap-type:x proximity}.status-tabs button[data-v-f570e67c]{padding:12px 16px;cursor:pointer;font-size:.95em;color:var(--muted);border:none;background:none;border-bottom:3px solid rgba(0,0,0,0);margin-bottom:-1px;flex:0 0 auto;scroll-snap-align:start}.status-tabs button.active[data-v-f570e67c]{color:var(--ink);border-bottom-color:var(--tab-active);font-weight:700}.status-tab-content-area[data-v-f570e67c]{flex:1;overflow:auto;padding:20px}.status-tab-content[data-v-f570e67c]{display:none;line-height:1.6;font-size:.95em}.status-tab-content.active[data-v-f570e67c]{display:block}:root[data-theme="dark"]{color:var(--muted)}:root[data-theme="dark"]{color:var(--ink)}@media (max-width:768px){.status-tab-content-area[data-v-f570e67c]{padding:15px}}[data-v-f570e67c] .font-size-controls{display:flex;justify-content:flex-end;gap:6px;margin-bottom:10px}[data-v-f570e67c] .font-size-btn{width:28px;height:28px;border:1px solid var(--line);background:var(--paper);border-radius:4px;cursor:pointer;font-weight:700}[data-v-f570e67c] .incident-list{display:flex;flex-direction:column;gap:12px}
 .aya-news-button-closed[data-v-b15bd7b0]{padding:8px 12px;border:1px solid var(--line);border-radius:4px;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%}.aya-news-button-closed[data-v-b15bd7b0]:hover{background-color:var(--paper)}
 .aya-news-button-open[data-v-4b56fc8f]{padding:12px 14px;border:1px solid var(--line);border-bottom-left-radius:0;border-bottom-right-radius:0;background-color:var(--bg);color:var(--ink);cursor:pointer;width:100%;box-shadow:0 2px 0 var(--line) inset;transition:padding .15s ease}.aya-news-button-open[data-v-4b56fc8f]:hover{background-color:var(--paper)}
 .aya-news-popup[data-v-08972433]{width:100%;max-height:60vh;overflow:auto;padding:16px 20px;background:var(--paper);border:1px solid var(--line);border-top:none;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:0 8px 16px rgba(0,0,0,.05);display:flex;flex-direction:column;gap:10px}#aya-news-popup h4[data-v-08972433]{display:flex;align-items:center;height:var(--duo-head-h);margin:0 0 10px;padding:0;line-height:1;font-size:1.1em;color:var(--muted);border-bottom:1px solid var(--line)}#aya-news-popup h4 .emoji[data-v-08972433]{font-size:1em;line-height:1;display:inline-grid;place-items:center;width:1.25em;height:1.25em;margin-right:8px}.news-body[data-v-08972433]{flex:1 1 auto;min-height:0;background:var(--bg);border:1px solid var(--line);border-radius:6px;padding:10px;overflow:auto;white-space:normal;overflow-wrap:anywhere;word-break:break-word}
