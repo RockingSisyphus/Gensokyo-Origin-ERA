@@ -33,7 +33,11 @@
               <button type="button" class="ghost-btn" @click.prevent="addAffectionStage">新增阶段</button>
             </summary>
             <p v-if="!editableSettings.affectionStages.length" class="empty-hint">暂无阶段。</p>
-            <details v-for="(stage, index) in editableSettings.affectionStages" :key="`stage-${index}`" class="card collapsible-section">
+            <details
+              v-for="(stage, index) in editableSettings.affectionStages"
+              :key="`stage-${index}`"
+              class="card collapsible-section"
+            >
               <summary class="card__header">
                 <div>
                   <h4>{{ stage.name || `阶段 ${index + 1}` }}</h4>
@@ -171,10 +175,18 @@
               <button type="button" class="ghost-btn" @click.prevent="addEntry('specials')">新增特殊行动</button>
             </summary>
             <p v-if="!editableSettings.specials.length" class="empty-hint">暂无特殊行动。</p>
-            <details v-for="(entry, index) in editableSettings.specials" :key="`special-${index}`" class="card collapsible-section">
+            <details
+              v-for="(entry, index) in editableSettings.specials"
+              :key="`special-${index}`"
+              class="card collapsible-section"
+            >
               <summary class="card__header">
                 <h4>{{ entry.action.do || `特殊行动 ${index + 1}` }}</h4>
-                <button type="button" class="ghost-btn ghost-btn--danger" @click.prevent="removeEntry('specials', index)">
+                <button
+                  type="button"
+                  class="ghost-btn ghost-btn--danger"
+                  @click.prevent="removeEntry('specials', index)"
+                >
                   移除
                 </button>
               </summary>
@@ -194,10 +206,18 @@
               <button type="button" class="ghost-btn" @click.prevent="addEntry('routine')">新增日常行动</button>
             </summary>
             <p v-if="!editableSettings.routine.length" class="empty-hint">暂无日常行动。</p>
-            <details v-for="(entry, index) in editableSettings.routine" :key="`routine-${index}`" class="card collapsible-section">
+            <details
+              v-for="(entry, index) in editableSettings.routine"
+              :key="`routine-${index}`"
+              class="card collapsible-section"
+            >
               <summary class="card__header">
                 <h4>{{ entry.action.do || `日常行动 ${index + 1}` }}</h4>
-                <button type="button" class="ghost-btn ghost-btn--danger" @click.prevent="removeEntry('routine', index)">
+                <button
+                  type="button"
+                  class="ghost-btn ghost-btn--danger"
+                  @click.prevent="removeEntry('routine', index)"
+                >
                   移除
                 </button>
               </summary>
@@ -217,7 +237,9 @@
         </div>
 
         <footer class="role-settings-modal__footer">
-          <button type="button" class="ghost-btn" :disabled="!editableSettings" @click="exportSettings">导出 JSON</button>
+          <button type="button" class="ghost-btn" :disabled="!editableSettings" @click="exportSettings">
+            导出 JSON
+          </button>
           <span class="footer-spacer"></span>
           <button type="button" class="ghost-btn" @click="emitClose">取消</button>
           <button type="button" class="primary-btn" :disabled="!editableSettings" @click="handleSave">保存</button>
@@ -239,12 +261,7 @@ import type {
   ForgettingRule,
 } from '../../../GSKO-BASE/schema/character-settings';
 import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import {
-  formatFlagLabel,
-  TIME_UNIT_OPTIONS,
-  TRIGGER_FLAG_OPTIONS,
-  isTriggerFlag,
-} from './character-settings-helpers';
+import { formatFlagLabel, TIME_UNIT_OPTIONS, TRIGGER_FLAG_OPTIONS, isTriggerFlag } from './character-settings-helpers';
 
 type EntryListKey = 'specials' | 'routine';
 

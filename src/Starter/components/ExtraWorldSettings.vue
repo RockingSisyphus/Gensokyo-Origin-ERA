@@ -43,11 +43,7 @@ onMounted(() => {
       :disabled="isLoading"
     ></textarea>
     <div class="mt-2 flex justify-end gap-2">
-      <button
-        class="muted-btn"
-        :disabled="isLoading || isSaving"
-        @click="loadExtra"
-      >
+      <button class="muted-btn" :disabled="isLoading || isSaving" @click="loadExtra">
         {{ isLoading ? '载入中...' : '从世界书载入' }}
       </button>
       <button :disabled="isLoading || isSaving" @click="saveExtra">

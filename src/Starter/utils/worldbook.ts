@@ -73,13 +73,9 @@ export async function writeToWorldbook(entryName: string, content: string): Prom
       logger.log(funcName, `条目 "${entryName}" 已更新。`);
     } else {
       // 创建新条目
-      await createWorldbookEntries(
-        worldbookName,
-        [{ name: entryName, content, enabled: true }],
-        {
-          render: 'immediate',
-        },
-      );
+      await createWorldbookEntries(worldbookName, [{ name: entryName, content, enabled: true }], {
+        render: 'immediate',
+      });
       logger.log(funcName, `条目 "${entryName}" 已创建并保存。`);
     }
   } catch (error: any) {
