@@ -47,7 +47,20 @@
               <h2 class="location-name">{{ selectedMarker.name }}</h2>
               <button class="close-btn" @click="selectedMarker = null">×</button>
             </div>
-            <div class="dialog-content" v-html="selectedMarker.htmlEle"></div>
+            <div class="dialog-content">
+              <div v-if="charactersInSelectedLocation.length > 0" class="npc-list">
+                <div
+                  v-for="npc in charactersInSelectedLocation"
+                  :key="npc.id"
+                  class="npc-item"
+                  @click="openRoleDetailPopup(npc)"
+                >
+                  <span class="npc-name">{{ npc.name }}：</span>
+                  <span class="npc-target">{{ npc['目标'] || '未知' }}</span>
+                </div>
+              </div>
+              <div v-else class="empty-location">空无一人</div>
+            </div>
           </div>
         </div>
 
@@ -64,10 +77,18 @@
         ></div>
       </div>
     </div>
+    <RoleDetailPopup
+      v-if="showRoleDetailPopup"
+      :character="selectedCharacterForPopup"
+      :stat-without-meta="props.context.statWithoutMeta"
+      :runtime="props.context.runtime"
+      @close="showRoleDetailPopup = false"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
+import RoleDetailPopup from '../common/RoleDetailPopup/RoleDetailPopup.vue';
 import { MapMarker, MapState, Road } from './Map';
 
 // 定义 props
@@ -183,33 +204,33 @@ let mapState = ref<MapState>({
 
 let selectedMarker = ref<MapMarker | null>(null);
 let hoverMarker = ref<string | null>(null);
+const charactersInSelectedLocation = ref<any[]>([]);
+const showRoleDetailPopup = ref(false);
+const selectedCharacterForPopup = ref<any | null>(null);
+
+function openRoleDetailPopup(character: any) {
+  selectedCharacterForPopup.value = character;
+  showRoleDetailPopup.value = true;
+}
 
 function selectLocation(markerData: MapMarker) {
   // 点击相同地点关闭弹出
   if (markerData.name === selectedMarker.value?.name) {
     selectedMarker.value = null;
+    charactersInSelectedLocation.value = [];
     return;
   }
 
   const npcIdList = props.context?.runtime?.characterDistribution?.npcByLocation?.[markerData.name];
-  let htmlEle = '';
   if (npcIdList) {
-    const npcList = npcIdList.map((id: string) => {
-      return props.context.statWithoutMeta.chars[id];
+    charactersInSelectedLocation.value = npcIdList.map((id: string) => {
+      return { ...props.context.statWithoutMeta.chars[id], id };
     });
-    htmlEle = '<div class="npc-list">';
-    npcList.map((npc: any) => {
-      htmlEle += `<div class="npc-item">
-        <span class="npc-name">${npc.name}：</span>
-        <span class="npc-target">${npc['目标'] || '未知'}</span>
-      </div>`;
-    });
-    htmlEle += '</div>';
   } else {
-    htmlEle = '<div class="empty-location">空无一人</div>';
+    charactersInSelectedLocation.value = [];
   }
 
-  selectedMarker.value = { ...markerData, htmlEle };
+  selectedMarker.value = { ...markerData, htmlEle: '' }; // htmlEle is no longer needed
 }
 
 onMounted(() => {
@@ -638,6 +659,7 @@ onMounted(() => {
         background: rgba(0, 0, 0, 0.03);
         border-radius: 6px;
         transition: background 0.2s ease;
+        cursor: pointer;
 
         &:hover {
           background: rgba(0, 0, 0, 0.06);
