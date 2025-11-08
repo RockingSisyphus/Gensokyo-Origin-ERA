@@ -1,8 +1,10 @@
 <script setup lang="ts">
-import { ref, watch, onMounted, type Ref } from 'vue';
-import { z } from 'zod';
-import { UserSchema } from '../../GSKO-BASE/schema/user';
 import { cloneDeep } from 'lodash';
+import { computed, ref, watch, type Ref } from 'vue';
+import { z } from 'zod';
+import { RuntimeSchema } from '../../GSKO-BASE/schema/runtime';
+import { UserSchema } from '../../GSKO-BASE/schema/user';
+import { updateEraVariable } from '../utils/eraWriter';
 
 type UserData = z.infer<typeof UserSchema>;
 
@@ -23,12 +25,29 @@ const getDefaultUserData = (): UserData => ({
 });
 
 const userData: Ref<UserData> = ref(getDefaultUserData());
-const places = ref<string[]>([]);
 const otherGender = ref('');
+
+// 从 props.detail 解析出 runtime 对象
+const parsedRuntime = computed(() => {
+  if (!props.detail || !props.detail.runtime) return null;
+  const parseResult = RuntimeSchema.safeParse(props.detail.runtime);
+  if (parseResult.success) {
+    return parseResult.data;
+  }
+  console.error('CharacterProfile: 解析 runtime 数据失败', parseResult.error);
+  return null;
+});
+
+// 从 runtime.area.legal_locations 提取地点列表
+const legalLocations = computed(() => {
+  const locations = parsedRuntime.value?.area?.legal_locations;
+  if (!locations) return [];
+  return locations.map(loc => loc.name).sort((a, b) => a.localeCompare(b, 'zh-Hans'));
+});
 
 watch(
   () => props.detail,
-  (newDetail) => {
+  newDetail => {
     if (newDetail && newDetail.statWithoutMeta && newDetail.statWithoutMeta.user) {
       const result = UserSchema.safeParse(newDetail.statWithoutMeta.user);
       if (result.success) {
@@ -47,37 +66,6 @@ watch(
   },
   { immediate: true, deep: true },
 );
-
-// ===== 地点加载逻辑 (重构后) =====
-async function loadPlaces() {
-  try {
-    // 这部分逻辑暂时保留，因为它依赖全局变量和函数
-    const cfg = (window as any).__MVU_CONFIG__ || (await (window as any).__MVU_LORE__?.loadConfig?.());
-    const lore = cfg?.map?.lorebook || '幻想乡缘起MVU';
-    const comment = cfg?.map?.comment || 'map_graph';
-    const obj = await (window as any).__MVU_LORE__?.getJSON?.(lore, { comment });
-    const tree = obj?.tree && typeof obj.tree === 'object' ? obj.tree : null;
-    if (!tree) return;
-
-    const leaves: string[] = [];
-    const visit = (node: any) => {
-      if (Array.isArray(node)) {
-        for (const v of node) {
-          if (typeof v === 'string') leaves.push(v);
-          else if (v && typeof v === 'object') Object.values(v).forEach(visit);
-        }
-      } else if (node && typeof node === 'object') {
-        for (const k of Object.keys(node)) visit(node[k]);
-      } else if (typeof node === 'string') {
-        leaves.push(node);
-      }
-    };
-    visit(tree);
-    places.value = Array.from(new Set(leaves)).sort((a, b) => a.localeCompare(b, 'zh-Hans'));
-  } catch (e) {
-    console.error('【地点/加载】异常：', e);
-  }
-}
 
 // ===== 填充示例 (重构后) =====
 function fillDemo() {
@@ -105,7 +93,7 @@ async function writeUserToMVU() {
   }
 
   const userObj = {
-    姓名: finalUserData.姓名 || '{{user}}',
+    姓名: finalUserData.姓名 || '主角',
     性别: finalUserData.性别 || '未知',
     年龄: finalUserData.年龄 ? String(finalUserData.年龄) : '未知',
     人际关系: finalUserData.人际关系 || '暂无',
@@ -116,42 +104,15 @@ async function writeUserToMVU() {
     重要经历: finalUserData.重要经历 || '因为未知的原因，来到了幻想乡',
   };
 
-  const writer = (v: any) => {
-    v = v || {};
-    v.stat_data = v.stat_data && typeof v.stat_data === 'object' ? v.stat_data : {};
-    v.stat_data.user = userObj;
-    // 镜像逻辑保持不变
-    const mirror =
-      typeof (window as any).__MVU_CONFIG__?.featureFlags?.mirrorDisplay === 'boolean'
-        ? (window as any).__MVU_CONFIG__.featureFlags.mirrorDisplay
-        : true;
-    if (mirror) {
-      v.display_data = v.display_data && typeof v.display_data === 'object' ? v.display_data : {};
-      v.display_data.user = userObj;
-    }
-    return v;
-  };
-
   try {
-    // API 调用逻辑保持不变
-    if (typeof updateVariablesWith === 'function') {
-      await updateVariablesWith(writer, { type: 'message', message_id: 'latest' });
-      alert('角色数据写入成功！');
-    } else {
-      alert('写入失败：找不到 updateVariablesWith 函数。');
+    for (const [key, value] of Object.entries(userObj)) {
+      updateEraVariable(`user.${key}`, value);
     }
+    alert('角色数据已发送更新请求！');
   } catch (e) {
     alert('【开局/写回】异常：' + String(e));
   }
 }
-
-onMounted(() => {
-  // 监听配置加载完成事件来加载地点
-  document.addEventListener('mvu:config-ready', loadPlaces);
-  if ((window as any).__MVU_CONFIG__) {
-    loadPlaces();
-  }
-});
 </script>
 
 <template>
@@ -173,12 +134,7 @@ onMounted(() => {
           <label class="inline"><input v-model="userData.性别" type="radio" name="u_gender" value="男" /> 男</label>
           <label class="inline"><input v-model="userData.性别" type="radio" name="u_gender" value="女" /> 女</label>
           <label class="inline"><input v-model="userData.性别" type="radio" name="u_gender" value="其他" /> 其他</label>
-          <input
-            v-if="userData.性别 === '其他'"
-            v-model="otherGender"
-            type="text"
-            placeholder="选择“其他”时可填写"
-          />
+          <input v-if="userData.性别 === '其他'" v-model="otherGender" type="text" placeholder="选择“其他”时可填写" />
         </div>
       </div>
       <div>
@@ -192,14 +148,14 @@ onMounted(() => {
         <label for="u_home">居住地区</label>
         <select id="u_home" v-model="userData.居住地区">
           <option value="" disabled>— 请选择 —</option>
-          <option v-for="place in places" :key="place" :value="place">{{ place }}</option>
+          <option v-for="place in legalLocations" :key="place" :value="place">{{ place }}</option>
         </select>
       </div>
       <div>
         <label for="u_current">所在地区</label>
         <select id="u_current" v-model="userData.所在地区">
           <option value="" disabled>— 请选择 —</option>
-          <option v-for="place in places" :key="place" :value="place">{{ place }}</option>
+          <option v-for="place in legalLocations" :key="place" :value="place">{{ place }}</option>
         </select>
       </div>
     </div>
@@ -207,7 +163,12 @@ onMounted(() => {
     <div class="grid">
       <div>
         <label for="u_relationships">人际关系</label>
-        <input id="u_relationships" v-model="userData.人际关系" type="text" placeholder="如：与灵梦相识 / 与魔理沙偶遇" />
+        <input
+          id="u_relationships"
+          v-model="userData.人际关系"
+          type="text"
+          placeholder="如：与灵梦相识 / 与魔理沙偶遇"
+        />
       </div>
       <div>
         <label for="u_ability">特殊能力</label>
@@ -220,7 +181,7 @@ onMounted(() => {
     </div>
 
     <div class="btn-bar">
-      <button @click="writeUserToMVU">写入角色到 MVU 变量</button>
+      <button @click="writeUserToMVU">将角色设置写入变量</button>
       <button class="muted-btn" @click="fillDemo">填充示例</button>
     </div>
   </div>

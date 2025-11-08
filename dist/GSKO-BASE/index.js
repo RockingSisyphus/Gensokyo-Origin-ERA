@@ -3740,7 +3740,7 @@ function buildPrompt({runtime, stat}) {
   }
   prompts.push("**为了提高你编写的剧情的沉浸感，请参考以上内容编写最新剧情。**");
   prompts.push("</沉浸感核心>");
-  prompts.push("<本轮需更新的ERA变量>");
+  prompts.push("<本轮**必须**更新的ERA变量>");
   prompts.push("**以下是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**");
   const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
   if (ayaNewsPrompt) {
@@ -3772,7 +3772,7 @@ function buildPrompt({runtime, stat}) {
     prompts.push(coLocatedCharactersPrompt);
   }
   prompts.push("**以上是你应当在本轮参照ERA变量更新规则更新的变量及其结构。**");
-  prompts.push("</本轮需更新的ERA变量>");
+  prompts.push("</本轮**必须**更新的ERA变量>");
   const finalPrompt = prompts.join("\n\n");
   prompt_builder_logger.debug(funcName, "提示词构建完毕。");
   return finalPrompt;

@@ -1,36 +1,31 @@
 <script setup lang="ts">
-import { computed, ref, watch } from 'vue';
-import { StatSchema } from '../../GSKO-BASE/schema/stat';
+import { ref, onMounted } from 'vue';
+import { readFromWorldbook, writeToWorldbook } from '../utils/worldbook';
 
-const props = defineProps<{
-  detail: any;
-}>();
+const ENTRY_NAME = '额外世界设定';
 
-// 用于 v-model 的响应式变量
 const extraLore = ref('');
+const isLoading = ref(false);
+const isSaving = ref(false);
 
-// 从 props.detail 解析出 stat 对象
-const parsedStat = computed(() => {
-  if (!props.detail || !props.detail.statWithoutMeta) return null;
-  const parseResult = StatSchema.safeParse(props.detail.statWithoutMeta);
-  if (parseResult.success) {
-    return parseResult.data;
+async function loadExtra() {
+  isLoading.value = true;
+  const content = await readFromWorldbook(ENTRY_NAME);
+  if (content !== null) {
+    extraLore.value = content;
   }
-  console.error('ExtraWorldSettings: 解析 stat 数据失败', parseResult.error);
-  return null;
+  isLoading.value = false;
+}
+
+async function saveExtra() {
+  isSaving.value = true;
+  await writeToWorldbook(ENTRY_NAME, extraLore.value);
+  isSaving.value = false;
+}
+
+onMounted(() => {
+  loadExtra();
 });
-
-// 监听解析后的 stat 对象，并更新本地的 ref
-watch(
-  parsedStat,
-  (newStat) => {
-    // "附加正文" 字段用于存放额外世界设定
-    extraLore.value = newStat?.附加正文 ?? '';
-  },
-  { immediate: true, deep: true },
-);
-
-// 注意：保存逻辑已移除，因为该组件现在只负责显示。
 </script>
 
 <template>
@@ -45,10 +40,19 @@ watch(
       class="mt-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
       rows="4"
       placeholder="在此编写你的自定义幻想乡额外设定。建议以‘【额外世界设定】’开头，比如：【额外世界设定】幻想乡的大家都变得像灵梦一样贫穷了！"
+      :disabled="isLoading"
     ></textarea>
     <div class="mt-2 flex justify-end gap-2">
-      <button class="muted-btn cursor-not-allowed opacity-50" disabled>从世界书载入</button>
-      <button class="cursor-not-allowed opacity-50" disabled>保存到世界书</button>
+      <button
+        class="muted-btn"
+        :disabled="isLoading || isSaving"
+        @click="loadExtra"
+      >
+        {{ isLoading ? '载入中...' : '从世界书载入' }}
+      </button>
+      <button :disabled="isLoading || isSaving" @click="saveExtra">
+        {{ isSaving ? '保存中...' : '保存到世界书' }}
+      </button>
     </div>
   </div>
 </template>
