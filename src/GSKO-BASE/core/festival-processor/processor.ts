@@ -50,10 +50,7 @@ export function processFestival({ runtime, stat }: { runtime: Runtime; stat: Sta
       logger.debug(funcName, '节日列表为空，写入默认节日信息。');
       return { festival: defaultFestivalInfo };
     }
-    logger.debug(
-      funcName,
-      `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${Object.keys(festivalList).length}`,
-    );
+    logger.debug(funcName, `日期: ${currentMonth}/${currentDay}，节日列表条目数: ${Object.keys(festivalList).length}`);
 
     // ---------- 2. 判定今日是否在节日内 ----------
     let todayFest: (typeof festivalList)[string] | null = null;
