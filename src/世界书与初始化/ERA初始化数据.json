@@ -1026,7 +1026,7 @@
       "necessary": "all",
       "updatable": true
     },
-    "timeProgress": 400
+    "timeProgress": 0
   },
   "cache": {
     "time": {
