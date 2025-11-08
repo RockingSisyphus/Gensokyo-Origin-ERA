@@ -1,0 +1,449 @@
+{
+  "tewi": {
+    "name": "因幡帝",
+    "好感度": 15,
+    "所在地区": "迷途竹林",
+    "居住地区": "永远亭",
+
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "四处打探，指挥兔子们",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "回永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "指挥兔子们打理竹林",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "回永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "在竹林里挖陷阱",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "回永远亭睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "永远亭"
+        }
+      }
+    ],
+    "目标": "寻找有趣的恶作剧"
+  },
+  "reisen": {
+    "name": "铃仙·优昙华院·因幡",
+    "好感度": 15,
+    "所在地区": "永远亭",
+    "居住地区": "永远亭",
+
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周五"
+          }
+        },
+        "priority": 5,
+        "action": {
+          "do": "出去采集药材",
+          "to": "魔法之森"
+        }
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "去睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "在永远亭处理杂务",
+          "to": "永远亭"
+        }
+      }
+    ],
+    "目标": "完成永琳师匠交待的任务"
+  },
+  "eirin": {
+    "name": "八意永琳",
+    "好感度": 10,
+    "所在地区": "永远亭",
+    "居住地区": "永远亭",
+
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "去睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "制作药物或进行研究",
+          "to": "永远亭"
+        }
+      }
+    ],
+    "目标": "守护辉夜，享受幻想乡的生活"
+  },
+  "kaguya": {
+    "name": "蓬莱山辉夜",
+    "好感度": 10,
+    "所在地区": "永远亭",
+    "居住地区": "永远亭",
+
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日"
+          }
+        },
+        "priority": 10,
+        "action": {
+          "do": "和妹红去人间之里玩",
+          "to": "人间之里"
+        }
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "在永远亭吃饭",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "去睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "永远亭"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "在房间里悠闲度日",
+          "to": "永远亭"
+        }
+      }
+    ],
+    "目标": "寻找有趣的事情打发时间"
+  },
+  "mokou": {
+    "name": "藤原妹红",
+    "好感度": 15,
+    "所在地区": "迷途竹林",
+    "居住地区": "迷途竹林",
+
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日"
+          }
+        },
+        "priority": 10,
+        "action": {
+          "do": "带辉夜去人间之里玩",
+          "to": "人间之里"
+        }
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "寻找食物",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "寻找食物",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "去找辉夜挑事",
+          "to": "人间之里"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "去睡觉",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "迷途竹林"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "在竹林中巡逻",
+          "to": "迷途竹林"
+        }
+      }
+    ],
+    "目标": "漫无目的"
+  }
+}

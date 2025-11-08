@@ -4960,9 +4960,9 @@ const IncidentConfigSchema = external_z_namespaceObject.z.object({
   cooldownMinutes: external_z_namespaceObject.z.number(),
   forceTrigger: external_z_namespaceObject.z.boolean(),
   isRandomPool: external_z_namespaceObject.z.boolean(),
-  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
-  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()),
-  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string())
+  pool: external_z_namespaceObject.z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)).optional(),
+  randomCore: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
+  randomType: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
 });
 
 const FlagHistoryLimitSchema = external_z_namespaceObject.z.number().int().min(0);
@@ -5015,7 +5015,7 @@ const AffectionConfigSchema = external_z_namespaceObject.z.object({
 });
 
 const ConfigSchema = external_z_namespaceObject.z.object({
-  affection: AffectionConfigSchema,
+  affection: AffectionConfigSchema.optional(),
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
   time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
@@ -5090,7 +5090,7 @@ async function processWorldBookConfigs({stat}) {
     let mergedCount = 0;
     for (const [tagName, configContent] of Object.entries(configsByTag)) {
       const tempStat = external_default().cloneDeep(finalStat);
-      external_default().merge(tempStat, {
+      external_default().defaultsDeep(tempStat, {
         [tagName]: configContent
       });
       const parseResult = StatSchema.safeParse(tempStat);

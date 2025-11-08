@@ -50,7 +50,8 @@ export async function processWorldBookConfigs({ stat }: { stat: Stat }): Promise
     // 逐个验证并合并每个标签的配置
     for (const [tagName, configContent] of Object.entries(configsByTag)) {
       const tempStat = _.cloneDeep(finalStat);
-      _.merge(tempStat, { [tagName]: configContent });
+      // 使用 defaultsDeep 来实现深层默认值填充，而不是覆盖
+      _.defaultsDeep(tempStat, { [tagName]: configContent });
 
       const parseResult = StatSchema.safeParse(tempStat);
 

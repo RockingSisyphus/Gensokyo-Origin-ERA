@@ -1,0 +1,273 @@
+{
+  "chen": {
+    "name": "橙",
+    "好感度": 15,
+    "所在地区": "迷途之家",
+    "居住地区": "迷途之家",
+
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "在附近玩耍",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "寻找食物",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "训练野猫们",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "寻找食物",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "回家睡觉",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "迷途之家"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "迷途之家"
+        }
+      }
+    ],
+    "目标": "帮上蓝大人的忙"
+  },
+  "ran": {
+    "name": "八云蓝",
+    "好感度": 20,
+    "所在地区": "艮之境",
+    "居住地区": "艮之境",
+
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日"
+          }
+        },
+        "priority": 10,
+        "action": {
+          "do": "去神社检查大结界",
+          "to": "博丽神社"
+        }
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "醒来",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "做饭并吃饭",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "做饭并吃饭",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "去睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "用数学消遣或处理家务",
+          "to": "艮之境"
+        }
+      }
+    ],
+    "目标": "维持八云家的正常运转"
+  },
+  "yukari": {
+    "name": "八云紫",
+    "好感度": 10,
+    "所在地区": "艮之境",
+    "居住地区": "艮之境",
+
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "在家吃饭",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "在家吃饭",
+          "to": "艮之境"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["newPeriod"]
+        },
+        "action": {
+          "do": "通过隙间观察幻想乡",
+          "to": "艮之境"
+        }
+      }
+    ],
+    "目标": "维持幻想乡的平衡与存续"
+  }
+}

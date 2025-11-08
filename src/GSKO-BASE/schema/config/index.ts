@@ -17,9 +17,9 @@ export const IncidentConfigSchema = z.object({
   cooldownMinutes: z.number(),
   forceTrigger: z.boolean(),
   isRandomPool: z.boolean(),
-  pool: z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)),
-  randomCore: z.array(z.string()),
-  randomType: z.array(z.string()),
+  pool: z.array(PreprocessStringifiedObject(IncidentPoolItemSchema)).optional(),
+  randomCore: z.array(z.string()).optional(),
+  randomType: z.array(z.string()).optional(),
 });
 export type IncidentConfig = z.infer<typeof IncidentConfigSchema>;
 
@@ -103,7 +103,7 @@ export type AffectionConfig = z.infer<typeof AffectionConfigSchema>;
 // --- Aggregated Config Schema ---
 export const ConfigSchema = z
   .object({
-    affection: AffectionConfigSchema,
+    affection: AffectionConfigSchema.optional(),
     specials: EntryListPreprocessSchema.default([]),
     routine: EntryListPreprocessSchema.default([]),
     time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),

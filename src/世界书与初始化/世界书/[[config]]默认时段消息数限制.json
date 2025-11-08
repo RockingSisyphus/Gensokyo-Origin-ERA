@@ -1,0 +1,28 @@
+{
+  "time": {
+    "flagHistoryLimits": {
+      "newPeriod": 12,
+      "newDay": 72,
+      "newWeek": 120,
+      "newMonth": 240,
+      "newSeason": 360,
+      "newYear": 400,
+      "period": {
+        "newDawn": 72,
+        "newMorning": 72,
+        "newNoon": 72,
+        "newAfternoon": 72,
+        "newDusk": 72,
+        "newNight": 72,
+        "newFirstHalfNight": 72,
+        "newSecondHalfNight": 72
+      },
+      "season": {
+        "newSpring": 400,
+        "newSummer": 400,
+        "newAutumn": 400,
+        "newWinter": 400
+      }
+    }
+  }
+}
