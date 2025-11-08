@@ -5071,7 +5071,8 @@ async function processWorldBookConfigs({stat}) {
   try {
     const worldBookEntries = await getWorldbook(primaryWorldbookName);
     const taggedEntries = worldBookEntries.filter(entry => TAG_REGEX.test(entry.name));
-    const configsByTag = taggedEntries.reduce((acc, entry) => {
+    const sortedEntries = external_default().sortBy(taggedEntries, entry => entry.position.order);
+    const configsByTag = sortedEntries.reduce((acc, entry) => {
       const match = entry.name.match(TAG_REGEX);
       if (!match) return acc;
       const tagName = match[1];

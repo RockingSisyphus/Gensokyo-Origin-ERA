@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <Teleport to="body">
     <div v-if="open" class="role-settings-modal">
       <div class="role-settings-modal__backdrop" @click="emitClose"></div>
@@ -250,17 +250,18 @@
 </template>
 
 <script setup lang="ts">
-import { cloneDeep } from 'lodash';
 import type { PropType } from 'vue';
 import { computed, ref, watch } from 'vue';
+import { saveModuleToWorldBook } from '../../../utils/worldbook';
 import type {
   AffectionStageWithForget,
   CharacterSettings,
   Entry,
   ForgettingRule,
-} from '../../../GSKO-BASE/schema/character-settings';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import { formatFlagLabel, TIME_UNIT_OPTIONS, TRIGGER_FLAG_OPTIONS, isTriggerFlag } from './character-settings-helpers';
+} from '../../../../GSKO-BASE/schema/character-settings';
+import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { formatFlagLabel, TIME_UNIT_OPTIONS, TRIGGER_FLAG_OPTIONS } from './character-settings-helpers';
+import CharacterEntryEditor from './CharacterEntryEditor.vue';
 
 type EntryListKey = 'specials' | 'routine';
 
@@ -294,7 +295,8 @@ watch(
   () => props.open,
   open => {
     if (open) {
-      editableSettings.value = props.settings ? cloneDeep(props.settings) : null;
+      // 使用 JSON stringify/parse 进行深拷贝，以避免 lodash 可能引起的响应式问题。
+      editableSettings.value = props.settings ? JSON.parse(JSON.stringify(props.settings)) : null;
     }
   },
 );
@@ -303,7 +305,7 @@ watch(
   () => props.settings,
   newSettings => {
     if (props.open) {
-      editableSettings.value = newSettings ? cloneDeep(newSettings) : null;
+      editableSettings.value = newSettings ? JSON.parse(JSON.stringify(newSettings)) : null;
     }
   },
 );
@@ -472,19 +474,39 @@ const sanitizeSettings = (settings: CharacterSettings): CharacterSettings => ({
   routine: settings.routine.map(sanitizeEntry),
 });
 
-const handleSave = () => {
+const handleSave = async () => {
   if (!editableSettings.value) return;
-  emit('save', sanitizeSettings(editableSettings.value));
+  try {
+    const sanitized = sanitizeSettings(editableSettings.value);
+    const { id, ...dataWithoutId } = sanitized;
+    const payload = { [id]: dataWithoutId };
+
+    await saveModuleToWorldBook({
+      module: 'chars',
+      id: id,
+      identifier: Date.now(),
+      data: payload,
+    });
+    // Optionally, you might want to still emit an event or close the modal
+    emit('save', sanitized); // Keep original behavior if needed
+    emitClose();
+  } catch (error) {
+    console.error('[GSKO-FACE] 保存到世界书失败:', error);
+    toastr.error('保存到世界书失败，请检查控制台获取详细信息。');
+  }
 };
 
 const exportSettings = () => {
   if (!editableSettings.value) return;
-  const payload = sanitizeSettings(editableSettings.value);
+  const sanitized = sanitizeSettings(editableSettings.value);
+  const { id, ...dataWithoutId } = sanitized;
+  const payload = { [id]: dataWithoutId };
+
   const blob = new Blob([JSON.stringify(payload, null, 2)], { type: 'application/json' });
   const url = URL.createObjectURL(blob);
   const link = document.createElement('a');
   link.href = url;
-  link.download = `${payload.id || 'character-settings'}.json`;
+  link.download = `${id || 'character-settings'}.json`;
   link.click();
   URL.revokeObjectURL(url);
 };

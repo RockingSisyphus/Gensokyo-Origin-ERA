@@ -32,7 +32,7 @@ import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
 import type { Stat } from '../../../GSKO-BASE/schema/stat';
 import { Logger } from '../../utils/log';
 import RoleCard from './RoleCard.vue';
-import RoleDetailPopup from './RoleDetailPopup.vue';
+import RoleDetailPopup from '../common/RoleDetailPopup/RoleDetailPopup.vue';
 
 const logger = new Logger('RoleRibbon');
 

@@ -24,7 +24,11 @@ export async function processWorldBookConfigs({ stat }: { stat: Stat }): Promise
     const worldBookEntries = await getWorldbook(primaryWorldbookName);
     const taggedEntries = worldBookEntries.filter(entry => TAG_REGEX.test(entry.name));
 
-    const configsByTag = taggedEntries.reduce(
+    // 1. 按 position.order 排序
+    const sortedEntries = _.sortBy(taggedEntries, entry => entry.position.order);
+
+    // 2. 按标签分组并合并，顺序值大的会覆盖小的
+    const configsByTag = sortedEntries.reduce(
       (acc, entry) => {
         const match = entry.name.match(TAG_REGEX);
         if (!match) return acc;
@@ -35,6 +39,7 @@ export async function processWorldBookConfigs({ stat }: { stat: Stat }): Promise
           if (!acc[tagName]) {
             acc[tagName] = {};
           }
+          // 因为已经按 order 从小到大排序，所以直接 merge 即可实现覆盖
           _.merge(acc[tagName], content);
         } catch (error) {
           logger.error(funcName, `解析条目 "${entry.name}" 的 JSON 内容失败。`, error);

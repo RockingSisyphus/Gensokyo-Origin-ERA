@@ -1,4 +1,4 @@
-<template>
+﻿<template>
   <div class="GensokyoOrigin-CharacterEntryEditor-container">
     <div class="GensokyoOrigin-CharacterEntryEditor-grid GensokyoOrigin-CharacterEntryEditor-grid--two">
       <label>
@@ -151,7 +151,7 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { computed, ref, watch } from 'vue';
-import type { Entry } from '../../../GSKO-BASE/schema/character-settings';
+import type { Entry } from '../../../../GSKO-BASE/schema/character-settings';
 import {
   ACTION_TO_SPECIALS,
   ACTION_TO_STAY,
@@ -266,7 +266,7 @@ const selectedFestivals = computed(() => {
 });
 
 const formatFestivalLabel = (value: string) => {
-  if (value === '__ANY__') return '任意节日';
+  if (value === '__ANY__') return '浠绘剰鑺傛棩';
   const option = props.festivalOptions.find(opt => opt.value === value);
   return option ? option.label : value;
 };
@@ -400,6 +400,10 @@ const selectActionTo = (value: string) => {
 
 .GensokyoOrigin-CharacterEntryEditor-festival-label {
   flex-grow: 1;
+
+  select {
+    width: 100%;
+  }
 }
 
 .GensokyoOrigin-CharacterEntryEditor-flag-groups {

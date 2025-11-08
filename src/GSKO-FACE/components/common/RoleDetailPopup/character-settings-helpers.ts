@@ -1,10 +1,10 @@
-import {
+﻿import {
   TIME_PERIOD_KEYS,
   TIME_PERIOD_NAMES,
   TIME_SEASON_KEYS,
   TIME_SEASON_NAMES,
   TIME_WEEK_NAMES,
-} from '../../../GSKO-BASE/schema/time/constants';
+} from '../../../../GSKO-BASE/schema/time/constants';
 
 export const TIME_UNIT_OPTIONS = ['period', 'day', 'week', 'month', 'season', 'year'] as const;
 
@@ -35,7 +35,7 @@ const BASE_FLAG_LABELS: Record<string, string> = {
   newDay: '新的一天 (newDay)',
   newWeek: '新的一周 (newWeek)',
   newMonth: '新的一月 (newMonth)',
-  newSeason: '新季 (newSeason)',
+  newSeason: '新季节 (newSeason)',
   newYear: '新年 (newYear)',
 };
 

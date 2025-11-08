@@ -74,13 +74,13 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { computed, ref, watch } from 'vue';
-import type { Character } from '../../../GSKO-BASE/schema/character';
-import type { CharacterSettings } from '../../../GSKO-BASE/schema/character-settings';
-import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import { updateEraVariable } from '../../utils/eraWriter';
-import ParticleEmitter from '../common/ParticleEmitter.vue';
-import AffectionDisplay from './AffectionDisplay.vue';
+import type { Character } from '../../../../GSKO-BASE/schema/character';
+import type { CharacterSettings } from '../../../../GSKO-BASE/schema/character-settings';
+import type { Runtime } from '../../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { updateEraVariable } from '../../../utils/eraWriter';
+import ParticleEmitter from '../ParticleEmitter.vue';
+import AffectionDisplay from '../../RoleRibbon/AffectionDisplay.vue';
 import CharacterSettingsModal from './CharacterSettingsModal.vue';
 
 const props = defineProps({
