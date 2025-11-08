@@ -78,7 +78,7 @@ const stringToTags = (str: string) =>
 // 监听 props 的变化，当 stat 对象变化时，更新输入框的内容
 watch(
   () => props.stat,
-  (newStat) => {
+  newStat => {
     if (newStat?.config) {
       mainTagsInput.value = tagsToString(newStat.config.mainBodyTags ?? []);
       excludeTagsInput.value = tagsToString(newStat.config.excludeBodyTags ?? []);
