@@ -111,7 +111,7 @@ const epochPreview = computed(() => {
 </script>
 
 <template>
-  <div class="rounded-lg border-2 border-gray-400 p-4">
+  <div id="start-time-settings" class="rounded-lg border-2 border-gray-400 p-4">
     <h2 class="mb-2 text-xl font-bold">设置开局时间</h2>
     <div v-if="parsedStat" class="grid grid-cols-2 gap-4">
       <div>
@@ -158,3 +158,33 @@ const epochPreview = computed(() => {
     </div>
   </div>
 </template>
+
+<style scoped>
+#start-time-settings button {
+  padding: 12px 18px;
+  background: #8c7b6a;
+  color: #fcfaf5;
+  border: 1px solid #7a6a5a;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+#start-time-settings button:hover {
+  background: #7a6a5a;
+  border-color: #6b5a4b;
+}
+
+#start-time-settings .muted-btn {
+  background: #e9e1d6;
+  color: #5a4f43;
+  border-color: #d3c8b8;
+}
+
+#start-time-settings .muted-btn:hover {
+  background: #dcd1c4;
+}
+</style>

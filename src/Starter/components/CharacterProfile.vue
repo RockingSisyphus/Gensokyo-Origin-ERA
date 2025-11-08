@@ -116,7 +116,7 @@ async function writeUserToMVU() {
 </script>
 
 <template>
-  <div class="card">
+  <div id="character-profile">
     <h2>角色档案</h2>
     <div class="grid-2 grid">
       <div>
@@ -186,3 +186,117 @@ async function writeUserToMVU() {
     </div>
   </div>
 </template>
+
+<style scoped>
+#character-profile {
+  background: var(--paper);
+  border: 1px solid var(--line);
+  border-radius: 6px;
+  box-shadow:
+    3px 3px 8px rgba(107, 90, 75, 0.2),
+    inset 0 0 10px rgba(255, 253, 247, 0.5);
+  padding: 24px;
+  margin: 18px 0;
+}
+
+#character-profile h2 {
+  color: var(--muted);
+  border-bottom: 2px solid var(--line);
+  padding-bottom: 10px;
+  margin-bottom: 20px;
+}
+
+#character-profile .grid {
+  display: grid;
+  gap: 16px;
+}
+
+#character-profile .grid-2 {
+  grid-template-columns: 1fr 1fr;
+}
+
+#character-profile label {
+  font-weight: 700;
+  color: var(--muted);
+  display: block;
+  margin-bottom: 6px;
+}
+
+#character-profile input[type='text'],
+#character-profile textarea,
+#character-profile select {
+  width: 100%;
+  padding: 10px 12px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fcfaf5;
+  color: var(--ink);
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+
+#character-profile input[type='text']:focus,
+#character-profile textarea:focus,
+#character-profile select:focus {
+  border-color: #b59a7a;
+  outline: none;
+  box-shadow: 0 0 5px rgba(168, 152, 131, 0.3);
+}
+
+#character-profile textarea {
+  min-height: 100px;
+  resize: vertical;
+}
+
+#character-profile .row {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+#character-profile .row > * {
+  flex: 1;
+}
+
+#character-profile .inline {
+  display: inline-block;
+  margin-right: 12px;
+}
+
+#character-profile .btn-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 18px;
+}
+
+#character-profile button {
+  padding: 12px 18px;
+  background: #8c7b6a;
+  color: #fcfaf5;
+  border: 1px solid #7a6a5a;
+  border-radius: 4px;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    border-color 0.2s;
+}
+
+#character-profile button:hover {
+  background: #7a6a5a;
+  border-color: #6b5a4b;
+}
+
+#character-profile .muted-btn {
+  background: #e9e1d6;
+  color: #5a4f43;
+  border-color: #d3c8b8;
+}
+
+#character-profile .muted-btn:hover {
+  background: #dcd1c4;
+}
+</style>
