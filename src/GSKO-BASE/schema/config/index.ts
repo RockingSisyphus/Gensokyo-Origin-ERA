@@ -109,6 +109,8 @@ export const ConfigSchema = z
     time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
     incident: IncidentConfigSchema.optional(),
     ui: UiConfigSchema,
+    mainBodyTags: z.array(z.string()).optional(),
+    excludeBodyTags: z.array(z.string()).optional(),
   })
   .passthrough();
 export type Config = z.infer<typeof ConfigSchema>;

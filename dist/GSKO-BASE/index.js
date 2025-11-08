@@ -5033,7 +5033,9 @@ const ConfigSchema = external_z_namespaceObject.z.object({
   routine: EntryListPreprocessSchema.default([]),
   time: TimeConfigSchema.default(DEFAULT_TIME_CONFIG),
   incident: IncidentConfigSchema.optional(),
-  ui: UiConfigSchema
+  ui: UiConfigSchema,
+  mainBodyTags: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional(),
+  excludeBodyTags: external_z_namespaceObject.z.array(external_z_namespaceObject.z.string()).optional()
 }).passthrough();
 
 const FestivalDefinitionSchema = external_z_namespaceObject.z.object({

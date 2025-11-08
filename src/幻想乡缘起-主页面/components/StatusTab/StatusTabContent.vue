@@ -17,7 +17,11 @@
       <!-- 正文 Tab -->
       <div id="content_main" class="status-tab-content" :class="{ active: activeTab === 'main' }">
         <FontSizeControls :ui-config="fontSizeUiConfig" />
-        <MainContent :latest-message="latestMessage" :refresh-key="mainContentRefreshKey" />
+        <MainContent
+          :latest-message="latestMessage"
+          :refresh-key="mainContentRefreshKey"
+          :stat="statForTabs"
+        />
         <div id="main-extra" class="preserve-format"></div>
       </div>
 
