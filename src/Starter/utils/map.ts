@@ -1,4 +1,4 @@
-import { MapGraph, MapLeaf } from '../schema/world';
+import { MapGraph } from '../../GSKO-BASE/schema/world';
 
 /**
  * @description 从地图图谱的 `aliases` 字段中提取并构建一个别名到标准名称的映射表。

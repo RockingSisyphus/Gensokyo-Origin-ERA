@@ -1,8 +1,11 @@
 import { createApp } from 'vue';
 import App from './app.vue';
-import './style.scss';
-
 $(() => {
-  const app = createApp(App);
-  app.mount('#app');
+  const app = createApp(App).mount('#app');
+
+  eventOn('GSKO:showUI', (detail: any) => {
+    if (detail) {
+      (app as any).update(detail);
+    }
+  });
 });

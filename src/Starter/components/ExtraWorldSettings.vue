@@ -1,90 +1,54 @@
+<script setup lang="ts">
+import { computed, ref, watch } from 'vue';
+import { StatSchema } from '../../GSKO-BASE/schema/stat';
+
+const props = defineProps<{
+  detail: any;
+}>();
+
+// 用于 v-model 的响应式变量
+const extraLore = ref('');
+
+// 从 props.detail 解析出 stat 对象
+const parsedStat = computed(() => {
+  if (!props.detail || !props.detail.statWithoutMeta) return null;
+  const parseResult = StatSchema.safeParse(props.detail.statWithoutMeta);
+  if (parseResult.success) {
+    return parseResult.data;
+  }
+  console.error('ExtraWorldSettings: 解析 stat 数据失败', parseResult.error);
+  return null;
+});
+
+// 监听解析后的 stat 对象，并更新本地的 ref
+watch(
+  parsedStat,
+  (newStat) => {
+    // "附加正文" 字段用于存放额外世界设定
+    extraLore.value = newStat?.附加正文 ?? '';
+  },
+  { immediate: true, deep: true },
+);
+
+// 注意：保存逻辑已移除，因为该组件现在只负责显示。
+</script>
+
 <template>
-  <div class="card">
-    <h2>额外世界设定</h2>
-    <div class="hint">
-      本区内容将被保存为世界书条目 <small class="code">“额外世界设定”</small> 的
-      <small class="code">content</small>，用于补充世界背景/临时规则等。
+  <div class="rounded-lg border-2 border-gray-400 p-4">
+    <h2 class="mb-2 text-xl font-bold">额外世界设定</h2>
+    <div class="text-sm text-gray-600">
+      本区内容将被保存为世界书条目 <code class="text-xs font-semibold">“额外世界设定”</code> 的
+      <code class="text-xs font-semibold">content</code>，用于补充世界背景/临时规则等。
     </div>
     <textarea
-      id="extra_world_lore"
+      v-model="extraLore"
+      class="mt-2 w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+      rows="4"
       placeholder="在此编写你的自定义幻想乡额外设定。建议以‘【额外世界设定】’开头，比如：【额外世界设定】幻想乡的大家都变得像灵梦一样贫穷了！"
     ></textarea>
-    <div class="btn-bar">
-      <button id="btn_load_extra" class="muted-btn" @click="loadExtraToTextarea">从世界书载入</button>
-      <button id="btn_save_extra" @click="saveTextareaToExtra">保存到世界书</button>
+    <div class="mt-2 flex justify-end gap-2">
+      <button class="muted-btn cursor-not-allowed opacity-50" disabled>从世界书载入</button>
+      <button class="cursor-not-allowed opacity-50" disabled>保存到世界书</button>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import { onMounted } from 'vue';
-
-// ===== 额外世界设定 =====
-function pickLorebook() {
-  try {
-    return (window as any).__MVU_CONFIG__?.map?.lorebook || '幻想乡缘起MVU';
-  } catch (e) {
-    return '幻想乡缘起MVU';
-  }
-}
-
-async function loadExtraToTextarea() {
-  const box = document.getElementById('extra_world_lore') as HTMLTextAreaElement;
-  if (!box) return;
-  const lb = pickLorebook();
-
-  try {
-    const hit = await (window as any).__MVU_LORE__?.getEntry?.(lb, { comment: '额外世界设定' });
-    if (!hit) {
-      box.value = '';
-      alert('未找到世界书条目“额外世界设定”。如需新建，直接在文本框输入内容后点“保存到世界书”。');
-      return;
-    }
-    const txt = String(hit.content ?? '');
-    box.value = txt;
-  } catch (e) {
-    alert('载入失败：' + String(e));
-  }
-}
-
-async function saveTextareaToExtra() {
-  const box = document.getElementById('extra_world_lore') as HTMLTextAreaElement;
-  if (!box) return;
-  const lb = pickLorebook();
-  const nextContent = String(box.value ?? '');
-
-  if (typeof (window as any).getWorldbook !== 'function' || typeof (window as any).updateWorldbookWith !== 'function') {
-    alert('保存失败：当前环境缺少世界书写入 API。');
-    return;
-  }
-
-  try {
-    await (window as any).updateWorldbookWith(
-      lb,
-      (entries: any[]) => {
-        const nameWanted = '额外世界设定';
-        const idx = (entries || []).findIndex(e => String(e?.name || '').trim() === nameWanted);
-        if (idx >= 0) {
-          entries[idx].content = nextContent;
-        } else {
-          entries.push({ name: nameWanted, content: nextContent });
-        }
-        return entries;
-      },
-      { render: 'immediate' },
-    );
-  } catch (e) {
-    alert('保存失败：' + String(e));
-  }
-}
-
-onMounted(() => {
-  document.addEventListener('mvu:config-ready', () => {
-    loadExtraToTextarea();
-  });
-
-  if ((window as any).__MVU_CONFIG__) {
-    loadExtraToTextarea();
-  }
-});
-</script>
