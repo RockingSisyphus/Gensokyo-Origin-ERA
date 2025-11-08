@@ -56,18 +56,32 @@
         :particle-type="affectionState === 'hate' ? 'skull' : 'heart'"
         :emission-rate="3"
       />
+      <div class="role-detail-popup-actions">
+        <button class="role-settings-btn" :disabled="!characterSettings" @click="openSettingsModal">角色设定</button>
+      </div>
     </div>
   </div>
+  <CharacterSettingsModal
+    :open="showSettingsModal"
+    :settings="characterSettings"
+    :legal-locations="legalLocations"
+    :stat="statWithoutMeta"
+    @close="closeSettingsModal"
+    @save="handleRoleSettingsSave"
+  />
 </template>
 
 <script setup lang="ts">
-import { ref, computed, watch } from 'vue';
 import type { PropType } from 'vue';
-import type { Stat } from '../../../GSKO-BASE/schema/stat';
-import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import { computed, ref, watch } from 'vue';
 import type { Character } from '../../../GSKO-BASE/schema/character';
-import AffectionDisplay from './AffectionDisplay.vue';
+import type { CharacterSettings } from '../../../GSKO-BASE/schema/character-settings';
+import type { Runtime } from '../../../GSKO-BASE/schema/runtime';
+import type { Stat } from '../../../GSKO-BASE/schema/stat';
+import { updateEraVariable } from '../../utils/eraWriter';
 import ParticleEmitter from '../common/ParticleEmitter.vue';
+import AffectionDisplay from './AffectionDisplay.vue';
+import CharacterSettingsModal from './CharacterSettingsModal.vue';
 
 const props = defineProps({
   character: {
@@ -87,6 +101,7 @@ const props = defineProps({
 defineEmits(['close']);
 
 const particleEmitter = ref<InstanceType<typeof ParticleEmitter> | null>(null);
+const showSettingsModal = ref(false);
 
 // 获取 runtime 里的角色运行数据，使用角色 ID 作为 key，避免显示名的变化影响取值
 
@@ -96,6 +111,12 @@ const charRuntimeData = computed(() => {
 });
 
 const affectionStageInfo = computed(() => charRuntimeData.value?.affectionStage);
+const characterSettings = computed(() => props.runtime?.characterSettings?.[props.character.id] ?? null);
+const legalLocations = computed(() => {
+  const locations = props.runtime?.area?.legal_locations ?? [];
+  const names = locations.map(loc => loc.name).filter(Boolean);
+  return Array.from(new Set(names)).sort((a, b) => a.localeCompare(b, 'zh-Hans'));
+});
 
 const decisionText = computed(() => {
   const decision = charRuntimeData.value?.decision;
@@ -129,6 +150,29 @@ const affectionState = computed<'neutral' | 'love' | 'hate'>(() => {
   if (affectionValue.value <= hateThreshold.value) return 'hate';
   return 'neutral';
 });
+
+const openSettingsModal = () => {
+  if (!characterSettings.value) {
+    if (typeof toastr !== 'undefined') toastr.warning('runtime 中暂未找到该角色的设定镜像');
+    return;
+  }
+  showSettingsModal.value = true;
+};
+
+const closeSettingsModal = () => {
+  showSettingsModal.value = false;
+};
+
+const handleRoleSettingsSave = (payload: CharacterSettings) => {
+  try {
+    updateEraVariable(`runtime.characterSettings.${payload.id}`, payload);
+    showSettingsModal.value = false;
+    if (typeof toastr !== 'undefined') toastr.success('角色设定已提交写入请求');
+  } catch (error) {
+    console.error('写入角色设定失败', error);
+    if (typeof toastr !== 'undefined') toastr.error('写入角色设定失败');
+  }
+};
 
 // --- 效果触发 ---
 watch(affectionState, (newState, oldState) => {
@@ -254,5 +298,36 @@ watch(affectionState, (newState, oldState) => {
 
 .GensokyoOrigin-RoleDetailPopup-detail-item.full-width {
   grid-column: 1 / -1;
+}
+
+.role-detail-popup-actions {
+  margin-top: 16px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.role-settings-btn {
+  padding: 10px 20px;
+  border-radius: 999px;
+  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent);
+  background: linear-gradient(135deg, var(--btn-accent), color-mix(in srgb, var(--btn-accent) 85%, white 15%));
+  color: #fff;
+  font-weight: 700;
+  cursor: pointer;
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.15);
+}
+
+.role-settings-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.role-settings-btn:not(:disabled):hover {
+  transform: translateY(-1px);
+  box-shadow: 0 16px 26px rgba(0, 0, 0, 0.2);
 }
 </style>
