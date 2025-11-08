@@ -1,16 +1,31 @@
 <template>
   <div>
-    <div class="tag-editor">
-      <div class="tag-input-group">
-        <label for="main-tags">主标签:</label>
-        <input id="main-tags" v-model="mainTagsInput" type="text" placeholder="用 | 分隔标签" />
-      </div>
-      <div class="tag-input-group">
-        <label for="exclude-tags">排除标签:</label>
-        <input id="exclude-tags" v-model="excludeTagsInput" type="text" placeholder="用 | 分隔标签" />
-      </div>
-      <button class="save-btn" @click="saveTags">保存</button>
-    </div>
+    <section class="tag-editor-shell">
+      <button
+        class="tag-editor-toggle"
+        type="button"
+        :aria-expanded="showTagEditor"
+        aria-controls="tag-editor-panel"
+        @click="toggleTagEditor"
+      >
+        <span class="tag-editor-toggle-label">{{ showTagEditor ? '收起标签筛选' : '展开标签筛选' }}</span>
+        <span class="tag-editor-toggle-icon" aria-hidden="true"></span>
+      </button>
+      <transition name="tag-editor-slide">
+        <div v-show="showTagEditor" id="tag-editor-panel" class="tag-editor">
+          <div class="tag-input-group">
+            <label for="main-tags">正文标签:</label>
+            <input id="main-tags" v-model="mainTagsInput" type="text" placeholder="比如content" />
+          </div>
+          <div class="tag-input-group">
+            <label for="exclude-tags">排除标签:</label>
+            <input id="exclude-tags" v-model="excludeTagsInput" type="text" placeholder="比如think" />
+          </div>
+          <button class="save-btn" @click="saveTags">保存</button>
+        </div>
+      </transition>
+    </section>
+
     <div id="main-content" class="preserve-format" v-html="displayHtml"></div>
   </div>
 </template>
@@ -66,6 +81,7 @@ const excludeBodyTags = computed(() => props.stat?.config?.excludeBodyTags ?? []
 // 用于输入框双向绑定的 ref
 const mainTagsInput = ref('');
 const excludeTagsInput = ref('');
+const showTagEditor = ref(false);
 
 const tagsToString = (tags: string[]) => tags.join(' | ');
 
@@ -103,6 +119,10 @@ const saveTags = () => {
 
   logger.log('saveTags', '正在保存标签配置...', patch);
   updateEraVariableByObject(patch);
+};
+
+const toggleTagEditor = () => {
+  showTagEditor.value = !showTagEditor.value;
 };
 
 const buildContentRegex = (tags: string[]): RegExp => {
@@ -183,43 +203,278 @@ watch(
 </script>
 
 <style scoped>
-.tag-editor {
+.tag-editor-shell {
   display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 16px;
-  margin-bottom: 16px;
-  padding: 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
-  background-color: #f9f9f9;
+  flex-direction: column;
+  gap: 14px;
+  margin-bottom: 22px;
 }
+
+.tag-editor-toggle {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px 18px;
+  border-radius: 16px;
+  border: 1px dashed color-mix(in srgb, var(--line) 70%, transparent);
+  background: color-mix(in srgb, var(--paper) 94%, var(--bg) 6%);
+  color: var(--muted);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  cursor: pointer;
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.tag-editor-toggle:hover {
+  background: color-mix(in srgb, var(--paper) 88%, var(--bg) 12%);
+  border-color: color-mix(in srgb, var(--line) 85%, transparent);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.08);
+}
+
+.tag-editor-toggle:focus-visible {
+  outline: none;
+  border-color: var(--control-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--control-focus) 28%, transparent);
+}
+
+:global(:root[data-theme='dark']) .tag-editor-toggle {
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  border-color: color-mix(in srgb, var(--line) 75%, black 25%);
+  color: var(--ink);
+}
+
+.tag-editor-toggle-label {
+  flex: 1;
+  text-align: left;
+  font-size: 0.95rem;
+}
+
+.tag-editor-toggle-icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  color: var(--muted);
+}
+
+:global(:root[data-theme='dark']) .tag-editor-toggle-icon {
+  color: var(--ink);
+  border-color: color-mix(in srgb, var(--line) 75%, black 25%);
+}
+
+.tag-editor-toggle-icon::before {
+  content: '';
+  width: 8px;
+  height: 8px;
+  border-right: 2px solid currentColor;
+  border-bottom: 2px solid currentColor;
+  transform: rotate(45deg);
+  transition: transform 0.2s ease;
+}
+
+.tag-editor-toggle[aria-expanded='true'] .tag-editor-toggle-icon::before {
+  transform: rotate(-135deg);
+}
+
+.tag-editor-slide-enter-active,
+.tag-editor-slide-leave-active {
+  transition:
+    opacity 0.25s ease,
+    transform 0.25s ease;
+  transform-origin: top;
+}
+
+.tag-editor-slide-enter-from,
+.tag-editor-slide-leave-to {
+  opacity: 0;
+  transform: translateY(-8px);
+}
+
+.tag-editor {
+  --tag-panel-bg: color-mix(in srgb, var(--paper) 90%, var(--bg) 10%);
+  --tag-panel-border: color-mix(in srgb, var(--line) 85%, transparent);
+  --tag-panel-shadow: 0 12px 28px rgba(0, 0, 0, 0.08);
+  width: 100%;
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 16px 20px;
+  margin: 0;
+  padding: 20px;
+  border-radius: 18px;
+  border: 1px solid var(--tag-panel-border);
+  background: var(--tag-panel-bg);
+  box-shadow: var(--tag-panel-shadow);
+  transition:
+    background 0.25s ease,
+    border-color 0.25s ease,
+    box-shadow 0.25s ease;
+}
+:global(:root[data-theme='dark']) .tag-editor {
+  --tag-panel-bg: color-mix(in srgb, var(--paper) 78%, black 22%);
+  --tag-panel-border: color-mix(in srgb, var(--line) 60%, black 40%);
+  --tag-panel-shadow: 0 18px 30px rgba(0, 0, 0, 0.55);
+}
+
 .tag-input-group {
   display: flex;
-  align-items: center;
-  gap: 8px;
-  flex: 1 1 250px;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px 14px;
+  border-radius: 12px;
+  min-width: 0;
+  background: color-mix(in srgb, var(--paper) 95%, var(--bg) 5%);
+  border: 1px solid color-mix(in srgb, var(--line) 65%, transparent);
+  transition:
+    background 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
+
+.tag-input-group:hover {
+  border-color: color-mix(in srgb, var(--line) 80%, transparent);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+}
+
+:global(:root[data-theme='dark']) .tag-input-group {
+  background: color-mix(in srgb, var(--paper) 70%, transparent);
+  border-color: color-mix(in srgb, var(--line) 80%, transparent);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.03);
+}
+:global(:root[data-theme='dark']) .tag-input-group:hover {
+  box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+}
+
 .tag-input-group label {
-  font-weight: bold;
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: var(--muted);
+  letter-spacing: 0.02em;
   white-space: nowrap;
 }
+
 .tag-input-group input {
   width: 100%;
-  padding: 4px 8px;
-  border: 1px solid #ccc;
-  border-radius: 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--control-border);
+  border-radius: 10px;
+  background: var(--control-bg);
+  color: var(--ink);
+  font-size: 0.95rem;
+  transition:
+    border-color 0.15s ease,
+    box-shadow 0.15s ease,
+    background 0.15s ease;
 }
+
+.tag-input-group input::placeholder {
+  color: color-mix(in srgb, var(--muted) 55%, transparent);
+}
+
+.tag-input-group input:focus-visible {
+  outline: none;
+  border-color: var(--control-focus);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--control-focus) 30%, transparent);
+  background: color-mix(in srgb, var(--control-bg) 92%, white 8%);
+}
+
 .save-btn {
-  padding: 4px 12px;
-  border: 1px solid #007bff;
-  background-color: #007bff;
-  color: white;
-  border-radius: 4px;
+  align-self: stretch;
+  justify-self: end;
+  height: 48px;
+  padding: 0 26px;
+  border-radius: 999px;
+  border: none;
+  background: linear-gradient(135deg, var(--btn-accent), color-mix(in srgb, var(--btn-accent) 80%, white 20%));
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 700;
   cursor: pointer;
-  font-weight: bold;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 16px 30px rgba(0, 0, 0, 0.15);
+  transition:
+    transform 0.15s ease,
+    box-shadow 0.15s ease,
+    filter 0.15s ease;
 }
+
 .save-btn:hover {
-  background-color: #0056b3;
+  transform: translateY(-1px);
+  box-shadow: 0 20px 32px rgba(0, 0, 0, 0.2);
+  filter: brightness(1.03);
+}
+
+.save-btn:active {
+  transform: translateY(1px);
+  box-shadow: 0 10px 18px rgba(0, 0, 0, 0.2);
+}
+
+.save-btn:focus-visible {
+  outline: none;
+  box-shadow:
+    0 0 0 3px color-mix(in srgb, var(--control-focus) 30%, transparent),
+    0 16px 30px rgba(0, 0, 0, 0.2);
+}
+
+#main-content {
+  border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
+  border-radius: 18px;
+  background: color-mix(in srgb, var(--paper) 93%, var(--bg) 7%);
+  padding: 20px;
+  line-height: 1.7;
+  font-size: clamp(0.95em, 0.4vw + 0.85em, 1.05em);
+  max-height: clamp(260px, 55vh, 620px);
+  overflow-y: auto;
+  box-shadow: 0 24px 35px rgba(0, 0, 0, 0.06);
+  transition:
+    background 0.3s ease,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+}
+
+:global(:root[data-theme='dark']) #main-content {
+  background: color-mix(in srgb, var(--paper) 75%, black 25%);
+  border-color: color-mix(in srgb, var(--line) 70%, black 30%);
+  box-shadow: 0 28px 40px rgba(0, 0, 0, 0.65);
+}
+
+#main-content::-webkit-scrollbar {
+  width: 6px;
+}
+
+#main-content::-webkit-scrollbar-thumb {
+  background: color-mix(in srgb, var(--muted) 60%, transparent);
+  border-radius: 999px;
+}
+
+#main-content::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+@media (max-width: 640px) {
+  .tag-editor {
+    grid-template-columns: 1fr;
+    padding: 16px;
+    gap: 12px;
+  }
+
+  .tag-input-group {
+    padding: 10px 12px;
+  }
+
+  .save-btn {
+    width: 100%;
+    justify-self: stretch;
+  }
 }
 </style>
