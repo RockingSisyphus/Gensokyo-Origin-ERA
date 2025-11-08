@@ -6,8 +6,8 @@
         <header class="role-settings-modal__header">
           <div>
             <h2>角色设定</h2>
-            <p class="role-settings-modal__subtitle" v-if="editableSettings">ID：{{ editableSettings.id }}</p>
-            <p class="role-settings-modal__subtitle" v-else>runtime.characterSettings 中没有该角色的镜像。</p>
+            <p v-if="editableSettings" class="role-settings-modal__subtitle">ID：{{ editableSettings.id }}</p>
+            <p v-else class="role-settings-modal__subtitle">runtime.characterSettings 中没有该角色的镜像。</p>
           </div>
           <button type="button" class="role-settings-modal__close" aria-label="关闭" @click="emitClose">×</button>
         </header>
@@ -251,12 +251,11 @@
 
 <script setup lang="ts">
 import { cloneDeep } from 'lodash';
-import { computed, ref, watch } from 'vue';
 import type { PropType } from 'vue';
-import CharacterEntryEditor from './CharacterEntryEditor.vue';
+import { computed, ref, watch } from 'vue';
 import type {
-  CharacterSettings,
   AffectionStageWithForget,
+  CharacterSettings,
   Entry,
   ForgettingRule,
 } from '../../../GSKO-BASE/schema/character-settings';
@@ -551,7 +550,7 @@ const emitClose = () => emit('close');
   border: 1px dashed color-mix(in srgb, var(--line) 70%, transparent);
   border-radius: 12px;
   padding: 16px;
-  background: color-mix(in srgb, var(--paper) 92%, var(--bg) 8%);
+  background: color-mix(in srgb, var(--paper) 92%, transparent);
 }
 
 .section-heading {
@@ -567,7 +566,7 @@ const emitClose = () => emit('close');
   border: 1px solid color-mix(in srgb, var(--line) 80%, transparent);
   border-radius: 12px;
   padding: 0 16px 16px;
-  background: var(--bg);
+  background: color-mix(in srgb, var(--paper) 80%, transparent);
   margin-bottom: 12px;
 }
 details.card[open] {
@@ -580,10 +579,24 @@ details.card[open] {
   align-items: center;
   margin-bottom: 12px;
   cursor: pointer;
+  position: relative;
+  padding-left: 1.2em;
 }
 details.card > summary.card__header {
-  padding: 16px 0;
+  padding: 16px 0 16px 1.2em;
   margin-bottom: 0;
+}
+details.card > summary.card__header::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 0.2s;
+  font-size: 0.8em;
+}
+details.card[open] > summary.card__header::before {
+  transform: translateY(-50%) rotate(90deg);
 }
 details.card[open] > summary.card__header {
   margin-bottom: 12px;
@@ -594,7 +607,7 @@ details.card[open] > summary.card__header {
   border-radius: 10px;
   padding: 0 12px 12px;
   margin-top: 12px;
-  background: color-mix(in srgb, var(--paper) 95%, transparent);
+  background: color-mix(in srgb, var(--paper) 90%, transparent);
 }
 details.sub-card[open] {
   padding-top: 12px;
@@ -606,10 +619,24 @@ details.sub-card[open] {
   align-items: center;
   margin-bottom: 8px;
   cursor: pointer;
+  position: relative;
+  padding-left: 1.2em;
 }
 details.sub-card > summary.sub-card__header {
-  padding: 12px 0;
+  padding: 12px 0 12px 1.2em;
   margin-bottom: 0;
+}
+details.sub-card > summary.sub-card__header::before {
+  content: '▶';
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%) rotate(0deg);
+  transition: transform 0.2s;
+  font-size: 0.8em;
+}
+details.sub-card[open] > summary.sub-card__header::before {
+  transform: translateY(-50%) rotate(90deg);
 }
 details.sub-card[open] > summary.sub-card__header {
   margin-bottom: 8px;
@@ -642,7 +669,7 @@ textarea {
   border: 1px solid var(--line);
   border-radius: 8px;
   padding: 8px 10px;
-  background: color-mix(in srgb, var(--paper) 95%, transparent);
+  background: var(--paper);
   color: var(--ink);
 }
 

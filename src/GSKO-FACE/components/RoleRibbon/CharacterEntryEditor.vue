@@ -5,14 +5,6 @@
         <span>行动描述 (do)</span>
         <input v-model="entry.action.do" type="text" />
       </label>
-      <label>
-        <span>来源 (source)</span>
-        <input v-model="entry.action.source" type="text" />
-      </label>
-      <label>
-        <span>出发地 (from)</span>
-        <input v-model="entry.action.from" type="text" />
-      </label>
       <label v-if="showPriority">
         <span>优先级</span>
         <input v-model.number="entry.priority" type="number" />
@@ -27,12 +19,7 @@
           <option v-for="opt in ACTION_TO_SPECIALS" :key="`entry-${opt}`" :value="opt">{{ opt }}</option>
           <option disabled>────────</option>
           <option v-for="loc in locationOptions" :key="`loc-${loc}`" :value="loc">{{ loc }}</option>
-          <option :value="ACTION_TO_CUSTOM">自定义</option>
         </select>
-      </label>
-      <label v-if="actionToSelection === ACTION_TO_CUSTOM">
-        <span>自定义目的地</span>
-        <input v-model="customDestination" type="text" @input="updateCustomDestination" />
       </label>
     </div>
 
@@ -125,20 +112,34 @@
           </div>
         </div>
 
-        <div class="GensokyoOrigin-CharacterEntryEditor-condition-group">
-          <label>
-            <span>节日限定</span>
-            <select :value="festivalSelection" multiple @change="handleFestivalSelect($event)">
-              <option value="__ANY__">任意节日</option>
-              <option disabled>────────</option>
-              <option v-for="option in festivalOptions" :key="option.value" :value="option.value">
-                {{ option.label }}
-              </option>
-            </select>
-          </label>
-          <p class="GensokyoOrigin-CharacterEntryEditor-hint">
-            按住 Ctrl 或 Shift 可选择多个节日。不选择则代表不限定节日。
-          </p>
+        <div class="GensokyoOrigin-CharacterEntryEditor-condition-group GensokyoOrigin-CharacterEntryEditor-condition-group--festival">
+          <div class="GensokyoOrigin-CharacterEntryEditor-festival-controls">
+            <label class="GensokyoOrigin-CharacterEntryEditor-festival-label">
+              <span>节日限定</span>
+              <select v-model="festivalToAdd">
+                <option value="" disabled>选择一个节日</option>
+                <option value="__ANY__">任意节日</option>
+                <option disabled>────────</option>
+                <option v-for="option in festivalOptions" :key="option.value" :value="option.value">
+                  {{ option.label }}
+                </option>
+              </select>
+            </label>
+            <button type="button" class="ghost-btn ghost-btn--small" :disabled="!festivalToAdd" @click="addFestival">
+              添加
+            </button>
+          </div>
+          <div v-if="selectedFestivals.length" class="GensokyoOrigin-CharacterEntryEditor-selected-flags">
+            <span
+              v-for="festival in selectedFestivals"
+              :key="festival"
+              class="GensokyoOrigin-CharacterEntryEditor-selected-flag"
+            >
+              {{ formatFestivalLabel(festival) }}
+              <button type="button" @click="removeFestival(festival)">×</button>
+            </span>
+          </div>
+          <p class="GensokyoOrigin-CharacterEntryEditor-hint">不选择则代表不限定节日。</p>
         </div>
       </div>
     </details>
@@ -150,7 +151,6 @@ import type { PropType } from 'vue';
 import { computed, ref, watch } from 'vue';
 import type { Entry } from '../../../GSKO-BASE/schema/character-settings';
 import {
-  ACTION_TO_CUSTOM,
   ACTION_TO_SPECIALS,
   ACTION_TO_STAY,
   BY_NOW_NUMERIC_FIELDS,
@@ -194,8 +194,6 @@ const locationOptions = computed(() => {
 
 const isSpecialDestination = (value: string): value is (typeof ACTION_TO_SPECIALS)[number] =>
   ACTION_TO_SPECIALS.includes(value as (typeof ACTION_TO_SPECIALS)[number]);
-
-const customDestination = ref('');
 
 const ensureWhen = () => {
   if (!entry.value.when || typeof entry.value.when !== 'object') {
@@ -257,7 +255,7 @@ const clearByMonthDay = () => {
   delete when.byMonthDay;
 };
 
-const festivalSelection = computed(() => {
+const selectedFestivals = computed(() => {
   const value = entry.value.when?.byFestival;
   if (!value) return [];
   if (value === 'ANY') return ['__ANY__'];
@@ -265,25 +263,52 @@ const festivalSelection = computed(() => {
   return [value];
 });
 
-const handleFestivalSelect = (event: Event) => {
-  const target = event.target as HTMLSelectElement;
-  const selected = Array.from(target.selectedOptions).map(opt => opt.value);
-  const when = ensureWhen();
+const formatFestivalLabel = (value: string) => {
+  if (value === '__ANY__') return '任意节日';
+  const option = props.festivalOptions.find(opt => opt.value === value);
+  return option ? option.label : value;
+};
 
-  if (!selected.length) {
+const festivalToAdd = ref('');
+
+const addFestival = () => {
+  const value = festivalToAdd.value;
+  if (!value) return;
+
+  const when = ensureWhen();
+  const current = when.byFestival;
+
+  if (value === '__ANY__') {
+    when.byFestival = 'ANY';
+  } else if (current === 'ANY') {
+    when.byFestival = [value];
+  } else if (Array.isArray(current)) {
+    if (!current.includes(value)) current.push(value);
+  } else if (typeof current === 'string') {
+    if (current !== value) when.byFestival = [current, value];
+  } else {
+    when.byFestival = [value];
+  }
+
+  festivalToAdd.value = '';
+};
+
+const removeFestival = (festival: string) => {
+  const when = ensureWhen();
+  const current = when.byFestival;
+
+  if (festival === '__ANY__' && current === 'ANY') {
     delete when.byFestival;
     return;
   }
 
-  if (selected.includes('__ANY__')) {
-    when.byFestival = 'ANY';
-    return;
-  }
-
-  if (selected.length === 1) {
-    when.byFestival = selected[0];
-  } else {
-    when.byFestival = selected;
+  if (Array.isArray(current)) {
+    const next = current.filter(item => item !== festival);
+    if (next.length === 0) delete when.byFestival;
+    else if (next.length === 1) when.byFestival = next[0];
+    else when.byFestival = next;
+  } else if (typeof current === 'string' && current === festival) {
+    delete when.byFestival;
   }
 };
 
@@ -292,38 +317,16 @@ const actionToSelection = computed(() => {
   if (!toValue) return ACTION_TO_STAY;
   if (isSpecialDestination(toValue)) return toValue;
   if (locationOptions.value.includes(toValue)) return toValue;
-  return ACTION_TO_CUSTOM;
+  // Fallback if the saved value is no longer a valid location
+  return ACTION_TO_STAY;
 });
-
-watch(
-  actionToSelection,
-  selection => {
-    if (selection === ACTION_TO_CUSTOM) {
-      customDestination.value = entry.value.action.to ?? '';
-    } else {
-      customDestination.value = '';
-    }
-  },
-  { immediate: true },
-);
 
 const selectActionTo = (value: string) => {
   if (value === ACTION_TO_STAY) {
     delete entry.value.action.to;
-    customDestination.value = '';
-    return;
-  }
-  if (value === ACTION_TO_CUSTOM) {
-    if (!entry.value.action.to) entry.value.action.to = '';
-    customDestination.value = entry.value.action.to;
     return;
   }
   entry.value.action.to = value;
-  customDestination.value = '';
-};
-
-const updateCustomDestination = () => {
-  entry.value.action.to = customDestination.value.trim();
 };
 </script>
 
@@ -377,6 +380,24 @@ const updateCustomDestination = () => {
   border: 1px solid color-mix(in srgb, var(--line) 50%, transparent);
   border-radius: 8px;
   background: var(--bg);
+}
+
+.GensokyoOrigin-CharacterEntryEditor-condition-group--festival {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+}
+
+.GensokyoOrigin-CharacterEntryEditor-festival-controls {
+  display: flex;
+  align-items: flex-end;
+  gap: 8px;
+  width: 100%;
+}
+
+.GensokyoOrigin-CharacterEntryEditor-festival-label {
+  flex-grow: 1;
 }
 
 .GensokyoOrigin-CharacterEntryEditor-flag-groups {

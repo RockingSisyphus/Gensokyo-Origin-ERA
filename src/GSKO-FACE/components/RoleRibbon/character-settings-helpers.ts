@@ -62,7 +62,7 @@ export const BY_NOW_NUMERIC_FIELDS = [
   { key: 'weekdayIndex', label: '星期索引' },
   { key: 'periodIdx', label: '时间段索引' },
   { key: 'seasonIdx', label: '季节索引' },
-  { key: 'minutesSinceMidnight', label: '距午夜分钟数' },
+  { key: 'minutesSinceMidnight', label: '分钟数（当日零点开始算）' },
 ] as const;
 
 type ByNowSelectKey = (typeof BY_NOW_SELECT_FIELDS)[number]['key'];
