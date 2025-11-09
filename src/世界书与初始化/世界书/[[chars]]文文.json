@@ -50,30 +50,5 @@
       }
     ],
     "目标": "寻找大新闻"
-  },
-  "sanae": {
-    "specials": [
-      {
-        "when": {
-          "byFestival": "夏日祭"
-        },
-        "priority": 10,
-        "action": {
-          "do": "参加祭典",
-          "to": "博丽神社"
-        }
-      }
-    ],
-    "routine": [
-      {
-        "when": {
-          "byFlag": ["newDay"]
-        },
-        "action": {
-          "do": "进行风祝的修行",
-          "to": "守矢神社"
-        }
-      }
-    ]
   }
 }

@@ -1309,18 +1309,28 @@ function extractContentForMatching(messages, options = {}) {
     if (messageContent === null) {
       continue;
     }
+    log.log("extractContentForMatching", "原始消息内容:", messageContent);
     if (excludeBodyTags.length > 0) {
       for (const tagName of excludeBodyTags) {
-        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>[\\s\\S]*?<\\/${escReg(tagName)}>`, "gi");
-        messageContent = messageContent.replace(re, "");
+        const safeTagName = escReg(tagName);
+        const containerRe = new RegExp(`<${safeTagName}\\b[^>]*>((?:(?!<${safeTagName}\\b)[\\s\\S])*?)<\\/${safeTagName}>`, "gi");
+        const selfClosingRe = new RegExp(`<${safeTagName}\\b[^>]*\\/>`, "gi");
+        let oldContent;
+        do {
+          oldContent = messageContent;
+          messageContent = messageContent.replace(containerRe, "");
+        } while (oldContent !== messageContent);
+        messageContent = messageContent.replace(selfClosingRe, "");
       }
     }
+    log.log("extractContentForMatching", "排除标签后内容:", messageContent);
     if (mainBodyTags.length > 0) {
       const mainBodySegs = [];
       for (const tagName of mainBodyTags) {
-        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>([\\s\\S]*?)<\\/${escReg(tagName)}>`, "gi");
+        const safeTagName = escReg(tagName);
+        const extractRe = new RegExp(`<${safeTagName}\\b[^>]*>((?:(?!<${safeTagName}\\b)[\\s\\S])*?)<\\/${safeTagName}>`, "gi");
         let match;
-        while ((match = re.exec(messageContent)) !== null) {
+        while ((match = extractRe.exec(messageContent)) !== null) {
           mainBodySegs.push(match[1].trim());
         }
       }
@@ -1331,7 +1341,9 @@ function extractContentForMatching(messages, options = {}) {
       segs.push(messageContent);
     }
   }
-  return segs.join("\n");
+  const result = segs.join("\n");
+  log.log("extractContentForMatching", "最终提取结果:", result);
+  return result;
 }
 
 async function matchMessages(keywords, options = {}) {

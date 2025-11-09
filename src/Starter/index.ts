@@ -8,10 +8,25 @@ $(() => {
 
   let lockedMessageId: number | null = null;
   let hasReceivedData = false;
+  let ignoreNextShowUi = false;
+
+  // 监听来自按钮的指令，以忽略下一次UI更新
+  eventOn('STARTER:IGNORE_NEXT_SHOW_UI', () => {
+    logger.log('event', '收到指令，将忽略下一次 GSKO:showUI 事件。');
+    ignoreNextShowUi = true;
+  });
 
   eventOn('GSKO:showUI', (detail: any) => {
-    hasReceivedData = true;
     const funcName = 'onShowUI';
+
+    // 检查是否需要忽略本次事件
+    if (ignoreNextShowUi) {
+      ignoreNextShowUi = false; // 重置标志
+      logger.log(funcName, '根据指令，已忽略本次 GSKO:showUI 事件。');
+      return;
+    }
+
+    hasReceivedData = true;
 
     const currentEventMessageId = detail?.message_id;
 

@@ -200,6 +200,25 @@ const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
   __name: "StoryButton",
   setup(__props) {
     const logger = new Logger("Starter/components/StoryButton");
+    const handleClick = () => {
+      const funcName = "handleClick";
+      logger.log(funcName, "按钮点击，开始处理流程。");
+      if (typeof eventEmit !== "function" || typeof eventOnce !== "function") {
+        logger.error(funcName, "eventEmit 或 eventOnce 函数未定义。");
+        return;
+      }
+      logger.log(funcName, "发送 STARTER:IGNORE_NEXT_SHOW_UI 事件。");
+      eventEmit("STARTER:IGNORE_NEXT_SHOW_UI");
+      logger.log(funcName, "发送 era:forceSync 事件。");
+      eventEmit("era:forceSync", {
+        mode: "latest"
+      });
+      logger.log(funcName, "开始一次性监听 GSKO:showUi 事件。");
+      eventOnce("GSKO:showUI", () => {
+        logger.log(funcName, "接收到 GSKO:showUi 事件，执行 requestStory。");
+        requestStory();
+      });
+    };
     const requestStory = async () => {
       const funcName = "requestStory";
       try {
@@ -224,7 +243,7 @@ const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
     };
     return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
       class: "GensokyoOrigin-Starter-storyButton",
-      onClick: requestStory
+      onClick: handleClick
     }, "开始幻想乡故事（请注意保存你的修改）"));
   }
 });
@@ -1528,9 +1547,19 @@ $(() => {
   const logger = new Logger("Starter");
   let lockedMessageId = null;
   let hasReceivedData = false;
+  let ignoreNextShowUi = false;
+  eventOn("STARTER:IGNORE_NEXT_SHOW_UI", () => {
+    logger.log("event", "收到指令，将忽略下一次 GSKO:showUI 事件。");
+    ignoreNextShowUi = true;
+  });
   eventOn("GSKO:showUI", detail => {
-    hasReceivedData = true;
     const funcName = "onShowUI";
+    if (ignoreNextShowUi) {
+      ignoreNextShowUi = false;
+      logger.log(funcName, "根据指令，已忽略本次 GSKO:showUI 事件。");
+      return;
+    }
+    hasReceivedData = true;
     const currentEventMessageId = detail?.message_id;
     if (typeof currentEventMessageId !== "number") {
       logger.warn(funcName, "事件中未提供有效的 message_id，无法刷新 UI。");

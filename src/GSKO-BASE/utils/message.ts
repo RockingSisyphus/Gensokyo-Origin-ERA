@@ -67,7 +67,7 @@ function escReg(s: string): string {
  * @param {string[]} [options.excludeBodyTags] - 可选的HTML标签名数组。在提取前，会先移除这些标签及其内容。
  * @returns {string} 提取并拼接后的文本。
  */
-function extractContentForMatching(
+export function extractContentForMatching(
   messages: (ChatMessage | ChatMessageSwiped)[],
   options: {
     mainBodyTags?: string[];
@@ -82,22 +82,46 @@ function extractContentForMatching(
     if (messageContent === null) {
       continue;
     }
+    log.log('extractContentForMatching', '原始消息内容:', messageContent);
 
     // 1. 去除所有 excludeBodyTags 的内容
     if (excludeBodyTags.length > 0) {
       for (const tagName of excludeBodyTags) {
-        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>[\\s\\S]*?<\\/${escReg(tagName)}>`, 'gi');
-        messageContent = messageContent.replace(re, '');
+        const safeTagName = escReg(tagName);
+
+        // 正则表达式，用于匹配不包含同名嵌套标签的容器标签
+        const containerRe = new RegExp(
+          `<${safeTagName}\\b[^>]*>((?:(?!<${safeTagName}\\b)[\\s\\S])*?)<\\/${safeTagName}>`,
+          'gi',
+        );
+        // 正则表达式，用于匹配自闭合标签
+        const selfClosingRe = new RegExp(`<${safeTagName}\\b[^>]*\\/>`, 'gi');
+
+        // 循环移除容器标签，由内而外处理嵌套
+        let oldContent;
+        do {
+          oldContent = messageContent;
+          messageContent = messageContent.replace(containerRe, '');
+        } while (oldContent !== messageContent);
+
+        // 最后移除所有自闭合标签
+        messageContent = messageContent.replace(selfClosingRe, '');
       }
     }
+    log.log('extractContentForMatching', '排除标签后内容:', messageContent);
 
     // 2. 从处理过的内容中提取 mainBodyTags 的内容
     if (mainBodyTags.length > 0) {
       const mainBodySegs: string[] = [];
       for (const tagName of mainBodyTags) {
-        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>([\\s\\S]*?)<\\/${escReg(tagName)}>`, 'gi');
+        const safeTagName = escReg(tagName);
+        // 使用 tempered greedy token 来正确处理嵌套标签，提取最内层的内容
+        const extractRe = new RegExp(
+          `<${safeTagName}\\b[^>]*>((?:(?!<${safeTagName}\\b)[\\s\\S])*?)<\\/${safeTagName}>`,
+          'gi',
+        );
         let match;
-        while ((match = re.exec(messageContent)) !== null) {
+        while ((match = extractRe.exec(messageContent)) !== null) {
           mainBodySegs.push(match[1].trim());
         }
       }
@@ -111,7 +135,9 @@ function extractContentForMatching(
     }
   }
 
-  return segs.join('\n');
+  const result = segs.join('\n');
+  log.log('extractContentForMatching', '最终提取结果:', result);
+  return result;
 }
 
 /**

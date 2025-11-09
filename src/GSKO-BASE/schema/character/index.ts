@@ -13,7 +13,11 @@ export const CharacterSchema = z.object({
   目标: z.string().optional(),
 });
 
-export const CharsSchema = z.record(z.string(), CharacterSchema);
+export const CharsSchema = z
+  .object({
+    $meta: z.any().optional(),
+  })
+  .catchall(CharacterSchema);
 
 export type Character = z.infer<typeof CharacterSchema>;
 

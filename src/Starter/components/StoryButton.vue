@@ -1,11 +1,37 @@
 <template>
-  <button class="GensokyoOrigin-Starter-storyButton" @click="requestStory">开始幻想乡故事（请注意保存你的修改）</button>
+  <button class="GensokyoOrigin-Starter-storyButton" @click="handleClick">开始幻想乡故事（请注意保存你的修改）</button>
 </template>
 
 <script setup lang="ts">
 import { Logger } from '../utils/log';
 
 const logger = new Logger();
+
+const handleClick = () => {
+  const funcName = 'handleClick';
+  logger.log(funcName, '按钮点击，开始处理流程。');
+
+  // 确保所需API可用
+  if (typeof eventEmit !== 'function' || typeof eventOnce !== 'function') {
+    logger.error(funcName, 'eventEmit 或 eventOnce 函数未定义。');
+    return;
+  }
+
+  // 1. 发送指令，让根监听器忽略下一次 showUI 事件
+  logger.log(funcName, '发送 STARTER:IGNORE_NEXT_SHOW_UI 事件。');
+  eventEmit('STARTER:IGNORE_NEXT_SHOW_UI');
+
+  // 2. 发送 era:forceSync 事件，请求重算最新变量
+  logger.log(funcName, '发送 era:forceSync 事件。');
+  eventEmit('era:forceSync', { mode: 'latest' });
+
+  // 2. 使用 eventOnce 监听下一次 GSKO:showUi 事件，然后自动注销
+  logger.log(funcName, '开始一次性监听 GSKO:showUi 事件。');
+  eventOnce('GSKO:showUI', () => {
+    logger.log(funcName, '接收到 GSKO:showUi 事件，执行 requestStory。');
+    requestStory();
+  });
+};
 
 const requestStory = async () => {
   const funcName = 'requestStory';

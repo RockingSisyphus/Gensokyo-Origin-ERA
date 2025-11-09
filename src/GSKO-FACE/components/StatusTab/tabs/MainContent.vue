@@ -1,4 +1,4 @@
-<template>
+ybm<template>
   <div>
     <section class="tag-editor-shell">
       <button
@@ -37,24 +37,19 @@
  * 该组件负责从传入的聊天消息对象中提取由 <content> 标签包裹的内容，并将其显示出来。
  * 同时提供 UI 来编辑主内容和排除内容的标签。
  */
-import { computed, onMounted, ref, watch } from 'vue';
-import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { onMounted, ref, watch } from 'vue';
+import { extractContentForMatching } from '../../../../GSKO-BASE/utils/message';
 import { updateEraVariableByObject } from '../../../utils/eraWriter';
 import { Logger } from '../../../utils/log';
 
 // 初始化日志记录器
 const logger = new Logger('StatusTab/MainContent');
 
-// 本地存储当前消息和 stat 数据
+// 本地存储当前消息
 const latestMessage = ref<ChatMessage | null>(null);
-const statData = ref<Stat | null>(null);
 
 // 存储最终要显示在模板中的 HTML 内容。
 const displayHtml = ref('');
-
-// 从本地 statData 中安全地获取标签配置
-const mainBodyTags = computed(() => statData.value?.config?.mainBodyTags ?? []);
-const excludeBodyTags = computed(() => statData.value?.config?.excludeBodyTags ?? []);
 
 // 用于输入框双向绑定的 ref
 const mainTagsInput = ref('');
@@ -68,20 +63,6 @@ const stringToTags = (str: string) =>
     .split('|')
     .map(tag => tag.trim())
     .filter(tag => tag.length > 0);
-
-// 监听 statData 的变化，更新输入框内容
-watch(
-  statData,
-  newStat => {
-    if (newStat?.config) {
-      mainTagsInput.value = tagsToString(newStat.config.mainBodyTags ?? []);
-      excludeTagsInput.value = tagsToString(newStat.config.excludeBodyTags ?? []);
-    }
-    // 内容提取依赖 statData，所以在这里触发
-    extractAndDisplayContent();
-  },
-  { immediate: true, deep: true },
-);
 
 /**
  * @description 保存标签配置的更改。
@@ -105,20 +86,6 @@ const toggleTagEditor = () => {
   showTagEditor.value = !showTagEditor.value;
 };
 
-const buildContentRegex = (tags: string[]): RegExp => {
-  if (tags.length === 0) {
-    // 如果没有提供标签，则返回一个永远不会匹配的正则表达式
-    return new RegExp('(?!)');
-  }
-  // 将标签名数组转换为 (tag1|tag2|...) 的形式
-  const tagGroup = tags.join('|');
-  // 构建正则表达式，匹配 <tag>...</tag> 结构
-  return new RegExp(
-    `<(${tagGroup})>\\s*(?=[\\s\\S]*?\\S[\\s\\S]*?<\\/\\1>)((?:(?!<\\1>)[\\s\\S])*?)\\s*<\\/\\1>`,
-    'gi',
-  );
-};
-
 const extractAndDisplayContent = () => {
   if (!latestMessage.value) {
     logger.log('extractAndDisplayContent', '本地 message 为空，清空正文。');
@@ -126,49 +93,41 @@ const extractAndDisplayContent = () => {
     return;
   }
 
-  const { message, message_id } = latestMessage.value;
-  let contentToProcess = message;
-  let chunks: string[] = [];
+  const { message_id } = latestMessage.value;
 
-  // 首先处理排除标签
-  if (excludeBodyTags.value.length > 0) {
-    const excludeRegex = buildContentRegex(excludeBodyTags.value);
-    contentToProcess = contentToProcess.replace(excludeRegex, '');
-  }
+  // 直接在使用前获取最新的聊天变量
+  const chatVars = getVariables({ type: 'chat' });
+  let mainBodyTags: string[] = [];
+  let excludeBodyTags: string[] = [];
 
-  // 根据主内容标签规则提取内容
-  const useMainRegex = mainBodyTags.value.length > 0 && !mainBodyTags.value.includes('*');
-
-  if (useMainRegex) {
-    // 如果定义了具体的主内容标签，则使用正则表达式提取
-    const mainRegex = buildContentRegex(mainBodyTags.value);
-    const matches: string[] = [];
-    let match: RegExpExecArray | null;
-
-    while ((match = mainRegex.exec(contentToProcess)) !== null) {
-      matches.push(match[2]?.trim() ?? '');
-      if (mainRegex.lastIndex === match.index) {
-        mainRegex.lastIndex += match[0].length;
-      }
-    }
-    chunks = matches.filter(chunk => chunk.length > 0);
+  if (chatVars?.stat_data?.config) {
+    mainBodyTags = chatVars.stat_data.config.mainBodyTags ?? [];
+    excludeBodyTags = chatVars.stat_data.config.excludeBodyTags ?? [];
   } else {
-    // 如果主内容标签为空或为'*'，则将排除后的全部内容作为结果
-    const trimmedContent = contentToProcess.trim();
-    if (trimmedContent) {
-      chunks = [trimmedContent];
-    }
+    logger.warn('extractAndDisplayContent', '在聊天变量中未找到 stat_data.config。');
   }
 
-  if (chunks.length > 0) {
-    displayHtml.value = chunks.join('\n\n');
+  // 打印出将要使用的标签
+  logger.log('extractAndDisplayContent', '使用的标签:', {
+    mainBodyTags,
+    excludeBodyTags,
+  });
+
+  // 使用新的工具函数来提取内容
+  const extracted = extractContentForMatching([latestMessage.value], {
+    mainBodyTags: mainBodyTags.includes('*') ? [] : mainBodyTags,
+    excludeBodyTags,
+  });
+
+  if (extracted) {
+    displayHtml.value = extracted;
     logger.debug('extractAndDisplayContent', `已刷新正文，来源消息 ID: ${message_id}`);
   } else {
     logger.warn(
       'extractAndDisplayContent',
-      `消息 ${message_id} 中未找到指定的主内容区块 (main: ${mainBodyTags.value.join(
+      `消息 ${message_id} 中未找到指定的主内容区块 (main: ${mainBodyTags.join(
         ',',
-      )}, exclude: ${excludeBodyTags.value.join(',')})，清空正文。`,
+      )}, exclude: ${excludeBodyTags.join(',')})，清空正文。`,
     );
     displayHtml.value = '';
   }
@@ -212,10 +171,15 @@ const fetchAndUpdateMessage = async () => {
 // 在组件挂载时获取所有初始数据
 onMounted(async () => {
   try {
-    // 1. 获取聊天变量作为 stat 数据
+    // 1. 获取聊天变量以填充 UI
     const chatVars = getVariables({ type: 'chat' });
-    statData.value = chatVars as Stat;
-    logger.log('onMounted', '已获取聊天变量。', statData.value);
+    if (chatVars?.stat_data?.config) {
+      mainTagsInput.value = tagsToString(chatVars.stat_data.config.mainBodyTags ?? []);
+      excludeTagsInput.value = tagsToString(chatVars.stat_data.config.excludeBodyTags ?? []);
+      logger.log('onMounted', '已成功解析并填充标签输入框。');
+    } else {
+      logger.warn('onMounted', '在聊天变量中未找到 stat_data.config。');
+    }
 
     // 2. 获取当前消息
     await fetchAndUpdateMessage();
