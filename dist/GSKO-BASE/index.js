@@ -3699,7 +3699,9 @@ function buildMainCharacterPrompt({stat}) {
       main_character_logger.warn(funcName, "正在生成主角提示词。");
       return null;
     }
-    const userJson = JSON.stringify(user, null, 2);
+    const userJson = JSON.stringify({
+      user
+    }, null, 2);
     const header = "主角状态提示：请根据以下JSON结构更新主角的叙述与状态。";
     const prompt = `${header}\n${userJson}\n`;
     main_character_logger.debug(funcName, "主角提示词生成完成。");
