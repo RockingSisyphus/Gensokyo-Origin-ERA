@@ -1,4 +1,5 @@
-ybm<template>
+ybm
+<template>
   <div>
     <section class="tag-editor-shell">
       <button

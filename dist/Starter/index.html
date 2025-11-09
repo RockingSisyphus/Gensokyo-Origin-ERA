@@ -1196,7 +1196,9 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   目标: external_z_namespaceObject.z.string().optional()
 });
 
-const CharsSchema = external_z_namespaceObject.z.record(external_z_namespaceObject.z.string(), CharacterSchema);
+const CharsSchema = external_z_namespaceObject.z.object({
+  $meta: external_z_namespaceObject.z.any().optional()
+}).catchall(CharacterSchema);
 
 const CHARACTER_FIELDS = {
   affection: "好感度",
