@@ -45,10 +45,7 @@ $(() => {
 
     // 如果事件的 messageId 与当前酒馆的 messageId 不匹配，则忽略该事件
     if (eventMessageId !== currentMessageId) {
-      logger.log(
-        funcName,
-        `事件 messageId (${eventMessageId}) 与当前的 ID (${currentMessageId}) 不匹配，跳过刷新。`,
-      );
+      logger.log(funcName, `事件 messageId (${eventMessageId}) 与当前的 ID (${currentMessageId}) 不匹配，跳过刷新。`);
       return;
     }
 
