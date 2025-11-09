@@ -337,7 +337,11 @@ $(() => {
         .concat(charChanges);
 
       // [IO模块]：将所有 stat 的变更写入 ERA
-      await writeChangesToEra({ changes: allChanges, stat: initialStat });
+      if (payload?.actions?.swipedRollback !== true) {
+        await writeChangesToEra({ changes: allChanges, stat: initialStat });
+      } else {
+        logger.log('handleWriteDone', '检测到 swipedRollback，跳过 writeChangesToEra。');
+      }
 
       await sendData({
         stat: currentStat,
@@ -365,7 +369,7 @@ $(() => {
     (detail: WriteDonePayload) => {
       logger.log('main', '接收到 era:writeDone 事件', detail);
       // 如果是 apiWrite 触发的，说明正在执行写入，避免循环
-      if (detail?.actions?.apiWrite === true || detail?.actions?.swipedRollback === true) {
+      if (detail?.actions?.apiWrite === true) {
         logger.log('onWriteDone', '检测到 apiWrite 标记事件，跳过刷新逻辑');
         return;
       }

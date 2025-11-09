@@ -5707,10 +5707,14 @@ $(() => {
       refreshInjectedPrompt(prompt);
       GSKO_BASE_logger.log("handleWriteDone", "提示词构建完毕:", prompt);
       const allChanges = normalizationChanges.concat(affectionChanges).concat(timeChanges).concat(mkSyncChanges).concat(forgettingChanges).concat(incidentChanges).concat(charChanges);
-      await writeChangesToEra({
-        changes: allChanges,
-        stat: initialStat
-      });
+      if (payload?.actions?.swipedRollback !== true) {
+        await writeChangesToEra({
+          changes: allChanges,
+          stat: initialStat
+        });
+      } else {
+        GSKO_BASE_logger.log("handleWriteDone", "检测到 swipedRollback，跳过 writeChangesToEra。");
+      }
       await sendData({
         stat: currentStat,
         runtime: currentRuntime,
@@ -5729,7 +5733,7 @@ $(() => {
   };
   onWriteDone(detail => {
     GSKO_BASE_logger.log("main", "接收到 era:writeDone 事件", detail);
-    if (detail?.actions?.apiWrite === true || detail?.actions?.swipedRollback === true) {
+    if (detail?.actions?.apiWrite === true) {
       GSKO_BASE_logger.log("onWriteDone", "检测到 apiWrite 标记事件，跳过刷新逻辑");
       return;
     }

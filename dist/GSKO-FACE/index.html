@@ -5534,7 +5534,6 @@ $(() => {
   const appInstance = app.mount("#app");
   window.vueApp = appInstance;
   const logger = new Logger("GSKO-FACE");
-  let lockedMessageId = null;
   eventOn("GSKO:showUI", detail => {
     const funcName = "onShowUI";
     try {
@@ -5543,22 +5542,19 @@ $(() => {
       logContext.mk = "";
     }
     logger.log(funcName, "收到 GSKO:showUI 事件", detail);
-    const currentEventMessageId = detail?.message_id;
-    if (typeof currentEventMessageId !== "number") {
+    const eventMessageId = detail?.message_id;
+    if (typeof eventMessageId !== "number") {
       logger.warn(funcName, "事件中未提供有效的 message_id，无法刷新 UI。");
       return;
     }
-    if (lockedMessageId === null) {
-      lockedMessageId = currentEventMessageId;
-      logger.log(funcName, `UI 已锁定到 messageId: ${lockedMessageId}`);
-    }
-    if (currentEventMessageId !== lockedMessageId) {
-      logger.log(funcName, `事件 messageId (${currentEventMessageId}) 与锁定的 ID (${lockedMessageId}) 不匹配，跳过刷新。`);
+    const currentMessageId = getCurrentMessageId();
+    if (eventMessageId !== currentMessageId) {
+      logger.log(funcName, `事件 messageId (${eventMessageId}) 与当前的 ID (${currentMessageId}) 不匹配，跳过刷新。`);
       return;
     }
-    const latestMessage = getChatMessages(lockedMessageId)?.[0];
+    const latestMessage = getChatMessages(currentMessageId)?.[0];
     if (!latestMessage) {
-      logger.warn(funcName, `无法找到 message_id 为 ${lockedMessageId} 的消息，跳过刷新。`);
+      logger.warn(funcName, `无法找到 message_id 为 ${currentMessageId} 的消息，跳过刷新。`);
       return;
     }
     if (detail?.actions?.apiWrite === true) {
@@ -5580,7 +5576,7 @@ $(() => {
       const context = {
         statWithoutMeta: parsedStat,
         runtime: parsedRuntime,
-        messageId: lockedMessageId,
+        messageId: currentMessageId,
         latestMessage
       };
       logger.debug(funcName, "传给各子模块的上下文对象:", context);

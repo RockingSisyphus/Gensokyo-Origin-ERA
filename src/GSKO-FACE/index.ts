@@ -20,8 +20,6 @@ $(() => {
 
   const logger = new Logger();
 
-  let lockedMessageId: number | null = null;
-
   // 监听 GSKO:showUI 事件，用于手动刷新 UI 的入口
   eventOn('GSKO:showUI', (detail: any) => {
     const funcName = 'onShowUI';
@@ -34,35 +32,32 @@ $(() => {
 
     logger.log(funcName, '收到 GSKO:showUI 事件', detail);
 
-    const currentEventMessageId = detail?.message_id;
+    const eventMessageId = detail?.message_id;
 
     // 如果事件没有提供 message_id，则无法继续
-    if (typeof currentEventMessageId !== 'number') {
+    if (typeof eventMessageId !== 'number') {
       logger.warn(funcName, '事件中未提供有效的 message_id，无法刷新 UI。');
       return;
     }
 
-    // 锁定到第一个触发事件的消息 ID
-    if (lockedMessageId === null) {
-      lockedMessageId = currentEventMessageId;
-      logger.log(funcName, `UI 已锁定到 messageId: ${lockedMessageId}`);
-    }
+    // 获取当前酒馆的消息 ID
+    const currentMessageId = getCurrentMessageId();
 
-    // 如果后续事件的消息 ID 与锁定的 ID 不匹配，则忽略该事件
-    if (currentEventMessageId !== lockedMessageId) {
+    // 如果事件的 messageId 与当前酒馆的 messageId 不匹配，则忽略该事件
+    if (eventMessageId !== currentMessageId) {
       logger.log(
         funcName,
-        `事件 messageId (${currentEventMessageId}) 与锁定的 ID (${lockedMessageId}) 不匹配，跳过刷新。`,
+        `事件 messageId (${eventMessageId}) 与当前的 ID (${currentMessageId}) 不匹配，跳过刷新。`,
       );
       return;
     }
 
-    // 根据锁定的 message_id 获取对应的消息
-    const latestMessage = getChatMessages(lockedMessageId)?.[0];
+    // 根据当前的 message_id 获取对应的消息
+    const latestMessage = getChatMessages(currentMessageId)?.[0];
 
     // 如果找不到对应的消息，则不刷新
     if (!latestMessage) {
-      logger.warn(funcName, `无法找到 message_id 为 ${lockedMessageId} 的消息，跳过刷新。`);
+      logger.warn(funcName, `无法找到 message_id 为 ${currentMessageId} 的消息，跳过刷新。`);
       return;
     }
 
@@ -93,7 +88,7 @@ $(() => {
       const context = {
         statWithoutMeta: parsedStat,
         runtime: parsedRuntime,
-        messageId: lockedMessageId,
+        messageId: currentMessageId,
         latestMessage,
       };
       logger.debug(funcName, '传给各子模块的上下文对象:', context);
