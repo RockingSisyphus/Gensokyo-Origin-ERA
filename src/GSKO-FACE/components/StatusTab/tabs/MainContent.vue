@@ -37,46 +37,24 @@
  * 该组件负责从传入的聊天消息对象中提取由 <content> 标签包裹的内容，并将其显示出来。
  * 同时提供 UI 来编辑主内容和排除内容的标签。
  */
-import { computed, ref, watch } from 'vue';
+import { computed, onMounted, ref, watch } from 'vue';
 import type { Stat } from '../../../../GSKO-BASE/schema/stat';
 import { updateEraVariableByObject } from '../../../utils/eraWriter';
 import { Logger } from '../../../utils/log';
 
-/**
- * @interface MainContentProps
- * @description 组件接收的属性。
- */
-interface MainContentProps {
-  /**
-   * @property {ChatMessage | null | undefined} latestMessage - 当前最新的消息对象。
-   */
-  latestMessage?: ChatMessage | null | undefined;
-  /**
-   * @property {number} refreshKey - 一个用于强制触发内容更新的 key。
-   */
-  refreshKey?: number;
-  /**
-   * @property {Stat | null} stat - 状态对象，用于读取配置。
-   */
-  stat?: Stat | null;
-}
-
-// 定义组件的 props。
-const props = withDefaults(defineProps<MainContentProps>(), {
-  latestMessage: null,
-  refreshKey: 0,
-  stat: null,
-});
-
 // 初始化日志记录器
 const logger = new Logger('StatusTab/MainContent');
+
+// 本地存储当前消息和 stat 数据
+const latestMessage = ref<ChatMessage | null>(null);
+const statData = ref<Stat | null>(null);
 
 // 存储最终要显示在模板中的 HTML 内容。
 const displayHtml = ref('');
 
-// 从 stat.config 中安全地获取标签配置
-const mainBodyTags = computed(() => props.stat?.config?.mainBodyTags ?? []);
-const excludeBodyTags = computed(() => props.stat?.config?.excludeBodyTags ?? []);
+// 从本地 statData 中安全地获取标签配置
+const mainBodyTags = computed(() => statData.value?.config?.mainBodyTags ?? []);
+const excludeBodyTags = computed(() => statData.value?.config?.excludeBodyTags ?? []);
 
 // 用于输入框双向绑定的 ref
 const mainTagsInput = ref('');
@@ -91,14 +69,16 @@ const stringToTags = (str: string) =>
     .map(tag => tag.trim())
     .filter(tag => tag.length > 0);
 
-// 监听 props 的变化，当 stat 对象变化时，更新输入框的内容
+// 监听 statData 的变化，更新输入框内容
 watch(
-  () => props.stat,
+  statData,
   newStat => {
     if (newStat?.config) {
       mainTagsInput.value = tagsToString(newStat.config.mainBodyTags ?? []);
       excludeTagsInput.value = tagsToString(newStat.config.excludeBodyTags ?? []);
     }
+    // 内容提取依赖 statData，所以在这里触发
+    extractAndDisplayContent();
   },
   { immediate: true, deep: true },
 );
@@ -140,13 +120,13 @@ const buildContentRegex = (tags: string[]): RegExp => {
 };
 
 const extractAndDisplayContent = () => {
-  if (!props.latestMessage) {
-    logger.log('extractAndDisplayContent', '传入的 message 为空，清空正文。');
+  if (!latestMessage.value) {
+    logger.log('extractAndDisplayContent', '本地 message 为空，清空正文。');
     displayHtml.value = '';
     return;
   }
 
-  const { message, message_id } = props.latestMessage;
+  const { message, message_id } = latestMessage.value;
   let contentToProcess = message;
   let chunks: string[] = [];
 
@@ -194,12 +174,55 @@ const extractAndDisplayContent = () => {
   }
 };
 
-// 监听 props 的变化，当 latestMessage 或 refreshKey 改变时，重新更新内容。
-watch(
-  () => [props.latestMessage, props.refreshKey, props.stat],
-  extractAndDisplayContent,
-  { immediate: true, deep: true }, // 立即执行一次，并在对象内部变化时触发
-);
+// 监听本地消息的变化，重新更新内容。
+watch(latestMessage, extractAndDisplayContent, {
+  immediate: true,
+  deep: true,
+});
+
+/**
+ * @description 获取并更新当前的消息。
+ */
+const fetchAndUpdateMessage = async () => {
+  try {
+    const currentMessageId = await getCurrentMessageId();
+    if (currentMessageId === null || currentMessageId === undefined) {
+      logger.warn('fetchAndUpdateMessage', '无法获取当前消息 ID。');
+      latestMessage.value = null;
+      return;
+    }
+
+    // getChatMessages 接收 number 或 string 类型的 range
+    const messages = await getChatMessages(currentMessageId);
+    const currentMessage = messages[0]; // 获取单个消息时，返回数组的第一个元素
+
+    if (currentMessage) {
+      latestMessage.value = currentMessage;
+      logger.log('fetchAndUpdateMessage', `已成功获取并更新消息，ID: ${currentMessageId}`);
+    } else {
+      logger.warn('fetchAndUpdateMessage', `在消息列表中未找到 ID 为 ${currentMessageId} 的消息。`);
+      latestMessage.value = null;
+    }
+  } catch (error) {
+    logger.error('fetchAndUpdateMessage', '获取消息时发生错误:', error);
+    latestMessage.value = null;
+  }
+};
+
+// 在组件挂载时获取所有初始数据
+onMounted(async () => {
+  try {
+    // 1. 获取聊天变量作为 stat 数据
+    const chatVars = getVariables({ type: 'chat' });
+    statData.value = chatVars as Stat;
+    logger.log('onMounted', '已获取聊天变量。', statData.value);
+
+    // 2. 获取当前消息
+    await fetchAndUpdateMessage();
+  } catch (error) {
+    logger.error('onMounted', '在挂载过程中获取数据时发生错误:', error);
+  }
+});
 </script>
 
 <style scoped>
