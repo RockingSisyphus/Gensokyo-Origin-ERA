@@ -81,7 +81,7 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
   prompts.push('<本轮**必须**更新的ERA变量>');
   prompts.push('**以下是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**');
   // 构建文文新闻提示词
-  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
+  const ayaNewsPrompt = buildAyaNewsPrompt({ runtime, stat });
   if (ayaNewsPrompt) {
     prompts.push(ayaNewsPrompt);
   }

@@ -1,4 +1,5 @@
 import _ from 'lodash';
+import type { Stat } from '../../schema/stat';
 import type { Runtime } from '../../schema/runtime';
 import { Logger } from '../../utils/log';
 import { matchMessages } from '../../utils/message';
@@ -9,9 +10,16 @@ const logger = new Logger();
  * @description 从消息中提取提到的角色，并更新到 runtime
  * @param {object} params
  * @param {Runtime} params.runtime - 当前的 runtime 对象
+ * @param {Stat} params.stat - 当前的 stat 对象
  * @returns {Promise<Runtime>} 修改后的 runtime 对象
  */
-export async function mentionedCharacterProcessor({ runtime }: { runtime: Runtime }): Promise<Runtime> {
+export async function mentionedCharacterProcessor({
+  runtime,
+  stat,
+}: {
+  runtime: Runtime;
+  stat: Stat;
+}): Promise<Runtime> {
   const funcName = 'mentionedCharacterProcessor';
   const updatedRuntime = _.cloneDeep(runtime);
 
@@ -46,9 +54,13 @@ export async function mentionedCharacterProcessor({ runtime }: { runtime: Runtim
       }
     }
 
+    const { mainBodyTags, excludeBodyTags } = stat.config;
+
     const matchedNames = await matchMessages(charNames, {
       depth: 3, // 只检查当前楼层
       includeSwipes: false,
+      mainBodyTags,
+      excludeBodyTags,
     });
 
     if (matchedNames.length > 0) {

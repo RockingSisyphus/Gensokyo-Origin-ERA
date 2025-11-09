@@ -1301,18 +1301,31 @@ function escReg(s) {
   return String(s).replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 }
 
-function extractContentForMatching(messages, tagName = null) {
+function extractContentForMatching(messages, options = {}) {
+  const {mainBodyTags = [], excludeBodyTags = []} = options;
   const segs = [];
   for (const m of messages) {
-    const messageContent = getMessageContent(m);
+    let messageContent = getMessageContent(m);
     if (messageContent === null) {
       continue;
     }
-    if (tagName) {
-      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, "gi");
-      let match;
-      while ((match = re.exec(messageContent)) !== null) {
-        segs.push(match[1]);
+    if (excludeBodyTags.length > 0) {
+      for (const tagName of excludeBodyTags) {
+        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>[\\s\\S]*?<\\/${escReg(tagName)}>`, "gi");
+        messageContent = messageContent.replace(re, "");
+      }
+    }
+    if (mainBodyTags.length > 0) {
+      const mainBodySegs = [];
+      for (const tagName of mainBodyTags) {
+        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>([\\s\\S]*?)<\\/${escReg(tagName)}>`, "gi");
+        let match;
+        while ((match = re.exec(messageContent)) !== null) {
+          mainBodySegs.push(match[1].trim());
+        }
+      }
+      if (mainBodySegs.length > 0) {
+        segs.push(mainBodySegs.join("\n"));
       }
     } else {
       segs.push(messageContent);
@@ -1322,7 +1335,7 @@ function extractContentForMatching(messages, tagName = null) {
 }
 
 async function matchMessages(keywords, options = {}) {
-  const {depth = 5, includeSwipes = false, tag = null} = options;
+  const {depth = 5, includeSwipes = false, mainBodyTags, excludeBodyTags} = options;
   const funcName = "matchMessages";
   try {
     if (typeof getChatMessages !== "function") {
@@ -1336,7 +1349,10 @@ async function matchMessages(keywords, options = {}) {
       hide_state: "all",
       include_swipes: includeSwipes
     });
-    const pool = extractContentForMatching(msgs, tag);
+    const pool = extractContentForMatching(msgs, {
+      mainBodyTags,
+      excludeBodyTags
+    });
     if (!pool) {
       return [];
     }
@@ -1387,10 +1403,12 @@ async function loadLocations({stat, legalLocations, neighbors}) {
       return [];
     }
     const legalLocationNames = legalLocations.map(loc => loc.name);
+    const {mainBodyTags, excludeBodyTags} = stat.config;
     const matched = await matchMessages(legalLocationNames, {
       depth: 5,
       includeSwipes: false,
-      tag: WORLD_DEFAULTS.mainStoryTag
+      mainBodyTags: mainBodyTags ?? [ WORLD_DEFAULTS.mainStoryTag ],
+      excludeBodyTags
     });
     hits = Array.from(new Set(matched));
     const userLoc = stat.user?.[USER_FIELDS.currentLocation]?.trim() ?? "";
@@ -3242,7 +3260,7 @@ async function processIncidentDecisions({stat, runtime}) {
 
 const mentioned_character_processor_logger = new Logger("GSKO-BASE/core/mentioned-character-processor");
 
-async function mentionedCharacterProcessor({runtime}) {
+async function mentionedCharacterProcessor({runtime, stat}) {
   const funcName = "mentionedCharacterProcessor";
   const updatedRuntime = external_default().cloneDeep(runtime);
   if (!updatedRuntime.character) {
@@ -3272,9 +3290,12 @@ async function mentionedCharacterProcessor({runtime}) {
         charNameIdMap.set(name, id);
       }
     }
+    const {mainBodyTags, excludeBodyTags} = stat.config;
     const matchedNames = await matchMessages(charNames, {
       depth: 3,
-      includeSwipes: false
+      includeSwipes: false,
+      mainBodyTags,
+      excludeBodyTags
     });
     if (matchedNames.length > 0) {
       mentioned_character_processor_logger.debug(funcName, `在消息中匹配到的角色名: ${JSON.stringify(matchedNames)}`);
@@ -3948,7 +3969,10 @@ function buildPrompt({runtime, stat}) {
   prompts.push("</沉浸感核心>");
   prompts.push("<本轮**必须**更新的ERA变量>");
   prompts.push("**以下是你必须在本轮参照ERA变量更新规则更新的变量及其结构。**");
-  const ayaNewsPrompt = buildAyaNewsPrompt(runtime);
+  const ayaNewsPrompt = buildAyaNewsPrompt({
+    runtime,
+    stat
+  });
   if (ayaNewsPrompt) {
     prompts.push(ayaNewsPrompt);
   }
@@ -5666,7 +5690,8 @@ $(() => {
         cache: getCache(currentStat)
       });
       currentRuntime = await mentionedCharacterProcessor({
-        runtime: currentRuntime
+        runtime: currentRuntime,
+        stat: currentStat
       });
       logState("Mentioned Character Processor", "runtime", {
         stat: currentStat,

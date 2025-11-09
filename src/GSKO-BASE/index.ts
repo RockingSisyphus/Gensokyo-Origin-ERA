@@ -315,7 +315,7 @@ $(() => {
       });
 
       // [被提及角色处理器]：从消息中提取提到的角色，并更新到 runtime
-      currentRuntime = await mentionedCharacterProcessor({ runtime: currentRuntime });
+      currentRuntime = await mentionedCharacterProcessor({ runtime: currentRuntime, stat: currentStat });
       logState('Mentioned Character Processor', 'runtime', {
         stat: currentStat,
         runtime: currentRuntime,

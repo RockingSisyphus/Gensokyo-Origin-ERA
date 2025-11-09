@@ -6,7 +6,6 @@
       "necessary": "self",
       "updatable": true
     },
-
     "ui": {
       "theme": "light",
       "mainFontPercent": 100,
@@ -21,7 +20,7 @@
       "isRandomPool": false
     },
     "mainBodyTags": ["content"],
-    "excludeBodyTags": [""]
+    "excludeBodyTags": ["VariableThink", "VariableEdit", "VariableInsert", "VariableDelete"]
   },
   "chars": {
     "$meta": {

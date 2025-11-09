@@ -62,30 +62,51 @@ function escReg(s: string): string {
 /**
  * @description 从消息中提取用于匹配的文本。
  * @param messages 消息对象数组。
- * @param tagName 可选的HTML标签名，如 "content"。如果提供，则只从这些标签中提取内容。
- * @returns 拼接后的文本。
+ * @param options 提取选项。
+ * @param {string[]} [options.mainBodyTags] - 可选的HTML标签名数组。如果提供，则只从这些标签中提取内容。
+ * @param {string[]} [options.excludeBodyTags] - 可选的HTML标签名数组。在提取前，会先移除这些标签及其内容。
+ * @returns {string} 提取并拼接后的文本。
  */
 function extractContentForMatching(
   messages: (ChatMessage | ChatMessageSwiped)[],
-  tagName: string | null = null,
+  options: {
+    mainBodyTags?: string[];
+    excludeBodyTags?: string[];
+  } = {},
 ): string {
+  const { mainBodyTags = [], excludeBodyTags = [] } = options;
   const segs: string[] = [];
 
   for (const m of messages) {
-    const messageContent = getMessageContent(m);
+    let messageContent = getMessageContent(m);
     if (messageContent === null) {
       continue;
     }
 
-    if (tagName) {
-      const re = new RegExp(`<${tagName}\\b[^>]*>([\\s\\S]*?)<\\/${tagName}>`, 'gi');
-      let match;
-      // 如果指定了tagName，我们只对标签内的内容感兴趣
-      while ((match = re.exec(messageContent)) !== null) {
-        segs.push(match[1]);
+    // 1. 去除所有 excludeBodyTags 的内容
+    if (excludeBodyTags.length > 0) {
+      for (const tagName of excludeBodyTags) {
+        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>[\\s\\S]*?<\\/${escReg(tagName)}>`, 'gi');
+        messageContent = messageContent.replace(re, '');
+      }
+    }
+
+    // 2. 从处理过的内容中提取 mainBodyTags 的内容
+    if (mainBodyTags.length > 0) {
+      const mainBodySegs: string[] = [];
+      for (const tagName of mainBodyTags) {
+        const re = new RegExp(`<${escReg(tagName)}\\b[^>]*>([\\s\\S]*?)<\\/${escReg(tagName)}>`, 'gi');
+        let match;
+        while ((match = re.exec(messageContent)) !== null) {
+          mainBodySegs.push(match[1].trim());
+        }
+      }
+      // 如果指定了 mainBodyTags，则只将这些标签内的内容加入最终结果
+      if (mainBodySegs.length > 0) {
+        segs.push(mainBodySegs.join('\n'));
       }
     } else {
-      // 如果没有指定tagName，则使用整个消息内容
+      // 如果没有提供 mainBodyTags，则使用清理后的整个消息内容
       segs.push(messageContent);
     }
   }
@@ -99,7 +120,8 @@ function extractContentForMatching(
  * @param {object} options - 匹配选项。
  * @param {number} [options.depth=5] - 查找的消息深度。
  * @param {boolean} [options.includeSwipes=false] - 是否包括滑过的消息。
- * @param {string | null} [options.tag=null] - 可选的HTML标签名，用于限定匹配范围。如果提供，则只在标签内部匹配。
+ * @param {string[]} [options.mainBodyTags] - 可选的HTML标签名数组，用于限定匹配范围。如果提供，则只在这些标签内部匹配。
+ * @param {string[]} [options.excludeBodyTags] - 可选的HTML标签名数组，在匹配前会移除这些标签及其内容。
  * @returns {Promise<string[]>} 命中的关键词数组。
  */
 export async function matchMessages(
@@ -107,10 +129,11 @@ export async function matchMessages(
   options: {
     depth?: number;
     includeSwipes?: boolean;
-    tag?: string | null;
+    mainBodyTags?: string[];
+    excludeBodyTags?: string[];
   } = {},
 ): Promise<string[]> {
-  const { depth = 5, includeSwipes = false, tag = null } = options;
+  const { depth = 5, includeSwipes = false, mainBodyTags, excludeBodyTags } = options;
   const funcName = 'matchMessages';
   try {
     if (typeof getChatMessages !== 'function') {
@@ -125,7 +148,7 @@ export async function matchMessages(
       include_swipes: includeSwipes,
     });
 
-    const pool = extractContentForMatching(msgs, tag);
+    const pool = extractContentForMatching(msgs, { mainBodyTags, excludeBodyTags });
     if (!pool) {
       // 如果文本池为空（例如，指定了tag但没有匹配的标签），则直接返回空数组
       return [];

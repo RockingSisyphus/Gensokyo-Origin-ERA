@@ -27,10 +27,13 @@ export async function loadLocations({
 
     const legalLocationNames = legalLocations.map(loc => loc.name);
 
+    const { mainBodyTags, excludeBodyTags } = stat.config;
+
     const matched = await matchMessages(legalLocationNames, {
       depth: 5,
       includeSwipes: false,
-      tag: WORLD_DEFAULTS.mainStoryTag,
+      mainBodyTags: mainBodyTags ?? [WORLD_DEFAULTS.mainStoryTag],
+      excludeBodyTags,
     });
     hits = Array.from(new Set(matched));
 
