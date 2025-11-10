@@ -707,7 +707,7 @@ const hasSharedLocation = (snapshots, charId) => snapshots.some(snapshot => {
   return userLocation && charLocation && userLocation === charLocation;
 });
 
-const sumDecrease = rules => external_default().sumBy(rules, entry => {
+const sumChangeValue = rules => external_default().sumBy(rules, entry => {
   const value = toFiniteNumber(entry.rule.decrease);
   return value && value > 0 ? value : 0;
 });
@@ -812,20 +812,33 @@ async function processAffectionForgettingInternal({stat, runtime, mk, selectedMk
       processor_logger.debug(funcName, `角色 ${charId} 在跨度内与玩家同地区，跳过遗忘。`);
       continue;
     }
-    const decreaseValue = sumDecrease(rules);
-    if (decreaseValue <= 0) continue;
-    const newAffection = Math.round(affection - decreaseValue);
+    const changeValue = sumChangeValue(rules);
+    if (changeValue <= 0) continue;
+    let newAffection;
+    let operation = "不变";
+    if (affection > 0) {
+      newAffection = Math.max(0, affection - changeValue);
+      if (newAffection < affection) operation = "降低";
+    } else if (affection < 0) {
+      newAffection = Math.min(0, affection + changeValue);
+      if (newAffection > affection) operation = "增加";
+    } else {
+      continue;
+    }
+    newAffection = Math.round(newAffection);
+    if (operation === "不变" || newAffection === affection) continue;
     const char = stat.chars?.[charId];
     if (!char) continue;
     char[CHARACTER_FIELDS.affection] = newAffection;
-    const reason = `在 ${rules.map(item => item.flagKey).join(", ")} 跨度内未与玩家同地区，按遗忘规则降低好感度 ${decreaseValue}`;
+    const reason = `在 ${rules.map(item => item.flagKey).join(", ")} 跨度内未与玩家同地区，好感度向 0 回归，${operation}了 ${changeValue}`;
     const path = `chars.${charId}.${CHARACTER_FIELDS.affection}`;
     changes.push(createChangeLogEntry("affection-forgetting-processor", path, affection, newAffection, reason));
-    processor_logger.debug(funcName, "应用遗忘规则降低好感度。", {
+    processor_logger.debug(funcName, "应用遗忘规则使好感度向0回归。", {
       charId,
       oldAffection: affection,
       newAffection,
-      decreaseValue,
+      changeValue,
+      operation,
       activeFlags: rules.map(item => item.flagKey)
     });
   }

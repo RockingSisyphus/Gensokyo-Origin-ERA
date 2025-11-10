@@ -55,7 +55,7 @@ const hasSharedLocation = (snapshots: QueryResultItem[], charId: string): boolea
   });
 };
 
-const sumDecrease = (rules: ActiveRule[]): number => {
+const sumChangeValue = (rules: ActiveRule[]): number => {
   return _.sumBy(rules, entry => {
     const value = toFiniteNumber(entry.rule.decrease);
     return value && value > 0 ? value : 0;
@@ -156,23 +156,43 @@ export async function processAffectionForgettingInternal({
       continue;
     }
 
-    const decreaseValue = sumDecrease(rules);
-    if (decreaseValue <= 0) continue;
+    const changeValue = sumChangeValue(rules);
+    if (changeValue <= 0) continue;
 
-    const newAffection = Math.round(affection - decreaseValue);
+    let newAffection: number;
+    let operation: '增加' | '降低' | '不变' = '不变';
+
+    if (affection > 0) {
+      newAffection = Math.max(0, affection - changeValue);
+      if (newAffection < affection) operation = '降低';
+    } else if (affection < 0) {
+      newAffection = Math.min(0, affection + changeValue);
+      if (newAffection > affection) operation = '增加';
+    } else {
+      continue; // 好感度为0，跳过
+    }
+
+    newAffection = Math.round(newAffection);
+
+    // 如果值没有变化，则跳过
+    if (operation === '不变' || newAffection === affection) continue;
+
     const char = stat.chars?.[charId];
     if (!char) continue;
     char[CHARACTER_FIELDS.affection] = newAffection;
 
-    const reason = `在 ${rules.map(item => item.flagKey).join(', ')} 跨度内未与玩家同地区，按遗忘规则降低好感度 ${decreaseValue}`;
+    const reason = `在 ${rules
+      .map(item => item.flagKey)
+      .join(', ')} 跨度内未与玩家同地区，好感度向 0 回归，${operation}了 ${changeValue}`;
     const path = `chars.${charId}.${CHARACTER_FIELDS.affection}`;
     changes.push(createChangeLogEntry('affection-forgetting-processor', path, affection, newAffection, reason));
 
-    logger.debug(funcName, '应用遗忘规则降低好感度。', {
+    logger.debug(funcName, '应用遗忘规则使好感度向0回归。', {
       charId,
       oldAffection: affection,
       newAffection,
-      decreaseValue,
+      changeValue,
+      operation,
       activeFlags: rules.map(item => item.flagKey),
     });
   }
