@@ -35,7 +35,7 @@
             "人间之里": {
               "pos": { "x": 700, "y": 700 },
               "htmlEle": "<div class='location-label'>人间之里</div>",
-              "aliases": ["人里", "人間之里"]
+              "aliases": ["人里", "人間之里", "人类村落", "人类聚落"]
             },
             "铃奈庵": {
               "aliases": ["鈴奈庵"],
@@ -96,9 +96,14 @@
               "pos": { "x": 240, "y": 700 },
               "htmlEle": "<div class='location-label'>香霖堂</div>"
             },
+            "废弃洋馆": {
+              "aliases": ["废洋馆"],
+              "pos": { "x": 400, "y": 650 },
+              "htmlEle": "<div class='location-label'>废弃洋馆</div>"
+            },
             "无缘冢": {
               "aliases": ["無緣冢", "无缘塚", "再思之道"],
-              "pos": { "x": 430, "y": 880 },
+              "pos": { "x": 460, "y": 880 },
               "htmlEle": "<div class='location-label'>无缘冢</div>"
             },
             "电线塔": {
@@ -125,12 +130,12 @@
             },
             "华扇邸": {
               "aliases": [],
-              "pos": { "x": 750, "y": 450 },
+              "pos": { "x": 620, "y": 430 },
               "htmlEle": "<div class='location-label'>华扇邸</div>"
             },
             "秘天崖": {
               "aliases": [],
-              "pos": { "x": 600, "y": 390 },
+              "pos": { "x": 530, "y": 380 },
               "htmlEle": "<div class='location-label'>秘天崖</div>"
             },
             "索道": {
@@ -155,7 +160,7 @@
             },
             "花果子报社": {
               "aliases": ["花果子新聞社", "花果子新闻社", "花果子报社·报社"],
-              "pos": { "x": 600, "y": 350 },
+              "pos": { "x": 700, "y": 300 },
               "htmlEle": "<div class='location-label'>花果子报社</div>"
             },
             "风神之湖": {
@@ -170,7 +175,7 @@
             },
             "河童市场": {
               "aliases": [],
-              "pos": { "x": 600, "y": 450 },
+              "pos": { "x": 600, "y": 500 },
               "htmlEle": "<div class='location-label'>河童市场</div>"
             },
             "迷途之家": {
@@ -179,8 +184,8 @@
               "htmlEle": "<div class='location-label'>迷途之家</div>"
             },
             "虹龙洞": { "pos": { "x": 500, "y": 300 }, "htmlEle": "<div class='location-label'>虹龙洞</div>" },
-            "圣域": { "pos": { "x": 750, "y": 300 }, "htmlEle": "<div class='location-label'>圣域</div>" },
-            "大蛤蟆之池": { "pos": { "x": 650, "y": 520 }, "htmlEle": "<div class='location-label'>大蛤蟆之池</div>" }
+            "圣域": { "pos": { "x": 750, "y": 270 }, "htmlEle": "<div class='location-label'>圣域</div>" },
+            "大蛤蟆之池": { "pos": { "x": 700, "y": 450 }, "htmlEle": "<div class='location-label'>大蛤蟆之池</div>" }
           },
           "南境丘陵带": {
             "无名之丘": {
@@ -193,7 +198,7 @@
               "pos": { "x": 550, "y": 850 },
               "htmlEle": "<div class='location-label'>太阳花田</div>"
             },
-            "辉针城": { "pos": { "x": 1000, "y": 900 }, "htmlEle": "<div class='location-label'>辉针城</div>" }
+            "辉针城": { "pos": { "x": 980, "y": 900 }, "htmlEle": "<div class='location-label'>辉针城</div>" }
           }
         },
         "冥界": {
@@ -257,13 +262,18 @@
         "天界等上层": {
           "天界": {
             "aliases": ["有顶天", "仙界"],
-            "pos": { "x": 1400, "y": 250 },
+            "pos": { "x": 1400, "y": 260 },
             "htmlEle": "<div class='location-label'>天界</div>"
           },
           "艮之境": {
             "aliases": ["隙间"],
-            "pos": { "x": 1130, "y": 220 },
+            "pos": { "x": 1130, "y": 200 },
             "htmlEle": "<div class='location-label'>艮之境</div>"
+          },
+          "后户之国": {
+            "aliases": [],
+            "pos": { "x": 1280, "y": 200 },
+            "htmlEle": "<div class='location-label'>后户之国</div>"
           },
           "梦世界": {
             "aliases": ["夢境世界", "梦境世界"],
@@ -272,16 +282,31 @@
           }
         },
         "月面": {
-          "月都": { "pos": { "x": 350, "y": 200 }, "htmlEle": "<div class='location-label'>月都</div>" },
+          "月都": { "pos": { "x": 350, "y": 150 }, "htmlEle": "<div class='location-label'>月都</div>" },
           "浅间净秽山": { "pos": { "x": 450, "y": 230 }, "htmlEle": "<div class='location-label'>浅间净秽山</div>" },
           "鸟船遗迹": {
             "aliases": [],
-            "pos": { "x": 200, "y": 150 },
+            "pos": { "x": 200, "y": 100 },
             "htmlEle": "<div class='location-label'>鸟船遗迹</div>"
           }
         },
         "外界": {
-          "秘封俱乐部": { "pos": { "x": 1200, "y": 200 }, "htmlEle": "<div class='location-label'>秘封俱乐部</div>" }
+          "京都": {
+            "aliases": ["秘封俱乐部", "酉京都站"],
+            "pos": { "x": 1100, "y": 100 },
+            "htmlEle": "<div class='location-label'>京都</div>"
+          },
+          "东京": {
+            "aliases": ["卯东京站"],
+            "pos": { "x": 1350, "y": 100 },
+            "htmlEle": "<div class='location-label'>东京</div>"
+          },
+          "莲台野": {
+            "aliases": [],
+            "pos": { "x": 1200, "y": 150 },
+            "htmlEle": "<div class='location-label'>莲台野</div>"
+          },
+          "七夕坂": { "pos": { "x": 1430, "y": 100 }, "htmlEle": "<div class='location-label'>七夕坂</div>" }
         }
       }
     },
@@ -312,6 +337,8 @@
       { "a": "魔法之森", "b": "迷途之家" },
       { "a": "魔法之森", "b": "太阳花田" },
       { "a": "魔法之森", "b": "玄武涧" },
+      { "a": "魔法之森", "b": "废弃洋馆" },
+      { "a": "雾之湖", "b": "废弃洋馆" },
       { "a": "魔法之森", "b": "置行堀" },
       { "a": "魔法之森", "b": "无缘冢" },
       { "a": "雾雨魔法店", "b": "香霖堂" },
@@ -333,6 +360,7 @@
       { "a": "九天瀑布", "b": "虹龙洞" },
       { "a": "九天瀑布", "b": "风神之湖" },
       { "a": "九天瀑布", "b": "玄武涧" },
+      { "a": "九天瀑布", "b": "天狗聚落" },
       { "a": "天狗聚落", "b": "文文报社" },
       { "a": "天狗聚落", "b": "花果子报社" },
       { "a": "文文报社", "b": "花果子报社" },
@@ -365,7 +393,13 @@
       { "a": "天界", "b": "月都" },
       { "a": "月都", "b": "梦世界" },
       { "a": "浅间净秽山", "b": "月都" },
-      { "a": "月都", "b": "鸟船遗迹" }
+      { "a": "月都", "b": "鸟船遗迹" },
+      { "a": "京都", "b": "东京" },
+      { "a": "东京", "b": "七夕坂" },
+      { "a": "京都", "b": "鸟船遗迹" },
+      { "a": "京都", "b": "莲台野" },
+      { "a": "七夕坂", "b": "后户之国" },
+      { "a": "莲台野", "b": "白玉楼" }
     ]
   },
   "fallbackPlace": "博丽神社"
