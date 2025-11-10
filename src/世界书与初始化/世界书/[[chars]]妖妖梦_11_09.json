@@ -971,8 +971,8 @@
   "lunasa": {
     "name": "露娜萨·普莉兹姆利巴",
     "好感度": 0,
-    "所在地区": "雾之湖",
-    "居住地区": "雾之湖",
+    "所在地区": "废弃洋馆",
+    "居住地区": "废弃洋馆",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1178,23 +1178,23 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byFlag": ["newPeriod"] },
-        "action": { "do": "练习小提琴", "to": "雾之湖" }
+        "action": { "do": "练习小提琴", "to": "废弃洋馆" }
       }
     ]
   },
   "merlin": {
     "name": "梅露兰·普莉兹姆利巴",
     "好感度": 0,
-    "所在地区": "雾之湖",
-    "居住地区": "雾之湖",
+    "所在地区": "废弃洋馆",
+    "居住地区": "废弃洋馆",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1400,23 +1400,23 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byFlag": ["newPeriod"] },
-        "action": { "do": "练习小号", "to": "雾之湖" }
+        "action": { "do": "练习小号", "to": "废弃洋馆" }
       }
     ]
   },
   "lyrica": {
     "name": "莉莉卡·普莉兹姆利巴",
     "好感度": 0,
-    "所在地区": "雾之湖",
-    "居住地区": "雾之湖",
+    "所在地区": "废弃洋馆",
+    "居住地区": "废弃洋馆",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1622,15 +1622,15 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "在家吃饭", "to": "雾之湖" }
+        "action": { "do": "在家吃饭", "to": "废弃洋馆" }
       },
       {
         "when": { "byFlag": ["newPeriod"] },
-        "action": { "do": "练习键盘", "to": "雾之湖" }
+        "action": { "do": "练习键盘", "to": "废弃洋馆" }
       }
     ]
   },
