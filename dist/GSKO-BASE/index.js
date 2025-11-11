@@ -1324,7 +1324,6 @@ function extractContentForMatching(messages, options = {}) {
     if (messageContent === null) {
       continue;
     }
-    log.log("extractContentForMatching", "原始消息内容:", messageContent);
     if (excludeBodyTags.length > 0) {
       for (const tagName of excludeBodyTags) {
         const safeTagName = escReg(tagName);
@@ -1338,7 +1337,6 @@ function extractContentForMatching(messages, options = {}) {
         messageContent = messageContent.replace(selfClosingRe, "");
       }
     }
-    log.log("extractContentForMatching", "排除标签后内容:", messageContent);
     if (mainBodyTags.length > 0) {
       const mainBodySegs = [];
       for (const tagName of mainBodyTags) {
@@ -1357,7 +1355,6 @@ function extractContentForMatching(messages, options = {}) {
     }
   }
   const result = segs.join("\n");
-  log.log("extractContentForMatching", "最终提取结果:", result);
   return result;
 }
 
@@ -3670,6 +3667,59 @@ function buildFestivalPrompt({runtime}) {
   }
 }
 
+const incident_logger = new Logger("GSKO-BASE/core/prompt-builder/incident");
+
+function buildIncidentPrompt({runtime, stat}) {
+  const funcName = "buildIncidentPrompt";
+  const incidentInfo = runtime.incident;
+  if (!incidentInfo || !incidentInfo.isIncidentActive) {
+    incident_logger.debug(funcName, "没有活动的异变，构建日常剧情提示词。");
+    return __WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+      [当前无异变]
+      请继续推进日常剧情。
+    `;
+  }
+  const activeIncident = incidentInfo.current ?? incidentInfo.spawn;
+  if (!activeIncident) {
+    incident_logger.debug(funcName, "异变已激活但找不到具体信息，构建日常剧情提示词。");
+    return __WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+      [当前无异变]
+      请继续推进日常剧情。
+    `;
+  }
+  const promptParts = [ __WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+    [重要指令]
+    当前有异变正在发生，请你务必推进异变剧情的发展。
+    ` ];
+  if (activeIncident.detail) {
+    promptParts.push(__WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+      [当前异变的主要影响]
+      ${activeIncident.detail}
+    `);
+  }
+  if (activeIncident.raw && activeIncident.name) {
+    try {
+      const wrappedStructure = {
+        incidents: {
+          [activeIncident.name]: activeIncident.raw
+        }
+      };
+      const jsonStructure = JSON.stringify(wrappedStructure, null, 2);
+      promptParts.push(__WEBPACK_EXTERNAL_MODULE_https_testingcf_jsdelivr_net_npm_dedent_esm_422736dc_default__`
+        [当前异变的JSON结构]
+        已激活异变如下，你可能需要修改以下内容或根据以下内容构建剧情：
+        \`\`\`json
+        ${jsonStructure}
+        \`\`\`
+      `);
+    } catch (error) {
+      incident_logger.error(funcName, "序列化异变JSON结构时出错:", error);
+    }
+  }
+  incident_logger.debug(funcName, "成功构建异变提示词。");
+  return promptParts.join("\n\n");
+}
+
 function buildLegalLocationsPrompt({runtime}) {
   const legalLocations = runtime.area?.legal_locations;
   if (external_default().isEmpty(legalLocations)) {
@@ -3962,7 +4012,14 @@ function buildPrompt({runtime, stat}) {
   if (festivalPrompts.length > 0) {
     prompts.push(...festivalPrompts);
   }
-  prompts.push("**以上为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以下设定。**");
+  const incidentPrompt = buildIncidentPrompt({
+    runtime,
+    stat
+  });
+  if (incidentPrompt) {
+    prompts.push(incidentPrompt);
+  }
+  prompts.push("**以上为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以上设定。**");
   prompts.push("</剧情编写基准>");
   prompts.push("<沉浸感核心>");
   prompts.push("**为了提高你编写的剧情的沉浸感，请参考以下内容编写最新剧情。**");

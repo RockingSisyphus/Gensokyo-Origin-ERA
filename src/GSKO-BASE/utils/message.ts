@@ -82,7 +82,7 @@ export function extractContentForMatching(
     if (messageContent === null) {
       continue;
     }
-    log.log('extractContentForMatching', '原始消息内容:', messageContent);
+    //log.log('extractContentForMatching', '原始消息内容:', messageContent);
 
     // 1. 去除所有 excludeBodyTags 的内容
     if (excludeBodyTags.length > 0) {
@@ -108,7 +108,7 @@ export function extractContentForMatching(
         messageContent = messageContent.replace(selfClosingRe, '');
       }
     }
-    log.log('extractContentForMatching', '排除标签后内容:', messageContent);
+    //log.log('extractContentForMatching', '排除标签后内容:', messageContent);
 
     // 2. 从处理过的内容中提取 mainBodyTags 的内容
     if (mainBodyTags.length > 0) {
@@ -136,7 +136,7 @@ export function extractContentForMatching(
   }
 
   const result = segs.join('\n');
-  log.log('extractContentForMatching', '最终提取结果:', result);
+  //log.log('extractContentForMatching', '最终提取结果:', result);
   return result;
 }
 

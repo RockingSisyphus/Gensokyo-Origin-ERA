@@ -5,6 +5,7 @@ import { buildCoLocatedCharactersPrompt } from './co-located-characters';
 import { buildCoLocatedCharsAffectionPrompt } from './co-located-characters-affection';
 import { buildCompanionDecisionPrompt } from './companion-decision';
 import { buildFestivalPrompt } from './festival';
+import { buildIncidentPrompt } from './incident';
 import { buildLegalLocationsPrompt } from './legal-locations';
 import { buildMainBodyWrapperTagPrompt } from './main-body-wrapper-tag';
 import { buildMainCharacterPrompt } from './main-character';
@@ -47,7 +48,13 @@ export function buildPrompt({ runtime, stat }: { runtime: any; stat: any }): str
     prompts.push(...festivalPrompts);
   }
 
-  prompts.push('**以上为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以下设定。**');
+  // 构建异变提示词
+  const incidentPrompt = buildIncidentPrompt({ runtime, stat });
+  if (incidentPrompt) {
+    prompts.push(incidentPrompt);
+  }
+
+  prompts.push('**以上为编写最新剧情的**核心基准**，你编写的剧情必须严格遵守以上设定。**');
   prompts.push('</剧情编写基准>');
 
   prompts.push('<沉浸感核心>');
