@@ -1,0 +1,2736 @@
+{
+  "shizuha": {
+    "name": "秋静叶",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byFlag": [
+            "bySeason.newAutumn"
+          ],
+          "byNow": {
+            "seasonName": "秋",
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "让树叶变红并落下",
+          "to": "RANDOM"
+        },
+        "priority": 80
+      },
+      {
+        "when": {
+          "byFlag": [
+            "bySeason.newWinter"
+          ],
+          "byNow": {
+            "seasonName": "冬",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "发呆",
+          "to": "$HOME"
+        }
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "minoriko": {
+    "name": "秋穰子",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "seasonName": "秋"
+          }
+        },
+        "action": {
+          "do": "让作物成熟",
+          "to": "人间之里"
+        },
+        "priority": 80
+      },
+      {
+        "when": {},
+        "action": {
+          "do": "受邀参加收获祭",
+          "to": "人间之里"
+        },
+        "priority": 90
+      },
+      {
+        "when": {
+          "byFlag": [
+            "bySeason.newWinter"
+          ],
+          "byNow": {
+            "seasonName": "冬"
+          }
+        },
+        "action": {
+          "do": "发呆",
+          "to": "$HOME"
+        },
+        "priority": 20
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "hina": {
+    "name": "键山雏",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周三",
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "制作雏人偶",
+          "to": "$HOME"
+        },
+        "priority": 50
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "为无人雏人偶商店补货",
+          "to": "人间之里"
+        },
+        "priority": 50
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "回收雏人偶",
+          "to": "玄武涧"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "回收雏人偶",
+          "to": "妖怪之山"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "nitori": {
+    "name": "河城荷取",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周三",
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "经营荷城杂货",
+          "to": "人间之里"
+        },
+        "priority": 40
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "摆弄机械",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "摆弄机械",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "和荷取下棋",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "momiji": {
+    "name": "犬走椛",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周一",
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "训练",
+          "to": "$HOME"
+        },
+        "priority": 60
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周一",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "训练",
+          "to": "$HOME"
+        },
+        "priority": 60
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "巡逻",
+          "to": "妖怪之山"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "巡逻",
+          "to": "天狗聚落"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "巡逻",
+          "to": "九天瀑布"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "和荷取下将棋",
+          "to": "九天瀑布"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "sanae": {
+    "name": "东风谷早苗",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周二",
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "传教",
+          "to": "人间之里"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周二",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "传教",
+          "to": "人间之里"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午",
+            "weekdayName": "周六"
+          }
+        },
+        "action": {
+          "do": "传教",
+          "to": "人间之里"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周六",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "传教",
+          "to": "人间之里"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周一",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "巫女修行"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日",
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "散步",
+          "to": "风神之湖"
+        },
+        "priority": 40
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日",
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "拜访灵梦",
+          "to": "博丽神社"
+        },
+        "priority": 35
+      },
+      {
+        "when": {},
+        "action": {
+          "do": "游玩",
+          "to": "人间之里"
+        },
+        "priority": 90
+      },
+      {
+        "when": {},
+        "action": {
+          "do": "主持守矢神社大祭",
+          "to": "守矢神社"
+        },
+        "priority": 90
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "运营神社",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "运营神社",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "kanako": {
+    "name": "八坂神奈子",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byNow": {
+            "day": 12,
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "检查核融合炉的状况",
+          "to": "灼热地狱遗址"
+        },
+        "priority": 70
+      },
+      {
+        "when": {
+          "byNow": {
+            "day": 27,
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "女子会",
+          "to": "鲵吞亭"
+        },
+        "priority": 70
+      },
+      {
+        "when": {},
+        "action": {
+          "do": "主持守矢神社大祭",
+          "to": "守矢神社"
+        },
+        "priority": 90
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "修行",
+          "to": "风神之湖"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+  "suwako": {
+    "name": "泄矢诹访子",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价试图杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会主动寻找并攻击对方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "会避开对方，如果无法避开则会恶语相向。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行普通的对话和互动。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "熟悉",
+        "describe": "会主动打招呼，并进行更深入的对话。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "会分享自己的心事，并主动邀请对方。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 20,
+          "divisor": 1
+        }
+      },
+      {
+        "threshold": 99999,
+        "name": "不渝",
+        "describe": "无论发生什么，都会永远爱着对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {},
+        "action": {
+          "do": "主持守矢神社大祭",
+          "to": "守矢神社"
+        },
+        "priority": 90
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "吃早饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃午饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "悠闲度过",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "吃晚饭",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "休息",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "睡觉",
+          "to": "$HOME"
+        }
+      }
+    ]
+  }
+}
