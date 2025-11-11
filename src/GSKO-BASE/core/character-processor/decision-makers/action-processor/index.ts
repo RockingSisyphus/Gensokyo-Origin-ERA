@@ -13,10 +13,7 @@ const logger = new Logger();
  * 检查一个行为条目（Entry）的 `when` 条件是否满足。
  * @returns 返回一个对象，包含是否满足条件 (`met`) 和原因 (`reason`)。
  */
-function areConditionsMet(
-  entry: Entry,
-  { runtime }: { runtime: Runtime },
-): { met: boolean; reason: string } {
+function areConditionsMet(entry: Entry, { runtime }: { runtime: Runtime }): { met: boolean; reason: string } {
   const { when } = entry;
   if (!when) return { met: true, reason: '无 `when` 条件。' };
 
@@ -133,10 +130,7 @@ function chooseAction(
   for (const entry of routine) {
     const { met, reason } = areConditionsMet(entry, { runtime });
     if (met) {
-      logger.debug(
-        funcName,
-        `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。原因: ${reason}`,
-      );
+      logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。原因: ${reason}`);
       return entry.action;
     }
   }
