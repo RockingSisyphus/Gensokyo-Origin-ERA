@@ -32,7 +32,7 @@ function loadDebugConfig() {
     /** @type {DebugConfig} */
     const config = JSON.parse(configStr);
 
-    const toRegex = (p: string) => new RegExp(`^${p.replace(/\*/g, '.*?')}$`);
+    const toRegex = (p: string) => new RegExp(`${p.replace(/\*/g, '.*')}`);
     enabledPatterns = (config.enabled || []).map(toRegex);
     disabledPatterns = (config.disabled || []).map(toRegex);
   } catch (e) {

@@ -177,7 +177,7 @@ function loadDebugConfig() {
   try {
     const configStr = globalThis.localStorage?.getItem(DEBUG_CONFIG_LS_KEY) || '{"enabled":[],"disabled":[]}';
     const config = JSON.parse(configStr);
-    const toRegex = p => new RegExp(`^${p.replace(/\*/g, ".*?")}$`);
+    const toRegex = p => new RegExp(`${p.replace(/\*/g, ".*")}`);
     enabledPatterns = (config.enabled || []).map(toRegex);
     disabledPatterns = (config.disabled || []).map(toRegex);
   } catch (e) {
@@ -2111,38 +2111,89 @@ const action_processor_logger = new Logger("GSKO-BASE/core/character-processor/d
 
 function areConditionsMet(entry, {runtime}) {
   const {when} = entry;
-  if (!when) return true;
+  if (!when) return {
+    met: true,
+    reason: "无 `when` 条件。"
+  };
   const clock = runtime.clock;
-  if (!clock) return false;
+  if (!clock) return {
+    met: false,
+    reason: "`runtime.clock` 不存在。"
+  };
+  const reasons = [];
   if (when.byFlag) {
-    if (!when.byFlag.some(flagPath => external_default().get(clock.flags, flagPath) === true)) {
-      return false;
+    const metFlags = when.byFlag.filter(flagPath => external_default().get(clock.flags, flagPath) === true);
+    if (metFlags.length > 0) {
+      reasons.push(`满足 Flag: [${metFlags.join(", ")}]`);
+    } else {
+      return {
+        met: false,
+        reason: `未满足任何 Flag: [${when.byFlag.join(", ")}]`
+      };
     }
   }
   if (when.byNow) {
-    if (!external_default().isMatch(clock.now, when.byNow)) {
-      return false;
+    if (external_default().isMatch(clock.now, when.byNow)) {
+      reasons.push(`满足时间条件: ${JSON.stringify(when.byNow)}`);
+    } else {
+      return {
+        met: false,
+        reason: `当前时间 ${JSON.stringify(clock.now)} 与 byNow ${JSON.stringify(when.byNow)} 不匹配。`
+      };
     }
   }
   if (when.byMonthDay) {
     const {month, day} = clock.now;
-    if (month !== when.byMonthDay.month || day !== when.byMonthDay.day) {
-      return false;
+    if (month === when.byMonthDay.month && day === when.byMonthDay.day) {
+      reasons.push(`满足日期: ${month}月${day}日`);
+    } else {
+      return {
+        met: false,
+        reason: `当前日期 ${month}月${day}日 与 byMonthDay 不匹配。`
+      };
     }
   }
   if (when.byFestival) {
     const currentFestival = runtime.festival?.current?.name;
-    if (when.byFestival === "ANY" && !currentFestival) {
-      return false;
-    }
-    if (external_default().isString(when.byFestival) && when.byFestival !== "ANY" && currentFestival !== when.byFestival) {
-      return false;
-    }
-    if (external_default().isArray(when.byFestival) && currentFestival && !when.byFestival.includes(currentFestival)) {
-      return false;
+    if (when.byFestival === "ANY") {
+      if (currentFestival) {
+        reasons.push(`满足节日条件: 当前是节日 [${currentFestival}]`);
+      } else {
+        return {
+          met: false,
+          reason: "要求任意节日，但当前没有节日。"
+        };
+      }
+    } else if (external_default().isString(when.byFestival)) {
+      if (currentFestival === when.byFestival) {
+        reasons.push(`满足节日条件: 当前是 [${currentFestival}]`);
+      } else {
+        return {
+          met: false,
+          reason: `要求节日 [${when.byFestival}]，但当前是 [${currentFestival || "无"}]。`
+        };
+      }
+    } else if (external_default().isArray(when.byFestival)) {
+      if (currentFestival && when.byFestival.includes(currentFestival)) {
+        reasons.push(`满足节日条件: 当前节日 [${currentFestival}] 在指定列表中。`);
+      } else {
+        return {
+          met: false,
+          reason: `当前节日 [${currentFestival || "无"}] 不在指定的节日列表 [${when.byFestival.join(", ")}] 中。`
+        };
+      }
     }
   }
-  return true;
+  if (reasons.length === 0) {
+    return {
+      met: true,
+      reason: "`when` 条件为空或未指定任何有效检查。"
+    };
+  }
+  return {
+    met: true,
+    reason: reasons.join("; ")
+  };
 }
 
 function chooseAction(charId, char, {runtime, stat}) {
@@ -2153,11 +2204,11 @@ function chooseAction(charId, char, {runtime, stat}) {
     ...entry,
     originalIndex: index
   })).filter(entry => {
-    const met = areConditionsMet(entry, {
+    const {met, reason} = areConditionsMet(entry, {
       runtime
     });
     if (met) {
-      action_processor_logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。`);
+      action_processor_logger.debug(funcName, `角色 ${charId}: 特殊行动 [${entry.action.do}] 条件满足。原因: ${reason}`);
     }
     return met;
   });
@@ -2171,10 +2222,11 @@ function chooseAction(charId, char, {runtime, stat}) {
   const routine = char.routine || [];
   action_processor_logger.debug(funcName, `角色 ${charId}: 开始检查 ${routine.length} 个日常行动...`);
   for (const entry of routine) {
-    if (areConditionsMet(entry, {
+    const {met, reason} = areConditionsMet(entry, {
       runtime
-    })) {
-      action_processor_logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。`);
+    });
+    if (met) {
+      action_processor_logger.debug(funcName, `角色 ${charId}: 选中了第一个满足条件的日常行动 [${entry.action.do}]。原因: ${reason}`);
       return entry.action;
     }
   }
