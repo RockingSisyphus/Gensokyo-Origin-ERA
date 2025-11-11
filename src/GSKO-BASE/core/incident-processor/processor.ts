@@ -51,7 +51,7 @@ function getAvailableIncidents(stat: Stat, config: IncidentConfig): Incident[] {
   const allIncidents = getIncidents(stat);
   const existingNames = new Set(Object.keys(allIncidents));
 
-  return pool
+  return (pool ?? [])
     .map((item): Incident => {
       const detail: IncidentDetail = {
         异变细节: item.detail,
@@ -76,8 +76,8 @@ function getAvailableIncidents(stat: Stat, config: IncidentConfig): Incident[] {
 function spawnRandomIncident(runtime: Runtime, config: IncidentConfig): Incident {
   const { randomCore, randomType } = config;
   const legalLocations = getLegalLocations(runtime);
-  const baseLocation = pick(legalLocations) || '博丽神社';
-  const newIncidentName = `${baseLocation}${pick(randomCore)}${pick(randomType)}异变`;
+  const baseLocation = pick(legalLocations || []) || '博丽神社';
+  const newIncidentName = `${baseLocation}${pick(randomCore || [])}${pick(randomType || [])}异变`;
 
   const detail: IncidentDetail = {
     异变细节: '',
@@ -148,7 +148,7 @@ function getContinueDecision(
 } {
   const currentIncident = getCurrentIncident(stat)!;
   const { pool } = config;
-  const poolEntry = pool.find(item => item.name === currentIncident.name);
+  const poolEntry = (pool ?? []).find(item => item.name === currentIncident.name);
   currentIncident.detail = poolEntry?.detail || currentIncident.detail;
 
   logger.debug('getContinueDecision', `推进异变《${currentIncident.name}》，地点:`, currentIncident.mainLoc);
