@@ -1,10 +1,484 @@
 {
   "aya": {
     "name": "射命丸文",
-    "好感度": 5,
-    "所在地区": "妖怪之山",
-    "居住地区": "妖怪之山",
-
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "死敌",
+        "describe": "将不惜一切代价寻找并杀死对方。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -100,
+        "name": "憎恨",
+        "describe": "会以在自己的报纸上抹黑对方为乐，直接遇到对方时会恶语相向，伴有武力威胁。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 8
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "厌恶",
+        "describe": "产生了反感，会避开与对方的直接接触，有时会刊登对方的负面新闻作为恶作剧。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "如同对待陌生人一样，保持距离和基本礼貌。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 10,
+        "name": "普通",
+        "describe": "会进行常规的对话和采访，将对方视为一个潜在的新闻素材。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 5
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "关注",
+        "describe": "开始认为对方是有趣的观察对象。在采访之余会进行深入些的交谈。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "亲近",
+        "describe": "开始将对方视为朋友，而不是之前的观察对象或素材。会开始吐露心扉。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "亲密",
+        "describe": "会将对方视为重要的挚友，主动进行一些深入的交流。行为开始显得亲密。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.4,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newSeason",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "思慕",
+        "describe": "开始暗生情愫，下意识做出一些超出“挚友”范畴的亲密行为。但暂时不会表白或接受表白。",
+        "patienceUnit": "season",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.5,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 4,
+          "divisor": 1.5
+        }
+      },
+      {
+        "threshold": 150,
+        "name": "恋慕",
+        "describe": "真正意义上地爱上了对方，视对方为自己生命的唯一归宿。会表白或接受表白。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.6,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 100,
+          "divisor": 1
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon", "byPeriod.newDusk"],
+          "byFestival": ["NEW_YEAR"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "博丽神社"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["COMING_OF_AGE_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SETSUBUN"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "博丽神社"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MISTY_LAKE_SNOW_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "雾之湖"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["VALENTINES_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newNoon", "byPeriod.newMorning", "byPeriod.newAfternoon"],
+          "byFestival": ["HINAMATSURI"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["WHITE_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["VERNAL_EQUINOX_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "墓地"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newAfternoon", "byPeriod.newNoon"],
+          "byFestival": ["CHILDRENS_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["HAKUREI_SHRINE_REITAISAI"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "博丽神社"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "守矢神社"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SHINREIBYO_GRAND_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "神灵庙"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TANABATA"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon", "byPeriod.newDusk"],
+          "byFestival": ["YOUKAI_MOUNTAIN_TENGU_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "妖怪之山"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MARINE_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "风神之湖"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TENJIN_MATSURI"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "神灵庙"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newNight", "byPeriod.newDusk"],
+          "byFestival": ["GOURYUDOU_NEBUTA_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "虹龙洞"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newDusk", "byPeriod.newNight", "byPeriod.newAfternoon"],
+          "byFestival": ["HUMAN_VILLAGE_BON_DANCE_FESTIVAL"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "人间之里"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newAfternoon", "byPeriod.newDusk", "byPeriod.newNight"],
+          "byFestival": ["OBON"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "命莲寺"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["AUTUMNAL_EQUINOX_DAY"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "墓地"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TSUKIMI"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "永远亭"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SHICHI_GO_SAN"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "博丽神社"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newAfternoon", "byPeriod.newDusk", "byPeriod.newNight"],
+          "byFestival": ["CHRISTMAS"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "红魔馆"
+        },
+        "priority": 1
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["OMISOKA"]
+        },
+        "action": {
+          "do": "报道节日的盛况",
+          "to": "博丽神社"
+        },
+        "priority": 1
+      }
+    ],
     "routine": [
       {
         "when": {
@@ -13,42 +487,49 @@
           }
         },
         "action": {
-          "do": "回家睡觉",
-          "to": "妖怪之山"
+          "do": "稍作娱乐，并准备睡觉",
+          "to": "$HOME"
         }
       },
       {
         "when": {
+          "byFlag": ["byPeriod.newFirstHalfNight", "byPeriod.newSecondHalfNight"],
           "byNow": {
             "periodName": "上半夜"
           }
         },
         "action": {
           "do": "在家里休息",
-          "to": "妖怪之山"
+          "to": "$HOME"
         }
       },
       {
         "when": {
-          "byNow": {
-            "periodName": "下半夜"
-          }
-        },
-        "action": {
-          "do": "在家里休息",
-          "to": "妖怪之山"
-        }
-      },
-      {
-        "when": {
-          "byFlag": ["newPeriod"]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon"]
         },
         "action": {
           "do": "寻找大新闻",
           "to": "RANDOM"
         }
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newAfternoon"]
+        },
+        "action": {
+          "do": "在报社写稿",
+          "to": "文文报社"
+        }
+      },
+      {
+        "when": {
+          "byFlag": ["byPeriod.newDusk"]
+        },
+        "action": {
+          "do": "整理稿件，稍作娱乐",
+          "to": "文文报社"
+        }
       }
-    ],
-    "目标": "寻找大新闻"
+    ]
   }
 }
