@@ -252,7 +252,6 @@
 <script setup lang="ts">
 import type { PropType } from 'vue';
 import { computed, ref, watch } from 'vue';
-import { saveModuleToWorldBook } from '../../../utils/worldbook';
 import type {
   AffectionStageWithForget,
   CharacterSettings,
@@ -260,6 +259,7 @@ import type {
   ForgettingRule,
 } from '../../../../GSKO-BASE/schema/character-settings';
 import type { Stat } from '../../../../GSKO-BASE/schema/stat';
+import { saveModuleToWorldBook } from '../../../utils/worldbook';
 import { formatFlagLabel, TIME_UNIT_OPTIONS, TRIGGER_FLAG_OPTIONS } from './character-settings-helpers';
 import CharacterEntryEditor from './CharacterEntryEditor.vue';
 
@@ -488,8 +488,8 @@ const handleSave = async () => {
       data: payload,
     });
     // Optionally, you might want to still emit an event or close the modal
-    emit('save', sanitized); // Keep original behavior if needed
-    emitClose();
+    //emit('save', sanitized); // Keep original behavior if needed
+    //emitClose();
   } catch (error) {
     console.error('[GSKO-FACE] 保存到世界书失败:', error);
     toastr.error('保存到世界书失败，请检查控制台获取详细信息。');
