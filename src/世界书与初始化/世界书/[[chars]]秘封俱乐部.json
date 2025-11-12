@@ -3,18 +3,102 @@
     "name": "宇佐见莲子",
     "affectionStages": [
       {
-        "threshold": -99999,
-        "name": "死敌",
-        "describe": "将不惜一切代价试图杀死对方。",
+        "threshold": -9999,
+        "name": "恐惧",
+        "describe": "产生了极端的厌恶与憎恨，从灵魂深处排斥着对方，看到与对方相似的人影都会产生应激反应，会尝试用各种方法攻击对方。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": true,
-          "probBase": 0.3,
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "year"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 0.3,
+          "divisor": 9999
+        }
+      },
+      {
+        "threshold": -5000,
+        "name": "敌人",
+        "describe": "非常厌恶对方，将对方视作探险的阻碍，见面时会毫不掩饰地发出咂舌声。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
           "coolUnit": "day"
         },
         "forgettingSpeed": [
           {
             "triggerFlag": "newMonth",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 100
+        }
+      },
+      {
+        "threshold": -50,
+        "name": "厌恶",
+        "describe": "很讨厌对方，觉得对方是个大麻烦，对其扰乱自己生活的行为感到不悦，见到对方心情就会很不好，有时会装作没看见对方。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 100
+        }
+      },
+      {
+        "threshold": -25,
+        "name": "反感",
+        "describe": "产生了不好的印象，不太想和对方扯上关系，总是会找借口远离对方。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "year"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": -10,
+        "name": "普通",
+        "describe": "印象不好不坏，不会特意去关注对方，见面时会礼貌问候，交流仅限于必要范围。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
             "decrease": 1
           }
         ],
@@ -24,93 +108,9 @@
         }
       },
       {
-        "threshold": -100,
-        "name": "憎恨",
-        "describe": "会主动寻找并攻击对方。",
-        "patienceUnit": "month",
-        "visit": {
-          "enabled": false,
-          "probBase": 0.1,
-          "coolUnit": "day"
-        },
-        "forgettingSpeed": [
-          {
-            "triggerFlag": "newWeek",
-            "decrease": 3
-          }
-        ],
-        "affectionGrowthLimit": {
-          "max": 2,
-          "divisor": 8
-        }
-      },
-      {
-        "threshold": -20,
-        "name": "厌恶",
-        "describe": "会避开对方，如果无法避开则会恶语相向。",
-        "patienceUnit": "period",
-        "visit": {
-          "enabled": false,
-          "probBase": 0,
-          "coolUnit": "day"
-        },
-        "forgettingSpeed": [
-          {
-            "triggerFlag": "newWeek",
-            "decrease": 1
-          }
-        ],
-        "affectionGrowthLimit": {
-          "max": 2,
-          "divisor": 5
-        }
-      },
-      {
-        "threshold": 0,
-        "name": "陌生",
-        "describe": "如同对待陌生人一样，保持距离和警惕。",
-        "patienceUnit": "period",
-        "visit": {
-          "enabled": false,
-          "probBase": 0,
-          "coolUnit": "day"
-        },
-        "forgettingSpeed": [
-          {
-            "triggerFlag": "newDay",
-            "decrease": 2
-          }
-        ],
-        "affectionGrowthLimit": {
-          "max": 5,
-          "divisor": 2
-        }
-      },
-      {
-        "threshold": 10,
-        "name": "普通",
-        "describe": "会进行普通的对话和互动。",
-        "patienceUnit": "period",
-        "visit": {
-          "enabled": true,
-          "probBase": 0,
-          "coolUnit": "week"
-        },
-        "forgettingSpeed": [
-          {
-            "triggerFlag": "newWeek",
-            "decrease": 2
-          }
-        ],
-        "affectionGrowthLimit": {
-          "max": 5,
-          "divisor": 2
-        }
-      },
-      {
         "threshold": 20,
-        "name": "熟悉",
-        "describe": "会主动打招呼，并进行更深入的对话。",
+        "name": "友好",
+        "describe": "产生了些许好感，觉得对方是值得结识的人，愿意与对方进行更多交流，有时会顺便帮对方一些小忙，态度友善。",
         "patienceUnit": "day",
         "visit": {
           "enabled": true,
@@ -119,7 +119,7 @@
         },
         "forgettingSpeed": [
           {
-            "triggerFlag": "newMonth",
+            "triggerFlag": "newWeek",
             "decrease": 1
           }
         ],
@@ -131,11 +131,11 @@
       {
         "threshold": 40,
         "name": "亲近",
-        "describe": "会分享自己的心事，并主动邀请对方。",
+        "describe": "与对方的距离拉近了许多，与对方相处时会很惬意，相处时不再需要多余的客套。",
         "patienceUnit": "week",
         "visit": {
           "enabled": true,
-          "probBase": 0.15,
+          "probBase": 0.3,
           "coolUnit": "week"
         },
         "forgettingSpeed": [
@@ -146,13 +146,13 @@
         ],
         "affectionGrowthLimit": {
           "max": 3,
-          "divisor": 2
+          "divisor": 5
         }
       },
       {
         "threshold": 70,
         "name": "亲密",
-        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "describe": "视对方为能够给予信任的友人，在对方面前可以卸下心防，会放心地在对方面前展露疲态，会允许对方跟随一起探险。",
         "patienceUnit": "month",
         "visit": {
           "enabled": true,
@@ -192,13 +192,14 @@
         }
       },
       {
-        "threshold": 99999,
-        "name": "不渝",
-        "describe": "无论发生什么，都会永远爱着对方。",
+        "threshold": 160,
+        "name": "爱慕",
+        "describe": "视对方为自己所爱之人，只要能待在对方身边，就感到无比幸福，会无条件地包容对方，偶尔会在对方面前表现出依赖和撒娇的一面。",
         "patienceUnit": "year",
         "visit": {
           "enabled": true,
-          "probBase": 0.3,
+          "probBase": 0.1,
+          "probK": 0.001,
           "coolUnit": "day"
         },
         "forgettingSpeed": [
@@ -211,6 +212,11 @@
           "max": 100,
           "divisor": 1
         }
+      },
+      {
+        "threshold": 9999,
+        "name": "挚爱",
+        "describe": "将对方视为与梅莉同等重要的绝对的挚爱，愿意终生与其相伴，对方的幸福便是自己存在的意义，愿意与对方和梅莉一起探险到世界尽头。"
       }
     ],
     "specials": [
@@ -310,6 +316,18 @@
           "do": "逛街"
         },
         "priority": 60
+      },
+      {
+        "when": {
+          "byFestival": [
+            "CHRISTMAS"
+          ]
+        },
+        "action": {
+          "do": "和梅莉一起过圣诞节",
+          "to": "京都"
+        },
+        "priority": 90
       }
     ],
     "routine": [
@@ -407,18 +425,18 @@
     "name": "玛艾露贝莉·赫恩",
     "affectionStages": [
       {
-        "threshold": -99999,
-        "name": "死敌",
-        "describe": "将不惜一切代价试图杀死对方。",
+        "threshold": -9999,
+        "name": "恐惧",
+        "describe": "产生了极端的厌恶与憎恨，从灵魂深处排斥着对方，看到与对方相似的人影都会产生应激反应。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": true,
-          "probBase": 0.3,
+          "enabled": false,
+          "probBase": 0,
           "coolUnit": "day"
         },
         "forgettingSpeed": [
           {
-            "triggerFlag": "newMonth",
+            "triggerFlag": "newYear",
             "decrease": 1
           }
         ],
@@ -428,13 +446,13 @@
         }
       },
       {
-        "threshold": -100,
+        "threshold": -5000,
         "name": "憎恨",
-        "describe": "会主动寻找并攻击对方。",
+        "describe": "非常厌恶对方，将对方视作不能理解她的人，见面时会下意识地寻求莲子的帮助。",
         "patienceUnit": "month",
         "visit": {
           "enabled": false,
-          "probBase": 0.1,
+          "probBase": 0,
           "coolUnit": "day"
         },
         "forgettingSpeed": [
@@ -449,10 +467,10 @@
         }
       },
       {
-        "threshold": -20,
+        "threshold": -50,
         "name": "厌恶",
-        "describe": "会避开对方，如果无法避开则会恶语相向。",
-        "patienceUnit": "period",
+        "describe": "很讨厌对方，觉得对方是个大麻烦，对其扰乱自己生活的行为感到不悦，见到对方心情就会很不好，有时会装作没看见对方。",
+        "patienceUnit": "day",
         "visit": {
           "enabled": false,
           "probBase": 0,
@@ -470,9 +488,9 @@
         }
       },
       {
-        "threshold": 0,
-        "name": "陌生",
-        "describe": "如同对待陌生人一样，保持距离和警惕。",
+        "threshold": -30,
+        "name": "反感",
+        "describe": "产生了不好的印象，不太想和对方扯上关系，总是会用圆滑的借口回避与对方的相处。",
         "patienceUnit": "period",
         "visit": {
           "enabled": false,
@@ -491,9 +509,9 @@
         }
       },
       {
-        "threshold": 10,
+        "threshold": -10,
         "name": "普通",
-        "describe": "会进行普通的对话和互动。",
+        "describe": "印象不好不坏，不会特意去关注对方，见面时会礼貌问候，交流仅限于必要范围。",
         "patienceUnit": "period",
         "visit": {
           "enabled": true,
@@ -513,9 +531,9 @@
       },
       {
         "threshold": 20,
-        "name": "熟悉",
-        "describe": "会主动打招呼，并进行更深入的对话。",
-        "patienceUnit": "day",
+        "name": "友好",
+        "describe": "产生了些许好感，觉得对方是值得结识的人，愿意与对方进行更多交流，有时会顺便帮对方一些小忙，态度友善。",
+        "patienceUnit": "period",
         "visit": {
           "enabled": true,
           "probBase": 0.1,
@@ -535,7 +553,7 @@
       {
         "threshold": 40,
         "name": "亲近",
-        "describe": "会分享自己的心事，并主动邀请对方。",
+        "describe": "与对方的距离拉近了许多，与对方相处时会很惬意，会开始展现自己有点脱线的一面，相处时不再需要多余的客套。愿意分享有关自己的梦的事情。",
         "patienceUnit": "week",
         "visit": {
           "enabled": true,
@@ -556,7 +574,7 @@
       {
         "threshold": 70,
         "name": "亲密",
-        "describe": "会将对方视为重要的人，并愿意为其付出。",
+        "describe": "视对方为能够给予信任的友人，在对方面前可以卸下心防，会放心地在对方面前透露自己的能力，会允许对方随意进出自己的居所，偶尔会邀请对方来家中做客。",
         "patienceUnit": "month",
         "visit": {
           "enabled": true,
@@ -575,9 +593,9 @@
         }
       },
       {
-        "threshold": 100,
+        "threshold": 110,
         "name": "思慕",
-        "describe": "深深地爱着对方，愿意为其做任何事。",
+        "describe": "开始萌生连自己也不太懂的思恋之情，总是会想到对方，不自觉地就会看着对方，与对方独处时会展现出认真的一面，对方注视时会有些不知所措。",
         "patienceUnit": "season",
         "visit": {
           "enabled": true,
@@ -596,9 +614,9 @@
         }
       },
       {
-        "threshold": 99999,
-        "name": "不渝",
-        "describe": "无论发生什么，都会永远爱着对方。",
+        "threshold": 160,
+        "name": "爱慕",
+        "describe": "视对方为自己重要的伙伴，只要能待在对方身边，就感到无比幸福，会无条件地包容对方，偶尔会在对方面前表现出依赖和撒娇的一面。",
         "patienceUnit": "year",
         "visit": {
           "enabled": true,
@@ -615,6 +633,18 @@
           "max": 100,
           "divisor": 1
         }
+      },
+      {
+        "threshold": 9999,
+        "name": "挚爱",
+        "describe": "将对方视为自己与莲子同等重要的绝对的挚爱，愿意终生与其相伴，对方的幸福便是自己存在的意义，只要想到对方的名字就会有继续追寻幻想的勇气。",
+        "patienceUnit": "year",
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newYear",
+            "decrease": 1
+          }
+        ]
       }
     ],
     "specials": [
@@ -726,6 +756,17 @@
           "do": "逛街"
         },
         "priority": 80
+      },
+      {
+        "when": {
+          "byFestival": [
+            "CHRISTMAS"
+          ]
+        "action": {
+          "do": "和莲子一起过圣诞节",
+          "to": "京都"
+        },
+        "priority": 90
       }
     ],
     "routine": [
