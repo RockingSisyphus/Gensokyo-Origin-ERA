@@ -11,6 +11,10 @@
         </span>
       </div>
 
+      <div class="map-operate">
+        <div @click="resetToPlayer">🎯 回到玩家位置</div>
+      </div>
+
       <div class="map-container" id="mapContainer">
         <canvas id="mapCanvas"></canvas>
 
@@ -104,9 +108,14 @@ watch(
   },
 );
 
+// 地图尺寸
 const mapSize = computed(() => {
   if (props.context?.runtime?.area?.mapSize) {
-    return props.context.runtime.area.mapSize;
+    const padding = 20; // 留些padding
+    return {
+      width: props.context.runtime.area.mapSize.width + padding,
+      height: props.context.runtime.area.mapSize.height + padding,
+    };
   }
 
   return {
@@ -198,8 +207,8 @@ let mapState = ref<MapState>({
   isDragging: false,
   lastMouseX: 0,
   lastMouseY: 0,
-  mapWidth: mapSize.value.width,
-  mapHeight: mapSize.value.height,
+  mapWidth: 300,
+  mapHeight: 300,
 });
 
 let selectedMarker = ref<MapMarker | null>(null);
@@ -207,6 +216,10 @@ let hoverMarker = ref<string | null>(null);
 const charactersInSelectedLocation = ref<any[]>([]);
 const showRoleDetailPopup = ref(false);
 const selectedCharacterForPopup = ref<any | null>(null);
+let mapComponent: HTMLElement;
+let mapContainer: HTMLElement;
+let canvas: HTMLCanvasElement;
+let ctx: CanvasRenderingContext2D;
 
 function openRoleDetailPopup(character: any) {
   selectedCharacterForPopup.value = character;
@@ -233,133 +246,158 @@ function selectLocation(markerData: MapMarker) {
   selectedMarker.value = { ...markerData, htmlEle: '' }; // htmlEle is no longer needed
 }
 
-onMounted(() => {
-  // 获取DOM元素
-  const mapComponent = document.getElementById('mapComponent') as HTMLElement;
-  const mapContainer = document.getElementById('mapContainer') as HTMLElement;
-  const canvas = document.getElementById('mapCanvas') as HTMLCanvasElement;
-  const ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+// 在 script 部分添加重置到玩家位置的函数
+function resetToPlayer() {
+  if (playerMarker.value) {
+    const playerPos = playerMarker.value.pos;
+    const containerWidth = mapContainer.clientWidth;
+    const containerHeight = mapContainer.clientHeight;
 
-  mapComponent.style.width = `${mapState.value.mapWidth}px`;
-  mapComponent.style.height = `${mapState.value.mapHeight}px`;
-
-  // 生成地图
-  function generateMap() {
-    try {
-      // 重置视图
-      resetView();
-
-      // 设置Canvas尺寸
-      canvas.width = mapState.value.mapWidth;
-      canvas.height = mapState.value.mapHeight;
-
-      // 绘制地图背景和道路
-      drawMap();
-    } catch (error: any) {
-      alert('数据格式错误，请检查输入数据：' + error.message);
-    }
-  }
-
-  // 绘制地图
-  function drawMap() {
-    // 清除画布
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 保存当前状态
-    ctx.save();
-
-    // 应用变换（缩放和平移）
-    ctx.translate(mapState.value.offsetX, mapState.value.offsetY);
-    ctx.scale(mapState.value.zoom, mapState.value.zoom);
-
-    // 绘制地图背景和道路
-    drawMapBackground();
-    drawRoads();
-
-    // 恢复状态
-    ctx.restore();
-  }
-
-  // 绘制地图背景
-  function drawMapBackground() {
-    // 创建渐变背景
-    const gradient = ctx.createLinearGradient(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
-    gradient.addColorStop(0, '#8e9eab');
-    gradient.addColorStop(1, '#eef2f3');
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, mapState.value.mapWidth, mapState.value.mapHeight);
-
-    // 添加网格线
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
-    ctx.lineWidth = 1;
-    const gridSize = 50;
-
-    for (let x = 0; x <= mapState.value.mapWidth; x += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(x, 0);
-      ctx.lineTo(x, mapState.value.mapHeight);
-      ctx.stroke();
-    }
-
-    for (let y = 0; y <= mapState.value.mapHeight; y += gridSize) {
-      ctx.beginPath();
-      ctx.moveTo(0, y);
-      ctx.lineTo(mapState.value.mapWidth, y);
-      ctx.stroke();
-    }
-  }
-
-  // 绘制道路
-  function drawRoads() {
-    try {
-      roads.value.forEach(road => {
-        // 绘制道路阴影
-        ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
-        ctx.lineWidth = 8;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(road.start.x + 2, road.start.y + 2);
-        ctx.lineTo(road.end.x + 2, road.end.y + 2);
-        ctx.stroke();
-
-        // 绘制主要道路
-        const gradient = ctx.createLinearGradient(road.start.x, road.start.y, road.end.x, road.end.y);
-        gradient.addColorStop(0, '#5d4037');
-        gradient.addColorStop(0.5, '#6d4c41');
-        gradient.addColorStop(1, '#5d4037');
-
-        ctx.strokeStyle = gradient;
-        ctx.lineWidth = 6;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        ctx.moveTo(road.start.x, road.start.y);
-        ctx.lineTo(road.end.x, road.end.y);
-        ctx.stroke();
-
-        // 绘制道路中心线（如果是主要道路）
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
-        ctx.lineWidth = 1;
-        ctx.setLineDash([5, 3]);
-        ctx.beginPath();
-        ctx.moveTo(road.start.x, road.start.y);
-        ctx.lineTo(road.end.x, road.end.y);
-        ctx.stroke();
-        ctx.setLineDash([]);
-      });
-    } catch (error) {
-      console.error('道路数据格式错误:', error);
-    }
-  }
-
-  // 重置视图
-  function resetView() {
     mapState.value = {
       ...mapState.value,
       zoom: 1,
-      offsetX: (mapContainer.clientWidth - mapState.value.mapWidth) / 2,
-      offsetY: (mapContainer.clientHeight - mapState.value.mapHeight) / 2,
+      offsetX: containerWidth / 2 - playerPos.x * 1,
+      offsetY: containerHeight / 2 - playerPos.y * 1,
     };
 
+    drawMap();
+  }
+}
+
+// 重置视图
+function resetView() {
+  mapState.value = {
+    ...mapState.value,
+    zoom: 1,
+    offsetX: (mapContainer.clientWidth - mapState.value.mapWidth) / 2,
+    offsetY: (mapContainer.clientHeight - mapState.value.mapHeight) / 2,
+  };
+
+  drawMap();
+}
+
+// 绘制地图
+function drawMap() {
+  // 清除画布
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  // 保存当前状态
+  ctx.save();
+
+  // 应用变换（缩放和平移）
+  ctx.translate(mapState.value.offsetX, mapState.value.offsetY);
+  ctx.scale(mapState.value.zoom, mapState.value.zoom);
+
+  // 绘制地图背景和道路
+  drawMapBackground();
+  drawRoads();
+
+  // 恢复状态
+  ctx.restore();
+}
+
+// 绘制地图背景
+function drawMapBackground() {
+  // 创建渐变背景
+  const gradient = ctx.createLinearGradient(0, 0, mapSize.value.width, mapSize.value.height);
+  gradient.addColorStop(0, '#8e9eab');
+  gradient.addColorStop(1, '#eef2f3');
+  ctx.fillStyle = gradient;
+  ctx.fillRect(0, 0, mapSize.value.width, mapSize.value.height);
+
+  // 添加网格线
+  ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)';
+  ctx.lineWidth = 1;
+  const gridSize = 50;
+
+  for (let x = 0; x <= mapSize.value.width; x += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(x, 0);
+    ctx.lineTo(x, mapSize.value.height);
+    ctx.stroke();
+  }
+
+  for (let y = 0; y <= mapSize.value.height; y += gridSize) {
+    ctx.beginPath();
+    ctx.moveTo(0, y);
+    ctx.lineTo(mapSize.value.width, y);
+    ctx.stroke();
+  }
+}
+
+// 绘制道路
+function drawRoads() {
+  try {
+    roads.value.forEach(road => {
+      // 绘制道路阴影
+      ctx.strokeStyle = 'rgba(0, 0, 0, 0.2)';
+      ctx.lineWidth = 8;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(road.start.x + 2, road.start.y + 2);
+      ctx.lineTo(road.end.x + 2, road.end.y + 2);
+      ctx.stroke();
+
+      // 绘制主要道路
+      const gradient = ctx.createLinearGradient(road.start.x, road.start.y, road.end.x, road.end.y);
+      gradient.addColorStop(0, '#5d4037');
+      gradient.addColorStop(0.5, '#6d4c41');
+      gradient.addColorStop(1, '#5d4037');
+
+      ctx.strokeStyle = gradient;
+      ctx.lineWidth = 6;
+      ctx.lineCap = 'round';
+      ctx.beginPath();
+      ctx.moveTo(road.start.x, road.start.y);
+      ctx.lineTo(road.end.x, road.end.y);
+      ctx.stroke();
+
+      // 绘制道路中心线（如果是主要道路）
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.3)';
+      ctx.lineWidth = 1;
+      ctx.setLineDash([5, 3]);
+      ctx.beginPath();
+      ctx.moveTo(road.start.x, road.start.y);
+      ctx.lineTo(road.end.x, road.end.y);
+      ctx.stroke();
+      ctx.setLineDash([]);
+    });
+  } catch (error) {
+    console.error('道路数据格式错误:', error);
+  }
+}
+
+// 更新canvas尺寸
+function updateCanvasSize() {
+  const containerWidth = mapContainer.clientWidth;
+  const containerHeight = containerWidth; // 高度与宽度一致，形成正方形
+  mapContainer.style.height = `${containerHeight}px`;
+  mapComponent.style.height = `${containerHeight}px`;
+
+  mapState.value.mapWidth = containerWidth;
+  mapState.value.mapHeight = containerHeight;
+  canvas.width = containerWidth;
+  canvas.height = containerHeight;
+
+  drawMap();
+}
+
+onMounted(() => {
+  // 获取DOM元素
+  mapComponent = document.getElementById('mapComponent') as HTMLElement;
+  mapContainer = document.getElementById('mapContainer') as HTMLElement;
+  canvas = document.getElementById('mapCanvas') as HTMLCanvasElement;
+  ctx = canvas.getContext('2d') as CanvasRenderingContext2D;
+
+  // 设置初始尺寸
+  updateCanvasSize();
+
+  // 生成地图
+  function generateMap() {
+    // 重置视图
+    resetToPlayer();
+
+    // 绘制地图背景和道路
     drawMap();
   }
 
@@ -475,6 +513,7 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 10;
+    user-select: none; 
   }
 
   .location-marker {
@@ -535,6 +574,25 @@ onMounted(() => {
     z-index: 40;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
     border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .map-operate {
+    opacity: 0.8;
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(255, 255, 255, 0.95);
+    padding: 8px 16px;
+    border-radius: 8px;
+    z-index: 40;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+    display: flex;
+
+    > div {
+      align-items: center;
+      cursor: pointer;
+    }
   }
 
   @keyframes bounce {
