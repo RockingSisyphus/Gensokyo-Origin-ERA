@@ -483,8 +483,8 @@
   "alice": {
     "name": "爱丽丝·玛格特罗伊德",
     "好感度": 0,
-    "所在地区": "魔法之森",
-    "居住地区": "魔法之森",
+    "所在地区": "爱丽丝邸",
+    "居住地区": "爱丽丝邸",
     "目标": "未知",
     "affectionStages": [
       {
@@ -700,27 +700,27 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "打理家务", "to": "魔法之森" }
+        "action": { "do": "打理家务", "to": "爱丽丝邸" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "在家里吃饭", "to": "魔法之森" }
+        "action": { "do": "在家里吃饭", "to": "爱丽丝邸" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "在家里吃饭", "to": "魔法之森" }
+        "action": { "do": "在家里吃饭", "to": "爱丽丝邸" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "进行人偶魔法的研究", "to": "魔法之森" }
+        "action": { "do": "进行人偶魔法的研究", "to": "爱丽丝邸" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "进行人偶魔法的研究", "to": "魔法之森" }
+        "action": { "do": "进行人偶魔法的研究", "to": "爱丽丝邸" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "进行人偶魔法的研究", "to": "魔法之森" }
+        "action": { "do": "进行人偶魔法的研究", "to": "爱丽丝邸" }
       }
     ]
   },
