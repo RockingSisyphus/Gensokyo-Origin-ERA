@@ -216,15 +216,8 @@
     "specials": [
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon",
-            "byPeriod.newDusk"
-          ],
-          "byFestival": [
-            "NEW_YEAR"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon", "byPeriod.newDusk"],
+          "byFestival": ["NEW_YEAR"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -234,14 +227,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "COMING_OF_AGE_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["COMING_OF_AGE_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -251,14 +238,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "SETSUBUN"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SETSUBUN"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -268,14 +249,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MISTY_LAKE_SNOW_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MISTY_LAKE_SNOW_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -285,14 +260,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "VALENTINES_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["VALENTINES_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -302,14 +271,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newNoon",
-            "byPeriod.newMorning",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "HINAMATSURI"
-          ]
+          "byFlag": ["byPeriod.newNoon", "byPeriod.newMorning", "byPeriod.newAfternoon"],
+          "byFestival": ["HINAMATSURI"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -319,14 +282,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "WHITE_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["WHITE_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -336,14 +293,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "VERNAL_EQUINOX_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["VERNAL_EQUINOX_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -353,14 +304,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newAfternoon",
-            "byPeriod.newNoon"
-          ],
-          "byFestival": [
-            "CHILDRENS_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newAfternoon", "byPeriod.newNoon"],
+          "byFestival": ["CHILDRENS_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -370,14 +315,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "HAKUREI_SHRINE_REITAISAI"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["HAKUREI_SHRINE_REITAISAI"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -387,14 +326,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MORIYA_SHRINE_GRAND_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -404,14 +337,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "SHINREIBYO_GRAND_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SHINREIBYO_GRAND_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -421,14 +348,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "TANABATA"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TANABATA"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -438,15 +359,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon",
-            "byPeriod.newDusk"
-          ],
-          "byFestival": [
-            "YOUKAI_MOUNTAIN_TENGU_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon", "byPeriod.newDusk"],
+          "byFestival": ["YOUKAI_MOUNTAIN_TENGU_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -456,14 +370,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MARINE_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MARINE_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -473,14 +381,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "TENJIN_MATSURI"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TENJIN_MATSURI"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -490,13 +392,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newNight",
-            "byPeriod.newDusk"
-          ],
-          "byFestival": [
-            "GOURYUDOU_NEBUTA_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newNight", "byPeriod.newDusk"],
+          "byFestival": ["GOURYUDOU_NEBUTA_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -506,14 +403,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newDusk",
-            "byPeriod.newNight",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "HUMAN_VILLAGE_BON_DANCE_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newDusk", "byPeriod.newNight", "byPeriod.newAfternoon"],
+          "byFestival": ["HUMAN_VILLAGE_BON_DANCE_FESTIVAL"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -523,14 +414,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newAfternoon",
-            "byPeriod.newDusk",
-            "byPeriod.newNight"
-          ],
-          "byFestival": [
-            "OBON"
-          ]
+          "byFlag": ["byPeriod.newAfternoon", "byPeriod.newDusk", "byPeriod.newNight"],
+          "byFestival": ["OBON"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -540,14 +425,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "AUTUMNAL_EQUINOX_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["AUTUMNAL_EQUINOX_DAY"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -557,14 +436,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "TSUKIMI"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["TSUKIMI"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -574,14 +447,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "SHICHI_GO_SAN"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["SHICHI_GO_SAN"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -591,14 +458,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newAfternoon",
-            "byPeriod.newDusk",
-            "byPeriod.newNight"
-          ],
-          "byFestival": [
-            "CHRISTMAS"
-          ]
+          "byFlag": ["byPeriod.newAfternoon", "byPeriod.newDusk", "byPeriod.newNight"],
+          "byFestival": ["CHRISTMAS"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -608,13 +469,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "OMISOKA"
-          ]
+          "byFlag": ["byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["OMISOKA"]
         },
         "action": {
           "do": "报道节日的盛况",
@@ -637,10 +493,7 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newFirstHalfNight",
-            "byPeriod.newSecondHalfNight"
-          ],
+          "byFlag": ["byPeriod.newFirstHalfNight", "byPeriod.newSecondHalfNight"],
           "byNow": {
             "periodName": "上半夜"
           }
@@ -652,10 +505,7 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon"]
         },
         "action": {
           "do": "寻找大新闻",
@@ -664,9 +514,7 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newAfternoon"
-          ]
+          "byFlag": ["byPeriod.newAfternoon"]
         },
         "action": {
           "do": "在报社写稿",
@@ -675,12 +523,11 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newDusk"
-          ]
+          "byFlag": ["byPeriod.newDusk"]
         },
         "action": {
-          "do": "整理稿件，稍作娱乐"
+          "do": "整理稿件，稍作娱乐",
+          "to": "文文报社"
         }
       }
     ]
