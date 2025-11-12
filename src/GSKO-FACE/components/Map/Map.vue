@@ -513,7 +513,7 @@ onMounted(() => {
     transform: translate(-50%, -50%);
     cursor: pointer;
     z-index: 10;
-    user-select: none; 
+    user-select: none;
   }
 
   .location-marker {
