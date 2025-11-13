@@ -3,7 +3,7 @@
 
 【固定数据结构（禁止改动结构/键名/层级/类型）】
 {
-  "chars": { "$template": { "name": "chineseNameHere", "好感度": 5, "所在地区": "locHere", "居住地区": "locHere", "目标": "goalHere" } },
+  "chars": { "$template": { "name": "chineseNameHere", "好感度": 5, "所在地区": "locHere", "居住地区": "locHere", "目标": "goalHere","性知识": "sexKnowHere","性经验": "sexExpHere","身体状况": "bodyStatHere","内心想法": "thoughtHere","外貌": "appearenceHere","衣着": "outFitHere","性格": "identityHere","性别": "genderHere","年龄": "ageHere" } },
   "user": { "姓名": "nameHere", "身份": "identityHere", "性别": "sexHere", "年龄": "ageHere", "特殊能力": "abilityHere", "所在地区": "locHere", "居住地区": "locHere", "重要经历": "expHere", "人际关系": "socialHere" },
   "time": { "timeProgress": 0 },
   "incidents": { "$template": { "异变细节": "detailHere", "主要地区": ["locHere"], "异变退治者": ["charHere"], "异变已结束": false } },
