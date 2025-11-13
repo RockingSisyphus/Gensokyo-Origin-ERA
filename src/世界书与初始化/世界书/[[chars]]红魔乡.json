@@ -479,8 +479,8 @@
     "affectionStages": [
       {
         "threshold": -9999,
-        "name": "憎恶",
-        "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会极度愤怒与反胃。",
+        "name": "恐惧",
+        "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会极度恐惧。",
         "patienceUnit": "year",
         "visit": {
           "enabled": false,
@@ -497,13 +497,13 @@
       {
         "threshold": -5000,
         "name": "敌人",
-        "describe": "非常厌恶对方，将对方视作眼中钉，见面时会毫不犹豫地宣布开战，还会叫上伙伴一起挑战对方。",
+        "describe": "非常厌恶对方，将对方视作眼中钉，见面时会毫不犹豫地宣布开战，经常会去找对方的茬，还会叫上伙伴一起挑战对方。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "period"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -517,10 +517,10 @@
         "describe": "觉得对方是个大坏蛋，与对方的交流总是不太愉快，会因为一点小事就和对方打起来，见到对方就会找茬。",
         "patienceUnit": "day",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "day"
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
         "affectionGrowthLimit": {
@@ -754,13 +754,13 @@
       {
         "threshold": -5000,
         "name": "敌人",
-        "describe": "非常厌恶对方，将对方视作眼中钉，会毫不犹豫地告诉别人不要靠近对方，见面时会毫不犹豫地宣布开战，见面时会立即摆开架势，不会允许对方靠近红魔馆。",
+        "describe": "非常厌恶对方，将对方视作眼中钉，会毫不犹豫地告诉别人不要靠近对方，见面时会毫不犹豫地宣布开战，见面时会立即摆开架势，有时会主动找到对方讨公道，不会允许对方靠近红魔馆。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "day"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1754,13 +1754,13 @@
       {
         "threshold": -9999,
         "name": "憎恶",
-        "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会散发出令人恐惧的气场。",
+        "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会散发出令人恐惧的气场，会想尽一切办法致对方于死地。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "day"
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1771,13 +1771,13 @@
       {
         "threshold": -5000,
         "name": "蔑视",
-        "describe": "认为对方是毫无价值的存在，会直言不讳地表示轻蔑，有时会主动找到对方泄愤，偶尔会用看垃圾一样的眼神看着对方，不会允许对方靠近红魔馆。",
+        "describe": "认为对方是毫无价值的存在，会直言不讳地表示轻蔑，有时会主动找到对方泄愤，偶尔会用看垃圾一样的眼神看着对方，有时会主动找到对方泄愤，不会允许对方靠近红魔馆。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -2001,10 +2001,10 @@
         "describe": "憎恨已经刻入了骨髓之中，每分每秒都想杀死对方，会用尽一切手段让对方从世界上消失，内心涌动着无法抑制的杀意。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 1.0,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "period"
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -2018,10 +2018,10 @@
         "describe": "光是想到对方就生理性地感到不适，见到对方的瞬间就会发起攻击，会主动找对方泄愤，连听到对方的声音都会起鸡皮疙瘩，不会允许对方进入红魔馆。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "day"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -2032,13 +2032,13 @@
       {
         "threshold": -50,
         "name": "厌恶",
-        "describe": "很讨厌对方，觉得对方是个大坏蛋，会因为一点小事就和对方打起来，偶尔可能直接袭击过来，偶尔还会主动挑衅对方。",
+        "describe": "很讨厌对方，觉得对方是个大坏蛋，会因为一点小事就和对方打起来，偶尔可能直接袭击过来，偶尔还会主动挑衅对方，偶尔会去找对方的茬。",
         "patienceUnit": "day",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 2 }],
         "affectionGrowthLimit": {
