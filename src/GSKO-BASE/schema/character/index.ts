@@ -12,15 +12,8 @@ export const CharacterSchema = z.object({
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
   目标: z.string().optional(),
-  性知识: z.string().optional(),
-  性经验: z.string().optional(),
   身体状况: z.string().optional(),
   内心想法: z.string().optional(),
-  外貌: z.string().optional(),
-  衣着: z.string().optional(),
-  性格: z.string().optional(),
-  性别: z.string().optional(),
-  年龄: z.string().optional(),
 });
 
 export const CharsSchema = z

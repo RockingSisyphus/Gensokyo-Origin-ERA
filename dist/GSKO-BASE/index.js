@@ -110,15 +110,8 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
   目标: external_z_namespaceObject.z.string().optional(),
-  性知识: external_z_namespaceObject.z.string().optional(),
-  性经验: external_z_namespaceObject.z.string().optional(),
   身体状况: external_z_namespaceObject.z.string().optional(),
-  内心想法: external_z_namespaceObject.z.string().optional(),
-  外貌: external_z_namespaceObject.z.string().optional(),
-  衣着: external_z_namespaceObject.z.string().optional(),
-  性格: external_z_namespaceObject.z.string().optional(),
-  性别: external_z_namespaceObject.z.string().optional(),
-  年龄: external_z_namespaceObject.z.string().optional()
+  内心想法: external_z_namespaceObject.z.string().optional()
 });
 
 const CharsSchema = external_z_namespaceObject.z.object({
@@ -3613,15 +3606,8 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
       目标: charData.目标,
-      性知识: charData.性知识,
-      性经验: charData.性经验,
       身体状况: charData.身体状况,
-      内心想法: charData.内心想法,
-      外貌: charData.外貌,
-      衣着: charData.衣着,
-      性格: charData.性格,
-      性别: charData.性别,
-      年龄: charData.年龄
+      内心想法: charData.内心想法
     };
   });
   if (external_default().isEmpty(charactersInfo)) {
@@ -3888,15 +3874,8 @@ function buildRemoteMentionedCharactersPrompt({stat, runtime}) {
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
       目标: charData.目标,
-      性知识: charData.性知识,
-      性经验: charData.性经验,
       身体状况: charData.身体状况,
-      内心想法: charData.内心想法,
-      外貌: charData.外貌,
-      衣着: charData.衣着,
-      性格: charData.性格,
-      性别: charData.性别,
-      年龄: charData.年龄
+      内心想法: charData.内心想法
     };
   });
   if (external_default().isEmpty(charactersInfo)) {
