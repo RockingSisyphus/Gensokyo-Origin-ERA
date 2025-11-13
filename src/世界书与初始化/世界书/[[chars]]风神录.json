@@ -216,9 +216,7 @@
     "specials": [
       {
         "when": {
-          "byFlag": [
-            "bySeason.newAutumn"
-          ],
+          "byFlag": ["bySeason.newAutumn"],
           "byNow": {
             "seasonName": "秋",
             "periodName": "上午"
@@ -232,9 +230,7 @@
       },
       {
         "when": {
-          "byFlag": [
-            "bySeason.newWinter"
-          ],
+          "byFlag": ["bySeason.newWinter"],
           "byNow": {
             "seasonName": "冬",
             "periodName": "中午"
@@ -566,9 +562,7 @@
       },
       {
         "when": {
-          "byFestival": [
-            "HARVEST_FESTIVAL"
-          ]
+          "byFestival": ["HARVEST_FESTIVAL"]
         },
         "action": {
           "do": "受邀参加收获祭",
@@ -578,9 +572,7 @@
       },
       {
         "when": {
-          "byFlag": [
-            "bySeason.newWinter"
-          ],
+          "byFlag": ["bySeason.newWinter"],
           "byNow": {
             "seasonName": "冬"
           }
@@ -895,9 +887,7 @@
           "byNow": {
             "periodName": "清晨"
           },
-          "byFestival": [
-            "HINAMATSURI"
-          ]
+          "byFestival": ["HINAMATSURI"]
         },
         "action": {
           "do": "为无人雏人偶商店补货",
@@ -1227,14 +1217,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "HAKUREI_SHRINE_REITAISAI"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["HAKUREI_SHRINE_REITAISAI"]
         },
         "action": {
           "do": "在节日现场摆摊",
@@ -1244,14 +1228,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MORIYA_SHRINE_GRAND_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
         },
         "action": {
           "do": "在节日现场摆摊",
@@ -1261,14 +1239,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon",
-            "byPeriod.newMorning"
-          ],
-          "byFestival": [
-            "YOUKAI_MOUNTAIN_TENGU_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newNoon", "byPeriod.newAfternoon", "byPeriod.newMorning"],
+          "byFestival": ["YOUKAI_MOUNTAIN_TENGU_FESTIVAL"]
         },
         "action": {
           "do": "在节日现场摆摊",
@@ -1278,14 +1250,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MARINE_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MARINE_DAY"]
         },
         "action": {
           "do": "在节日现场摆摊",
@@ -1395,7 +1361,7 @@
         "patienceUnit": "year",
         "visit": {
           "enabled": false,
-          "probBase": "",
+          "probBase": 0,
           "coolUnit": "day"
         },
         "forgettingSpeed": [
@@ -1628,14 +1594,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "YOUKAI_MOUNTAIN_TENGU_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["YOUKAI_MOUNTAIN_TENGU_FESTIVAL"]
         },
         "action": {
           "do": "维护节日秩序",
@@ -1645,14 +1605,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MOUNTAIN_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MOUNTAIN_DAY"]
         },
         "action": {
           "do": "维护节日秩序",
@@ -1662,13 +1616,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newDusk",
-            "byPeriod.newNight"
-          ],
-          "byFestival": [
-            "GOURYUDOU_NEBUTA_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newDusk", "byPeriod.newNight"],
+          "byFestival": ["GOURYUDOU_NEBUTA_FESTIVAL"]
         },
         "action": {
           "do": "维护节日的秩序",
@@ -1678,14 +1627,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MORIYA_SHRINE_GRAND_FESTIVAL"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
         },
         "action": {
           "do": "协助维护节日的秩序",
@@ -1695,14 +1638,8 @@
       },
       {
         "when": {
-          "byFlag": [
-            "byPeriod.newMorning",
-            "byPeriod.newNoon",
-            "byPeriod.newAfternoon"
-          ],
-          "byFestival": [
-            "MARINE_DAY"
-          ]
+          "byFlag": ["byPeriod.newMorning", "byPeriod.newNoon", "byPeriod.newAfternoon"],
+          "byFestival": ["MARINE_DAY"]
         },
         "action": {
           "do": "维护节日的秩序",
@@ -2086,9 +2023,7 @@
       },
       {
         "when": {
-          "byFestival": [
-            "HUMAN_VILLAGE_BON_DANCE_FESTIVAL"
-          ]
+          "byFestival": ["HUMAN_VILLAGE_BON_DANCE_FESTIVAL"]
         },
         "action": {
           "do": "游玩",
@@ -2098,9 +2033,7 @@
       },
       {
         "when": {
-          "byFestival": [
-            "MORIYA_SHRINE_GRAND_FESTIVAL"
-          ]
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
         },
         "action": {
           "do": "主持守矢神社大祭",

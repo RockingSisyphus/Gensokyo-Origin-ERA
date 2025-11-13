@@ -4,6 +4,7 @@ import { AffectionStageWithForgetSchema, EntryListPreprocessSchema } from '../ch
 
 export const CharacterSchema = z.object({
   name: z.string(),
+  pic: z.string().optional(),
   好感度: z.number(),
   所在地区: z.string().nullable(),
   居住地区: z.string().nullable(),

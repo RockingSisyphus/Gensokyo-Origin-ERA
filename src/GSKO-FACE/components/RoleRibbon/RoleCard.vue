@@ -5,42 +5,34 @@
   <div class="GensokyoOrigin-RoleCard-wrapper" @click="$emit('show-details', character)">
     <!-- 点击整卡触发 show-details 事件 -->
 
-    <!-- 头部：头像 + 名称 + 地区信息 -->
-    <!-- 中文注释 -->
-    <div class="GensokyoOrigin-RoleCard-header">
-      <!-- 头像与标题行容器 -->
-      <div class="GensokyoOrigin-RoleCard-avatar">{{ character.name.slice(0, 1) }}</div>
-      <!-- 头像圆点显示名字首字 -->
-      <div>
-        <!-- 文本容器 -->
-        <div class="GensokyoOrigin-RoleCard-name">{{ character.name }}</div>
-        <!-- 名称文本 -->
-        <div class="GensokyoOrigin-RoleCard-meta">{{ character['所在地区'] || '未知' }}</div>
-        <!-- 地区信息，空则回退“未知” -->
+    <!-- 主要立绘 -->
+    <div class="GensokyoOrigin-RoleCard-portrait-container">
+      <img v-if="character.pic" :src="character.pic" :alt="character.name" class="GensokyoOrigin-RoleCard-portrait" />
+      <!-- 如果没有图片，显示一个占位符 -->
+      <div v-else class="GensokyoOrigin-RoleCard-portrait-placeholder">
+        <span>{{ character.name.slice(0, 1) }}</span>
       </div>
-      <!-- 文本容器结束 -->
     </div>
-    <!-- 头部容器结束 -->
 
-    <!-- 好感度展示：保持原有接口与外观，不改逻辑 -->
-    <!-- 中文注释 -->
-    <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="small" />
-    <!-- 好感度展示结束 -->
-
-    <!-- 新增：角色属性展示区（优先从 stat.chars[角色id] 读取；缺失时回退到 character；最终兜底“待填充”） -->
-    <!-- 中文注释 -->
-    <section class="GensokyoOrigin-RoleCard-attrs">
-      <!-- 属性区块：两列自适应，内部每条属性独立栅格 -->
-      <div v-for="item in displayAttrs" :key="item.k" class="attr" :data-key="item.k" @click.stop="">
-        <!-- 单条属性项开始 -->
-        <span class="k">{{ item.k }}</span>
-        <!-- 键名（固定宽度列） -->
-        <span class="v" :title="item.v || '待填充'">{{ item.v || '待填充' }}</span>
-        <!-- 值列（长文本自动换行与断行） -->
+    <!-- 内容区域 -->
+    <div class="GensokyoOrigin-RoleCard-content">
+      <!-- 名称与地区 -->
+      <div class="GensokyoOrigin-RoleCard-title-section">
+        <div class="GensokyoOrigin-RoleCard-name">{{ character.name }}</div>
+        <div class="GensokyoOrigin-RoleCard-meta">{{ character['所在地区'] || '未知' }}</div>
       </div>
-      <!-- 单条属性项结束 -->
-    </section>
-    <!-- 属性展示区结束 -->
+
+      <!-- 好感度展示 -->
+      <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="small" />
+
+      <!-- 角色属性 -->
+      <section class="GensokyoOrigin-RoleCard-attrs">
+        <div v-for="item in displayAttrs" :key="item.k" class="attr" :data-key="item.k" @click.stop="">
+          <span class="k">{{ item.k }}</span>
+          <span class="v" :title="item.v || '待填充'">{{ item.v || '待填充' }}</span>
+        </div>
+      </section>
+    </div>
 
     <!-- 粒子发射器：根据爱/恨态激活，状态切换时触发一次性爆发 -->
     <!-- 中文注释 -->
@@ -166,77 +158,88 @@ watch(affectionState, (newState, oldState) => {
   position: relative; /* 让内部绝对定位元素以卡片为参照 */
   flex: 0 0 260px; /* 卡片固定宽度（可按需要微调） */
   min-width: 0; /* 防止子元素把容器撑破 */
-  background:
-    linear-gradient(180deg, color-mix(in srgb, var(--bg) 96%, var(--ink) 4%), var(--bg)) /* 细微纵向渐变 */,
-    var(--bg); /* 回退背景纯色 */
+  background: var(--bg); /* 回退背景纯色 */
   border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); /* 柔和边框 */
   border-radius: 12px; /* 圆角更柔和 */
-  padding: 12px; /* 内边距 */
   scroll-snap-align: start; /* 滚动吸附起点 */
   cursor: pointer; /* 鼠标样式 */
   transition:
     transform 0.18s ease,
-    box-shadow 0.18s ease,
-    background 0.18s ease; /* 交互过渡 */
+    box-shadow 0.18s ease; /* 交互过渡 */
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04); /* 轻柔基础阴影 */
   box-sizing: border-box; /* 统一盒模型，边框与内边距计入宽高 */
-  overflow: hidden; /* 绝对防线：任何溢出都不画到外面 */
+  overflow-y: auto; /* 允许垂直滚动 */
+  overflow-x: hidden; /* 隐藏水平滚动条 */
   max-width: 100%; /* 约束在父容器内最大宽度 */
   isolation: isolate; /* 创建新的层叠上下文，避免外部影响本卡片阴影/定位 */
+  display: flex;
+  flex-direction: column;
+  max-height: 500px; /* 设置最大高度 */
 
   &:hover {
     /* 悬停态 */
     transform: translateY(-2px); /* 轻微上浮 */
     box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08); /* 阴影加深 */
-    background:
-      linear-gradient(180deg, color-mix(in srgb, var(--bg) 92%, var(--ink) 8%), var(--bg)),
-      /* 渐变稍加深 */ var(--bg); /* 回退背景 */
   } /* 悬停态结束 */
 } /* 卡片容器结束 */
 
-/* ====== 头部行：头像 + 文本 ====== */ /* 中文注释 */
-.GensokyoOrigin-RoleCard-header {
-  display: flex; /* 水平排列 */
-  align-items: center; /* 垂直居中 */
-  gap: 12px; /* 项间距 */
-  margin-bottom: 10px; /* 与下方模块分隔 */
-  padding-bottom: 10px; /* 底部内边距 */
-  border-bottom: 1px dashed color-mix(in srgb, var(--line) 85%, transparent); /* 虚线分隔线更柔和 */
-} /* 头部结束 */
+/* ====== 立绘区域 ====== */
+.GensokyoOrigin-RoleCard-portrait-container {
+  width: 100%;
+  aspect-ratio: 3 / 4; /* 保持宽高比 */
+  background-color: color-mix(in srgb, var(--bg) 90%, var(--ink) 10%);
+  overflow: hidden;
+  flex-shrink: 0; /* 防止在 flex 布局中被压缩 */
+}
 
-/* 头像圆点：层次与内发光质感 */ /* 中文注释 */
-.GensokyoOrigin-RoleCard-avatar {
-  width: 42px; /* 头像宽度 */
-  height: 42px; /* 头像高度 */
-  border-radius: 50%; /* 圆形 */
-  border: 1px solid color-mix(in srgb, var(--line) 70%, transparent); /* 柔和外边框 */
-  background: radial-gradient(
-    120% 120% at 30% 20%,
-    color-mix(in srgb, var(--avatar-bg) 85%, white) 0%,
-    var(--avatar-bg) 60%,
-    transparent 100%
-  ); /* 内部高光 */
-  display: grid; /* 使用网格居中字符 */
-  place-items: center; /* 水平纵向居中 */
-  font-weight: 800; /* 字重加粗 */
-  color: color-mix(in srgb, var(--muted) 90%, var(--ink)); /* 字色更清晰 */
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--bg) 70%, transparent); /* 内层描边提升质感 */
-  flex-shrink: 0; /* 防止被压缩 */
-} /* 头像结束 */
+.GensokyoOrigin-RoleCard-portrait {
+  width: 100%;
+  height: 100%;
+  object-fit: cover; /* 覆盖整个容器，可能会裁剪 */
+  object-position: center top; /* 优先显示顶部 */
+  transition: transform 0.3s ease;
+}
 
-/* 名称与元信息：层级与可读性 */ /* 中文注释 */
+.GensokyoOrigin-RoleCard-wrapper:hover .GensokyoOrigin-RoleCard-portrait {
+  transform: scale(1.05); /* 悬停时轻微放大 */
+}
+
+.GensokyoOrigin-RoleCard-portrait-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 4rem;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+/* ====== 内容区域 ====== */
+.GensokyoOrigin-RoleCard-content {
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px; /* 内容块之间的间距 */
+}
+
+/* 名称与元信息 */
+.GensokyoOrigin-RoleCard-title-section {
+  padding-bottom: 10px;
+  border-bottom: 1px dashed color-mix(in srgb, var(--line) 85%, transparent);
+}
+
 .GensokyoOrigin-RoleCard-name {
-  font-weight: 800; /* 强化主标题 */
-  font-size: 1.02rem; /* 略大字号 */
-  letter-spacing: 0.2px; /* 微调字距 */
-  line-height: 1.2; /* 行高 */
-} /* 名称结束 */
+  font-weight: 800;
+  font-size: 1.1rem;
+  letter-spacing: 0.2px;
+  line-height: 1.2;
+}
 
 .GensokyoOrigin-RoleCard-meta {
-  margin-top: 2px; /* 与名称间隙 */
-  font-size: 0.82rem; /* 次级字号 */
-  color: color-mix(in srgb, var(--muted) 90%, var(--ink)); /* 柔和字色 */
-} /* 元信息结束 */
+  margin-top: 4px;
+  font-size: 0.85rem;
+  color: color-mix(in srgb, var(--muted) 90%, var(--ink));
+}
 
 /* ====== 属性区：两列自适应 + 防撑破策略 ====== */ /* 中文注释 */
 .GensokyoOrigin-RoleCard-attrs {
@@ -302,5 +305,26 @@ watch(affectionState, (newState, oldState) => {
     grid-template-columns: max-content minmax(0, 1fr); /* ✅ 与桌面一致，始终横排 */
   } /* 单条属性内部布局结束 */
 } /* 响应式结束 */
+
+/* ====== 自定义滚动条样式 ====== */
+.GensokyoOrigin-RoleCard-wrapper::-webkit-scrollbar {
+  width: 6px; /* 滚动条宽度 */
+}
+
+.GensokyoOrigin-RoleCard-wrapper::-webkit-scrollbar-track {
+  background: transparent; /* 轨道背景透明 */
+  margin: 4px 0;
+}
+
+.GensokyoOrigin-RoleCard-wrapper::-webkit-scrollbar-thumb {
+  background-color: color-mix(in srgb, var(--line) 50%, transparent); /* 滑块颜色 */
+  border-radius: 10px; /* 滑块圆角 */
+  border: 2px solid transparent; /* 模拟 padding */
+  background-clip: content-box;
+}
+
+.GensokyoOrigin-RoleCard-wrapper::-webkit-scrollbar-thumb:hover {
+  background-color: color-mix(in srgb, var(--line) 80%, transparent); /* 悬停时滑块颜色 */
+}
 </style>
 <!-- 样式结束 -->

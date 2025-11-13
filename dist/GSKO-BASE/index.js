@@ -102,6 +102,7 @@ const CharacterSettingsMapSchema = external_z_namespaceObject.z.record(external_
 
 const CharacterSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
+  pic: external_z_namespaceObject.z.string().optional(),
   好感度: external_z_namespaceObject.z.number(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable(),

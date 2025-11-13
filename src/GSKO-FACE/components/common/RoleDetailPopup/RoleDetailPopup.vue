@@ -2,62 +2,80 @@
   <div class="GensokyoOrigin-RoleDetailPopup-overlay" @click.self="$emit('close')">
     <div class="GensokyoOrigin-RoleDetailPopup-popup">
       <button class="GensokyoOrigin-RoleDetailPopup-close-btn" @click="$emit('close')">&times;</button>
-      <div class="GensokyoOrigin-RoleDetailPopup-header">
-        <div class="GensokyoOrigin-RoleDetailPopup-avatar">{{ character.name.slice(0, 1) }}</div>
-        <div>
-          <div class="GensokyoOrigin-RoleDetailPopup-name">{{ character.name }}</div>
-          <div class="GensokyoOrigin-RoleDetailPopup-meta">{{ character['所在地区'] || '未知' }}</div>
-        </div>
-      </div>
-      <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-          <strong>居住地:</strong> {{ toText(character.居住地区) }}
-        </div>
-        <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>目标:</strong> {{ decisionText }}
+
+      <!-- Left Column: Portrait -->
+      <div class="GensokyoOrigin-RoleDetailPopup-portrait-section">
+        <img
+          v-if="character.pic"
+          :src="character.pic"
+          :alt="character.name"
+          class="GensokyoOrigin-RoleDetailPopup-portrait-image"
+        />
+        <div v-else class="GensokyoOrigin-RoleDetailPopup-portrait-placeholder">
+          <span>{{ character.name.slice(0, 1) }}</span>
         </div>
       </div>
 
-      <!-- Affection Details -->
-      <div v-if="affectionStageInfo" class="GensokyoOrigin-RoleDetailPopup-section">
-        <h3 class="GensokyoOrigin-RoleDetailPopup-section-title">好感度阶段: {{ affectionStageInfo.name }}</h3>
-        <p class="GensokyoOrigin-RoleDetailPopup-section-desc">{{ affectionStageInfo.describe }}</p>
+      <!-- Right Column: Content -->
+      <div class="GensokyoOrigin-RoleDetailPopup-content-section">
+        <div class="GensokyoOrigin-RoleDetailPopup-header">
+          <div>
+            <div class="GensokyoOrigin-RoleDetailPopup-name">{{ character.name }}</div>
+            <div class="GensokyoOrigin-RoleDetailPopup-meta">{{ character['所在地区'] || '未知' }}</div>
+          </div>
+        </div>
         <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
           <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
-            <strong>耐心值:</strong> {{ toText(affectionStageInfo.patienceUnit) }}
+            <strong>居住地:</strong> {{ toText(character.居住地区) }}
           </div>
-          <div v-if="affectionStageInfo.affectionGrowthLimit" class="GensokyoOrigin-RoleDetailPopup-detail-item">
-            <strong>好感增长上限:</strong> 软上限 {{ affectionStageInfo.affectionGrowthLimit.max }}, 超出后除以
-            {{ affectionStageInfo.affectionGrowthLimit.divisor }}
-          </div>
-          <div v-if="affectionStageInfo.visit" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-            <strong>拜访规则:</strong>
-            {{ affectionStageInfo.visit.enabled ? '会' : '不会' }}拜访。基础概率
-            {{ ((affectionStageInfo.visit.probBase ?? 0) * 100).toFixed(0) }}%, 好感影响
-            {{ ((affectionStageInfo.visit.probK ?? 0) * 100).toFixed(0) }}%。冷却刷新于
-            {{ affectionStageInfo.visit.coolUnit }}
-          </div>
-          <div
-            v-if="affectionStageInfo.forgettingSpeed?.length"
-            class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"
-          >
-            <strong>遗忘规则:</strong>
-            <span v-for="(rule, index) in affectionStageInfo.forgettingSpeed" :key="index">
-              于 {{ rule.triggerFlag }} 触发, 降低 {{ rule.decrease }} 点好感。
-            </span>
+          <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+            <strong>目标:</strong> {{ decisionText }}
           </div>
         </div>
-      </div>
 
-      <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="large" />
-      <ParticleEmitter
-        ref="particleEmitter"
-        :active="affectionState === 'love' || affectionState === 'hate'"
-        :particle-type="affectionState === 'hate' ? 'skull' : 'heart'"
-        :emission-rate="3"
-      />
-      <div class="role-detail-popup-actions">
-        <button class="role-settings-btn" :disabled="!characterSettings" @click="openSettingsModal">角色设定</button>
+        <!-- Affection Details -->
+        <div v-if="affectionStageInfo" class="GensokyoOrigin-RoleDetailPopup-section">
+          <h3 class="GensokyoOrigin-RoleDetailPopup-section-title">好感度阶段: {{ affectionStageInfo.name }}</h3>
+          <p class="GensokyoOrigin-RoleDetailPopup-section-desc">{{ affectionStageInfo.describe }}</p>
+          <div class="GensokyoOrigin-RoleDetailPopup-details-grid">
+            <div class="GensokyoOrigin-RoleDetailPopup-detail-item">
+              <strong>耐心值:</strong> {{ toText(affectionStageInfo.patienceUnit) }}
+            </div>
+            <div v-if="affectionStageInfo.affectionGrowthLimit" class="GensokyoOrigin-RoleDetailPopup-detail-item">
+              <strong>好感增长上限:</strong> 软上限 {{ affectionStageInfo.affectionGrowthLimit.max }}, 超出后除以
+              {{ affectionStageInfo.affectionGrowthLimit.divisor }}
+            </div>
+            <div v-if="affectionStageInfo.visit" class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
+              <strong>拜访规则:</strong>
+              {{ affectionStageInfo.visit.enabled ? '会' : '不会' }}拜访。基础概率
+              {{ ((affectionStageInfo.visit.probBase ?? 0) * 100).toFixed(0) }}%, 好感影响
+              {{ ((affectionStageInfo.visit.probK ?? 0) * 100).toFixed(0) }}%。冷却刷新于
+              {{ affectionStageInfo.visit.coolUnit }}
+            </div>
+            <div
+              v-if="affectionStageInfo.forgettingSpeed?.length"
+              class="GensokyoOrigin-RoleDetailPopup-detail-item full-width"
+            >
+              <strong>遗忘规则:</strong>
+              <span v-for="(rule, index) in affectionStageInfo.forgettingSpeed" :key="index">
+                于 {{ rule.triggerFlag }} 触发, 降低 {{ rule.decrease }} 点好感。
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <AffectionDisplay :character="character" :stat-without-meta="statWithoutMeta" :runtime="runtime" size="large" />
+        <ParticleEmitter
+          ref="particleEmitter"
+          :active="affectionState === 'love' || affectionState === 'hate'"
+          :particle-type="affectionState === 'hate' ? 'skull' : 'heart'"
+          :emission-rate="3"
+        />
+        <div class="role-detail-popup-actions">
+          <button class="role-settings-btn" :disabled="!characterSettings" @click="openSettingsModal">
+            角色设定
+          </button>
+        </div>
       </div>
     </div>
   </div>
@@ -203,14 +221,14 @@ watch(affectionState, (newState, oldState) => {
 .GensokyoOrigin-RoleDetailPopup-popup {
   position: relative;
   width: 90vw;
-  max-width: 600px;
+  max-width: 800px; /* Increased max-width for two-column layout */
   max-height: 80vh;
-  overflow-y: auto;
   background: var(--paper);
   border: 1px solid var(--line);
   border-radius: 12px;
-  padding: 24px;
   box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  display: flex;
+  overflow: hidden; /* Hide overflow on the main container */
 }
 
 .GensokyoOrigin-RoleDetailPopup-close-btn {
@@ -220,10 +238,48 @@ watch(affectionState, (newState, oldState) => {
   width: 30px;
   height: 30px;
   border: none;
-  background: transparent;
-  font-size: 24px;
+  background: rgba(0, 0, 0, 0.3);
+  border-radius: 50%;
+  font-size: 20px;
+  line-height: 30px;
+  text-align: center;
   cursor: pointer;
-  color: var(--muted);
+  color: white;
+  z-index: 10;
+  transition: background 0.2s ease;
+  &:hover {
+    background: rgba(0, 0, 0, 0.6);
+  }
+}
+
+.GensokyoOrigin-RoleDetailPopup-portrait-section {
+  flex: 0 0 300px; /* Fixed width for the portrait */
+  position: relative;
+  background-color: var(--bg);
+}
+
+.GensokyoOrigin-RoleDetailPopup-portrait-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+.GensokyoOrigin-RoleDetailPopup-portrait-placeholder {
+  width: 100%;
+  height: 100%;
+  display: grid;
+  place-items: center;
+  font-size: 6rem;
+  font-weight: 800;
+  color: color-mix(in srgb, var(--muted) 50%, transparent);
+}
+
+.GensokyoOrigin-RoleDetailPopup-content-section {
+  flex: 1;
+  min-width: 0;
+  padding: 24px;
+  overflow-y: auto; /* Allow content to scroll */
 }
 
 .GensokyoOrigin-RoleDetailPopup-header {
@@ -235,22 +291,8 @@ watch(affectionState, (newState, oldState) => {
   border-bottom: 1px solid var(--line);
 }
 
-.GensokyoOrigin-RoleDetailPopup-avatar {
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  border: 1px solid var(--line);
-  background: var(--avatar-bg);
-  display: grid;
-  place-items: center;
-  font-size: 24px;
-  font-weight: 700;
-  color: var(--muted);
-  flex-shrink: 0;
-}
-
 .GensokyoOrigin-RoleDetailPopup-name {
-  font-size: 1.5em;
+  font-size: 1.8em;
   font-weight: 700;
 }
 
@@ -329,5 +371,27 @@ watch(affectionState, (newState, oldState) => {
 .role-settings-btn:not(:disabled):hover {
   transform: translateY(-1px);
   box-shadow: 0 16px 26px rgba(0, 0, 0, 0.2);
+}
+
+@media (max-width: 640px) {
+  .GensokyoOrigin-RoleDetailPopup-popup {
+    flex-direction: column;
+    width: 95vw;
+    max-height: 90vh;
+  }
+
+  .GensokyoOrigin-RoleDetailPopup-portrait-section {
+    flex: 0 0 auto; /* Allow it to size based on content */
+    width: 100%;
+    aspect-ratio: 4 / 3; /* Adjust aspect ratio for smaller view */
+  }
+
+  .GensokyoOrigin-RoleDetailPopup-content-section {
+    padding: 16px; /* Reduce padding on small screens */
+  }
+
+  .GensokyoOrigin-RoleDetailPopup-name {
+    font-size: 1.5em;
+  }
 }
 </style>
