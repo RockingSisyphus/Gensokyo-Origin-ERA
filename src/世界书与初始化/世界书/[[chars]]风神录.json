@@ -758,7 +758,7 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 1.5,
+          "max": 1.0,
           "divisor": 5
         }
       },
@@ -779,8 +779,8 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 2,
-          "divisor": 3
+          "max": 0.5,
+          "divisor": 8
         }
       },
       {
@@ -1133,14 +1133,14 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 4,
+          "max": 1,
           "divisor": 2
         }
       },
       {
         "threshold": 70,
         "name": "亲密",
-        "describe": "将对方视为重要的人，愿意展示自己柔软的一面。与对方独处时不再谈论技术或资金，而是开始隐晦地试探对方的感情。",
+        "describe": "将对方视为重要的挚友，愿意展示自己柔软的一面。与对方独处时不再谈论技术或资金，而是开始隐晦地试探对方的感情。",
         "patienceUnit": "month",
         "visit": {
           "enabled": true,
@@ -1154,8 +1154,8 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 10,
-          "divisor": 2
+          "max": 1,
+          "divisor": 8
         }
       },
       {
@@ -1434,7 +1434,7 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 1.5,
+          "max": 1.0,
           "divisor": 5
         }
       },
@@ -1455,7 +1455,7 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 2,
+          "max": 1.0,
           "divisor": 5
         }
       },
@@ -1476,7 +1476,7 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 5,
+          "max": 2.5,
           "divisor": 3
         }
       },
@@ -1874,7 +1874,7 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 2 }],
         "affectionGrowthLimit": {
-          "max": 4,
+          "max": 1,
           "divisor": 5.0
         }
       },
