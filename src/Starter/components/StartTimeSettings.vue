@@ -34,9 +34,9 @@ watch(
         const date = new Date(isoString);
         // 格式化为 YYYY-MM-DD
         epochDate.value = date.toISOString().split('T')[0];
-        // 格式化为 HH:mm
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
+        // 格式化为 HH:mm (使用 UTC 时间)
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
         epochTime.value = `${hours}:${minutes}`;
       } catch (e) {
         console.error('StartTimeSettings: 解析 epochISO 失败', e);
@@ -53,10 +53,12 @@ watch(
 
 const isoFromInputs = computed(() => {
   if (!epochDate.value || !epochTime.value) return null;
-  const candidate = `${epochDate.value}T${epochTime.value}:00`;
-  const date = new Date(candidate);
+  // 直接构造 UTC 时间字符串
+  const isoString = `${epochDate.value}T${epochTime.value}:00.000Z`;
+  // 验证日期是否有效
+  const date = new Date(isoString);
   if (Number.isNaN(date.getTime())) return null;
-  return date.toISOString();
+  return isoString;
 });
 
 const hasChanges = computed(() => !!isoFromInputs.value && isoFromInputs.value !== originalEpochISO.value);
@@ -69,8 +71,8 @@ const resetEpochInputs = () => {
       const date = new Date(originalEpochISO.value);
       if (Number.isNaN(date.getTime())) throw new Error('Invalid epoch ISO value');
       epochDate.value = date.toISOString().split('T')[0];
-      const hours = String(date.getHours()).padStart(2, '0');
-      const minutes = String(date.getMinutes()).padStart(2, '0');
+      const hours = String(date.getUTCHours()).padStart(2, '0');
+      const minutes = String(date.getUTCMinutes()).padStart(2, '0');
       epochTime.value = `${hours}:${minutes}`;
       return;
     } catch (e) {
