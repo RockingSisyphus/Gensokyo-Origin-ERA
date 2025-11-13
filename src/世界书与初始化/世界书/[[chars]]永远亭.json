@@ -43,13 +43,13 @@
       {
         "threshold": -50,
         "name": "迷惑",
-        "describe": "无法理解对方的思考方式，与对方相处时会头痛，不知道如何相处，见到对方就会躲开。",
+        "describe": "无法理解对方的思考方式，与对方相处时会头痛，不知道如何相处，偶尔会去找对方的茬。",
         "patienceUnit": "day",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
         "affectionGrowthLimit": {
@@ -238,10 +238,10 @@
         "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会极度愤怒与反胃，每分每秒都想杀死对方。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "period"
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -255,10 +255,10 @@
         "describe": "非常厌恶对方，将对方视作眼中钉，见面时会毫不犹豫地宣布开战，有时会主动找到对方泄愤。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "day"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -789,13 +789,13 @@
       {
         "threshold": -50,
         "name": "迷惑",
-        "describe": "无法理解对方的思考方式，对其作风感到头痛，会对其进行一些性质恶劣的恶作剧，见到对方就会躲开，会在背后说对方的坏话，不会允许对方靠近永远亭。",
+        "describe": "无法理解对方的思考方式，对其作风感到头痛，会对其进行一些性质恶劣的恶作剧，见到对方就会躲开，会在背后说对方的坏话，偶尔会去找对方的茬，不会允许对方靠近永远亭。",
         "patienceUnit": "day",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1492,10 +1492,10 @@
         "describe": "憎恨已经刻入了骨髓之中，仅仅是提及对方就会散发出令人恐惧的气场，会用尽一切手段让对方从世界上消失。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 1.0,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1506,13 +1506,13 @@
       {
         "threshold": -5000,
         "name": "蔑视",
-        "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，偶尔会用看垃圾一样的眼神看着对方，不会允许对方进入永远亭。",
+        "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，偶尔会用看垃圾一样的眼神看着对方，有时会主动找到对方泄愤，不会允许对方进入永远亭。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.5,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1732,10 +1732,10 @@
         "describe": "憎恨已经刻入了骨髓之中，每分每秒都想杀死对方，内心涌动着无法抑制的杀意。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 0.2,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "period"
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
@@ -1746,13 +1746,13 @@
       {
         "threshold": -5000,
         "name": "敌人",
-        "describe": "非常厌恶对方，将对方视作眼中钉，会毫不犹豫地告诉别人不要靠近对方，见面时会立即摆开架势。",
+        "describe": "非常厌恶对方，将对方视作眼中钉，会毫不犹豫地告诉别人不要靠近对方，有时会主动找到对方泄愤，见面时会立即摆开架势。",
         "patienceUnit": "year",
         "visit": {
-          "enabled": false,
-          "probBase": 0.0,
+          "enabled": true,
+          "probBase": 1.0,
           "probK": 0.0,
-          "coolUnit": "year"
+          "coolUnit": "week"
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
