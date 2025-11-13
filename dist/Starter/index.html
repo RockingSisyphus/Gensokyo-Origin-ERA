@@ -1193,7 +1193,14 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
-  目标: external_z_namespaceObject.z.string().optional()
+  目标: external_z_namespaceObject.z.string().optional(),
+  身体状况: external_z_namespaceObject.z.string().optional(),
+  内心想法: external_z_namespaceObject.z.string().optional(),
+  外貌: external_z_namespaceObject.z.string().optional(),
+  衣着: external_z_namespaceObject.z.string().optional(),
+  性格: external_z_namespaceObject.z.string().optional(),
+  性别: external_z_namespaceObject.z.string().optional(),
+  年龄: external_z_namespaceObject.z.string().optional()
 });
 
 const CharsSchema = external_z_namespaceObject.z.object({

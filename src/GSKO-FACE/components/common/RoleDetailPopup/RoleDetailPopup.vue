@@ -14,7 +14,7 @@
           <strong>居住地:</strong> {{ toText(character.居住地区) }}
         </div>
         <div class="GensokyoOrigin-RoleDetailPopup-detail-item full-width">
-          <strong>当前决策:</strong> {{ decisionText }}
+          <strong>目标:</strong> {{ decisionText }}
         </div>
       </div>
 
@@ -79,8 +79,8 @@ import type { CharacterSettings } from '../../../../GSKO-BASE/schema/character-s
 import type { Runtime } from '../../../../GSKO-BASE/schema/runtime';
 import type { Stat } from '../../../../GSKO-BASE/schema/stat';
 import { updateEraVariable } from '../../../utils/eraWriter';
-import ParticleEmitter from '../ParticleEmitter.vue';
 import AffectionDisplay from '../../RoleRibbon/AffectionDisplay.vue';
+import ParticleEmitter from '../ParticleEmitter.vue';
 import CharacterSettingsModal from './CharacterSettingsModal.vue';
 
 const props = defineProps({

@@ -108,7 +108,14 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
-  目标: external_z_namespaceObject.z.string().optional()
+  目标: external_z_namespaceObject.z.string().optional(),
+  身体状况: external_z_namespaceObject.z.string().optional(),
+  内心想法: external_z_namespaceObject.z.string().optional(),
+  外貌: external_z_namespaceObject.z.string().optional(),
+  衣着: external_z_namespaceObject.z.string().optional(),
+  性格: external_z_namespaceObject.z.string().optional(),
+  性别: external_z_namespaceObject.z.string().optional(),
+  年龄: external_z_namespaceObject.z.string().optional()
 });
 
 const CharsSchema = external_z_namespaceObject.z.object({
@@ -3602,7 +3609,14 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
       好感度: charData.好感度,
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
-      目标: charData.目标
+      目标: charData.目标,
+      身体状况: charData.身体状况,
+      内心想法: charData.内心想法,
+      外貌: charData.外貌,
+      衣着: charData.衣着,
+      性格: charData.性格,
+      性别: charData.性别,
+      年龄: charData.年龄
     };
   });
   if (external_default().isEmpty(charactersInfo)) {
@@ -3611,7 +3625,7 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
   const charactersJson = JSON.stringify({
     chars: charactersInfo
   }, null, 2);
-  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态。\n\n${charactersJson}\n`;
+  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态(如果有‘待填充’的属性，请优先填充)。\n\n${charactersJson}\n`;
   co_located_characters_logger.debug(funcName, "成功生成同区角色提示词。");
   return prompt;
 }
