@@ -129,6 +129,8 @@ const displayAttrs = computed(() => {
   /* 组装要展示的属性键值对数组（模板 v-for 使用） */
   return [
     /* 返回展示清单（顺序可按需求调整） */ { k: '目标', v: getAttr('目标') } /* 目标（stat 优先，其次 character） */,
+    { k: '性知识', v: getAttr('性知识') } /* 性知识 */,
+    { k: '性经验', v: getAttr('性经验') } /* 性经验 */,
     { k: '身体状况', v: getAttr('身体状况') } /* 身体状况 */,
     { k: '内心想法', v: getAttr('内心想法') } /* 内心想法 */,
     { k: '外貌', v: getAttr('外貌') } /* 外貌 */,

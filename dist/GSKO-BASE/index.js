@@ -109,6 +109,8 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
   目标: external_z_namespaceObject.z.string().optional(),
+  性知识: external_z_namespaceObject.z.string().optional(),
+  性经验: external_z_namespaceObject.z.string().optional(),
   身体状况: external_z_namespaceObject.z.string().optional(),
   内心想法: external_z_namespaceObject.z.string().optional(),
   外貌: external_z_namespaceObject.z.string().optional(),
@@ -3610,6 +3612,8 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
       目标: charData.目标,
+      性知识: charData.性知识,
+      性经验: charData.性经验,
       身体状况: charData.身体状况,
       内心想法: charData.内心想法,
       外貌: charData.外貌,
@@ -3625,7 +3629,7 @@ function buildCoLocatedCharactersPrompt({stat, runtime}) {
   const charactersJson = JSON.stringify({
     chars: charactersInfo
   }, null, 2);
-  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态(如果有‘待填充’的属性，请优先填充)。\n\n${charactersJson}\n`;
+  const prompt = `\n以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态(如果有‘待填充’的属性，那么你**必须用实际数据更新它**)。\n\n${charactersJson}\n`;
   co_located_characters_logger.debug(funcName, "成功生成同区角色提示词。");
   return prompt;
 }
@@ -3882,7 +3886,16 @@ function buildRemoteMentionedCharactersPrompt({stat, runtime}) {
       好感度: charData.好感度,
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
-      目标: charData.目标
+      目标: charData.目标,
+      性知识: charData.性知识,
+      性经验: charData.性经验,
+      身体状况: charData.身体状况,
+      内心想法: charData.内心想法,
+      外貌: charData.外貌,
+      衣着: charData.衣着,
+      性格: charData.性格,
+      性别: charData.性别,
+      年龄: charData.年龄
     };
   });
   if (external_default().isEmpty(charactersInfo)) {

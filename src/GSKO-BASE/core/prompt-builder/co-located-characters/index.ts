@@ -41,6 +41,8 @@ export function buildCoLocatedCharactersPrompt({ stat, runtime }: { stat: Stat; 
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
       目标: charData.目标,
+      性知识: charData.性知识,
+      性经验: charData.性经验,
       身体状况: charData.身体状况,
       内心想法: charData.内心想法,
       外貌: charData.外貌,
@@ -60,7 +62,7 @@ export function buildCoLocatedCharactersPrompt({ stat, runtime }: { stat: Stat; 
 
   // 构建最终的提示词
   const prompt = `
-以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态(如果有‘待填充’的属性，请优先填充)。
+以下是当前场景中的角色及其状态。你可以根据当前剧情需要，引入、带离这些角色互动并通过ERA变量更新语句更新她们的状态(如果有‘待填充’的属性，那么你**必须用实际数据更新它**)。
 
 ${charactersJson}
 `;

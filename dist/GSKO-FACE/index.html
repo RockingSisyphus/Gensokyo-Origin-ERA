@@ -540,6 +540,8 @@ const CharacterSchema = external_z_namespaceObject.z.object({
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
   目标: external_z_namespaceObject.z.string().optional(),
+  性知识: external_z_namespaceObject.z.string().optional(),
+  性经验: external_z_namespaceObject.z.string().optional(),
   身体状况: external_z_namespaceObject.z.string().optional(),
   内心想法: external_z_namespaceObject.z.string().optional(),
   外貌: external_z_namespaceObject.z.string().optional(),
@@ -4756,6 +4758,12 @@ const RoleCardvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObj
     const displayAttrs = (0, external_Vue_namespaceObject.computed)(() => [ {
       k: "目标",
       v: getAttr("目标")
+    }, {
+      k: "性知识",
+      v: getAttr("性知识")
+    }, {
+      k: "性经验",
+      v: getAttr("性经验")
     }, {
       k: "身体状况",
       v: getAttr("身体状况")
