@@ -47,13 +47,13 @@
   {
     "threshold": -50,
     "name": "不和",
-    "describe": "与对方合不来，态度变得嚣张，会因为一点小事就和对方打起来，见到对方就会找茬，会在背后说对方的坏话。",
+    "describe": "与对方合不来，态度变得嚣张，会因为一点小事就和对方打起来，见到对方就会找茬，偶尔会去找对方的茬，会在背后说对方的坏话。",
     "patienceUnit": "day",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newWeek", "decrease": 1 }
@@ -199,7 +199,7 @@
   {
     "threshold": 9989,
     "name": "挚爱",
-    "describe": "将对方视为自己生命中无可替代的存在，愿意为对方做任何事情，即使不言不语，也能瞬间明了对方的心意，将会永远铭记对方。",
+    "describe": "将对方视为自己生命中无可替代的存在，愿意为对方做任何事情，即使不言不语，也能瞬间明了对方的心意。",
     "patienceUnit": "year",
     "visit": {
       "enabled": true,
@@ -468,13 +468,13 @@
   {
     "threshold": -5000,
     "name": "敌人",
-    "describe": "非常厌恶对方，将对方视作眼中钉，见面时会毫不犹豫地宣布开战，见面时会立即摆开架势，不会允许对方靠近命莲寺。",
+    "describe": "非常厌恶对方，将对方视作眼中钉，见面时会毫不犹豫地宣布开战，见面时会立即摆开架势，不会允许对方靠近命莲寺，有时会主动找到对方讨公道。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -851,13 +851,13 @@
   {
     "threshold": -5000,
     "name": "敌人",
-    "describe": "非常厌恶对方，将对方视作眼中釘，见面时会毫不犹豫地宣布开战，见面时会毫不掩饰地发出咂舌声，不会允许对方靠近命莲寺。",
+    "describe": "非常厌恶对方，将对方视作眼中釘，见面时会毫不犹豫地宣布开战，见面时会毫不掩饰地发出咂舌声，不会允许对方靠近命莲寺，有时会主动找到对方讨公道。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -1495,10 +1495,10 @@
     "describe": "憎恨已经刻入了骨髓之中，每分每秒都想杀死对方，会用尽一切手段让对方从世界上消失。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.0,
+          "coolUnit": "period"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newYear", "decrease": 1 }
@@ -1511,13 +1511,13 @@
   {
     "threshold": -5000,
     "name": "蔑视",
-    "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，会对其进行一些性质恶劣的恶作剧，会毫不犹豫地告诉别人不要靠近对方，不会以真实的形态示人。",
+    "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，会对其进行一些性质恶劣的恶作剧，经常会去找对方的茬，会毫不犹豫地告诉别人不要靠近对方，不会以真实的形态示人。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -1530,13 +1530,13 @@
   {
     "threshold": -50,
     "name": "厌恶",
-    "describe": "很讨厌对方，觉得对方是个大麻烦，会因为一点小事就和对方打起来，见到对方就会找茬或者恶作剧，会在背后说对方的坏话，不会以真实的形态示人。",
+    "describe": "很讨厌对方，觉得对方是个大麻烦，会因为一点小事就和对方打起来，见到对方就会找茬或者恶作剧，偶尔会去找对方的茬，会在背后说对方的坏话，不会以真实的形态示人。",
     "patienceUnit": "day",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newWeek", "decrease": 2 }
@@ -1702,4 +1702,5 @@
     "specials": [],
     "routine": []
   }
+
 }
