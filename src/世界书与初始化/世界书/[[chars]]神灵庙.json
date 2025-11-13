@@ -437,13 +437,13 @@
   {
     "threshold": -9999,
     "name": "憎恶",
-    "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会散发出令人恐惧的气场。",
+    "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会散发出令人恐惧的气场，会想尽一切办法致对方于死地。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newYear", "decrease": 1 }
@@ -456,13 +456,13 @@
   {
     "threshold": -5000,
     "name": "蔑视",
-    "describe": "认为对方是毫无价值的存在，连正眼看一下都觉得多余，偶尔会用看垃圾一样的眼神看着对方，偶尔会在对方背后造谣。",
+    "describe": "认为对方是毫无价值的存在，连正眼看一下都觉得多余，偶尔会用看垃圾一样的眼神看着对方，偶尔会在对方背后造谣，有时会主动找到对方泄愤。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -888,13 +888,13 @@
   {
     "threshold": -5000,
     "name": "敌人",
-    "describe": "非常厌恶对方，将对方视作眼中釘，见面时会毫不犹豫地宣布开战，会因为一点小事就和对方打起来，不会允许对方靠近神灵庙，会毫不犹豫地告诉别人不要靠近对方。",
+    "describe": "非常厌恶对方，将对方视作眼中釘，见面时会毫不犹豫地宣布开战，会因为一点小事就和对方打起来，不会允许对方靠近神灵庙，有时会主动找到对方讨公道，会毫不犹豫地告诉别人不要靠近对方。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -1304,10 +1304,10 @@
     "describe": "憎恨已经刻入了骨髓之中，仅仅是提及对方就会散发出令人恐惧的气场，内心涌动着无法抑制的杀意。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newYear", "decrease": 1 }
@@ -1320,13 +1320,13 @@
   {
     "threshold": -5000,
     "name": "蔑视",
-    "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，明里暗里都会想办法阻碍对方，会派狸猫们监视对方。",
+    "describe": "认为对方是完全不值得尊重的存在，会直言不讳地表示轻蔑，明里暗里都会想办法阻碍对方，有时会主动找到对方泄愤，会派狸猫们监视对方。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -1339,13 +1339,13 @@
   {
     "threshold": -50,
     "name": "不和",
-    "describe": "与对方合不来，与对方谈话时总是会针锋相对，会对其进行一些性质恶劣的恶作剧，见到对方就会找茬，会在背后说对方的坏话，见到对方时会故意伪装。",
+    "describe": "与对方合不来，与对方谈话时总是会针锋相对，会对其进行一些性质恶劣的恶作剧，见到对方就会找茬，会在背后说对方的坏话，偶尔会去找对方的茬，见到对方时会故意伪装。",
     "patienceUnit": "day",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newWeek", "decrease": 2 }
@@ -1512,3 +1512,4 @@
     "routine": []
   }
 }
+
