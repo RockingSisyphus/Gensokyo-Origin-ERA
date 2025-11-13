@@ -23,4 +23,7 @@ export interface MapState {
   lastMouseY: number;
   mapWidth: number;
   mapHeight: number;
+  isTouching: boolean;
+  lastTouchDistance: number;
+  initialTouches: Touch[];
 }

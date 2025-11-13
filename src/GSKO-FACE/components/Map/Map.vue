@@ -12,7 +12,9 @@
       </div>
 
       <div class="map-operate">
-        <div @click="resetToPlayer">🎯 回到玩家位置</div>
+        <div @click="resetToPlayer" title="回到玩家位置">🎯</div>
+        <div @click="zoomIn">+</div>
+        <div @click="zoomOut">-</div>
       </div>
 
       <div class="map-container" id="mapContainer">
@@ -31,6 +33,7 @@
             transform: `translate(-50%, -50%)`,
           }"
           @click="selectLocation(marker)"
+          @touchstart="handleMarkerTouchStart(marker, $event)"
           @mouseenter="hoverMarker = marker.name"
           @mouseleave="hoverMarker = null"
         ></div>
@@ -49,7 +52,7 @@
           <div class="dialog">
             <div class="dialog-header">
               <h2 class="location-name">{{ selectedMarker.name }}</h2>
-              <button class="close-btn" @click="selectedMarker = null">×</button>
+              <button class="close-btn" @click="selectedMarker = null" @touchstart="selectedMarker = null">×</button>
             </div>
             <div class="dialog-content">
               <div v-if="charactersInSelectedLocation.length > 0" class="npc-list">
@@ -58,6 +61,7 @@
                   :key="npc.id"
                   class="npc-item"
                   @click="openRoleDetailPopup(npc)"
+                  @touchstart="handleNpcTouch(npc, $event)"
                 >
                   <span class="npc-name">{{ npc.name }}：</span>
                   <span class="npc-target">{{ npc['目标'] || '未知' }}</span>
@@ -94,19 +98,18 @@
 <script setup lang="ts">
 import RoleDetailPopup from '../common/RoleDetailPopup/RoleDetailPopup.vue';
 import { MapMarker, MapState, Road } from './Map';
+import { ref, computed, onMounted, onUnmounted } from 'vue';
 
 // 定义 props
 const props = defineProps({
   context: null,
 });
 
-// 监听 message 的变化
-watch(
-  () => props.context,
-  (newValue, oldValue) => {
-    console.log(`message 从 "${oldValue}" 变为 "${newValue}"`);
-  },
-);
+// 检测是否为移动设备
+const isMobile = ref(false);
+const checkIfMobile = () => {
+  isMobile.value = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+};
 
 // 地图尺寸
 const mapSize = computed(() => {
@@ -209,6 +212,10 @@ let mapState = ref<MapState>({
   lastMouseY: 0,
   mapWidth: 300,
   mapHeight: 300,
+  // 添加触摸相关状态
+  isTouching: false,
+  lastTouchDistance: 0,
+  initialTouches: [],
 });
 
 let selectedMarker = ref<MapMarker | null>(null);
@@ -220,6 +227,10 @@ let mapComponent: HTMLElement;
 let mapContainer: HTMLElement;
 let canvas: HTMLCanvasElement;
 let ctx: CanvasRenderingContext2D;
+
+// 触摸相关变量
+let touchStartTime = 0;
+let longPressTimer: number | null = null;
 
 function openRoleDetailPopup(character: any) {
   selectedCharacterForPopup.value = character;
@@ -246,6 +257,30 @@ function selectLocation(markerData: MapMarker) {
   selectedMarker.value = { ...markerData, htmlEle: '' }; // htmlEle is no longer needed
 }
 
+// 处理标记触摸开始
+function handleMarkerTouchStart(markerData: MapMarker, event: TouchEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+
+  touchStartTime = Date.now();
+
+  // 设置长按定时器
+  longPressTimer = window.setTimeout(() => {
+    // 长按处理，可以在这里添加长按功能
+    console.log('长按标记:', markerData.name);
+  }, 500);
+
+  // 直接触发选择，因为移动端点击和触摸很难区分
+  selectLocation(markerData);
+}
+
+// 处理NPC触摸
+function handleNpcTouch(npc: any, event: TouchEvent) {
+  event.preventDefault();
+  event.stopPropagation();
+  openRoleDetailPopup(npc);
+}
+
 // 在 script 部分添加重置到玩家位置的函数
 function resetToPlayer() {
   if (playerMarker.value) {
@@ -258,6 +293,45 @@ function resetToPlayer() {
       zoom: 1,
       offsetX: containerWidth / 2 - playerPos.x * 1,
       offsetY: containerHeight / 2 - playerPos.y * 1,
+    };
+
+    drawMap();
+  }
+}
+
+// 缩放控制
+function zoomIn() {
+  const zoomFactor = 1.2;
+  const newZoom = mapState.value.zoom * zoomFactor;
+
+  if (newZoom <= 5) {
+    const containerWidth = mapContainer.clientWidth;
+    const containerHeight = mapContainer.clientHeight;
+
+    mapState.value = {
+      ...mapState.value,
+      zoom: newZoom,
+      offsetX: containerWidth / 2 - (containerWidth / 2 - mapState.value.offsetX) * zoomFactor,
+      offsetY: containerHeight / 2 - (containerHeight / 2 - mapState.value.offsetY) * zoomFactor,
+    };
+
+    drawMap();
+  }
+}
+
+function zoomOut() {
+  const zoomFactor = 0.8;
+  const newZoom = mapState.value.zoom * zoomFactor;
+
+  if (newZoom >= 0.2) {
+    const containerWidth = mapContainer.clientWidth;
+    const containerHeight = mapContainer.clientHeight;
+
+    mapState.value = {
+      ...mapState.value,
+      zoom: newZoom,
+      offsetX: containerWidth / 2 - (containerWidth / 2 - mapState.value.offsetX) * zoomFactor,
+      offsetY: containerHeight / 2 - (containerHeight / 2 - mapState.value.offsetY) * zoomFactor,
     };
 
     drawMap();
@@ -367,6 +441,21 @@ function drawRoads() {
   }
 }
 
+// 计算两点之间的距离
+function getDistance(touch1: Touch, touch2: Touch): number {
+  const dx = touch1.clientX - touch2.clientX;
+  const dy = touch1.clientY - touch2.clientY;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+// 计算两点的中心点
+function getMidpoint(touch1: Touch, touch2: Touch): { x: number; y: number } {
+  return {
+    x: (touch1.clientX + touch2.clientX) / 2,
+    y: (touch1.clientY + touch2.clientY) / 2,
+  };
+}
+
 // 更新canvas尺寸
 function updateCanvasSize() {
   const containerWidth = mapContainer.clientWidth;
@@ -382,7 +471,100 @@ function updateCanvasSize() {
   drawMap();
 }
 
+function handleTouchStart(e: TouchEvent) {
+  e.preventDefault();
+
+  if (e.touches.length === 1) {
+    // 单指触摸 - 准备拖动
+    mapState.value = {
+      ...mapState.value,
+      isTouching: true,
+      lastMouseX: e.touches[0].clientX,
+      lastMouseY: e.touches[0].clientY,
+    };
+  } else if (e.touches.length === 2) {
+    // 双指触摸 - 准备缩放
+    mapState.value = {
+      ...mapState.value,
+      isTouching: true,
+      lastTouchDistance: getDistance(e.touches[0], e.touches[1]),
+      initialTouches: [e.touches[0], e.touches[1]],
+    };
+  }
+}
+
+function handleTouchMove(e: TouchEvent) {
+  e.preventDefault();
+
+  if (!mapState.value.isTouching) return;
+
+  if (e.touches.length === 1 && !mapState.value.lastTouchDistance) {
+    // 单指移动 - 拖动地图
+    const deltaX = e.touches[0].clientX - mapState.value.lastMouseX;
+    const deltaY = e.touches[0].clientY - mapState.value.lastMouseY;
+
+    mapState.value.offsetX += deltaX;
+    mapState.value.offsetY += deltaY;
+
+    mapState.value.lastMouseX = e.touches[0].clientX;
+    mapState.value.lastMouseY = e.touches[0].clientY;
+
+    drawMap();
+  } else if (e.touches.length === 2) {
+    // 双指移动 - 缩放地图
+    const currentDistance = getDistance(e.touches[0], e.touches[1]);
+
+    if (mapState.value.lastTouchDistance > 0) {
+      const zoomFactor = currentDistance / mapState.value.lastTouchDistance;
+      const newZoom = mapState.value.zoom * zoomFactor;
+
+      // 限制缩放范围
+      if (newZoom >= 0.2 && newZoom <= 5) {
+        // 计算缩放中心点
+        const midpoint = getMidpoint(e.touches[0], e.touches[1]);
+        const rect = mapContainer.getBoundingClientRect();
+        const touchX = midpoint.x - rect.left;
+        const touchY = midpoint.y - rect.top;
+
+        // 计算触摸点在画布上的位置（考虑当前变换）
+        const worldX = (touchX - mapState.value.offsetX) / mapState.value.zoom;
+        const worldY = (touchY - mapState.value.offsetY) / mapState.value.zoom;
+
+        mapState.value = {
+          ...mapState.value,
+          zoom: newZoom,
+          // 调整偏移量，使缩放以触摸位置为中心
+          offsetX: touchX - worldX * mapState.value.zoom,
+          offsetY: touchY - worldY * mapState.value.zoom,
+        };
+
+        drawMap();
+      }
+    }
+
+    mapState.value.lastTouchDistance = currentDistance;
+  }
+}
+
+function handleTouchEnd(e: TouchEvent) {
+  // 清除长按定时器
+  if (longPressTimer) {
+    clearTimeout(longPressTimer);
+    longPressTimer = null;
+  }
+
+  mapState.value = {
+    ...mapState.value,
+    isTouching: false,
+    lastTouchDistance: 0,
+    initialTouches: [],
+  };
+}
+
 onMounted(() => {
+  // 检测是否为移动设备
+  checkIfMobile();
+
   // 获取DOM元素
   mapComponent = document.getElementById('mapComponent') as HTMLElement;
   mapContainer = document.getElementById('mapContainer') as HTMLElement;
@@ -470,8 +652,24 @@ onMounted(() => {
     }
   });
 
+  // 触摸事件处理
+  mapContainer.addEventListener('touchstart', handleTouchStart, { passive: false });
+  mapContainer.addEventListener('touchmove', handleTouchMove, { passive: false });
+  mapContainer.addEventListener('touchend', handleTouchEnd);
+  mapContainer.addEventListener('touchcancel', handleTouchEnd);
+
   // 初始生成地图
   generateMap();
+});
+
+onUnmounted(() => {
+  // 清理事件监听器
+  if (mapContainer) {
+    mapContainer.removeEventListener('touchstart', handleTouchStart);
+    mapContainer.removeEventListener('touchmove', handleTouchMove);
+    mapContainer.removeEventListener('touchend', handleTouchEnd);
+    mapContainer.removeEventListener('touchcancel', handleTouchEnd);
+  }
 });
 </script>
 
@@ -482,6 +680,10 @@ onMounted(() => {
   overflow: hidden;
   margin-bottom: 20px;
   border-radius: 12px;
+  /* 防止移动端浏览器默认行为 */
+  touch-action: none;
+  -webkit-user-select: none;
+  user-select: none;
 
   .map-wrapper {
     position: relative;
@@ -501,6 +703,9 @@ onMounted(() => {
     overflow: hidden;
     cursor: grab;
     border-radius: 12px;
+    /* 优化移动端触摸体验 */
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
   }
 
   #mapCanvas {
@@ -514,6 +719,9 @@ onMounted(() => {
     cursor: pointer;
     z-index: 10;
     user-select: none;
+    /* 优化移动端触摸体验 */
+    -webkit-tap-highlight-color: transparent;
+    touch-action: manipulation;
   }
 
   .location-marker {
@@ -530,10 +738,24 @@ onMounted(() => {
     font-weight: 500;
     color: var(--ink);
 
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      font-size: 12px;
+      padding: 5px 8px;
+      min-width: 50px;
+    }
+
     &:hover {
       background: linear-gradient(145deg, #4fc3f7, #29b6f6);
       color: white;
       box-shadow: 0 4px 16px rgba(41, 182, 246, 0.4);
+    }
+
+    /* 移动端激活状态 */
+    &:active {
+      background: linear-gradient(145deg, #4fc3f7, #29b6f6);
+      color: white;
+      transform: translate(-50%, -50%) scale(0.95);
     }
   }
 
@@ -577,21 +799,28 @@ onMounted(() => {
   }
 
   .map-operate {
-    opacity: 0.8;
     position: absolute;
     top: 20px;
     right: 20px;
-    background: rgba(255, 255, 255, 0.95);
-    padding: 8px 16px;
-    border-radius: 8px;
     z-index: 40;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
-    border: 1px solid rgba(0, 0, 0, 0.1);
     display: flex;
+    gap: 10px;
+    flex-direction: column;
 
     > div {
-      align-items: center;
+      background: rgba(255, 255, 255, 0.95);
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+      border: 1px solid rgba(0, 0, 0, 0.1);
+      padding: 8px;
+      border-radius: 8px;
       cursor: pointer;
+      text-align: center;
+      font-size: 20px;
+
+      /* 移动端适配 */
+      @media (max-width: 768px) {
+        font-size: 16px;
+      }
     }
   }
 
@@ -663,6 +892,12 @@ onMounted(() => {
     min-width: 200px;
     backdrop-filter: blur(10px);
 
+    /* 移动端适配 */
+    @media (max-width: 768px) {
+      min-width: 180px;
+      max-width: 90vw;
+    }
+
     .dialog-header {
       display: flex;
       justify-content: space-between;
@@ -678,6 +913,11 @@ onMounted(() => {
         font-weight: 600;
         margin: 0;
         color: white;
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+          font-size: 16px;
+        }
       }
 
       .close-btn {
@@ -696,6 +936,13 @@ onMounted(() => {
 
         &:hover {
           background: rgba(255, 255, 255, 0.3);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+          width: 28px;
+          height: 28px;
+          font-size: 18px;
         }
       }
     }
@@ -718,9 +965,24 @@ onMounted(() => {
         border-radius: 6px;
         transition: background 0.2s ease;
         cursor: pointer;
+        /* 优化移动端触摸体验 */
+        -webkit-tap-highlight-color: transparent;
 
         &:hover {
           background: rgba(0, 0, 0, 0.06);
+        }
+
+        /* 移动端激活状态 */
+        &:active {
+          background: rgba(0, 0, 0, 0.1);
+        }
+
+        /* 移动端适配 */
+        @media (max-width: 768px) {
+          padding: 10px 12px;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
         }
       }
 
@@ -752,6 +1014,23 @@ onMounted(() => {
     border: 12px solid transparent;
     border-top-color: #fff;
     filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.1));
+  }
+
+  /* 移动端特定样式 */
+  @media (max-width: 768px) {
+    .map-operate {
+      top: 10px;
+      right: 10px;
+      padding: 6px 12px;
+      font-size: 14px;
+    }
+
+    .map-info {
+      top: 10px;
+      left: 10px;
+      padding: 6px 12px;
+      font-size: 0.8rem;
+    }
   }
 }
 </style>
