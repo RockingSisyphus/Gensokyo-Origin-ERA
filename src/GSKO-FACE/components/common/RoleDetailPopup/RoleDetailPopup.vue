@@ -72,9 +72,7 @@
           :emission-rate="3"
         />
         <div class="role-detail-popup-actions">
-          <button class="role-settings-btn" :disabled="!characterSettings" @click="openSettingsModal">
-            角色设定
-          </button>
+          <button class="role-settings-btn" :disabled="!characterSettings" @click="openSettingsModal">角色设定</button>
         </div>
       </div>
     </div>
