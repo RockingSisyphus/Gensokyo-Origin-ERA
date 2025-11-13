@@ -75,7 +75,11 @@
             "triggerFlag": "newDay",
             "decrease": 1
           }
-        ]
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 5
+        }
       },
       {
         "threshold": 20,
@@ -93,7 +97,11 @@
             "triggerFlag": "newDay",
             "decrease": 1
           }
-        ]
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 5
+        }
       },
       {
         "threshold": 40,
@@ -105,6 +113,10 @@
           "probBase": 0.02,
           "probK": 0.002,
           "coolUnit": "week"
+        },
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 5
         }
       },
       {
@@ -117,6 +129,10 @@
           "probBase": 0.05,
           "probK": 0.003,
           "coolUnit": "month"
+        },
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 5
         }
       },
       {
@@ -129,6 +145,10 @@
           "probBase": 0.1,
           "probK": 0.005,
           "coolUnit": "day"
+        },
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
         }
       },
       {
@@ -141,6 +161,10 @@
           "probBase": 0.2,
           "probK": 0.01,
           "coolUnit": "day"
+        },
+        "affectionGrowthLimit": {
+          "max": 15,
+          "divisor": 2
         }
       },
       {
@@ -273,5 +297,442 @@
         }
       }
     ]
-  }
+  },
+  "koishi": {
+    "name": "古明地恋",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "憎恨",
+        "describe": "无意识的憎恨涌动，她会不受控制地想要伤害你。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.3,
+          "probK": 0.01,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 10
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": -50,
+        "name": "恐惧",
+        "describe": "潜意识中的恐惧让她想要逃离，但又忍不住靠近。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.2,
+          "probK": 0.008,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 8
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 4,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": -10,
+        "name": "迷茫",
+        "describe": "她开始注意到你的存在，但无法理解这种感觉。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.1,
+          "probK": 0.005,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 5
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 4
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "好奇",
+        "describe": "无意识的好奇心驱使她想要了解你。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.05,
+          "probK": 0.003,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 5
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "亲近",
+        "describe": "她开始在你身边徘徊，虽然不明白为什么。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "probK": 0.005,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 50,
+        "name": "信任",
+        "describe": "她开始信任你的存在，会尝试与你一起玩，虽然自己并不理解这种感觉。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "probK": 0.008,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 4
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "依赖",
+        "describe": "无意识中对你产生了特殊的感情，愿意跟随你去任何地方。",
+        "patienceUnit": "month",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.01,
+          "coolUnit": "day"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newMonth",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 3
+        }
+      },
+      {
+        "threshold": 150,
+        "name": "深爱",
+        "describe": "无意识中，你成为了无法被抹去的，特殊的存在，她无法想象没有你的生活。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.25,
+          "probK": 0.015,
+          "coolUnit": "day"
+        }
+      }
+    ],
+    "specials": [
+    {
+      "when": {
+        "byFlag": ["newDay"],
+        "byNow": {
+          "weather": "晴"
+        }
+      },
+      "action": {
+        "do": "被阳光吸引，短暂出现在地面",
+        "to": "RANDOM"
+      },
+      "priority": 20
+    }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "无意识地在地灵殿附近游荡",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "被宠物们吸引，在庭院里玩耍",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "无意识地游荡，寻找有趣的事物",
+          "to": "RANDOM"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "无意识地游荡，寻找有趣的事物",
+          "to": "RANDOM"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "无意识地游荡，寻找有趣的事物",
+          "to": "RANDOM"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "与姐姐、阿燐、阿空一起享用晚餐",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "进入梦乡",
+          "to": "$HOME"
+        }
+      }
+    ]
+  },
+    "orin": {
+      "name": "火焰猫燐",
+      "affectionStages": [
+        {
+          "threshold": -99999,
+          "name": "敌视",
+          "describe": "「觉大人不欢迎你，快离开这里！」她会主动哈气甚至攻击你。",
+          "patienceUnit": "period",
+          "visit": {
+            "enabled": false
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newDay",
+              "decrease": 5
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 1,
+            "divisor": 20
+          }
+        },
+        {
+          "threshold": -50,
+          "name": "警惕",
+          "describe": "「嗯？你为什么会在这里？」她会保持距离，时刻监视你的行动，偶尔对你哈气。",
+          "patienceUnit": "period",
+          "visit": {
+            "enabled": false
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newDay",
+              "decrease": 3
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 1,
+            "divisor": 15
+          }
+        },
+        {
+          "threshold": -20,
+          "name": "戒备",
+          "describe": "「如果你只是路过的话喵...」她允许你在地灵殿短暂停留，但依然保持警惕。",
+          "patienceUnit": "period",
+          "visit": {
+            "enabled": false
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newWeek",
+              "decrease": 2
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 2,
+            "divisor": 10
+          }
+        },
+        {
+          "threshold": 0,
+          "name": "陌生",
+          "describe": "「咱是阿燐，负责帮觉大人管理怨灵喵。」她会跟你简单交流，但是不会多么亲近。",
+          "patienceUnit": "period",
+          "visit": {
+            "enabled": false,
+            "probBase": 0.005,
+            "probK": 0.0005,
+            "coolUnit": "month"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newDay",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 2,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 20,
+          "name": "普通",
+          "describe": "「你看起来人还挺好的喵...」她会经常与你进行交流，也会带着你出去玩。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.01,
+            "probK": 0.001,
+            "coolUnit": "month"
+          },
+          "forgettingSpeed": [
+            {
+              "triggerFlag": "newDay",
+              "decrease": 1
+            }
+          ],
+          "affectionGrowthLimit": {
+            "max": 3,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 40,
+          "name": "友善",
+          "describe": "「要看看咱的猫车吗喵！上面装过很多有趣的孩子...」她会邀请你参加自己的工作，经常跟你玩闹。",
+          "patienceUnit": "day",
+          "visit": {
+            "enabled": false,
+            "probBase": 0.02,
+            "probK": 0.002,
+            "coolUnit": "week"
+          },
+          "affectionGrowthLimit": {
+            "max": 5,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 70,
+          "name": "信赖",
+          "describe": "「你还蛮好玩的喵！」她会主动与你分享工作中的趣事，邀请你参与地灵殿的活动。",
+          "patienceUnit": "week",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.05,
+            "probK": 0.003,
+            "coolUnit": "month"
+          },
+          "affectionGrowthLimit": {
+            "max": 5,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 100,
+          "name": "亲密",
+          "describe": "「有你在身边，感觉什么都变得有趣起来了喵。」她会与你分享更多私人的话题，把你当成重要的朋友。",
+          "patienceUnit": "year",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.1,
+            "probK": 0.005,
+            "coolUnit": "day"
+          },
+          "affectionGrowthLimit": {
+            "max": 10,
+            "divisor": 2
+          }
+        },
+        {
+          "threshold": 150,
+          "name": "依赖",
+          "describe": "「已经离不开你了喵...」她完全信任你，会向你展示最真实的一面，包括不为觉所知的一面。",
+          "patienceUnit": "year",
+          "visit": {
+            "enabled": true,
+            "probBase": 0.2,
+            "probK": 0.01,
+            "coolUnit": "day"
+          },
+          "affectionGrowthLimit": {
+            "max": 15,
+            "divisor": 2
+          }
+        }
+      ]
+
+    }
+
 }
