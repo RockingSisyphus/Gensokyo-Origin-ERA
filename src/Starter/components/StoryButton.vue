@@ -5,7 +5,9 @@
       class="GensokyoOrigin-Starter-openingInput"
       placeholder="可在此输入独特的开场白要求，例如：“我希望快要饿死的时候突然穿越到博丽神社，然后吃掉灵梦米缸里珍藏的最后一点米”。如果留空，则会生成通用开场白。"
     ></textarea>
-    <button class="GensokyoOrigin-Starter-storyButton" @click="handleClick">开始幻想乡故事（请注意保存你的修改）</button>
+    <button class="GensokyoOrigin-Starter-storyButton" @click="handleClick">
+      开始幻想乡故事（请注意保存你的修改）
+    </button>
   </div>
 </template>
 
