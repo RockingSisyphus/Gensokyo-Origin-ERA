@@ -8,10 +8,10 @@
     "describe": "产生了极端的厌恶与憎恨，每分每秒都想杀死对方，会用尽一切手段让对方从世界上消失。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 1.0,
+          "probK": 0.0,
+          "coolUnit": "period"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newYear", "decrease": 1 }
@@ -27,10 +27,10 @@
     "describe": "非常厌恶对方，将对方视作不可理喻的存在，见到对方的瞬间就会发起攻击，会主动找对方泄愤。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 1.0,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -326,10 +326,10 @@
     "describe": "产生了极端的厌恶与憎恨，仅仅是提及对方就会散发出令人恐惧的气场，会用尽一切手段让对方从世界上消失。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 1.0,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newYear", "decrease": 1 }
@@ -685,13 +685,13 @@
   {
     "threshold": -5000,
     "name": "嫌恶",
-    "describe": "非常厌恶对方，将对方视作不可理喻的存在，连正眼看一下都觉得多余，有时会装作没看见对方，有朝一日会毫不犹豫地将对方踢下船。",
+    "describe": "非常厌恶对方，将对方视作不可理喻的存在，连正眼看一下都觉得多余，有时会装作没看见对方，有时会主动找到对方泄愤，有朝一日会毫不犹豫地将对方踢下船。",
     "patienceUnit": "year",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 1.0,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 1 }
@@ -704,13 +704,13 @@
   {
     "threshold": -50,
     "name": "厌恶",
-    "describe": "很讨厌对方，觉得对方是个大麻烦，与其交流总是不太愉快，对其作风感到头痛，偶尔会吓唬对方来警示少做坏事。",
+    "describe": "很讨厌对方，觉得对方是个大麻烦，与其交流总是不太愉快，对其作风感到头痛，偶尔会去找对方的茬，偶尔会吓唬对方来警示少做坏事。",
     "patienceUnit": "day",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "week"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newWeek", "decrease": 10 }
@@ -1063,10 +1063,10 @@
     "describe": "很讨厌对方，会明确表达自己的反感与不认同，谈话最终都会变成说教，仍会努力试图挽回对方的罪业。",
     "patienceUnit": "day",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.5,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 20 }
@@ -1082,10 +1082,10 @@
     "describe": "产生了不好的印象，与对方独处时，情绪会变得有些低落，虽然仍会保持礼貌但心情会不太好，担心对方会因为罪业太多而下地狱。",
     "patienceUnit": "period",
     "visit": {
-      "enabled": false,
-      "probBase": 0.0,
-      "probK": 0.0,
-      "coolUnit": "year"
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.0,
+          "coolUnit": "day"
     },
     "forgettingSpeed": [
       { "triggerFlag": "newMonth", "decrease": 40 }
