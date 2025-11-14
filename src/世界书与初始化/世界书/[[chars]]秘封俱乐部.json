@@ -697,7 +697,10 @@
         "when": {
           "byNow": {
             "periodName": "下半夜"
-          }
+          },
+          "byFestival": [
+            "AUTUMNAL_EQUINOX_DAY"
+          ]
         },
         "action": {
           "do": "探访莲台野",
