@@ -1,5 +1,5 @@
 <!doctype html><html lang="zh-CN"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/><title>开局设定 · 幻想乡缘起MVU</title><script type="module">var __webpack_modules__ = {
-  235: (__unused_webpack_module, exports) => {
+  895: (__unused_webpack_module, exports) => {
     var __webpack_unused_export__;
     __webpack_unused_export__ = {
       value: true
@@ -196,10 +196,15 @@ class Logger {
   }
 }
 
+const _hoisted_1 = {
+  class: "GensokyoOrigin-Starter-story-container"
+};
+
 const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "StoryButton",
   setup(__props) {
     const logger = new Logger("Starter/components/StoryButton");
+    const customOpening = (0, external_Vue_namespaceObject.ref)("");
     const handleClick = () => {
       const funcName = "handleClick";
       logger.log(funcName, "按钮点击，开始处理流程。");
@@ -222,7 +227,8 @@ const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
     const requestStory = async () => {
       const funcName = "requestStory";
       try {
-        const guidelines = "请生成一段关于主角在当前场景的简短故事，侧重于描写场景氛围和人物间的非关键性互动，不要推进主线剧情，作为一切的开端。";
+        const defaultGuidelines = "请生成一段关于主角在当前场景的简短故事，侧重于描写场景氛围和人物间的非关键性互动，不要推进主线剧情，作为一切的开端。";
+        const guidelines = customOpening.value.trim() || defaultGuidelines;
         const payload = {
           type: "GENERATE_STORY_SCENE",
           guidelines
@@ -241,10 +247,16 @@ const StoryButtonvue_type_script_setup_true_lang_ts = (0, external_Vue_namespace
         logger.error(funcName, "发送故事生成请求失败:", error);
       }
     };
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("button", {
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ (0, 
+    external_Vue_namespaceObject.withDirectives)((0, external_Vue_namespaceObject.createElementVNode)("textarea", {
+      "onUpdate:modelValue": _cache[0] || (_cache[0] = $event => customOpening.value = $event),
+      class: "GensokyoOrigin-Starter-openingInput",
+      placeholder: "可在此输入独特的开场白要求，例如：“我希望快要饿死的时候突然穿越到博丽神社，然后吃掉灵梦米缸里珍藏的最后一点米”。如果留空，则会生成通用开场白。"
+    }, null, 512), [ [ external_Vue_namespaceObject.vModelText, customOpening.value ] ]), (0, 
+    external_Vue_namespaceObject.createElementVNode)("button", {
       class: "GensokyoOrigin-Starter-storyButton",
       onClick: handleClick
-    }, "开始幻想乡故事（请注意保存你的修改）"));
+    }, " 开始幻想乡故事（请注意保存你的修改） ") ]));
   }
 });
 
@@ -749,7 +761,7 @@ function updateEraVariable(path, value) {
   }
 }
 
-const _hoisted_1 = {
+const CharacterProfilevue_type_script_setup_true_lang_ts_hoisted_1 = {
   id: "character-profile"
 };
 
@@ -884,7 +896,7 @@ const CharacterProfilevue_type_script_setup_true_lang_ts = (0, external_Vue_name
         alert("【开局/写回】异常：" + String(e));
       }
     }
-    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", _hoisted_1, [ _cache[28] || (_cache[28] = (0, 
+    return (_ctx, _cache) => ((0, external_Vue_namespaceObject.openBlock)(), (0, external_Vue_namespaceObject.createElementBlock)("div", CharacterProfilevue_type_script_setup_true_lang_ts_hoisted_1, [ _cache[28] || (_cache[28] = (0, 
     external_Vue_namespaceObject.createElementVNode)("h2", null, "角色档案", -1)), (0, external_Vue_namespaceObject.createElementVNode)("div", _hoisted_2, [ (0, 
     external_Vue_namespaceObject.createElementVNode)("div", null, [ _cache[13] || (_cache[13] = (0, 
     external_Vue_namespaceObject.createElementVNode)("label", {
@@ -1018,7 +1030,7 @@ const CharacterProfilevue_type_script_setup_true_lang_ts = (0, external_Vue_name
   }
 });
 
-var exportHelper = __webpack_require__(235);
+var exportHelper = __webpack_require__(895);
 
 const CharacterProfile_exports_ = (0, exportHelper.A)(CharacterProfilevue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-3fd023b2" ] ]);
 
@@ -1187,13 +1199,16 @@ const CacheSchema = external_z_namespaceObject.z.object({
 
 const CharacterSchema = external_z_namespaceObject.z.object({
   name: external_z_namespaceObject.z.string(),
+  pic: external_z_namespaceObject.z.string().optional(),
   好感度: external_z_namespaceObject.z.number(),
   所在地区: external_z_namespaceObject.z.string().nullable(),
   居住地区: external_z_namespaceObject.z.string().nullable(),
   affectionStages: external_z_namespaceObject.z.array(PreprocessStringifiedObject(AffectionStageWithForgetSchema)).default([]),
   specials: EntryListPreprocessSchema.default([]),
   routine: EntryListPreprocessSchema.default([]),
-  目标: external_z_namespaceObject.z.string().optional()
+  目标: external_z_namespaceObject.z.string().optional(),
+  身体状况: external_z_namespaceObject.z.string().optional(),
+  内心想法: external_z_namespaceObject.z.string().optional()
 });
 
 const CharsSchema = external_z_namespaceObject.z.object({
@@ -1379,8 +1394,8 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
         try {
           const date = new Date(isoString);
           epochDate.value = date.toISOString().split("T")[0];
-          const hours = String(date.getHours()).padStart(2, "0");
-          const minutes = String(date.getMinutes()).padStart(2, "0");
+          const hours = String(date.getUTCHours()).padStart(2, "0");
+          const minutes = String(date.getUTCMinutes()).padStart(2, "0");
           epochTime.value = `${hours}:${minutes}`;
         } catch (e) {
           console.error("StartTimeSettings: 解析 epochISO 失败", e);
@@ -1397,10 +1412,10 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
     });
     const isoFromInputs = (0, external_Vue_namespaceObject.computed)(() => {
       if (!epochDate.value || !epochTime.value) return null;
-      const candidate = `${epochDate.value}T${epochTime.value}:00`;
-      const date = new Date(candidate);
+      const isoString = `${epochDate.value}T${epochTime.value}:00.000Z`;
+      const date = new Date(isoString);
       if (Number.isNaN(date.getTime())) return null;
-      return date.toISOString();
+      return isoString;
     });
     const hasChanges = (0, external_Vue_namespaceObject.computed)(() => !!isoFromInputs.value && isoFromInputs.value !== originalEpochISO.value);
     const canSave = (0, external_Vue_namespaceObject.computed)(() => hasChanges.value);
@@ -1411,8 +1426,8 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
           const date = new Date(originalEpochISO.value);
           if (Number.isNaN(date.getTime())) throw new Error("Invalid epoch ISO value");
           epochDate.value = date.toISOString().split("T")[0];
-          const hours = String(date.getHours()).padStart(2, "0");
-          const minutes = String(date.getMinutes()).padStart(2, "0");
+          const hours = String(date.getUTCHours()).padStart(2, "0");
+          const minutes = String(date.getUTCMinutes()).padStart(2, "0");
           epochTime.value = `${hours}:${minutes}`;
           return;
         } catch (e) {
@@ -1494,7 +1509,7 @@ const StartTimeSettingsvue_type_script_setup_true_lang_ts = (0, external_Vue_nam
   }
 });
 
-const StartTimeSettings_exports_ = (0, exportHelper.A)(StartTimeSettingsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-74e43ec0" ] ]);
+const StartTimeSettings_exports_ = (0, exportHelper.A)(StartTimeSettingsvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-42af7a37" ] ]);
 
 const StartTimeSettings = StartTimeSettings_exports_;
 
@@ -1588,12 +1603,12 @@ $(() => {
   }, 500);
 });</script><style>@import url(https://fonts.googleapis.com/css2?family=Zhi+Mang+Xing&display=swap);
 @import url(https://fonts.googleapis.com/css2?family=Noto+Serif+SC:wght@400;700&display=swap);
-.GensokyoOrigin-Starter-storyButton{background-color:#4caf50;border:none;color:#fff;padding:10px 20px;text-align:center;text-decoration:none;display:inline-block;font-size:16px;margin:4px 2px;cursor:pointer;border-radius:8px;transition:background-color .3s}.GensokyoOrigin-Starter-storyButton:hover{background-color:#45a049}
+.GensokyoOrigin-Starter-story-container{display:flex;flex-direction:column;gap:10px;width:100%}.GensokyoOrigin-Starter-openingInput{width:100%;min-height:80px;padding:10px;border:1px solid #ccc;border-radius:8px;font-size:14px;line-height:1.5;resize:vertical;background-color:#fcfaf5;color:#333;box-sizing:border-box}.GensokyoOrigin-Starter-openingInput::placeholder{color:#999}.GensokyoOrigin-Starter-openingInput:focus{outline:none;border-color:#8c7b6a;box-shadow:0 0 0 2px rgba(140,123,106,.2)}.GensokyoOrigin-Starter-storyButton{background-color:#4caf50;border:none;color:#fff;padding:10px 20px;text-align:center;text-decoration:none;display:inline-block;font-size:16px;cursor:pointer;border-radius:8px;transition:background-color .3s;width:100%;box-sizing:border-box}.GensokyoOrigin-Starter-storyButton:hover{background-color:#45a049}
 #character-profile[data-v-3fd023b2]{background:var(--paper);border:1px solid var(--line);border-radius:6px;box-shadow:3px 3px 8px rgba(107,90,75,0.2),inset 0 0 10px rgba(255,253,247,0.5);padding:24px;margin:18px 0}#character-profile h2[data-v-3fd023b2]{color:var(--muted);border-bottom:2px solid var(--line);padding-bottom:10px;margin-bottom:20px}#character-profile .grid[data-v-3fd023b2]{display:grid;gap:16px}#character-profile .grid-2[data-v-3fd023b2]{grid-template-columns:1fr 1fr}#character-profile label[data-v-3fd023b2]{font-weight:700;color:var(--muted);display:block;margin-bottom:6px}#character-profile input[type='text'][data-v-3fd023b2],#character-profile textarea[data-v-3fd023b2],#character-profile select[data-v-3fd023b2]{width:100%;padding:10px 12px;border:1px solid var(--line);border-radius:4px;background:#fcfaf5;color:var(--ink);transition:border-color 0.2s,box-shadow 0.2s,background 0.2s}#character-profile input[type='text'][data-v-3fd023b2]:focus,#character-profile textarea[data-v-3fd023b2]:focus,#character-profile select[data-v-3fd023b2]:focus{border-color:#b59a7a;outline:none;box-shadow:0 0 5px rgba(168,152,131,0.3)}#character-profile textarea[data-v-3fd023b2]{min-height:100px;resize:vertical}#character-profile .row[data-v-3fd023b2]{display:flex;gap:12px;align-items:center;flex-wrap:wrap}#character-profile .row[data-v-3fd023b2]>*{flex:1}#character-profile .inline[data-v-3fd023b2]{display:inline-block;margin-right:12px}#character-profile .btn-bar[data-v-3fd023b2]{display:flex;gap:12px;margin-top:18px}#character-profile button[data-v-3fd023b2]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#character-profile button[data-v-3fd023b2]:hover{background:#7a6a5a;border-color:#6b5a4b}#character-profile .muted-btn[data-v-3fd023b2]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#character-profile .muted-btn[data-v-3fd023b2]:hover{background:#dcd1c4}
 
 #extra-world-settings button[data-v-fb630866]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#extra-world-settings button[data-v-fb630866]:hover{background:#7a6a5a;border-color:#6b5a4b}#extra-world-settings .muted-btn[data-v-fb630866]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#extra-world-settings .muted-btn[data-v-fb630866]:hover{background:#dcd1c4}
 
-#start-time-settings button[data-v-74e43ec0]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#start-time-settings button[data-v-74e43ec0]:hover{background:#7a6a5a;border-color:#6b5a4b}#start-time-settings .muted-btn[data-v-74e43ec0]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#start-time-settings .muted-btn[data-v-74e43ec0]:hover{background:#dcd1c4}
+#start-time-settings button[data-v-42af7a37]{padding:12px 18px;background:#8c7b6a;color:#fcfaf5;border:1px solid #7a6a5a;border-radius:4px;font-weight:700;cursor:pointer;transition:background 0.2s,border-color 0.2s}#start-time-settings button[data-v-42af7a37]:hover{background:#7a6a5a;border-color:#6b5a4b}#start-time-settings .muted-btn[data-v-42af7a37]{background:#e9e1d6;color:#5a4f43;border-color:#d3c8b8}#start-time-settings .muted-btn[data-v-42af7a37]:hover{background:#dcd1c4}
 
 /*! tailwindcss v4.1.17 | MIT License | https://tailwindcss.com */:root{--bg:#f5f1e8;--paper:#fffdf7;--ink:#4a3f35;--muted:#6b5a4b;--line:#d3c8b8}html,body{margin:0;padding:0;background:var(--bg);color:var(--ink);font-family:"Noto Serif SC",serif;line-height:1.6}body{background-image:linear-gradient(rgba(224,213,196,0.1) 1px,transparent 1px),linear-gradient(90deg,rgba(224,213,196,0.1) 1px,transparent 1px);background-size:20px 20px;padding:20px}
 </style></head><body><div id="app"></div></body></html>

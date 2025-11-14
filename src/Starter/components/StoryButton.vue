@@ -1,11 +1,22 @@
 <template>
-  <button class="GensokyoOrigin-Starter-storyButton" @click="handleClick">开始幻想乡故事（请注意保存你的修改）</button>
+  <div class="GensokyoOrigin-Starter-story-container">
+    <textarea
+      v-model="customOpening"
+      class="GensokyoOrigin-Starter-openingInput"
+      placeholder="可在此输入独特的开场白要求，例如：“我希望快要饿死的时候突然穿越到博丽神社，然后吃掉灵梦米缸里珍藏的最后一点米”。如果留空，则会生成通用开场白。"
+    ></textarea>
+    <button class="GensokyoOrigin-Starter-storyButton" @click="handleClick">
+      开始幻想乡故事（请注意保存你的修改）
+    </button>
+  </div>
 </template>
 
 <script setup lang="ts">
+import { ref } from 'vue';
 import { Logger } from '../utils/log';
 
 const logger = new Logger();
+const customOpening = ref('');
 
 const handleClick = () => {
   const funcName = 'handleClick';
@@ -36,8 +47,10 @@ const handleClick = () => {
 const requestStory = async () => {
   const funcName = 'requestStory';
   try {
-    const guidelines =
+    const defaultGuidelines =
       '请生成一段关于主角在当前场景的简短故事，侧重于描写场景氛围和人物间的非关键性互动，不要推进主线剧情，作为一切的开端。';
+    const guidelines = customOpening.value.trim() || defaultGuidelines;
+
     const payload = {
       type: 'GENERATE_STORY_SCENE',
       guidelines: guidelines,
@@ -61,6 +74,37 @@ const requestStory = async () => {
 </script>
 
 <style lang="scss">
+.GensokyoOrigin-Starter-story-container {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  width: 100%;
+}
+
+.GensokyoOrigin-Starter-openingInput {
+  width: 100%;
+  min-height: 80px;
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 8px;
+  font-size: 14px;
+  line-height: 1.5;
+  resize: vertical;
+  background-color: #fcfaf5;
+  color: #333;
+  box-sizing: border-box;
+
+  &::placeholder {
+    color: #999;
+  }
+
+  &:focus {
+    outline: none;
+    border-color: #8c7b6a;
+    box-shadow: 0 0 0 2px rgba(140, 123, 106, 0.2);
+  }
+}
+
 .GensokyoOrigin-Starter-storyButton {
   background-color: #4caf50; /* A nice green */
   border: none;
@@ -70,10 +114,11 @@ const requestStory = async () => {
   text-decoration: none;
   display: inline-block;
   font-size: 16px;
-  margin: 4px 2px;
   cursor: pointer;
   border-radius: 8px;
   transition: background-color 0.3s;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .GensokyoOrigin-Starter-storyButton:hover {

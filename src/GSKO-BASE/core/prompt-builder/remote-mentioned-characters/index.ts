@@ -50,6 +50,8 @@ export function buildRemoteMentionedCharactersPrompt({ stat, runtime }: { stat: 
       所在地区: charData.所在地区,
       居住地区: charData.居住地区,
       目标: charData.目标,
+      身体状况: charData.身体状况,
+      内心想法: charData.内心想法,
     };
   });
 

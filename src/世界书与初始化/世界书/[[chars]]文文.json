@@ -166,8 +166,8 @@
           }
         ],
         "affectionGrowthLimit": {
-          "max": 3,
-          "divisor": 2
+          "max": 0.5,
+          "divisor": 8
         }
       },
       {
