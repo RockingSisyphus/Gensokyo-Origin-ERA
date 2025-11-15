@@ -2352,7 +2352,9 @@
         "priority": 70
       },
       {
-        "when": {},
+        "when": {
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
+        },
         "action": {
           "do": "主持守矢神社大祭",
           "to": "守矢神社"
@@ -2644,7 +2646,9 @@
     ],
     "specials": [
       {
-        "when": {},
+        "when": {
+          "byFestival": ["MORIYA_SHRINE_GRAND_FESTIVAL"]
+        },
         "action": {
           "do": "主持守矢神社大祭",
           "to": "守矢神社"
