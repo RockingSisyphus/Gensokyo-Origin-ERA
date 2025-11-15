@@ -30,6 +30,7 @@
 
 <script setup lang="ts">
 import { computed, ref, watch } from 'vue';
+import { parseIsoAsLocal } from '../../../../utils/format';
 import type { ClockInfo } from '../../../../utils/constants';
 import CalendarDay from './CalendarDay.vue';
 import type { Festival } from '../../../../../GSKO-BASE/schema/festival';
@@ -52,7 +53,7 @@ const updateMonth = (direction: 'prev' | 'next') => {
 };
 
 const resetMonth = () => {
-  displayMonth.value = props.clockInfo?.iso ? new Date(props.clockInfo.iso) : new Date();
+  displayMonth.value = props.clockInfo?.iso ? parseIsoAsLocal(props.clockInfo.iso) : new Date();
 };
 
 const calendarDays = computed(() => {
@@ -60,7 +61,7 @@ const calendarDays = computed(() => {
 
   const year = displayMonth.value.getFullYear();
   const month = displayMonth.value.getMonth();
-  const today = props.clockInfo.iso ? new Date(props.clockInfo.iso) : new Date();
+  const today = props.clockInfo.iso ? parseIsoAsLocal(props.clockInfo.iso) : new Date();
 
   const firstDayOfMonth = new Date(year, month, 1);
   const lastDayOfMonth = new Date(year, month + 1, 0);
@@ -95,7 +96,7 @@ watch(
   () => props.clockInfo,
   newClockInfo => {
     if (newClockInfo?.iso) {
-      displayMonth.value = new Date(newClockInfo.iso);
+      displayMonth.value = parseIsoAsLocal(newClockInfo.iso);
     }
   },
   { immediate: true },

@@ -127,3 +127,34 @@ export function getStr(obj: object, path: string | string[], fallback: any = '')
   }
   return toText(rawValue);
 }
+
+/**
+ * @description 将 ISO 8601 字符串解析为本地时间，并故意忽略时区信息。
+ *              这是为了解决一个问题：`new Date('...')` 会自动将 UTC 时间（如 '...T20:00:00+00:00'）
+ *              转换为主机的本地时区，可能导致日期跳到第二天。
+ *              此函数通过提取日期和时间部分并直接用于构造 Date 对象，
+ *              强制将游戏时间视为“本地”时间，从而避免不必要的时区转换。
+ * @param {string} isoString - ISO 8601 格式的字符串 (例如 "2025-09-13T20:20:00+00:00")。
+ * @returns {Date} 一个表示游戏内本地时间的 Date 对象。
+ */
+export function parseIsoAsLocal(isoString: string): Date {
+  if (!isoString) {
+    return new Date();
+  }
+  // 从字符串中提取 YYYY, MM, DD, HH, mm, ss
+  const parts = isoString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+  if (parts) {
+    // new Date(year, monthIndex, day, hours, minutes, seconds)
+    // 月份是从 0 开始的，所以需要减 1。
+    return new Date(
+      parseInt(parts[1], 10),
+      parseInt(parts[2], 10) - 1,
+      parseInt(parts[3], 10),
+      parseInt(parts[4], 10),
+      parseInt(parts[5], 10),
+      parseInt(parts[6], 10),
+    );
+  }
+  // 如果正则表达式匹配失败，则回退到默认解析，但这可能不正确。
+  return new Date(isoString);
+}
