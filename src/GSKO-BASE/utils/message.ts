@@ -110,7 +110,14 @@ export function extractContentForMatching(
     }
     //log.log('extractContentForMatching', '排除标签后内容:', messageContent);
 
-    // 2. 从处理过的内容中提取 mainBodyTags 的内容
+    // 2. 根据消息类型决定如何处理 mainBodyTags
+    // 如果是用户消息，则忽略 mainBodyTags，直接使用清理后的内容
+    if (m.role === 'user') {
+      segs.push(messageContent);
+      continue;
+    }
+
+    // 对于非用户消息，应用 mainBodyTags 逻辑
     if (mainBodyTags.length > 0) {
       const mainBodySegs: string[] = [];
       for (const tagName of mainBodyTags) {
