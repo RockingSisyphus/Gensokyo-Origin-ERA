@@ -563,176 +563,578 @@
       }
     ]
   },
-    "orin": {
-      "name": "火焰猫燐",
-      "affectionStages": [
-        {
-          "threshold": -99999,
-          "name": "敌视",
-          "describe": "「觉大人不欢迎你，快离开这里！」她会主动哈气甚至攻击你。",
-          "patienceUnit": "period",
-          "visit": {
-            "enabled": false
-          },
-          "forgettingSpeed": [
-            {
-              "triggerFlag": "newDay",
-              "decrease": 5
-            }
-          ],
-          "affectionGrowthLimit": {
-            "max": 1,
-            "divisor": 20
-          }
+  "orin": {
+    "name": "火焰猫燐",
+    "affectionStages": [
+      {
+        "threshold": -9999,
+        "name": "敌视",
+        "describe": "「觉大人不欢迎你，快离开这里！」她会主动哈气甚至攻击你。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
         },
-        {
-          "threshold": -50,
-          "name": "警惕",
-          "describe": "「嗯？你为什么会在这里？」她会保持距离，时刻监视你的行动，偶尔对你哈气。",
-          "patienceUnit": "period",
-          "visit": {
-            "enabled": false
-          },
-          "forgettingSpeed": [
-            {
-              "triggerFlag": "newDay",
-              "decrease": 3
-            }
-          ],
-          "affectionGrowthLimit": {
-            "max": 1,
-            "divisor": 15
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 5
           }
-        },
-        {
-          "threshold": -20,
-          "name": "戒备",
-          "describe": "「如果你只是路过的话喵...」她允许你在地灵殿短暂停留，但依然保持警惕。",
-          "patienceUnit": "period",
-          "visit": {
-            "enabled": false
-          },
-          "forgettingSpeed": [
-            {
-              "triggerFlag": "newWeek",
-              "decrease": 2
-            }
-          ],
-          "affectionGrowthLimit": {
-            "max": 2,
-            "divisor": 10
-          }
-        },
-        {
-          "threshold": 0,
-          "name": "陌生",
-          "describe": "「咱是阿燐，负责帮觉大人管理怨灵喵。」她会跟你简单交流，但是不会多么亲近。",
-          "patienceUnit": "period",
-          "visit": {
-            "enabled": false,
-            "probBase": 0.005,
-            "probK": 0.0005,
-            "coolUnit": "month"
-          },
-          "forgettingSpeed": [
-            {
-              "triggerFlag": "newDay",
-              "decrease": 1
-            }
-          ],
-          "affectionGrowthLimit": {
-            "max": 2,
-            "divisor": 2
-          }
-        },
-        {
-          "threshold": 20,
-          "name": "普通",
-          "describe": "「你看起来人还挺好的喵...」她会经常与你进行交流，也会带着你出去玩。",
-          "patienceUnit": "day",
-          "visit": {
-            "enabled": true,
-            "probBase": 0.01,
-            "probK": 0.001,
-            "coolUnit": "month"
-          },
-          "forgettingSpeed": [
-            {
-              "triggerFlag": "newDay",
-              "decrease": 1
-            }
-          ],
-          "affectionGrowthLimit": {
-            "max": 3,
-            "divisor": 2
-          }
-        },
-        {
-          "threshold": 40,
-          "name": "友善",
-          "describe": "「要看看咱的猫车吗喵！上面装过很多有趣的孩子...」她会邀请你参加自己的工作，经常跟你玩闹。",
-          "patienceUnit": "day",
-          "visit": {
-            "enabled": false,
-            "probBase": 0.02,
-            "probK": 0.002,
-            "coolUnit": "week"
-          },
-          "affectionGrowthLimit": {
-            "max": 5,
-            "divisor": 2
-          }
-        },
-        {
-          "threshold": 70,
-          "name": "信赖",
-          "describe": "「你还蛮好玩的喵！」她会主动与你分享工作中的趣事，邀请你参与地灵殿的活动。",
-          "patienceUnit": "week",
-          "visit": {
-            "enabled": true,
-            "probBase": 0.05,
-            "probK": 0.003,
-            "coolUnit": "month"
-          },
-          "affectionGrowthLimit": {
-            "max": 5,
-            "divisor": 2
-          }
-        },
-        {
-          "threshold": 100,
-          "name": "亲密",
-          "describe": "「有你在身边，感觉什么都变得有趣起来了喵。」她会与你分享更多私人的话题，把你当成重要的朋友。",
-          "patienceUnit": "year",
-          "visit": {
-            "enabled": true,
-            "probBase": 0.1,
-            "probK": 0.005,
-            "coolUnit": "day"
-          },
-          "affectionGrowthLimit": {
-            "max": 10,
-            "divisor": 2
-          }
-        },
-        {
-          "threshold": 150,
-          "name": "依赖",
-          "describe": "「已经离不开你了喵...」她完全信任你，会向你展示最真实的一面，包括不为觉所知的一面。",
-          "patienceUnit": "year",
-          "visit": {
-            "enabled": true,
-            "probBase": 0.2,
-            "probK": 0.01,
-            "coolUnit": "day"
-          },
-          "affectionGrowthLimit": {
-            "max": 15,
-            "divisor": 2
-          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 20
         }
-      ]
-
-    }
-
+      },
+      {
+        "threshold": -50,
+        "name": "警惕",
+        "describe": "「嗯？你为什么会在这里？」她会保持距离，时刻监视你的行动，偶尔对你哈气。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 15
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "戒备",
+        "describe": "「如果你只是路过的话喵...」她允许你在地灵殿短暂停留，但依然保持警惕。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 10
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "「咱是阿燐，负责帮觉大人管理怨灵喵。」她会跟你简单交流，但是不会多么亲近。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.005,
+          "probK": 0.0005,
+          "coolUnit": "month"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "普通",
+        "describe": "「你看起来人还挺好的喵...」她会经常与你进行交流，也会带着你出去玩。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.01,
+          "probK": 0.001,
+          "coolUnit": "month"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "友善",
+        "describe": "「要看看咱的猫车吗喵！上面装过很多有趣的孩子...」她会邀请你参加自己的工作，经常跟你玩闹。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.02,
+          "probK": 0.002,
+          "coolUnit": "week"
+        },
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "信赖",
+        "describe": "「你还蛮好玩的喵！」她会主动与你分享工作中的趣事，邀请你参与地灵殿的活动。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.05,
+          "probK": 0.003,
+          "coolUnit": "month"
+        },
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "亲密",
+        "describe": "「有你在身边，感觉什么都变得有趣起来了喵。」她会与你分享更多私人的话题，把你当成重要的朋友。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "probK": 0.005,
+          "coolUnit": "day"
+        },
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 120,
+        "name": "暧昧",
+        "describe": "「跟你在一起，咱会变得很奇怪喵...」她开始产生特殊的感情，但是仍不理解其中含义。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "probK": 0.01,
+          "coolUnit": "day"
+        },
+        "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 150,
+        "name": "依赖",
+        "describe": "「已经离不开你了喵...」她完全信任你，会向你展示最真实的一面，包括不为觉所知的一面。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.01,
+          "coolUnit": "day"
+        },
+        "affectionGrowthLimit": {
+          "max": 15,
+          "divisor": 2
+        }
+      }
+    ],
+    "specials": [
+      {
+        "when": {
+          "byFestival": [
+            "OBON"
+          ]
+        },
+        "action": {
+          "do": "偷尸体",
+          "to": "墓地"
+        },
+        "priority": 999
+      },
+      {
+        "when": {
+          "byFlag": [
+            "newWeek"
+          ],
+          "byNow": {
+            "periodName": "下午",
+            "weekdayName": "周二"
+          }
+        },
+        "action": {
+          "do": "控制怨灵",
+          "to": "灼热地狱遗址"
+        },
+        "priority": 99
+      },
+      {
+        "when": {
+          "byFlag": ["newWeek"]
+        },
+        "action": {
+          "do": "前往无缘冢检查是否有散落的尸体和有趣物品",
+          "to": "无缘冢"
+        },
+        "priority": 60
+      }
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "在庭院里伸展身体，迎接新的一天",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "巡视地灵殿的各个角落，确保一切正常",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "和觉大人一起享用午餐",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "驾驶猫车外出，到处寻找散落的尸体",
+          "to": "RANDOM"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "返回地灵殿，准备晚餐",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "与觉大人、恋大人、阿空一起享用晚餐，保养猫车",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "进入梦乡",
+          "to": "$HOME"
+        }
+      }
+    ] 
+  },
+  "utsuho": {
+    "name": "灵乌路空",
+    "affectionStages": [
+      {
+        "threshold": -99999,
+        "name": "敌视",
+        "describe": "「八咫乌的力量会把你烧成灰烬！」她会全力攻击过来，算你倒霉。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newWeek",
+            "decrease": 5
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 20
+        }
+      },
+      {
+        "threshold": -50,
+        "name": "厌恶",
+        "describe": "「觉大人说你是坏人！」她会紧张地摆出防御姿态，也可能会攻击你。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 1,
+          "divisor": 15
+        }
+      },
+      {
+        "threshold": -20,
+        "name": "警惕",
+        "describe": "「你、你想干什么？别靠近我！」她会保持距离，观察你的行为。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 3,
+          "divisor": 5
+        }
+      },
+      {
+        "threshold": 0,
+        "name": "陌生",
+        "describe": "「我是阿空！地灵殿的太阳！」她会热情的打招呼，但是记不住你的名字。",
+        "patienceUnit": "period",
+        "visit": {
+          "enabled": false,
+          "probBase": 0.005,
+          "probK": 0.0005,
+          "coolUnit": "month"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 3
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 4,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 20,
+        "name": "认识",
+        "describe": "「哦！是你啊！我记得你！要看看我的核能吗？」她会兴奋地展示自己的能力，但经常控制不好。",
+        "patienceUnit": "day",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.01,
+          "probK": 0.001,
+          "coolUnit": "month"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 2
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 40,
+        "name": "朋友",
+        "describe": "「要不要一起去看看灼热地狱？我可以给你当向导...呃，我们刚才说到哪了？」她会热情的邀请你去玩，但是经常搞不明白。",
+        "patienceUnit": "week",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.02,
+          "probK": 0.002,
+          "coolUnit": "week"
+        },
+        "forgettingSpeed": [
+          {
+            "triggerFlag": "newDay",
+            "decrease": 1
+          }
+        ],
+        "affectionGrowthLimit": {
+          "max": 5,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 70,
+        "name": "信赖",
+        "describe": "「有你在身边，我感觉自己更强大了！不过，有时候会忘记自己在做什么...」她会与你分享自己简单的想法，但有时会忘记细节。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "probK": 0.005,
+          "coolUnit": "week"
+        },
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 100,
+        "name": "亲密",
+        "describe": "「我觉得你特别特别好！跟太阳一样好！」她会全心全意对你好，也会分享自己的小秘密。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.1,
+          "probK": 0.005,
+          "coolUnit": "week"
+        },
+        "affectionGrowthLimit": {
+          "max": 10,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 120,
+        "name": "暧昧",
+        "describe": "「有你在身边，我感觉...感觉...暖暖的，但是跟太阳的感觉不一样...」她完全信任你，虽然不理解，但是产生了特殊的情感。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.15,
+          "probK": 0.01,
+          "coolUnit": "day"
+        },       
+         "affectionGrowthLimit": {
+          "max": 2,
+          "divisor": 2
+        }
+      },
+      {
+        "threshold": 150,
+        "name": "深爱",
+        "describe": "「我终于明白这种感觉了！你就是我最重要的人！」她终于理解了感情，即使笨拙也要表达出来。",
+        "patienceUnit": "year",
+        "visit": {
+          "enabled": true,
+          "probBase": 0.2,
+          "probK": 0.005,
+          "coolUnit": "day"
+        }
+      }
+    ],
+    "specials": [
+    ],
+    "routine": [
+      {
+        "when": {
+          "byNow": {
+            "periodName": "清晨"
+          }
+        },
+        "action": {
+          "do": "睡眼惺忪地苏醒，前往灼热地狱遗址检查核反应堆",
+          "to": "灼热地狱遗址"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "努力维护核反应堆，但经常被其他事情分心",
+          "to": "灼热地狱遗址"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "在灼热地狱遗址等阿燐送饭过来",
+          "to": "灼热地狱遗址"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "下午"
+          }
+        },
+        "action": {
+          "do": "练习控制核能，但经常控制过头",
+          "to": "灼热地狱遗址"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏"
+          }
+        },
+        "action": {
+          "do": "返回地灵殿，准备吃晚餐",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "夜晚"
+          }
+        },
+        "action": {
+          "do": "和大家一起吃晚饭，兴奋地讲白天的事但经常讲不清楚",
+          "to": "$HOME"
+        }
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "上半夜"
+          }
+        },
+        "action": {
+          "do": "回到房间呼呼大睡",
+          "to": "$HOME"
+        }
+      }
+    ]
+  }
 }
