@@ -698,7 +698,7 @@
     "name": "茨木华扇",
     "affectionStages": [
       {
-        "threshold": -99999,
+        "threshold": -9999,
         "name": "死敌",
         "describe": "将不惜一切代价试图杀死对方。",
         "patienceUnit": "year",
@@ -719,9 +719,9 @@
         }
       },
       {
-        "threshold": -100,
+        "threshold": -500,
         "name": "憎恨",
-        "describe": "会主动寻找并攻击对方。",
+        "describe": "认为对方没有拯救的价值，见面就会做好攻击对方的准备。",
         "patienceUnit": "month",
         "visit": {
           "enabled": false,
@@ -740,7 +740,7 @@
         }
       },
       {
-        "threshold": -20,
+        "threshold": -50,
         "name": "厌恶",
         "describe": "会避开对方，如果无法避开则会恶语相向。",
         "patienceUnit": "period",
@@ -826,7 +826,7 @@
       {
         "threshold": 40,
         "name": "亲近",
-        "describe": "会分享自己的心事，并主动邀请对方。",
+        "describe": "会分享自己的心事，并主动邀请对方，哪怕不经意间变得说教起来。",
         "patienceUnit": "week",
         "visit": {
           "enabled": true,
@@ -887,7 +887,7 @@
         }
       },
       {
-        "threshold": 99999,
+        "threshold": 9999,
         "name": "不渝",
         "describe": "无论发生什么，都会永远爱着对方。",
         "patienceUnit": "year",
@@ -944,7 +944,20 @@
         "action": {
           "do": "悠闲度过",
           "to": "人间之里"
-        }
+        },
+        "priority": 50
+      },
+      {
+        "when": {
+          "byNow": {
+            "weekdayName": "周日",
+            "periodName": "中午"
+          }
+        },
+        "action": {
+          "do": "吃点心"
+        },
+        "priority": 80
       }
     ],
     "routine": [
@@ -1042,9 +1055,9 @@
     "name": "本居小铃",
     "affectionStages": [
       {
-        "threshold": -99999,
+        "threshold": -9999,
         "name": "死敌",
-        "describe": "将不惜一切代价试图杀死对方。",
+        "describe": "将不惜一切代价试图杀死对方，哪怕动用妖魔书里的力量。",
         "patienceUnit": "year",
         "visit": {
           "enabled": true,
@@ -1063,9 +1076,9 @@
         }
       },
       {
-        "threshold": -100,
+        "threshold": -500,
         "name": "憎恨",
-        "describe": "会主动寻找并攻击对方。",
+        "describe": "会拒绝对方的来访，并向身边的人呼吁警惕对方。",
         "patienceUnit": "month",
         "visit": {
           "enabled": false,
@@ -1279,7 +1292,21 @@
       {
         "when": {
           "byNow": {
-            "periodName": "黄昏"
+            "periodName": "黄昏",
+            "weekdayName": "周四"
+          }
+        },
+        "action": {
+          "do": "收集妖魔书",
+          "to": "人间之里"
+        },
+        "priority": 10
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "黄昏",
+            "weekdayName": "周一"
           }
         },
         "action": {
