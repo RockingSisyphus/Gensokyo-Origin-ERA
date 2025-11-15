@@ -47,6 +47,9 @@ export function makeVisitDecisions({
   const newCache = _.cloneDeep(cache);
   const changeLog: ChangeLog = [];
 
+  const potentialVisitors: string[] = [];
+
+  // 步骤 1: 收集所有通过概率检定的潜在拜访者
   for (const charId of remoteChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
     if (!affectionStage?.visit?.enabled) continue;
@@ -64,23 +67,40 @@ export function makeVisitDecisions({
     const { passed, finalProb } = checkProbability(probBase, probK, char.好感度);
 
     if (passed) {
-      decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
-      decidedChars.push(charId);
-
-      const oldValue = _.get(newCache, `character.${charId}.visit.cooling`);
-      setVisitCooling(newCache, charId, true);
-      changeLog.push({
-        module: funcName,
-        path: `cache.character.${charId}.visit.cooling`,
-        oldValue,
-        newValue: true,
-        reason: `角色 ${charId} 决定前来拜访，进入冷却。`,
-      });
-
-      logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
+      potentialVisitors.push(charId);
+      logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，成为潜在拜访者。`);
     } else {
       logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
     }
+  }
+
+  // 步骤 2: 从潜在拜访者中选择最多2人
+  const visitors =
+    potentialVisitors.length > 2 ? _.sampleSize(potentialVisitors, 2) : potentialVisitors;
+
+  if (potentialVisitors.length > 2) {
+    logger.debug(
+      funcName,
+      `有 ${potentialVisitors.length} 人希望来访，随机选择 2 人：${visitors.join(', ')}`,
+    );
+  }
+
+  // 步骤 3: 为最终选定的拜访者记录决策和冷却
+  for (const charId of visitors) {
+    decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
+    decidedChars.push(charId);
+
+    const oldValue = _.get(newCache, `character.${charId}.visit.cooling`);
+    setVisitCooling(newCache, charId, true);
+    changeLog.push({
+      module: funcName,
+      path: `cache.character.${charId}.visit.cooling`,
+      oldValue,
+      newValue: true,
+      reason: `角色 ${charId} 决定前来拜访，进入冷却。`,
+    });
+
+    logger.debug(funcName, `角色 ${charId} 最终决定前来拜访主角。`);
   }
 
   return { decisions, decidedChars, newCache, changeLog };
