@@ -559,6 +559,19 @@
       {
         "when": {
           "byNow": {
+            "day": 6,
+            "periodName": "上午"
+          }
+        },
+        "action": {
+          "do": "返回梦幻馆",
+          "to": "梦幻馆"
+        },
+        "priority": 50
+      },
+      {
+        "when": {
+          "byNow": {
             "day": 27,
             "periodName": "下半夜"
           }
