@@ -1173,6 +1173,19 @@
         "when": { "byFlag": ["newWeek"], "byNow": { "periodName": "夜晚" } },
         "action": { "do": "巡回演出", "to": "RANDOM" },
         "priority": 90
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午",
+            "weekdayName": "周五"
+          }
+        },
+        "action": {
+          "do": "排练合奏",
+          "to": "废弃洋馆"
+        },
+        "priority": 50
       }
     ],
     "routine": [
@@ -1395,6 +1408,19 @@
         "when": { "byFlag": ["newWeek"], "byNow": { "periodName": "夜晚" } },
         "action": { "do": "巡回演出", "to": "RANDOM" },
         "priority": 90
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午",
+            "weekdayName": "周五"
+          }
+        },
+        "action": {
+          "do": "排练合奏",
+          "to": "废弃洋馆"
+        },
+        "priority": 50
       }
     ],
     "routine": [
@@ -1617,6 +1643,19 @@
         "when": { "byFlag": ["newWeek"], "byNow": { "periodName": "夜晚" } },
         "action": { "do": "巡回演出", "to": "RANDOM" },
         "priority": 90
+      },
+      {
+        "when": {
+          "byNow": {
+            "periodName": "中午",
+            "weekdayName": "周五"
+          }
+        },
+        "action": {
+          "do": "排练合奏",
+          "to": "废弃洋馆"
+        },
+        "priority": 50
       }
     ],
     "routine": [
@@ -1848,7 +1887,7 @@
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
-        "action": { "do": "修剪庭院", "to": "白玉楼" }
+        "action": { "do": "修剪庭院", "to": "白玉楼庭园" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
@@ -1856,7 +1895,7 @@
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
-        "action": { "do": "进行剑术修行", "to": "白玉楼" }
+        "action": { "do": "进行剑术修行", "to": "白玉楼庭园" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
