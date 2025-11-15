@@ -1965,12 +1965,12 @@
       },
       {
         "when": { "byNow": { "weekdayName": "周日", "periodName": "上午" } },
-        "action": { "do": "和妹红去人间之里玩", "to": "人间之里" },
+        "action": { "do": "和辉夜去人间之里玩", "to": "人间之里" },
         "priority": 10
       },
       {
         "when": { "byNow": { "weekdayName": "周日", "periodName": "中午" } },
-        "action": { "do": "和妹红在人间之里玩", "to": "人间之里" },
+        "action": { "do": "和辉夜在人间之里玩", "to": "人间之里" },
         "priority": 10
       },
       {
