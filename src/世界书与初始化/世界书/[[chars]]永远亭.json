@@ -2,8 +2,8 @@
   "wriggle": {
     "name": "莉格露·奈特巴格",
     "好感度": 0,
-    "所在地区": "魔法之森",
-    "居住地区": "魔法之森",
+    "所在地区": "兽道",
+    "居住地区": "兽道",
     "目标": "未知",
     "affectionStages": [
       {
@@ -202,26 +202,26 @@
       },
       {
         "when": { "byFlag": ["newWeek"], "byNow": { "periodName": "中午" } },
-        "action": { "do": "象征性地袭击人类", "to": "魔法之森" },
+        "action": { "do": "象征性地袭击人类", "to": "兽道" },
         "priority": 90
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "醒来", "to": "魔法之森" }
+        "action": { "do": "醒来", "to": "兽道" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "去睡觉", "to": "魔法之森" }
+        "action": { "do": "去睡觉", "to": "兽道" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "睡觉", "to": "魔法之森" }
+        "action": { "do": "睡觉", "to": "兽道" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "指挥昆虫，寻找食物", "to": "魔法之森" }
+        "action": { "do": "指挥昆虫，寻找食物", "to": "兽道" }
       }
     ]
   },
@@ -430,6 +430,11 @@
         "when": { "byFlag": ["newWeek"], "byNow": { "periodName": "夜晚" } },
         "action": { "do": "象征性地袭击人类", "to": "兽道" },
         "priority": 90
+      },
+      {
+        "when": { "byNow": {"periodName": "上午" } },
+        "priority": 30,
+        "action": { "do": "购买食材", "to": "人间之里西" }
       }
     ],
     "routine": [
@@ -466,8 +471,8 @@
   "keine": {
     "name": "上白泽慧音",
     "好感度": 0,
-    "所在地区": "人间之里",
-    "居住地区": "人间之里",
+    "所在地区": "寺子屋",
+    "居住地区": "寺子屋",
     "目标": "未知",
     "affectionStages": [
       {
@@ -707,7 +712,7 @@
       {
         "when": { "byNow": { "weekdayName": "周六", "periodName": "夜晚" } },
         "priority": 30,
-        "action": { "do": "去看望妹红", "to": "迷途竹林" }
+        "action": { "do": "去看望妹红", "to": "藤原邸" }
       }
     ],
     "routine": [
@@ -1209,6 +1214,16 @@
         "action": { "do": "出去采集药材", "to": "RANDOM" }
       },
       {
+        "when": { "byNow": { "weekdayName": "周一", "periodName": "上午" } },
+        "priority": 80,
+        "action": { "do": "帮忙接诊", "to": "永远亭" }
+      },
+      {
+        "when": { "byNow": { "weekdayName": "周二", "periodName": "上午" } },
+        "priority": 80,
+        "action": { "do": "帮忙接诊", "to": "永远亭" }
+      },
+      {
         "when": { "byNow": { "weekdayName": "周三", "periodName": "上午" } },
         "priority": 10,
         "action": { "do": "变装去人间之里卖药", "to": "人间之里" }
@@ -1216,7 +1231,7 @@
       {
         "when": { "byNow": { "weekdayName": "周三", "periodName": "下午" } },
         "priority": 10,
-        "action": { "do": "变装去人间之里卖药", "to": "人间之里" }
+        "action": { "do": "变装去人间之里卖药", "to": "人间之里西" }
       }
     ],
     "routine": [
@@ -1249,8 +1264,8 @@
   "eirin": {
     "name": "八意永琳",
     "好感度": 0,
-    "所在地区": "永远亭",
-    "居住地区": "永远亭",
+    "所在地区": "永远亭内庭",
+    "居住地区": "永远亭内庭",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1446,16 +1461,39 @@
         "when": { "byFestival": "月见（例月祭）" },
         "action": { "do": "监督兔子们", "to": "永远亭" },
         "priority": 90
+      },
+      {
+        "when": { "byNow": { "weekdayName": "周一", "periodName": "上午" } },
+        "priority": 80,
+        "action": { "do": "接诊", "to": "永远亭" }
+      },
+      {
+        "when": { "byNow": { "weekdayName": "周二", "periodName": "上午" } },
+        "priority": 80,
+        "action": { "do": "接诊", "to": "永远亭" }
+      },
+      {
+        "when": {
+          "byNow": {
+            "day": 27,
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "女子会",
+          "to": "鲵吞亭"
+        },
+        "priority": 70
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "醒来", "to": "永远亭" }
+        "action": { "do": "醒来", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
-        "action": { "do": "制作药物或进行研究", "to": "永远亭" }
+        "action": { "do": "制作药物或进行研究", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
@@ -1467,23 +1505,23 @@
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "制作药物或进行研究", "to": "永远亭" }
+        "action": { "do": "制作药物或进行研究", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "去睡觉", "to": "永远亭" }
+        "action": { "do": "去睡觉", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "睡觉", "to": "永远亭" }
+        "action": { "do": "睡觉", "to": "永远亭内庭" }
       }
     ]
   },
   "kaguya": {
     "name": "蓬莱山辉夜",
     "好感度": 0,
-    "所在地区": "永远亭",
-    "居住地区": "永远亭",
+    "所在地区": "永远亭内庭",
+    "居住地区": "永远亭内庭",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1699,7 +1737,7 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "醒来", "to": "永远亭" }
+        "action": { "do": "醒来", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
@@ -1711,19 +1749,19 @@
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "去睡觉", "to": "永远亭" }
+        "action": { "do": "去睡觉", "to": "永远亭内庭" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "睡觉", "to": "永远亭" }
+        "action": { "do": "睡觉", "to": "永远亭内庭" }
       }
     ]
   },
   "mokou": {
     "name": "藤原妹红",
     "好感度": 0,
-    "所在地区": "迷途竹林",
-    "居住地区": "迷途竹林",
+    "所在地区": "藤原邸",
+    "居住地区": "藤原邸",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1939,12 +1977,17 @@
         "when": { "byNow": { "weekdayName": "周日", "periodName": "下午" } },
         "action": { "do": "返回永远亭", "to": "人间之里" },
         "priority": 10
+      },
+      {
+        "when": { "byNow": { "weekdayName": "周六", "periodName": "夜晚" } },
+        "action": { "do": "与慧音见面", "to": "藤原邸" },
+        "priority": 10
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "醒来", "to": "迷途竹林" }
+        "action": { "do": "醒来", "to": "藤原邸" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
@@ -1956,7 +1999,7 @@
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "去找辉夜挑事", "to": "人间之里" }
+        "action": { "do": "去找辉夜挑事", "to": "永远亭" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
@@ -1964,7 +2007,7 @@
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "去睡觉", "to": "迷途竹林" }
+        "action": { "do": "去睡觉", "to": "藤原邸" }
       }
     ]
   }
