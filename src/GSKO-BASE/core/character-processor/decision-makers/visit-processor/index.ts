@@ -75,14 +75,10 @@ export function makeVisitDecisions({
   }
 
   // 步骤 2: 从潜在拜访者中选择最多2人
-  const visitors =
-    potentialVisitors.length > 2 ? _.sampleSize(potentialVisitors, 2) : potentialVisitors;
+  const visitors = potentialVisitors.length > 2 ? _.sampleSize(potentialVisitors, 2) : potentialVisitors;
 
   if (potentialVisitors.length > 2) {
-    logger.debug(
-      funcName,
-      `有 ${potentialVisitors.length} 人希望来访，随机选择 2 人：${visitors.join(', ')}`,
-    );
+    logger.debug(funcName, `有 ${potentialVisitors.length} 人希望来访，随机选择 2 人：${visitors.join(', ')}`);
   }
 
   // 步骤 3: 为最终选定的拜访者记录决策和冷却

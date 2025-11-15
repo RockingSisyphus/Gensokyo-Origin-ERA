@@ -3372,6 +3372,17 @@ function getStr(obj, path, fallback = "") {
   return toText(rawValue);
 }
 
+function parseIsoAsLocal(isoString) {
+  if (!isoString) {
+    return new Date;
+  }
+  const parts = isoString.match(/(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2}):(\d{2})/);
+  if (parts) {
+    return new Date(parseInt(parts[1], 10), parseInt(parts[2], 10) - 1, parseInt(parts[3], 10), parseInt(parts[4], 10), parseInt(parts[5], 10), parseInt(parts[6], 10));
+  }
+  return new Date(isoString);
+}
+
 const ContentBiovue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.defineComponent)({
   __name: "ContentBio",
   setup(__props, {expose: __expose}) {
@@ -4311,6 +4322,10 @@ function extractContentForMatching(messages, options = {}) {
         } while (oldContent !== messageContent);
         messageContent = messageContent.replace(selfClosingRe, "");
       }
+    }
+    if (m.role === "user") {
+      segs.push(messageContent);
+      continue;
     }
     if (mainBodyTags.length > 0) {
       const mainBodySegs = [];
@@ -5298,13 +5313,13 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       displayMonth.value = newMonth;
     };
     const resetMonth = () => {
-      displayMonth.value = props.clockInfo?.iso ? new Date(props.clockInfo.iso) : new Date;
+      displayMonth.value = props.clockInfo?.iso ? parseIsoAsLocal(props.clockInfo.iso) : new Date;
     };
     const calendarDays = (0, external_Vue_namespaceObject.computed)(() => {
       if (!props.clockInfo) return [];
       const year = displayMonth.value.getFullYear();
       const month = displayMonth.value.getMonth();
-      const today = props.clockInfo.iso ? new Date(props.clockInfo.iso) : new Date;
+      const today = props.clockInfo.iso ? parseIsoAsLocal(props.clockInfo.iso) : new Date;
       const firstDayOfMonth = new Date(year, month, 1);
       const lastDayOfMonth = new Date(year, month + 1, 0);
       const daysInMonth = lastDayOfMonth.getDate();
@@ -5329,7 +5344,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
     });
     (0, external_Vue_namespaceObject.watch)(() => props.clockInfo, newClockInfo => {
       if (newClockInfo?.iso) {
-        displayMonth.value = new Date(newClockInfo.iso);
+        displayMonth.value = parseIsoAsLocal(newClockInfo.iso);
       }
     }, {
       immediate: true
@@ -5356,7 +5371,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
       title: "下一月",
       onClick: _cache[1] || (_cache[1] = $event => updateMonth("next"))
     }, "▶") ]) ]), (0, external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_7, [ _cache[2] || (_cache[2] = (0, 
-    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-546cfcdd><div class="w" data-v-546cfcdd>一</div><div class="w" data-v-546cfcdd>二</div><div class="w" data-v-546cfcdd>三</div><div class="w" data-v-546cfcdd>四</div><div class="w" data-v-546cfcdd>五</div><div class="w" data-v-546cfcdd>六</div><div class="w" data-v-546cfcdd>日</div></div>', 1)), (0, 
+    external_Vue_namespaceObject.createStaticVNode)('<div class="cal-week" data-v-7ee51604><div class="w" data-v-7ee51604>一</div><div class="w" data-v-7ee51604>二</div><div class="w" data-v-7ee51604>三</div><div class="w" data-v-7ee51604>四</div><div class="w" data-v-7ee51604>五</div><div class="w" data-v-7ee51604>六</div><div class="w" data-v-7ee51604>日</div></div>', 1)), (0, 
     external_Vue_namespaceObject.createElementVNode)("div", CalendarContentvue_type_script_setup_true_lang_ts_hoisted_8, [ ((0, 
     external_Vue_namespaceObject.openBlock)(true), (0, external_Vue_namespaceObject.createElementBlock)(external_Vue_namespaceObject.Fragment, null, (0, 
     external_Vue_namespaceObject.renderList)(calendarDays.value, (day, index) => ((0, 
@@ -5367,7 +5382,7 @@ const CalendarContentvue_type_script_setup_true_lang_ts = (0, external_Vue_names
   }
 });
 
-const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-546cfcdd" ] ]);
+const CalendarContent_exports_ = (0, exportHelper.A)(CalendarContentvue_type_script_setup_true_lang_ts, [ [ "__scopeId", "data-v-7ee51604" ] ]);
 
 const CalendarContent = CalendarContent_exports_;
 
@@ -6230,7 +6245,7 @@ h4[data-v-57d1591c]{display:flex;align-items:center;font-size:1.1em;color:var(--
 .emoji[data-v-74147b2e]{margin-right:0;font-size:1.1em}.banner-chip[data-v-74147b2e]{display:inline-flex;align-items:center;gap:.5em;padding:6px 10px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease}.banner-chip[data-v-74147b2e]:hover{box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-74147b2e]:active{transform:translateY(1px) scale(0.99)}
 .banner-chip-open[data-v-4c237e38]{display:flex;align-items:center;justify-content:space-between;width:100%;padding:10px 16px;background:var(--tab-active);border:1px solid var(--line);border-top-left-radius:10px;border-top-right-radius:10px;font-weight:700;color:var(--ink-bright);cursor:pointer;-webkit-user-select:none;user-select:none}.emoji[data-v-4c237e38]{font-size:1.2em;margin-right:8px}.close-icon[data-v-4c237e38]{font-size:.9em;color:var(--ink)}
 .cal-day-container[data-v-42a71206]{position:relative;display:flex;flex-direction:column;align-items:stretch;justify-content:flex-start;aspect-ratio:1/1;min-width:0;min-height:0}.cal-day-btn[data-v-42a71206]{width:100%;height:100%;padding:6px;border:1px solid var(--line);border-radius:8px;background:var(--paper);cursor:pointer;-webkit-user-select:none;user-select:none;transition:background .2s ease,box-shadow .2s ease,transform .06s ease}.cal-day-btn[data-v-42a71206]:hover{background:color-mix(in srgb,var(--paper) 92%,black 8%)}.cal-day-btn[data-v-42a71206]:active{transform:translateY(1px)}.cal-day-btn.today[data-v-42a71206]{outline:2px solid var(--tab-active);outline-offset:0;box-shadow:0 0 0 2px color-mix(in srgb,var(--tab-active) 35%,transparent) inset}.cal-day-btn.has-fest[data-v-42a71206]{--fest-color:color-mix(in srgb,var(--tab-active) calc(var(--importance,1) * 20%),transparent);background:color-mix(in srgb,var(--fest-color) 50%,var(--paper) 50%);border-color:var(--fest-color)}.cal-day-btn[data-importance="5"][data-v-42a71206]{--importance:5}.cal-day-btn[data-importance="4"][data-v-42a71206]{--importance:4}.cal-day-btn[data-importance="3"][data-v-42a71206]{--importance:3}.cal-day-btn[data-importance="2"][data-v-42a71206]{--importance:2}.cal-day-btn[data-importance="1"][data-v-42a71206]{--importance:1}.dnum[data-v-42a71206]{font-weight:800;color:var(--ink);text-align:right;line-height:1}.cal-day-placeholder[data-v-42a71206]{width:100%;height:100%;border-radius:8px;background:color-mix(in srgb,var(--paper) 95%,black 5%)}.fest-popover[data-v-42a71206]{position:absolute;bottom:calc(100% + 8px);left:50%;transform:translateX(-50%);width:250px;padding:12px;background:var(--bg);border:1px solid var(--line);border-radius:8px;box-shadow:0 4px 12px rgba(0,0,0,.1);z-index:10;pointer-events:none;display:flex;flex-direction:column;gap:8px}.fest-item[data-v-42a71206]{border-top:1px solid var(--line);padding-top:8px}.fest-item[data-v-42a71206]:first-child{border-top:none;padding-top:0}.fest-header[data-v-42a71206]{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:6px}.fest-header strong[data-v-42a71206]{font-weight:bold;color:var(--ink-bright)}.fest-host[data-v-42a71206]{font-size:.85em;color:var(--muted)}.fest-customs[data-v-42a71206]{list-style-type:disc;padding-left:20px;margin:0;font-size:.9em;color:var(--ink);display:flex;flex-direction:column;gap:4px}
-.cal-content[data-v-546cfcdd]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-546cfcdd]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-546cfcdd]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-546cfcdd]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-546cfcdd]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-546cfcdd]{display:flex;gap:6px}.cal-btn[data-v-546cfcdd]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-546cfcdd]:active{transform:translateY(1px)}.cal-body[data-v-546cfcdd]{padding:10px 12px 12px}.cal-week[data-v-546cfcdd]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-546cfcdd]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-546cfcdd]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
+.cal-content[data-v-7ee51604]{position:static;width:100%;max-height:none;margin-top:-1px;padding:12px;background:var(--paper);border:1px solid var(--line);border-top:0;border-bottom-left-radius:10px;border-bottom-right-radius:10px;box-shadow:none;overflow:visible}.cal-head[data-v-7ee51604]{display:flex;align-items:center;justify-content:space-between;padding:10px 12px;border-bottom:1px solid var(--line)}.cal-title[data-v-7ee51604]{display:flex;align-items:baseline;gap:.5em;color:var(--ink)}.cal-title .month[data-v-7ee51604]{font-size:1.25em;font-weight:800}.cal-title .year[data-v-7ee51604]{font-size:.95em;color:var(--muted)}.cal-nav[data-v-7ee51604]{display:flex;gap:6px}.cal-btn[data-v-7ee51604]{cursor:pointer;-webkit-user-select:none;user-select:none;border:1px solid var(--line);background:var(--paper);border-radius:8px;padding:6px 10px;font-weight:700}.cal-btn[data-v-7ee51604]:active{transform:translateY(1px)}.cal-body[data-v-7ee51604]{padding:10px 12px 12px}.cal-week[data-v-7ee51604]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;margin-bottom:6px;color:var(--muted);font-weight:700}.cal-week .w[data-v-7ee51604]{text-align:center;padding:4px 0;border-bottom:1px dashed var(--line)}.cal-grid[data-v-7ee51604]{display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px;align-items:stretch;position:relative}
 .time-container[data-v-6d680f10]{position:relative}
 
 .banner-chip[data-v-388e9674]{display:inline-flex;align-items:center;gap:.65em;padding:8px 14px;background:color-mix(in srgb,var(--paper) 90%,var(--tab-active) 10%);border:1px solid var(--line);border-radius:999px;font-weight:700;color:var(--ink);cursor:pointer;-webkit-user-select:none;user-select:none;transition:transform .08s ease,box-shadow .12s ease,background .2s ease;min-width:150px}.banner-chip[data-v-388e9674]:hover:not(.banner-chip--disabled){box-shadow:0 2px 10px rgba(0,0,0,.06)}.banner-chip[data-v-388e9674]:active:not(.banner-chip--disabled){transform:translateY(1px) scale(0.99)}.banner-chip--disabled[data-v-388e9674]{cursor:not-allowed;opacity:.6}.emoji[data-v-388e9674]{font-size:1.2em}.summary[data-v-388e9674]{font-size:1em}

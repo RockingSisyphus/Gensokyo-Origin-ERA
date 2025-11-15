@@ -1340,6 +1340,10 @@ function extractContentForMatching(messages, options = {}) {
         messageContent = messageContent.replace(selfClosingRe, "");
       }
     }
+    if (m.role === "user") {
+      segs.push(messageContent);
+      continue;
+    }
     if (mainBodyTags.length > 0) {
       const mainBodySegs = [];
       for (const tagName of mainBodyTags) {
@@ -2337,6 +2341,7 @@ function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
   const decidedChars = [];
   const newCache = external_default().cloneDeep(cache);
   const changeLog = [];
+  const potentialVisitors = [];
   for (const charId of remoteChars) {
     const affectionStage = getAffectionStageFromRuntime(runtime, charId);
     if (!affectionStage?.visit?.enabled) continue;
@@ -2350,21 +2355,29 @@ function makeVisitDecisions({runtime, stat, cache, remoteChars}) {
     const {probBase = 0, probK = 0} = affectionStage.visit;
     const {passed, finalProb} = checkProbability(probBase, probK, char.好感度);
     if (passed) {
-      decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
-      decidedChars.push(charId);
-      const oldValue = external_default().get(newCache, `character.${charId}.visit.cooling`);
-      setVisitCooling(newCache, charId, true);
-      changeLog.push({
-        module: funcName,
-        path: `cache.character.${charId}.visit.cooling`,
-        oldValue,
-        newValue: true,
-        reason: `角色 ${charId} 决定前来拜访，进入冷却。`
-      });
-      visit_processor_logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，决定前来拜访主角。`);
+      potentialVisitors.push(charId);
+      visit_processor_logger.debug(funcName, `角色 ${charId} 通过概率检定 (P=${finalProb.toFixed(2)})，成为潜在拜访者。`);
     } else {
       visit_processor_logger.debug(funcName, `角色 ${charId} 未通过概率检定 (P=${finalProb.toFixed(2)})，不进行拜访。`);
     }
+  }
+  const visitors = potentialVisitors.length > 2 ? external_default().sampleSize(potentialVisitors, 2) : potentialVisitors;
+  if (potentialVisitors.length > 2) {
+    visit_processor_logger.debug(funcName, `有 ${potentialVisitors.length} 人希望来访，随机选择 2 人：${visitors.join(", ")}`);
+  }
+  for (const charId of visitors) {
+    decisions[charId] = PREDEFINED_ACTIONS.VISIT_HERO;
+    decidedChars.push(charId);
+    const oldValue = external_default().get(newCache, `character.${charId}.visit.cooling`);
+    setVisitCooling(newCache, charId, true);
+    changeLog.push({
+      module: funcName,
+      path: `cache.character.${charId}.visit.cooling`,
+      oldValue,
+      newValue: true,
+      reason: `角色 ${charId} 决定前来拜访，进入冷却。`
+    });
+    visit_processor_logger.debug(funcName, `角色 ${charId} 最终决定前来拜访主角。`);
   }
   return {
     decisions,
