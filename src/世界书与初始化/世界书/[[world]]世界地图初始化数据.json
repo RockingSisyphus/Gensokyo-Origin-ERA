@@ -232,12 +232,12 @@
             },
             "华扇邸": {
               "aliases": [],
-              "pos": { "x": 550, "y": 430 },
+              "pos": { "x": 600, "y": 430 },
               "htmlEle": "<div class='location-label'>华扇邸</div>"
             },
             "秘天崖": {
               "aliases": [],
-              "pos": { "x": 550, "y": 380 },
+              "pos": { "x": 6000, "y": 380 },
               "htmlEle": "<div class='location-label'>秘天崖</div>"
             },
             "索道": {
