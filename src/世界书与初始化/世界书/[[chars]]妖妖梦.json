@@ -2344,19 +2344,6 @@
         "when": { "byNow": { "weekdayName": "周日", "periodName": "清晨" } },
         "action": { "do": "去神社检查大结界", "to": "博丽神社" },
         "priority": 90
-      },
-      {
-        "when": {
-          "byNow": {
-            "day": 27,
-            "periodName": "下半夜"
-          }
-        },
-        "action": {
-          "do": "女子会",
-          "to": "鲵吞亭"
-        },
-        "priority": 70
       }
     ],
     "routine": [
@@ -2591,6 +2578,19 @@
         "when": { "byFlag": ["newPeriod"], "byNow": { "seasonName": "冬" } },
         "action": { "do": "睡觉", "to": "艮之境" },
         "priority": 10
+      },
+      {
+        "when": {
+          "byNow": {
+            "day": 27,
+            "periodName": "下半夜"
+          }
+        },
+        "action": {
+          "do": "女子会",
+          "to": "鲵吞亭"
+        },
+        "priority": 70
       }
     ],
     "routine": [
