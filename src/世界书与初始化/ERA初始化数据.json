@@ -25,7 +25,7 @@
   "chars": {
     "$meta": {
       "unInsertAble": "self",
-      "necessary": "self",
+      "necessary": "all",
       "updatable": true
     },
     "$template": {
