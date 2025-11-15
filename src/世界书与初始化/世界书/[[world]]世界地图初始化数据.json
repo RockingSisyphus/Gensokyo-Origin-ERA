@@ -237,7 +237,7 @@
             },
             "秘天崖": {
               "aliases": [],
-              "pos": { "x": 6000, "y": 380 },
+              "pos": { "x": 600, "y": 380 },
               "htmlEle": "<div class='location-label'>秘天崖</div>"
             },
             "索道": {
