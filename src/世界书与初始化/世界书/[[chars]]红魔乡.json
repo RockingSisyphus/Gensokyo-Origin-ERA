@@ -2,8 +2,8 @@
   "rumia": {
     "name": "露米娅",
     "好感度": 0,
-    "所在地区": "魔法之森",
-    "居住地区": "魔法之森",
+    "所在地区": "兽道",
+    "居住地区": "兽道",
     "目标": "未知",
     "affectionStages": [
       {
@@ -224,7 +224,7 @@
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "找东西吃", "to": "魔法之森" }
+        "action": { "do": "找东西吃", "to": "兽道" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
@@ -232,7 +232,7 @@
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "找东西吃", "to": "魔法之森" }
+        "action": { "do": "找东西吃", "to": "兽道" }
       }
     ]
   },
@@ -474,7 +474,7 @@
     "name": "琪露诺",
     "好感度": 0,
     "所在地区": "雾之湖",
-    "居住地区": "雾之湖",
+    "居住地区": "冰屋",
     "目标": "未知",
     "affectionStages": [
       {
@@ -695,7 +695,7 @@
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "醒来", "to": "雾之湖" }
+        "action": { "do": "醒来", "to": "冰屋" }
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
@@ -703,7 +703,7 @@
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "找东西吃", "to": "魔法之森" }
+        "action": { "do": "找东西吃", "to": "雾之湖" }
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
@@ -730,8 +730,8 @@
   "meirin": {
     "name": "红美铃",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "红魔馆正门",
+    "居住地区": "红魔馆正门",
     "目标": "未知",
     "affectionStages": [
       {
@@ -925,7 +925,7 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "中午" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
@@ -940,12 +940,12 @@
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "享受宴会", "to": "红魔馆" },
+        "action": { "do": "享受宴会", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
         "when": { "byNow": { "weekdayName": "周日", "periodName": "下午" } },
-        "action": { "do": "修剪红魔馆的花园", "to": "红魔馆" },
+        "action": { "do": "修剪红魔馆的花园", "to": "红魔馆花园" },
         "priority": 50
       },
       {
@@ -966,23 +966,23 @@
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
-        "action": { "do": "在门口站岗", "to": "红魔馆" }
+        "action": { "do": "在门口站岗", "to": "红魔馆正门" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "去餐厅吃饭", "to": "$HOME" }
+        "action": { "do": "去餐厅吃饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
-        "action": { "do": "在岗位上打盹", "to": "红魔馆" }
+        "action": { "do": "在岗位上打盹", "to": "红魔馆正门" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "去餐厅吃饭", "to": "$HOME" }
+        "action": { "do": "去餐厅吃饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "在门口站岗", "to": "红魔馆" }
+        "action": { "do": "在门口站岗", "to": "红魔馆正门" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
@@ -997,8 +997,8 @@
   "koakuma": {
     "name": "小恶魔",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "大图书馆",
+    "居住地区": "大图书馆",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1192,7 +1192,7 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "中午" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
@@ -1202,53 +1202,53 @@
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "享受宴会", "to": "红魔馆" },
+        "action": { "do": "享受宴会", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
         "when": { "byFlag": ["newMonth"], "byNow": { "periodName": "清晨" } },
-        "action": { "do": "图书馆大扫除", "to": "红魔馆" },
+        "action": { "do": "图书馆大扫除", "to": "大图书馆" },
         "priority": 90
       },
       {
         "when": { "byFlag": ["newMonth"], "byNow": { "periodName": "上午" } },
-        "action": { "do": "图书馆大扫除", "to": "红魔馆" },
+        "action": { "do": "图书馆大扫除", "to": "大图书馆" },
         "priority": 90
       },
       {
         "when": { "byFlag": ["newMonth"], "byNow": { "periodName": "下午" } },
-        "action": { "do": "图书馆大扫除", "to": "红魔馆" },
+        "action": { "do": "图书馆大扫除", "to": "大图书馆" },
         "priority": 90
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "整理图书馆的书籍", "to": "红魔馆" }
+        "action": { "do": "整理图书馆的书籍", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "去餐厅吃饭", "to": "$HOME" }
+        "action": { "do": "去餐厅吃饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
-        "action": { "do": "事先准备帕秋莉要用的书籍", "to": "红魔馆" }
+        "action": { "do": "事先准备帕秋莉要用的书籍", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "去餐厅吃饭", "to": "$HOME" }
+        "action": { "do": "去餐厅吃饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "整理图书馆的书籍", "to": "红魔馆" }
+        "action": { "do": "整理图书馆的书籍", "to": "大图书馆" }
       }
     ]
   },
   "patchouli": {
     "name": "帕秋莉·诺蕾姬",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "大图书馆",
+    "居住地区": "大图书馆",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1442,7 +1442,7 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "中午" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 50
       },
       {
@@ -1457,46 +1457,46 @@
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "享受宴会", "to": "红魔馆" },
+        "action": { "do": "享受宴会", "to": "红魔馆大厅" },
         "priority": 90
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "打盹休息", "to": "红魔馆" }
+        "action": { "do": "打盹休息", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
-        "action": { "do": "读书", "to": "红魔馆" }
+        "action": { "do": "读书", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "读书", "to": "红魔馆" }
+        "action": { "do": "读书", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
-        "action": { "do": "喝下午茶", "to": "红魔馆" }
+        "action": { "do": "喝下午茶", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "读书", "to": "红魔馆" }
+        "action": { "do": "读书", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "赏月或观星", "to": "红魔馆" }
+        "action": { "do": "赏月或观星", "to": "大图书馆" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "吃点夜宵", "to": "红魔馆" }
+        "action": { "do": "吃点夜宵", "to": "大图书馆" }
       }
     ]
   },
   "sakuya": {
     "name": "十六夜咲夜",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "红魔馆大厅",
+    "居住地区": "咲夜的房间",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1690,7 +1690,7 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "中午" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
@@ -1705,14 +1705,14 @@
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "打理和主持圣诞宴会", "to": "红魔馆" },
+        "action": { "do": "打理和主持圣诞宴会", "to": "红魔馆大厅" },
         "priority": 90
       }
     ],
     "routine": [
       {
         "when": { "byNow": { "periodName": "清晨" } },
-        "action": { "do": "打理红魔馆事务", "to": "红魔馆" }
+        "action": { "do": "打理红魔馆事务", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "上午" } },
@@ -1720,35 +1720,35 @@
       },
       {
         "when": { "byNow": { "periodName": "中午" } },
-        "action": { "do": "去餐厅吃饭", "to": "红魔馆" }
+        "action": { "do": "去餐厅吃饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "下午" } },
-        "action": { "do": "打理红魔馆事务,准备下午茶", "to": "红魔馆" }
+        "action": { "do": "打理红魔馆事务,准备下午茶", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "黄昏" } },
-        "action": { "do": "去餐厅吃饭，饭后利用时停睡觉", "to": "红魔馆" }
+        "action": { "do": "去餐厅吃饭，饭后利用时停睡觉", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "侍奉大小姐和二小姐更衣", "to": "红魔馆" }
+        "action": { "do": "侍奉大小姐和二小姐更衣", "to": "主卧" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
-        "action": { "do": "打理红魔馆事务", "to": "红魔馆" }
+        "action": { "do": "打理红魔馆事务", "to": "大厅" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "打理红魔馆事务", "to": "红魔馆" }
+        "action": { "do": "打理红魔馆事务", "to": "红魔馆大厅" }
       }
     ]
   },
   "remilia": {
     "name": "蕾米莉亚·斯卡蕾特",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "红魔馆大厅",
+    "居住地区": "主卧",
     "目标": "未知",
     "affectionStages": [
       {
@@ -1942,7 +1942,7 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 90
       },
       {
@@ -1957,7 +1957,7 @@
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "主办圣诞宴会", "to": "红魔馆" },
+        "action": { "do": "主办圣诞宴会", "to": "红魔馆大厅" },
         "priority": 90
       }
     ],
@@ -1980,19 +1980,19 @@
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "吃第一顿饭", "to": "$HOME" }
+        "action": { "do": "吃第一顿饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "吃第二顿饭", "to": "$HOME" }
+        "action": { "do": "吃第二顿饭", "to": "红魔馆大厅" }
       }
     ]
   },
   "flandre": {
     "name": "芙兰朵露·斯卡蕾特",
     "好感度": 0,
-    "所在地区": "红魔馆",
-    "居住地区": "红魔馆",
+    "所在地区": "地下室",
+    "居住地区": "地下室",
     "目标": "未知",
     "affectionStages": [
       {
@@ -2186,12 +2186,12 @@
     "specials": [
       {
         "when": { "byFestival": "节分", "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "吃惠方卷", "to": "红魔馆" },
+        "action": { "do": "吃惠方卷", "to": "红魔馆大厅" },
         "priority": 50
       },
       {
         "when": { "byFestival": "圣诞节（冬季庆典）" },
-        "action": { "do": "享受宴会", "to": "红魔馆" },
+        "action": { "do": "享受宴会", "to": "红魔馆大厅" },
         "priority": 90
       }
     ],
@@ -2214,7 +2214,7 @@
       },
       {
         "when": { "byNow": { "periodName": "夜晚" } },
-        "action": { "do": "吃第一顿饭", "to": "$HOME" }
+        "action": { "do": "吃第一顿饭", "to": "红魔馆大厅" }
       },
       {
         "when": { "byNow": { "periodName": "上半夜" } },
@@ -2222,7 +2222,7 @@
       },
       {
         "when": { "byNow": { "periodName": "下半夜" } },
-        "action": { "do": "吃第二顿饭", "to": "$HOME" }
+        "action": { "do": "吃第二顿饭", "to": "红魔馆大厅" }
       }
     ]
   }
