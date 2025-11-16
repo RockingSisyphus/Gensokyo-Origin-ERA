@@ -2007,8 +2007,8 @@ function resolveTargetLocation(charId, to, stat, runtime) {
     const legalLocations = runtime.area?.legal_locations;
     if (legalLocations && legalLocations.length > 0) {
       const sampled = external_default().sample(legalLocations);
-      if (typeof sampled === "string") {
-        return sampled;
+      if (sampled && typeof sampled.name === "string") {
+        return sampled.name;
       }
     }
     return getCharHomeOrFallback(stat, charId);

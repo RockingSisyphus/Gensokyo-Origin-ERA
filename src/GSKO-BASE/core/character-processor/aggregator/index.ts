@@ -44,11 +44,12 @@ function resolveTargetLocation(charId: string, to: string | undefined, stat: Sta
     const legalLocations = runtime.area?.legal_locations;
     if (legalLocations && legalLocations.length > 0) {
       const sampled = _.sample(legalLocations);
-      if (typeof sampled === 'string') {
-        return sampled;
+      // legal_locations 是一个对象数组，我们需要提取其 name 属性
+      if (sampled && typeof sampled.name === 'string') {
+        return sampled.name;
       }
     }
-    // 如果没有合法地点列表或采样结果不是字符串，则退回到角色的居住地区
+    // 如果没有合法地点列表或采样失败，则退回到角色的居住地区
     return getCharHomeOrFallback(stat, charId);
   }
 
