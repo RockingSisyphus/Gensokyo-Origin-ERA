@@ -40,8 +40,6 @@ var __webpack_require__ = {};
   };
 })();
 
-var __webpack_exports__ = {};
-
 var affection_namespaceObject = {};
 
 __webpack_require__.r(affection_namespaceObject);
