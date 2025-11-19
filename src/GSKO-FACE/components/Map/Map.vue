@@ -26,7 +26,7 @@
           :key="index"
           class="marker location-marker"
           :class="{ 'marker-highlighted': selectedMarker?.name === marker.name }"
-          v-html="marker.htmlEle"
+          v-html="marker.htmlEle ?? marker.name"
           :style="{
             left: marker.pos.x * mapState.zoom + mapState.offsetX + 'px',
             top: marker.pos.y * mapState.zoom + mapState.offsetY + 'px',
@@ -606,7 +606,7 @@ onMounted(() => {
 
       mapState.value.lastMouseX = e.clientX;
       mapState.value.lastMouseY = e.clientY;
-
+      
       drawMap();
     }
   });
@@ -631,21 +631,24 @@ onMounted(() => {
 
     // 限制缩放范围
     if (newZoom >= 0.2 && newZoom <= 5) {
-      // 计算缩放中心点
+      // 获取容器位置和尺寸
       const rect = mapContainer.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
       const mouseY = e.clientY - rect.top;
 
-      // 计算鼠标在画布上的位置（考虑当前变换）
+      // 计算鼠标在画布上的世界坐标（考虑当前变换）
       const worldX = (mouseX - mapState.value.offsetX) / mapState.value.zoom;
       const worldY = (mouseY - mapState.value.offsetY) / mapState.value.zoom;
+
+      // 计算新的偏移量，使缩放以鼠标位置为中心
+      const newOffsetX = mouseX - worldX * newZoom;
+      const newOffsetY = mouseY - worldY * newZoom;
 
       mapState.value = {
         ...mapState.value,
         zoom: newZoom,
-        // 调整偏移量，使缩放以鼠标位置为中心
-        offsetX: mouseX - worldX * mapState.value.zoom,
-        offsetY: mouseY - worldY * mapState.value.zoom,
+        offsetX: newOffsetX,
+        offsetY: newOffsetY,
       };
 
       drawMap();
