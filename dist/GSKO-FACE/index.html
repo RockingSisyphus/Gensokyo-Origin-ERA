@@ -3161,11 +3161,13 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
           const mouseY = e.clientY - rect.top;
           const worldX = (mouseX - mapState.value.offsetX) / mapState.value.zoom;
           const worldY = (mouseY - mapState.value.offsetY) / mapState.value.zoom;
+          const newOffsetX = mouseX - worldX * newZoom;
+          const newOffsetY = mouseY - worldY * newZoom;
           mapState.value = {
             ...mapState.value,
             zoom: newZoom,
-            offsetX: mouseX - worldX * mapState.value.zoom,
-            offsetY: mouseY - worldY * mapState.value.zoom
+            offsetX: newOffsetX,
+            offsetY: newOffsetY
           };
           drawMap();
         }
@@ -3211,7 +3213,7 @@ const Mapvue_type_script_setup_true_lang_ts = (0, external_Vue_namespaceObject.d
       class: (0, external_Vue_namespaceObject.normalizeClass)([ "marker location-marker", {
         "marker-highlighted": (0, external_Vue_namespaceObject.unref)(selectedMarker)?.name === marker.name
       } ]),
-      innerHTML: marker.htmlEle,
+      innerHTML: marker.htmlEle ?? marker.name,
       style: (0, external_Vue_namespaceObject.normalizeStyle)({
         left: marker.pos.x * (0, external_Vue_namespaceObject.unref)(mapState).zoom + (0, 
         external_Vue_namespaceObject.unref)(mapState).offsetX + "px",

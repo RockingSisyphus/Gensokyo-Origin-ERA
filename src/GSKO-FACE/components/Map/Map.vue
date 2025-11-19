@@ -606,7 +606,7 @@ onMounted(() => {
 
       mapState.value.lastMouseX = e.clientX;
       mapState.value.lastMouseY = e.clientY;
-      
+
       drawMap();
     }
   });
