@@ -85,7 +85,7 @@
           "probK": 0.0,
           "coolUnit": "year"
         },
-        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
+        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 3 }],
         "affectionGrowthLimit": {
           "max": 2.0,
           "divisor": 2.0
@@ -813,7 +813,7 @@
           "probK": 0.0,
           "coolUnit": "year"
         },
-        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
+        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 1.75,
           "divisor": 10.0
@@ -1080,7 +1080,7 @@
           "probK": 0.0,
           "coolUnit": "year"
         },
-        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
+        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 1.75,
           "divisor": 10.0
@@ -1578,7 +1578,7 @@
           "probK": 0.0,
           "coolUnit": "year"
         },
-        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
+        "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 1.75,
           "divisor": 10.0
@@ -1595,7 +1595,7 @@
           "probK": 0.0,
           "coolUnit": "year"
         },
-        "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 5 }],
+        "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 10 }],
         "affectionGrowthLimit": {
           "max": 1.0,
           "divisor": 3.0
