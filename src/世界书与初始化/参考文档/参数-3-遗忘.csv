@@ -1,7 +1,7 @@
 ﻿类型名,Parameter,Col1,Col2,Col3,Col4,Col5,Col6,ColnewWeek,Col8,Col9,Col10,Col11
 笨蛋,decrease,1,1,2,5,5,5,10,10,5,1,1
 笨蛋,triggerFlag,newYear,newMonth,newDay,newDay,newDay,newDay,newWeek,newMonth,newMonth,newMonth,newYear
-普通,decrease,1,1,1,1,5,5,15,10,5,20,1
+普通,decrease,1,1,1,1,1,1,10,10,5,20,1
 普通,triggerFlag,newYear,newMonth,newWeek,newDay,newDay,newWeek,newMonth,newMonth,newMonth,newYear,newYear
 长寿,decrease,1,1,2,10,1,5,15,10,5,10,1
 长寿,triggerFlag,newYear,newMonth,newWeek,newWeek,newDay,newWeek,newMonth,newMonth,newMonth,newYear,newYear
