@@ -58,7 +58,7 @@ function flattenLocations(locations: Record<string, any>, fatherName?: string): 
       const avgX = (Math.max(...xs) + Math.min(...xs)) / 2;
       const avgY = (Math.max(...ys) + Math.min(...ys)) / 2;
       const pos = { x: avgX, y: avgY };
-      
+
       const maxLevel = childNodes.reduce((max, child) => Math.max(max, child.level), 0) + 1;
 
       result.push(

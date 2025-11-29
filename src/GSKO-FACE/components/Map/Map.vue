@@ -431,7 +431,7 @@ function zoomIn() {
 
 function zoomOut() {
   closeLocationPopup();
-  
+
   const zoomFactor = 0.8;
   const newZoom = mapState.value.zoom * zoomFactor;
 
