@@ -28,8 +28,8 @@
           :class="{ 'marker-highlighted': selectedMarker?.name === marker.name }"
           v-html="marker.htmlEle ?? marker.name"
           :style="{
-            left: marker.pos.x * mapState.zoom + mapState.offsetX + 'px',
-            top: marker.pos.y * mapState.zoom + mapState.offsetY + 'px',
+            left: marker.pos!.x * mapState.zoom + mapState.offsetX + 'px',
+            top: marker.pos!.y * mapState.zoom + mapState.offsetY + 'px',
             transform: `translate(-50%, -50%)`,
           }"
           @click="selectLocation(marker)"
@@ -38,14 +38,28 @@
           @mouseleave="hoverMarker = null"
         ></div>
 
+        <div
+          v-for="(region, index) in regions"
+          :key="index"
+          class="marker location-marker region-marker"
+          v-html="region.htmlEle ?? region.name"
+          :style="{
+            left: region.pos.x * mapState.zoom + mapState.offsetX + 'px',
+            top: region.pos.y * mapState.zoom + mapState.offsetY + 'px',
+            transform: `translate(-50%, -50%)`,
+          }"
+          @click="zoomToRegion(region)"
+          @touchstart="zoomToRegion(region)"
+        ></div>
+
         <!-- 点击marker的tip弹出 -->
         <div
           v-if="selectedMarker"
           class="tip-container"
           :class="{ 'tip-visible': selectedMarker }"
           :style="{
-            left: selectedMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
-            top: selectedMarker.pos.y * mapState.zoom + mapState.offsetY - 20 + 'px',
+            left: selectedMarker.pos!.x * mapState.zoom + mapState.offsetX + 'px',
+            top: selectedMarker.pos!.y * mapState.zoom + mapState.offsetY - 20 + 'px',
             transform: `translate(-50%, -100%)`,
           }"
         >
@@ -78,8 +92,8 @@
           class="marker player-marker pulsate"
           v-html="playerMarker.htmlEle"
           :style="{
-            left: playerMarker.pos.x * mapState.zoom + mapState.offsetX + 'px',
-            top: playerMarker.pos.y * mapState.zoom + mapState.offsetY + 'px',
+            left: playerMarker.pos!.x * mapState.zoom + mapState.offsetX + 'px',
+            top: playerMarker.pos!.y * mapState.zoom + mapState.offsetY + 'px',
             transform: `translate(-50%, -100%)`,
           }"
         ></div>
@@ -99,6 +113,13 @@
 import RoleDetailPopup from '../common/RoleDetailPopup/RoleDetailPopup.vue';
 import { MapMarker, MapState, Road } from './Map';
 import { ref, computed, onMounted, onUnmounted } from 'vue';
+import { getRegions, FlatLocation, calculateMaxDifference } from './mapUtil';
+
+const zoomRange = {
+  max: 5,
+  min: 0.2,
+  baseLocationZoom: 2.2,
+};
 
 // 定义 props
 const props = defineProps({
@@ -127,75 +148,128 @@ const mapSize = computed(() => {
   };
 });
 
-// 地图上的地点
-const markers: ComputedRef<MapMarker[]> = computed(() => {
-  if (props.context?.runtime?.area?.legal_locations) {
-    return props.context.runtime.area.legal_locations;
+const allShowLocations: ComputedRef<{ showRegions: FlatLocation[]; showLocation: FlatLocation[] }> = computed(() => {
+  if (props.context?.statWithoutMeta?.world?.map_graph?.tree) {
+    let { regions, baseLocation } = getRegions(props.context.statWithoutMeta.world.map_graph.tree);
+
+    // 什么缩放等级显示多少level的区域
+    let level = 0;
+    if (mapState.value.zoom >= zoomRange.baseLocationZoom) {
+      level = 0;
+    } else if (mapState.value.zoom >= 1.2) {
+      level = 1;
+    } else if (mapState.value.zoom >= 0.3) {
+      level = 2;
+    } else {
+      level = 3;
+    }
+
+    const showRegionMap = new Map<string, boolean>();
+    let levelFilterRegions = regions.filter(item => item.level <= level);
+    levelFilterRegions.forEach(item => {
+      showRegionMap.set(item.name, true);
+    });
+
+    let showRegions: FlatLocation[] = [];
+    levelFilterRegions.forEach(item => {
+      // 不存在更上级的区域，或者上级区域不显示的，才能最终显示
+      if (!item.father || !showRegionMap.get(item.father)) {
+        showRegions.push(item);
+      }
+    });
+
+    let showLocation: FlatLocation[] = [];
+    baseLocation.forEach(item => {
+      // 不存在更上级的区域，或者上级区域不显示的，才能最终显示
+      if (!item.father || !showRegionMap.get(item.father)) {
+        showLocation.push(item);
+      }
+    });
+
+    return { showRegions, showLocation };
+  }
+
+  return { showRegions: [], showLocation: [] };
+});
+
+const regions: ComputedRef<FlatLocation[]> = computed(() => {
+  if (allShowLocations) {
+    return allShowLocations.value.showRegions;
   }
 
   return [];
 });
 
-// 地图地点的名称和位置的map
-const locationMap = computed(() => {
-  const locationMap = new Map();
-  if (props.context?.runtime?.area?.legal_locations) {
-    props.context.runtime.area.legal_locations.forEach((item: MapMarker) => {
-      locationMap.set(item.name, item.pos);
-    });
+// 地图上的地点
+const markers: ComputedRef<MapMarker[]> = computed(() => {
+  if (allShowLocations) {
+    return allShowLocations.value.showLocation;
   }
 
-  return locationMap;
+  return [];
 });
 
 // 地图上的道路
 const roads: ComputedRef<Road[]> = computed(() => {
-  const connections = [];
+  const result: Road[] = [];
   if (props.context?.runtime?.area?.graph) {
-    // 遍历图的连接关系
-    for (const [startName, connectionsObj] of Object.entries(props.context.runtime.area.graph)) {
-      const startLocation = locationMap.value.get(startName);
-      if (!startLocation) continue;
+    // 创建子地点到父地点的映射
+    const childToParentMap = new Map<string, FlatLocation>();
 
-      const startInfo = {
-        name: startName,
-        x: startLocation.x,
-        y: startLocation.y,
-      };
-
-      // 遍历当前地点的所有连接
-      for (const [endName, isConnected] of Object.entries(connectionsObj as string)) {
-        if (isConnected) {
-          const endLocation = locationMap.value.get(endName);
-          if (endLocation) {
-            const endInfo = {
-              name: endName,
-              x: endLocation.x,
-              y: endLocation.y,
-            };
-
-            connections.push({
-              start: startInfo,
-              end: endInfo,
-            });
-          }
-        }
+    // 遍历所有地点，建立子地点到父地点的映射
+    [...allShowLocations.value.showLocation, ...allShowLocations.value.showRegions].forEach(location => {
+      if (location.children?.length) {
+        location.children.forEach(child => {
+          childToParentMap.set(child.name, location);
+        });
+      } else {
+        childToParentMap.set(location.name, location);
       }
-    }
+    });
+
+    // 处理每个子地点连接
+    Object.entries(props.context.runtime.area.graph).forEach(([fromChild, toChildren]) => {
+      Object.keys(toChildren as any).forEach(toChild => {
+        const fromParent = childToParentMap.get(fromChild);
+        const toParent = childToParentMap.get(toChild);
+
+        if (fromParent && toParent) {
+          result.push({
+            start: fromParent.pos,
+            end: toParent.pos,
+          });
+        }
+      });
+    });
   }
 
-  return connections;
+  return result;
 });
 
 // 玩家的marker
 const playerMarker: ComputedRef<MapMarker | null> = computed(() => {
   if (props.context?.runtime?.characterDistribution?.playerLocation) {
-    const location = locationMap.value.get(props.context?.runtime?.characterDistribution.playerLocation);
+    const playerMarkerData = {
+      name: '玩家',
+      htmlEle: '<div class="player-icon">📍</div>',
+    };
+    const playerLocation = props.context.runtime.characterDistribution.playerLocation;
+
+    const location = allShowLocations.value.showLocation.find(location => location.name === playerLocation);
     if (location) {
       return {
-        name: '玩家',
-        pos: { x: location.x, y: location.y },
-        htmlEle: '<div class="player-icon">📍</div>',
+        pos: location.pos,
+        ...playerMarkerData,
+      };
+    }
+
+    const findRegion = allShowLocations.value.showRegions.find(region =>
+      region.children.find(child => child.name === playerLocation),
+    );
+    if (findRegion) {
+      return {
+        pos: findRegion.pos,
+        ...playerMarkerData,
       };
     }
   }
@@ -237,6 +311,11 @@ function openRoleDetailPopup(character: any) {
   showRoleDetailPopup.value = true;
 }
 
+function closeLocationPopup() {
+  // 关闭弹出窗
+  selectedMarker.value = null;
+}
+
 function selectLocation(markerData: MapMarker) {
   // 点击相同地点关闭弹出
   if (markerData.name === selectedMarker.value?.name) {
@@ -274,6 +353,26 @@ function handleMarkerTouchStart(markerData: MapMarker, event: TouchEvent) {
   selectLocation(markerData);
 }
 
+function zoomToRegion(region: FlatLocation) {
+  const containerWidth = mapContainer.clientWidth;
+  const containerHeight = mapContainer.clientHeight;
+  const padding = 20;
+  const { diffX, diffY } = calculateMaxDifference(region.children);
+  let zoom = Math.max((containerWidth - padding) / diffX, (containerHeight - padding) / diffY);
+  zoom = Math.max(zoom, zoomRange.min);
+  zoom = Math.min(zoom, zoomRange.max);
+  zoom = Math.max(zoomRange.baseLocationZoom, zoom);
+
+  mapState.value = {
+    ...mapState.value,
+    zoom,
+    offsetX: containerWidth / 2 - region.pos!.x * zoom,
+    offsetY: containerHeight / 2 - region.pos!.y * zoom,
+  };
+
+  drawMap();
+}
+
 // 处理NPC触摸
 function handleNpcTouch(npc: any, event: TouchEvent) {
   event.preventDefault();
@@ -284,23 +383,34 @@ function handleNpcTouch(npc: any, event: TouchEvent) {
 // 在 script 部分添加重置到玩家位置的函数
 function resetToPlayer() {
   if (playerMarker.value) {
-    const playerPos = playerMarker.value.pos;
-    const containerWidth = mapContainer.clientWidth;
-    const containerHeight = mapContainer.clientHeight;
-
+    // 先设置zoom。让playerPos重新计算
     mapState.value = {
       ...mapState.value,
-      zoom: 1,
-      offsetX: containerWidth / 2 - playerPos.x * 1,
-      offsetY: containerHeight / 2 - playerPos.y * 1,
+      zoom: zoomRange.max,
     };
 
-    drawMap();
+    setTimeout(() => {
+      const playerPos = playerMarker.value!.pos;
+      const containerWidth = mapContainer.clientWidth;
+      const containerHeight = mapContainer.clientHeight;
+
+      console.log('playerPos2===', playerPos);
+      mapState.value = {
+        ...mapState.value,
+        zoom: zoomRange.max,
+        offsetX: containerWidth / 2 - playerPos!.x * zoomRange.max,
+        offsetY: containerHeight / 2 - playerPos!.y * zoomRange.max,
+      };
+
+      drawMap();
+    }, 100);
   }
 }
 
 // 缩放控制
 function zoomIn() {
+  closeLocationPopup();
+
   const zoomFactor = 1.2;
   const newZoom = mapState.value.zoom * zoomFactor;
 
@@ -320,6 +430,8 @@ function zoomIn() {
 }
 
 function zoomOut() {
+  closeLocationPopup();
+  
   const zoomFactor = 0.8;
   const newZoom = mapState.value.zoom * zoomFactor;
 
@@ -519,7 +631,7 @@ function handleTouchMove(e: TouchEvent) {
       const newZoom = mapState.value.zoom * zoomFactor;
 
       // 限制缩放范围
-      if (newZoom >= 0.2 && newZoom <= 5) {
+      if (newZoom >= zoomRange.min && newZoom <= zoomRange.max) {
         // 计算缩放中心点
         const midpoint = getMidpoint(e.touches[0], e.touches[1]);
         const rect = mapContainer.getBoundingClientRect();
@@ -625,12 +737,13 @@ onMounted(() => {
   // 事件处理：鼠标滚轮缩放
   mapContainer.addEventListener('wheel', e => {
     e.preventDefault();
+    closeLocationPopup();
 
     const zoomFactor = e.deltaY > 0 ? 0.9 : 1.1;
     const newZoom = mapState.value.zoom * zoomFactor;
 
     // 限制缩放范围
-    if (newZoom >= 0.2 && newZoom <= 5) {
+    if (newZoom >= zoomRange.min && newZoom <= zoomRange.max) {
       // 获取容器位置和尺寸
       const rect = mapContainer.getBoundingClientRect();
       const mouseX = e.clientX - rect.left;
@@ -711,6 +824,18 @@ onUnmounted(() => {
     -webkit-touch-callout: none;
   }
 
+  svg {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+
+    path {
+      fill: rgba(160, 0, 0, 0.2);
+    }
+  }
+
   #mapCanvas {
     display: block;
     border-radius: 12px;
@@ -760,6 +885,12 @@ onUnmounted(() => {
       color: white;
       transform: translate(-50%, -50%) scale(0.95);
     }
+  }
+
+  .region-marker {
+    border-radius: 50%;
+    padding: 10px;
+    min-width: 60px;
   }
 
   .marker-highlighted {

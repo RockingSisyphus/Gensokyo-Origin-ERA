@@ -5,8 +5,8 @@ export interface Position {
 
 export interface MapMarker {
   name: string;
-  pos: Position;
-  htmlEle: string;
+  pos?: Position;
+  htmlEle?: string;
 }
 
 export interface Road {
