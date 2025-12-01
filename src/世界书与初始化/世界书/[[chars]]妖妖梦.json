@@ -19,12 +19,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "嫌恶",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿 | 行为：会尽可能避开对方；一见到对方就会立刻开始刁难 | 资格：没什么想特别允许的 | 性事：极度排斥对方的接触，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已無禮貌可言",
         "patienceUnit": "year",
@@ -43,7 +43,7 @@
       {
         "threshold": -50,
         "name": "迷惑",
-        "describe": "态度：与{{user}}在各方面都难以相容，不知道如何相处；与对方相处时会头痛 | 交流：说话变得支支吾吾；谈话最终都会变成说教 | 行为：会圆滑地主动回避对方；见到对方就会躲开；有时会装作没看见对方 | 资格：没什么想特别允许的 | 性事：对随意的身体接触很反感，可身体接触;不可坦诚相见;不可调情 | 礼仪：平时保持着基本的礼貌和敬语，即使已经无法尊重{{user}}，仍然保持着最基本的礼貌",
+        "describe": "态度：与{{user}}在各方面都难以相容，不知道如何相处；与对方相处时会头痛 | 交流：不敢忤逆对方；说话变得支支吾吾 | 行为：会圆滑地主动回避对方；见到对方就会躲开；有时会装作没看见对方 | 资格：没什么想特别允许的 | 性事：对随意的身体接触很反感，可身体接触;不可坦诚相见;不可调情 | 礼仪：平时保持着基本的礼貌和敬语，即使已经无法尊重{{user}}，仍然保持着最基本的礼貌",
         "patienceUnit": "day",
         "visit": {
           "enabled": false,
@@ -70,8 +70,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -87,8 +87,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -104,8 +104,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 3 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -121,8 +121,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -138,8 +138,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 2 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 7.5
         }
       },
       {
@@ -156,7 +156,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 1.0,
-          "divisor": 9.0
+          "divisor": 5.0
         }
       },
       {
@@ -173,7 +173,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -190,7 +190,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 0 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -268,7 +268,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "敌人",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在，只是想到对方就会吓得发抖；会本能地对其进行警戒 | 交流：根本不敢和对方说话；没有和对方交流的意愿 | 行为：会尽可能避开对方；即使远远地见到也会逃走，会主动避开对方；会主动去找对方泄愤（有蓝在场或取得式神之力时）见到对方的瞬间就会发起攻击（有蓝在场或取得式神之力时）；见面时会立即摆开架势（有蓝在场或取得式神之力时） | 资格：没什么想特别允许的 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -280,7 +280,7 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
@@ -297,7 +297,7 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
@@ -314,8 +314,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 3 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
-          "divisor": 3.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -331,8 +331,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 3 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
-          "divisor": 2.0
+          "max": 4.0,
+          "divisor": 2.5
         }
       },
       {
@@ -348,8 +348,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 3 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
-          "divisor": 2.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -365,8 +365,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -382,8 +382,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 30.0
+          "max": 1.3,
+          "divisor": 5.0
         }
       },
       {
@@ -399,8 +399,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -417,7 +417,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -434,7 +434,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -500,12 +500,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "蔑视",
         "describe": "态度：非常厌恶对方，将对方视作眼中钉；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；会用极具侮辱性的称呼来叫对方；没有和对方交流的意愿 | 行为：见面时会毫不犹豫地宣布开战；见面时会立即摆开架势；明里暗里都会想办法阻碍对方；有时会主动找到对方讨公道 | 资格：没什么想特别允许的 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -551,8 +551,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -568,8 +568,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -585,8 +585,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -602,8 +602,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 15 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -619,14 +619,14 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 1.6
         }
       },
       {
         "threshold": 125,
         "name": "倾心",
-        "describe": "态度：开始对{{user}}萌生思恋之情，思绪开始变得有些复杂；对方注视时会有些不知所措 | 交流：说话声音偶尔会变得很温柔；见面时会变得支支吾吾；不知不觉就会向对方说很多 | 行为：稍微变得有点拘谨；偶尔会突然很害羞；偶尔会因为害羞而变得有些笨拙；偶尔会找借口避开与对方见面 | 资格：会经常邀请对方来家中做客；对方向自己请教人偶制作或魔法时会欣然接受；对方想要成为学徒的话不会拒绝；对方很认真的话，会同意对方的约会请求 | 性事：因为思恋之情，想要一场认真的，循序渐进的恋爱，可身体接触;可共眠;可坦诚相见;可共浴;可亲密接触;可亲吻;可性行为;可调情（主动）;可告白;不可结婚 | 礼仪：平时不会太在意礼仪，对友人重视礼仪，与{{user}}相处时因为感情而变得有些放松",
+        "describe": "态度：开始对{{user}}萌生思恋之情，思绪开始变得有些复杂；对方注视时会有些不知所措 | 交流：说话声音偶尔会变得很温柔；见面时会变得支支吾吾；不知不觉就会向对方说很多 | 行为：稍微变得有点拘谨；偶尔会突然很害羞；偶尔会找借口避开与对方见面 | 资格：会经常邀请对方来家中做客；对方向自己请教人偶制作或魔法时会欣然接受；对方想要成为学徒的话不会拒绝；对方很认真的话，会同意对方的约会请求 | 性事：因为思恋之情，想要一场认真的，循序渐进的恋爱，可身体接触;可共眠;可坦诚相见;可共浴;可亲密接触;可亲吻;可性行为;可调情（主动）;可告白;不可结婚 | 礼仪：平时不会太在意礼仪，对友人重视礼仪，与{{user}}相处时因为感情而变得有些放松",
         "patienceUnit": "month",
         "visit": {
           "enabled": true,
@@ -636,8 +636,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 9.0
+          "max": 1.5,
+          "divisor": 3.3
         }
       },
       {
@@ -654,7 +654,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 10 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -671,7 +671,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -749,7 +749,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "畏惧",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在，只是想到对方就会吓得发抖；会本能地对其进行警戒 | 交流：根本不敢和对方说话；没有和对方交流的意愿 | 行为：会尽可能避开对方；即使远远地见到也会逃走，会主动避开对方 | 资格：没什么想特别允许的 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -761,14 +761,14 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
         "threshold": -50,
         "name": "迷惑",
-        "describe": "态度：与{{user}}在各方面都难以相容，无法理解{{user}}的思考方式；不知道如何相处；与对方相处时会头痛 | 交流：不敢忤逆对方；说话变得支支吾吾 | 行为：会圆滑地主动回避对方；见到对方就会躲开；有时会装作没看见对方 | 资格：没什么想特别允许的 | 性事：极度排斥对方的接触，不可身体接触;不可坦诚相见;不可调情 | 礼仪：不懂何为礼仪，能正常地读懂气氛，但对待{{user}}不知如何是好",
+        "describe": "态度：与{{user}}在各方面都难以相容，无法理解{{user}}的思考方式；不知道如何相处；与对方相处时会头痛 | 交流：不敢忤逆对方；说话变得支支吾吾 | 行为：会圆滑地主动回避对方；见到对方就会躲开；有时会装作没看见对方 | 资格：没什么想特别允许的 | 性事：对随意的身体接触很反感，可身体接触;不可坦诚相见;不可调情 | 礼仪：不懂何为礼仪，能正常地读懂气氛，但对待{{user}}不知如何是好",
         "patienceUnit": "day",
         "visit": {
           "enabled": false,
@@ -778,7 +778,7 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 2 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
@@ -795,8 +795,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
-          "divisor": 3.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -812,8 +812,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
-          "divisor": 2.0
+          "max": 4.0,
+          "divisor": 2.5
         }
       },
       {
@@ -829,8 +829,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 2.0,
-          "divisor": 2.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -846,14 +846,14 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
         "threshold": 60,
         "name": "伙伴",
-        "describe": "态度：视{{user}}为可以经常交流的友人，只是待在一起就很开心；开始渐向对方敞开心扉 | 交流：可以进行无所顾忌的深入交谈；就算是无聊的话题也能聊得很开心 | 行为：有好东西或趣事也会一起分享；在对方需要时会伸出援手；经常会想和对方一起玩 | 资格：偶尔会带小花给对方 | 性事：因为关系亲近了一些，不介意适当触碰对方，可身体接触;不可坦诚相见;不可亲密接触;不可调情;不可告白 | 礼仪：不懂何为礼仪，能正常地读懂气氛，对待{{user}}随和而友善",
+        "describe": "态度：视{{user}}为可以经常交流的友人，只是待在一起就很开心；开始渐向对方敞开心扉 | 交流：可以进行无所顾忌的深入交谈；就算是无聊的话题也能聊得很开心；会坦率地向对方抱怨遇到的烦心事 | 行为：有好东西或趣事也会一起分享；在对方需要时会伸出援手；经常会想和对方一起玩 | 资格：偶尔会带小花给对方 | 性事：因为关系亲近了一些，不介意适当触碰对方，可身体接触;不可坦诚相见;不可亲密接触;不可调情;不可告白 | 礼仪：不懂何为礼仪，能正常地读懂气氛，对待{{user}}随和而友善",
         "patienceUnit": "week",
         "visit": {
           "enabled": true,
@@ -863,8 +863,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 30.0
+          "max": 1.3,
+          "divisor": 5.0
         }
       },
       {
@@ -880,8 +880,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.5,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -898,7 +898,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -915,7 +915,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -988,12 +988,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "蔑视",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿；连正眼看一下都觉得多余 | 行为：会尽可能避开对方；明里暗里都会想办法阻碍对方；会毫不犹豫地告诉别人不要靠近对方 | 资格：不会允许对方参加自己的音乐会 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -1039,8 +1039,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1056,8 +1056,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -1073,8 +1073,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1090,8 +1090,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1107,8 +1107,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 7.5
         }
       },
       {
@@ -1125,7 +1125,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 1.0,
-          "divisor": 9.0
+          "divisor": 5.0
         }
       },
       {
@@ -1142,7 +1142,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 20 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -1159,7 +1159,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -1228,7 +1228,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "敌人",
         "describe": "态度：非常厌恶对方，将对方视作眼中钉；会本能地对其进行警戒；光是想到对方就生理性地感到不适 | 交流：会直言不讳地表示轻蔑；会用极具侮辱性的称呼来叫对方 | 行为：见到对方的瞬间就会发起攻击；见面时会毫不犹豫地宣布开战；会主动找对方泄愤；经常会去找对方的茬 | 资格：不会允许对方参加自己的音乐会 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -1274,8 +1274,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1291,8 +1291,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -1308,8 +1308,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1325,8 +1325,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1342,8 +1342,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 7.5
         }
       },
       {
@@ -1360,7 +1360,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 1.0,
-          "divisor": 9.0
+          "divisor": 5.0
         }
       },
       {
@@ -1377,7 +1377,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 20 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -1394,7 +1394,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -1463,7 +1463,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "嫌恶",
         "describe": "态度：非常厌恶对方，将对方视作眼中钉；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；会用极具侮辱性的称呼来叫对方 | 行为：明里暗里都会想办法阻碍对方；偶尔会在对方背后造谣；会毫不犹豫地告诉别人不要靠近对方 | 资格：不会允许对方参加自己的音乐会 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -1509,8 +1509,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1526,8 +1526,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -1543,8 +1543,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1560,8 +1560,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1577,8 +1577,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 7.5
         }
       },
       {
@@ -1595,7 +1595,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 1.0,
-          "divisor": 9.0
+          "divisor": 5.0
         }
       },
       {
@@ -1612,7 +1612,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 20 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -1629,7 +1629,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -1698,7 +1698,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "敌人",
         "describe": "态度：非常厌恶对方，将对方视作眼中钉；偶尔会用看垃圾一样的眼神看着对方；会本能地对其进行警戒 | 交流：会直言不讳地表示轻蔑；会用极具侮辱性的称呼来叫对方；没有和对方交流的意愿 | 行为：见面时会毫不犹豫地宣布开战；见面时会立即摆开架势 | 资格：不会允许对方进入白玉楼 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -1744,8 +1744,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1761,8 +1761,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 4.0,
+          "divisor": 1.5
         }
       },
       {
@@ -1778,8 +1778,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1795,8 +1795,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 15 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 2.0,
+          "divisor": 2.5
         }
       },
       {
@@ -1812,8 +1812,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 7.5
         }
       },
       {
@@ -1830,7 +1830,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 1.0,
-          "divisor": 9.0
+          "divisor": 5.0
         }
       },
       {
@@ -1847,7 +1847,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 20 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -1864,7 +1864,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -1935,12 +1935,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "蔑视",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；会本能地对其进行警戒 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿；连正眼看一下都觉得多余 | 行为：会尽可能避开对方；明里暗里都会想办法阻碍对方；会毫不犹豫地告诉别人不要靠近对方 | 资格：不会允许对方进入白玉楼 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -1986,12 +1986,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 40 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
-        "threshold": -20,
+        "threshold": -10,
         "name": "普通",
         "describe": "态度：对{{user}}印象不好不坏，与{{user}}关系一般；抱有些许的好奇心 | 交流：交流仅限于必要范围；没什么和对方说话的兴趣 | 行为：没什么特别想做的；会像对待其他普通人一样对待对方；会对其进行各种各样的试探 | 资格：对方未经邀请进入白玉楼的话会睁一只眼闭一只眼 | 性事：允许社交范围内的身体接触，可身体接触;不可坦诚相见;不可亲密接触;不可调情 | 礼仪：虽然平时不纠结礼仪，但言行举止流露着深厚的修养和强大的情商，重视基本原则，无论什么场合都能应对",
         "patienceUnit": "period",
@@ -2003,8 +2003,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2020,8 +2020,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2037,8 +2037,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 15 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 1.5,
+          "divisor": 1.6
         }
       },
       {
@@ -2054,8 +2054,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 40.0
+          "max": 1.5,
+          "divisor": 5.0
         }
       },
       {
@@ -2071,8 +2071,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 9.0
+          "max": 2.5,
+          "divisor": 2.0
         }
       },
       {
@@ -2089,7 +2089,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -2106,7 +2106,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 0 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -2169,7 +2169,7 @@
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "敌人",
         "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；会本能地对其进行警戒 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿；连正眼看一下都觉得多余 | 行为：会尽可能避开对方；明里暗里都会想办法阻碍对方；会毫不犹豫地告诉别人不要靠近对方 | 资格：没什么想特别允许的 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
@@ -2215,8 +2215,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
@@ -2232,8 +2232,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2249,8 +2249,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newWeek", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 3.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2266,8 +2266,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 15 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2283,8 +2283,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
-          "divisor": 65.0
+          "max": 1.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2300,8 +2300,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 9.0
+          "max": 1.5,
+          "divisor": 3.3
         }
       },
       {
@@ -2318,7 +2318,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 10 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -2335,7 +2335,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
@@ -2393,14 +2393,14 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 0.3,
+          "max": 1.0,
           "divisor": 9999.0
         }
       },
       {
-        "threshold": -500,
+        "threshold": -100,
         "name": "蔑视",
-        "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿；连正眼看一下都觉得多余 | 行为：会尽可能避开对方；明里暗里都会想办法阻碍对方；会毫不犹豫地告诉别人不要靠近对方 | 资格：不会允许对方进入幻想乡 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
+        "describe": "态度：非常厌恶对方，将对方视作不可理喻的存在；偶尔会用看垃圾一样的眼神看着对方；在宴会上都不想见到对方 | 交流：会直言不讳地表示轻蔑；没有和对方交流的意愿；连正眼看一下都觉得多余 | 行为：会尽可能避开对方；明里暗里都会想办法阻碍对方；会毫不犹豫地告诉别人不要靠近对方 | 资格：没什么想特别允许的 | 性事：极度排斥，决不允许对方靠近，不可身体接触;不可坦诚相见;不可调情 | 礼仪：与{{user}}已无礼貌可言",
         "patienceUnit": "year",
         "visit": {
           "enabled": false,
@@ -2444,12 +2444,12 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 40 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 2.5
         }
       },
       {
-        "threshold": -20,
+        "threshold": -10,
         "name": "普通",
         "describe": "态度：对{{user}}印象不好不坏，抱有些许的好奇心；保持着自己的气质 | 交流：交流仅限于必要范围；会说一些模棱两可的话来试探对方 | 行为：会对其进行各种各样的试探；没什么特别想做的；会像对待其他普通人一样对待对方 | 资格：没什么想特别允许的 | 性事：允许社交范围内的身体接触，可身体接触;不可坦诚相见;不可亲密接触;不可调情 | 礼仪：虽然平时不纠结礼仪，但言行举止流露着深厚的修养和强大的情商，重视基本原则，无论什么场合都能应对",
         "patienceUnit": "period",
@@ -2461,8 +2461,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newDay", "decrease": 1 }],
         "affectionGrowthLimit": {
-          "max": 1.75,
-          "divisor": 10.0
+          "max": 3.0,
+          "divisor": 1.6
         }
       },
       {
@@ -2495,8 +2495,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 15 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 8.0
+          "max": 1.5,
+          "divisor": 1.6
         }
       },
       {
@@ -2512,8 +2512,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 10 }],
         "affectionGrowthLimit": {
-          "max": 0.5,
-          "divisor": 40.0
+          "max": 1.5,
+          "divisor": 5.0
         }
       },
       {
@@ -2529,8 +2529,8 @@
         },
         "forgettingSpeed": [{ "triggerFlag": "newMonth", "decrease": 5 }],
         "affectionGrowthLimit": {
-          "max": 1.0,
-          "divisor": 9.0
+          "max": 2.5,
+          "divisor": 2.0
         }
       },
       {
@@ -2547,7 +2547,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 5 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       },
       {
@@ -2564,7 +2564,7 @@
         "forgettingSpeed": [{ "triggerFlag": "newYear", "decrease": 0 }],
         "affectionGrowthLimit": {
           "max": 20.0,
-          "divisor": 2.0
+          "divisor": 1.0
         }
       }
     ],
