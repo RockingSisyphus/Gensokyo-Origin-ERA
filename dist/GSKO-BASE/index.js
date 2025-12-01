@@ -29,8 +29,6 @@ var __webpack_require__ = {};
   __webpack_require__.o = (obj, prop) => Object.prototype.hasOwnProperty.call(obj, prop);
 })();
 
-var __webpack_exports__ = {};
-
 const external_namespaceObject = _;
 
 var external_default = __webpack_require__.n(external_namespaceObject);
