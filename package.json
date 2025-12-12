@@ -12,7 +12,7 @@
   ],
   "devDependencies": {
     "@eslint/js": "^9.39.1",
-    "@tailwindcss/postcss": "^4.1.17",
+    "@tailwindcss/postcss": "^4.1.18",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
     "@types/lodash": "^4.17.21",
@@ -47,8 +47,8 @@
     "sass-loader": "^16.0.6",
     "socket.io": "^4.8.1",
     "style-loader": "^4.0.0",
-    "tailwindcss": "^4.1.17",
-    "terser-webpack-plugin": "^5.3.15",
+    "tailwindcss": "^4.1.18",
+    "terser-webpack-plugin": "^5.3.16",
     "ts-loader": "^9.5.4",
     "ts-node": "^10.9.2",
     "tsconfig-paths-webpack-plugin": "^4.2.0",
@@ -78,7 +78,7 @@
     "pixi.js": "^8.14.3",
     "toastr": "^2.1.4",
     "vue": "^3.5.25",
-    "vue-router": "^4.6.3",
+    "vue-router": "^4.6.4",
     "vue3-pixi": "1.0.0-beta.3",
     "yaml": "^2.8.2",
     "zod": "^4.1.13"
