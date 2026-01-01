@@ -1,638 +1,1713 @@
 {
   "map_graph": {
-    "mapSize": { "width": 1500, "height": 1500 },
+    "mapSize": {
+      "width": 1500,
+      "height": 1500
+    },
     "tree": {
       "幻想乡及周边": {
         "幻想乡本土": {
           "东境丘陵带": {
             "博丽神社": {
-              "pos": { "x": 1000, "y": 550 },
+              "pos": {
+                "x": 1000,
+                "y": 550
+              },
               "htmlEle": "<div class='location-label'>博丽神社</div>",
-              "aliases": ["博麗神社", "博丽", "博丽神社周边"]
+              "aliases": [
+                "博麗神社",
+                "博丽",
+                "博丽神社周边"
+              ]
             },
-			"博丽神社本殿": {
-              "pos": { "x": 1000, "y": 500 },
+            "博丽神社本殿": {
+              "pos": {
+                "x": 1000,
+                "y": 500
+              },
               "htmlEle": "<div class='location-label'>博丽神社本殿</div>",
               "aliases": []
             },
             "博丽神社后山": {
-              "pos": { "x": 1100, "y": 550 },
+              "pos": {
+                "x": 1100,
+                "y": 550
+              },
               "htmlEle": "<div class='location-label'>博丽神社后山</div>",
               "aliases": []
             },
-			"血之湖": {
-              "pos": { "x": 1000, "y": 450 },
+            "血之湖": {
+              "pos": {
+                "x": 1000,
+                "y": 450
+              },
               "htmlEle": "<div class='location-label'>血之湖</div>",
-              "aliases": ["血之池"]
+              "aliases": [
+                "血之池"
+              ]
             },
-			"梦幻世界": {
-              "pos": { "x": 1150, "y": 450 },
+            "梦幻世界": {
+              "pos": {
+                "x": 1150,
+                "y": 450
+              },
               "htmlEle": "<div class='location-label'>梦幻世界</div>",
               "aliases": []
             },
             "兽道": {
-              "pos": { "x": 1000, "y": 600 },
-              "aliases": ["獸道"],
+              "pos": {
+                "x": 1000,
+                "y": 600
+              },
+              "aliases": [
+                "獸道"
+              ],
               "htmlEle": "<div class='location-label'>兽道</div>"
             },
             "梦幻遗迹": {
-              "aliases": ["可能性空间移动船"],
-              "pos": { "x": 900, "y": 500 },
+              "aliases": [
+                "可能性空间移动船"
+              ],
+              "pos": {
+                "x": 900,
+                "y": 500
+              },
               "htmlEle": "<div class='location-label'>梦幻遗迹</div>"
             }
           },
           "中部平原带": {
-            "人间之里": {
-              "pos": { "x": 750, "y": 650 },
-              "htmlEle": "<div class='location-label'>人间之里</div>",
-              "aliases": ["人里", "人間之里", "人类村落", "人类聚落", "人类村落广场"]
-            },
-			"人间之里西": {
-              "pos": { "x": 650, "y": 650 },
-              "htmlEle": "<div class='location-label'>人间之里西</div>",
-              "aliases": ["商店街"]
-            },
-			"人间之里东": {
-              "pos": { "x": 850, "y": 650 },
-              "htmlEle": "<div class='location-label'>人间之里东</div>",
-              "aliases": ["长屋街"]
-            },
-			"里巷": {
-              "pos": { "x": 850, "y": 600 },
-              "htmlEle": "<div class='location-label'>里巷</div>",
-              "aliases": []
-            },
-			"人间之里北": {
-              "pos": { "x": 750, "y": 600 },
-              "htmlEle": "<div class='location-label'>人间之里北</div>",
-              "aliases": ["农田"]
-            },
             "柳之运河": {
               "aliases": [],
-              "pos": { "x": 650, "y": 575 },
+              "pos": {
+                "x": 650,
+                "y": 550
+              },
               "htmlEle": "<div class='location-label'>柳之运河</div>"
             },
             "铃奈庵": {
-              "aliases": ["鈴奈庵"],
-              "pos": { "x": 750, "y": 700 },
+              "aliases": [
+                "鈴奈庵"
+              ],
+              "pos": {
+                "x": 750,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>铃奈庵</div>"
             },
             "稗田邸": {
               "aliases": [],
-              "pos": { "x": 800, "y": 700 },
+              "pos": {
+                "x": 800,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>稗田邸</div>"
             },
             "鲵吞亭": {
               "aliases": [],
-              "pos": { "x": 700, "y": 700 },
+              "pos": {
+                "x": 700,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>鲵吞亭</div>"
             },
             "寺子屋": {
               "aliases": [],
-              "pos": { "x": 650, "y": 700 },
+              "pos": {
+                "x": 650,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>寺子屋</div>"
+            },
+            "人间之里里巷": {
+              "pos": {
+                "x": 800,
+                "y": 550
+              },
+              "htmlEle": "<div class='location-label'>人间之里里巷</div>",
+              "aliases": []
+            },
+            "人间之里广场": {
+              "pos": {
+                "x": 749,
+                "y": 650
+              },
+              "htmlEle": "<div class='location-label'>人间之里广场</div>",
+              "aliases": [
+                "人里",
+                "人間之里",
+                "人类村落",
+                "人类聚落",
+                "人类村落广场"
+              ]
+            },
+            "人间之里长屋街": {
+              "pos": {
+                "x": 850,
+                "y": 650
+              },
+              "htmlEle": "<div class='location-label'>人间之里长屋街</div>",
+              "aliases": [
+                "长屋街",
+                "人间之里东"
+              ]
+            },
+            "人间之里农田": {
+              "pos": {
+                "x": 750,
+                "y": 550
+              },
+              "htmlEle": "<div class='location-label'>人间之里农田</div>",
+              "aliases": [
+                "农田"
+              ]
+            },
+            "人间之里商店街": {
+              "pos": {
+                "x": 650,
+                "y": 650
+              },
+              "htmlEle": "<div class='location-label'>人间之里商店街</div>",
+              "aliases": [
+                "人间之里西"
+              ]
+            },
+            "人间之里空屋": {
+              "pos": {
+                "x": 800,
+                "y": 600
+              },
+              "aliases": [],
+              "htmlEle": "<div>人间之里空屋</div>"
+            },
+            "人间之里盐家大院": {
+              "pos": {
+                "x": 650,
+                "y": 600
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>人间之里盐家大院</div>"
             }
           },
-		  "命莲寺": {
+          "命莲寺": {
             "命莲寺山门": {
-              "aliases": ["命蓮寺", "命莲寺"],
-              "pos": { "x": 850, "y": 750 },
+              "aliases": [
+                "命蓮寺",
+                "命莲寺"
+              ],
+              "pos": {
+                "x": 850,
+                "y": 750
+              },
               "htmlEle": "<div class='location-label'>命莲寺山门</div>"
             },
-			"命莲寺别殿": {
+            "命莲寺别殿": {
               "aliases": [],
-              "pos": { "x": 750, "y": 800 },
+              "pos": {
+                "x": 750,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>命莲寺别殿</div>"
             },
-			"命莲寺正殿": {
+            "命莲寺正殿": {
               "aliases": [],
-              "pos": { "x": 850, "y": 800 },
+              "pos": {
+                "x": 850,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>命莲寺正殿</div>"
             },
-			"命莲寺后院": {
-              "aliases": ["里参道"],
-              "pos": { "x": 750, "y": 850 },
+            "命莲寺后院": {
+              "aliases": [
+                "里参道"
+              ],
+              "pos": {
+                "x": 750,
+                "y": 850
+              },
               "htmlEle": "<div class='location-label'>命莲寺后院</div>"
             },
             "圣辇船": {
               "aliases": [],
-              "pos": { "x": 900, "y": 600 },
+              "pos": {
+                "x": 924,
+                "y": 575
+              },
               "htmlEle": "<div class='location-label'>圣辇船</div>"
             },
             "墓地": {
               "aliases": [],
-              "pos": { "x": 850, "y": 850 },
+              "pos": {
+                "x": 850,
+                "y": 850
+              },
               "htmlEle": "<div class='location-label'>墓地</div>"
             },
-            "神灵庙": { "pos": { "x": 750, "y": 900 }, "htmlEle": "<div class='location-label'>神灵庙</div>" },
-            "梦殿大祀庙": { "pos": { "x": 850, "y": 900 }, "htmlEle": "<div class='location-label'>梦殿大祀庙</div>" }
+            "神灵庙": {
+              "pos": {
+                "x": 750,
+                "y": 900
+              },
+              "htmlEle": "<div class='location-label'>神灵庙</div>"
+            },
+            "梦殿大祀庙": {
+              "pos": {
+                "x": 850,
+                "y": 900
+              },
+              "htmlEle": "<div class='location-label'>梦殿大祀庙</div>"
+            }
           },
           "魔法之森带": {
             "魔法之森": {
-              "aliases": ["魔法森林", "魔之森", "魔法之林"],
-              "pos": { "x": 500, "y": 700 },
+              "aliases": [
+                "魔法森林",
+                "魔之森",
+                "魔法之林"
+              ],
+              "pos": {
+                "x": 500,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>魔法之森</div>"
             },
             "雾雨魔法店": {
-              "aliases": ["雾雨店", "魔法店", "魔理沙的家"],
-              "pos": { "x": 350, "y": 700 },
+              "aliases": [
+                "雾雨店",
+                "魔法店",
+                "魔理沙的家"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>雾雨魔法店</div>"
             },
             "爱丽丝邸": {
-              "aliases": ["人偶之森", "玛格特洛依德邸", "爱丽丝的家"],
-              "pos": { "x": 350, "y": 800 },
+              "aliases": [
+                "人偶之森",
+                "玛格特洛依德邸",
+                "爱丽丝的家"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>爱丽丝邸</div>"
             },
-			"森林深处": {
+            "森林深处": {
               "aliases": [],
-              "pos": { "x": 400, "y": 800 },
+              "pos": {
+                "x": 400,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>森林深处</div>"
             },
             "香霖堂": {
-              "aliases": ["香霖", "古道具屋", "Kourindou"],
-              "pos": { "x": 550, "y": 650 },
+              "aliases": [
+                "香霖",
+                "古道具屋",
+                "Kourindou"
+              ],
+              "pos": {
+                "x": 550,
+                "y": 650
+              },
               "htmlEle": "<div class='location-label'>香霖堂</div>"
             },
             "废弃洋馆": {
-              "aliases": ["废洋馆"],
-              "pos": { "x": 430, "y": 650 },
+              "aliases": [
+                "废洋馆"
+              ],
+              "pos": {
+                "x": 450,
+                "y": 650
+              },
               "htmlEle": "<div class='location-label'>废弃洋馆</div>"
             },
-			"幽灵洋馆": {
+            "幽灵洋馆": {
               "aliases": [],
-              "pos": { "x": 300, "y": 600 },
+              "pos": {
+                "x": 300,
+                "y": 600
+              },
               "htmlEle": "<div class='location-label'>幽灵洋馆</div>"
             },
             "无缘冢": {
-              "aliases": ["無緣冢", "无缘塚", "再思之道"],
-              "pos": { "x": 460, "y": 880 },
+              "aliases": [
+                "無緣冢",
+                "无缘塚",
+                "再思之道"
+              ],
+              "pos": {
+                "x": 500,
+                "y": 880
+              },
               "htmlEle": "<div class='location-label'>无缘冢</div>"
             },
             "电线塔": {
               "aliases": [],
-              "pos": { "x": 350, "y": 600 },
+              "pos": {
+                "x": 350,
+                "y": 600
+              },
               "htmlEle": "<div class='location-label'>电线塔</div>"
             }
           },
           "雾之湖·红魔馆": {
-            "雾之湖": { "pos": { "x": 430, "y": 550 }, "htmlEle": "<div class='location-label'>雾之湖</div>" },
-			"冰屋": {
-              "aliases": ["琪露诺的家", "湖边的冰屋"],
-              "pos": { "x": 350, "y": 550 },
+            "雾之湖": {
+              "pos": {
+                "x": 450,
+                "y": 550
+              },
+              "htmlEle": "<div class='location-label'>雾之湖</div>",
+              "aliases": []
+            },
+            "冰屋": {
+              "aliases": [
+                "琪露诺的家",
+                "湖边的冰屋"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 550
+              },
               "htmlEle": "<div class='location-label'>冰屋</div>"
             },
             "置行堀": {
-              "aliases": [],
-              "pos": { "x": 550, "y": 575 },
+              "aliases": [
+                "河童仓库"
+              ],
+              "pos": {
+                "x": 550,
+                "y": 550
+              },
               "htmlEle": "<div class='location-label'>置行堀</div>"
             },
-			"红魔馆正门": {
-              "aliases": ["红魔馆"],
-              "pos": { "x": 400, "y": 450 },
-              "htmlEle": "<div class='location-label'>红魔馆正门</div>"
-            },
-			"红魔馆花园": {
-              "aliases": [],
-              "pos": { "x": 400, "y": 425 },
+            "红魔馆花园": {
+              "aliases": [
+                "红魔馆花园"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 425
+              },
               "htmlEle": "<div class='location-label'>红魔馆花园</div>"
             },
-			"红魔馆大厅": {
+            "红魔馆大厅": {
               "aliases": [],
-              "pos": { "x": 400, "y": 400 },
+              "pos": {
+                "x": 350,
+                "y": 400
+              },
               "htmlEle": "<div class='location-label'>红魔馆大厅</div>"
             },
-			"大图书馆": {
-              "aliases": ["地下图书馆"],
-              "pos": { "x": 350, "y": 350 },
+            "大图书馆": {
+              "aliases": [
+                "地下图书馆"
+              ],
+              "pos": {
+                "x": 300,
+                "y": 300
+              },
               "htmlEle": "<div class='location-label'>大图书馆</div>"
             },
-			"红魔馆地下室": {
+            "咲夜的房间": {
               "aliases": [],
-              "pos": { "x": 450, "y": 350 },
-              "htmlEle": "<div class='location-label'>地下室</div>"
-            },
-			"红魔馆主卧": {
-              "aliases": [],
-              "pos": { "x": 350, "y": 400 },
-              "htmlEle": "<div class='location-label'>主卧</div>"
-            },
-			"咲夜的房间": {
-              "aliases": [],
-              "pos": { "x": 450, "y": 400 },
+              "pos": {
+                "x": 300,
+                "y": 400
+              },
               "htmlEle": "<div class='location-label'>咲夜的房间</div>"
+            },
+            "红魔馆正门": {
+              "aliases": [
+                "红魔馆"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 450
+              },
+              "htmlEle": "<div class='location-label'>红魔馆正门</div>"
+            },
+            "红魔馆地下室": {
+              "aliases": [
+                "芙兰的房间"
+              ],
+              "pos": {
+                "x": 350,
+                "y": 250
+              },
+              "htmlEle": "<div class='location-label'>红魔馆地下室</div>"
+            },
+            "红魔馆主卧": {
+              "aliases": [],
+              "pos": {
+                "x": 300,
+                "y": 350
+              },
+              "htmlEle": "<div class='location-label'>红魔馆\n主卧</div>"
+            },
+            "红魔馆阁楼": {
+              "pos": {
+                "x": 400,
+                "y": 300
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>红魔馆阁楼</div>"
+            },
+            "红魔馆厨房": {
+              "pos": {
+                "x": 400,
+                "y": 350
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>红魔馆厨房</div>"
+            },
+            "红魔馆仆人房间": {
+              "pos": {
+                "x": 400,
+                "y": 400
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>红魔馆仆人房间</div>"
             }
           },
           "西北山地带": {
-            "妖怪之山": { "pos": { "x": 700, "y": 400 }, "htmlEle": "<div class='location-label'>妖怪之山</div>" },
-			"山林": { "pos": { "x": 800, "y": 300 }, "htmlEle": "<div class='location-label'>山林</div>" },
             "守矢神社": {
-              "aliases": ["守矢"],
-              "pos": { "x": 800, "y": 430 },
+              "aliases": [
+                "守矢"
+              ],
+              "pos": {
+                "x": 800,
+                "y": 430
+              },
               "htmlEle": "<div class='location-label'>守矢神社</div>"
             },
             "华扇邸": {
               "aliases": [],
-              "pos": { "x": 600, "y": 430 },
+              "pos": {
+                "x": 600,
+                "y": 430
+              },
               "htmlEle": "<div class='location-label'>华扇邸</div>"
             },
             "秘天崖": {
               "aliases": [],
-              "pos": { "x": 600, "y": 380 },
+              "pos": {
+                "x": 600,
+                "y": 380
+              },
               "htmlEle": "<div class='location-label'>秘天崖</div>"
             },
             "索道": {
               "aliases": [],
-              "pos": { "x": 800, "y": 500 },
+              "pos": {
+                "x": 800,
+                "y": 500
+              },
               "htmlEle": "<div class='location-label'>索道</div>"
             },
             "九天瀑布": {
-              "aliases": ["九天之瀑"],
-              "pos": { "x": 500, "y": 350 },
+              "aliases": [
+                "九天之瀑"
+              ],
+              "pos": {
+                "x": 500,
+                "y": 350
+              },
               "htmlEle": "<div class='location-label'>九天瀑布</div>"
             },
             "天狗聚落": {
-              "aliases": ["天狗村落", "天狗要塞"],
-              "pos": { "x": 700, "y": 350 },
+              "aliases": [
+                "天狗村落",
+                "天狗要塞"
+              ],
+              "pos": {
+                "x": 700,
+                "y": 350
+              },
               "htmlEle": "<div class='location-label'>天狗聚落</div>"
             },
             "文文报社": {
-              "aliases": ["文文新聞社", "文文新闻社", "文文报社·报社"],
-              "pos": { "x": 600, "y": 300 },
+              "aliases": [
+                "文文新聞社",
+                "文文新闻社",
+                "文文报社·报社"
+              ],
+              "pos": {
+                "x": 600,
+                "y": 300
+              },
               "htmlEle": "<div class='location-label'>文文报社</div>"
             },
             "花果子报社": {
-              "aliases": ["花果子新聞社", "花果子新闻社", "花果子报社·报社"],
-              "pos": { "x": 700, "y": 300 },
+              "aliases": [
+                "花果子新聞社",
+                "花果子新闻社",
+                "花果子报社·报社"
+              ],
+              "pos": {
+                "x": 700,
+                "y": 300
+              },
               "htmlEle": "<div class='location-label'>花果子报社</div>"
             },
             "风神之湖": {
-              "aliases": ["風神之湖", "风神湖"],
-              "pos": { "x": 900, "y": 400 },
+              "aliases": [
+                "風神之湖",
+                "风神湖"
+              ],
+              "pos": {
+                "x": 900,
+                "y": 399
+              },
               "htmlEle": "<div class='location-label'>风神之湖</div>"
             },
             "玄武涧": {
-              "aliases": ["玄武之澤", "玄武泽", "玄武之泽"],
-              "pos": { "x": 500, "y": 450 },
+              "aliases": [
+                "玄武之澤",
+                "玄武泽",
+                "玄武之泽",
+                "河童市场"
+              ],
+              "pos": {
+                "x": 500,
+                "y": 450
+              },
               "htmlEle": "<div class='location-label'>玄武涧</div>"
-            },
-            "河童市场": {
-              "aliases": [],
-              "pos": { "x": 600, "y": 500 },
-              "htmlEle": "<div class='location-label'>河童市场</div>"
             },
             "迷途之家": {
               "aliases": [],
-              "pos": { "x": 900, "y": 300 },
+              "pos": {
+                "x": 900,
+                "y": 300
+              },
               "htmlEle": "<div class='location-label'>迷途之家</div>"
             },
-			"伪天棚": {
-              "aliases": ["驹草赌场"],
-              "pos": { "x": 500, "y": 300 },
+            "伪天棚": {
+              "aliases": [
+                "驹草赌场"
+              ],
+              "pos": {
+                "x": 500,
+                "y": 300
+              },
               "htmlEle": "<div class='location-label'>伪天棚</div>"
             },
-            "虹龙洞": { "pos": { "x": 500, "y": 250 }, "htmlEle": "<div class='location-label'>虹龙洞</div>" },
-            "圣域": { "pos": { "x": 750, "y": 270 }, "htmlEle": "<div class='location-label'>圣域</div>" },
-            "大蛤蟆之池": { "pos": { "x": 700, "y": 450 }, "htmlEle": "<div class='location-label'>大蛤蟆之池</div>" }
+            "虹龙洞": {
+              "pos": {
+                "x": 500,
+                "y": 250
+              },
+              "htmlEle": "<div class='location-label'>虹龙洞</div>",
+              "aliases": []
+            },
+            "妖怪之山山麓": {
+              "pos": {
+                "x": 700,
+                "y": 450
+              },
+              "htmlEle": "<div class='location-label'>妖怪之山山麓</div>",
+              "aliases": []
+            },
+            "妖怪之山山腰": {
+              "pos": {
+                "x": 700,
+                "y": 400
+              },
+              "htmlEle": "<div class='location-label'>妖怪之山山腰</div>",
+              "aliases": []
+            },
+            "大蛤蟆之池": {
+              "pos": {
+                "x": 700,
+                "y": 500
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>大蛤蟆之池</div>"
+            },
+            "妖怪之山深处": {
+              "pos": {
+                "x": 750,
+                "y": 250
+              },
+              "htmlEle": "<div class='location-label'>妖怪之山深处</div>",
+              "aliases": []
+            },
+            "妖怪之山圣域": {
+              "pos": {
+                "x": 700,
+                "y": 250
+              },
+              "htmlEle": "<div class='location-label'>妖怪之山圣域</div>",
+              "aliases": []
+            },
+            "月虹市场": {
+              "pos": {
+                "x": 602,
+                "y": 250
+              },
+              "aliases": [],
+              "htmlEle": "<div class='location-label'>月虹市场</div>"
+            },
+            "间歇泉": {
+              "aliases": [],
+              "pos": {
+                "x": 600,
+                "y": 500
+              },
+              "htmlEle": "<div class='location-label'>间歇泉</div>"
+            }
           },
           "南境丘陵带": {
             "无名之丘": {
-              "aliases": ["无名丘"],
-              "pos": { "x": 650, "y": 800 },
+              "aliases": [
+                "无名丘"
+              ],
+              "pos": {
+                "x": 650,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>无名之丘</div>"
             },
             "太阳花田": {
-              "aliases": ["太陽花田", "向日葵田"],
-              "pos": { "x": 550, "y": 800 },
+              "aliases": [
+                "太陽花田",
+                "向日葵田"
+              ],
+              "pos": {
+                "x": 550,
+                "y": 800
+              },
               "htmlEle": "<div class='location-label'>太阳花田</div>"
             },
-			"永远亭": {
-              "aliases": ["永遠亭"],
-              "pos": { "x": 1050, "y": 650 },
+            "永远亭": {
+              "aliases": [
+                "永遠亭"
+              ],
+              "pos": {
+                "x": 1050,
+                "y": 650
+              },
               "htmlEle": "<div class='location-label'>永远亭</div>"
             },
-			"永远亭内庭": {
+            "永远亭内庭": {
               "aliases": [],
-              "pos": { "x": 1100, "y": 650 },
+              "pos": {
+                "x": 1100,
+                "y": 650
+              },
               "htmlEle": "<div class='location-label'>永远亭内庭</div>"
             },
-			"迷途竹林": {
-              "aliases": ["迷途竹林"],
-              "pos": { "x": 950, "y": 700 },
+            "迷途竹林": {
+              "aliases": [
+                "迷途竹林"
+              ],
+              "pos": {
+                "x": 950,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>迷途竹林</div>"
             },
-			"藤原邸": {
-              "aliases": ["妹红的家", "妹红的小屋", "竹林身处"],
-              "pos": { "x": 1150, "y": 700 },
+            "藤原邸": {
+              "aliases": [
+                "妹红的家",
+                "妹红的小屋",
+                "竹林身处"
+              ],
+              "pos": {
+                "x": 1150,
+                "y": 700
+              },
               "htmlEle": "<div class='location-label'>藤原邸</div>"
             },
-			"幻草原": {
-              "aliases": ["幻野"],
-              "pos": { "x": 950, "y": 900 },
+            "幻草原": {
+              "aliases": [
+                "幻野"
+              ],
+              "pos": {
+                "x": 950,
+                "y": 900
+              },
               "htmlEle": "<div class='location-label'>幻草原</div>"
             },
-            "辉针城": { "pos": { "x": 950, "y": 950 }, "htmlEle": "<div class='location-label'>辉针城</div>" }
+            "辉针城": {
+              "pos": {
+                "x": 950,
+                "y": 950
+              },
+              "htmlEle": "<div class='location-label'>辉针城</div>"
+            }
           }
         },
         "冥界·魔界": {
           "幽明结界": {
-            "aliases": ["冥界结界", "幽冥結界", "幽冥结界"],
-            "pos": { "x": 1150, "y": 350 },
+            "aliases": [
+              "冥界结界",
+              "幽冥結界",
+              "幽冥结界"
+            ],
+            "pos": {
+              "x": 1150,
+              "y": 350
+            },
             "htmlEle": "<div class='location-label'>幽明结界</div>"
           },
-		  "白玉楼庭园": {
-            "aliases": ["白玉楼庭院"],
-            "pos": { "x": 1200, "y": 400 },
+          "白玉楼庭园": {
+            "aliases": [
+              "白玉楼庭院"
+            ],
+            "pos": {
+              "x": 1200,
+              "y": 400
+            },
             "htmlEle": "<div class='location-label'>白玉楼庭园</div>"
           },
           "白玉楼": {
-            "aliases": ["白玉樓", "白玉楼阁"],
-            "pos": { "x": 1200, "y": 500 },
+            "aliases": [
+              "白玉樓",
+              "白玉楼阁"
+            ],
+            "pos": {
+              "x": 1200,
+              "y": 500
+            },
             "htmlEle": "<div class='location-label'>白玉楼</div>"
           },
           "梦幻馆": {
             "aliases": [],
-            "pos": { "x": 1100, "y": 500 },
+            "pos": {
+              "x": 1100,
+              "y": 500
+            },
             "htmlEle": "<div class='location-label'>梦幻馆</div>"
           },
           "魔界": {
             "aliases": [],
-            "pos": { "x": 1000, "y": 400 },
+            "pos": {
+              "x": 1000,
+              "y": 400
+            },
             "htmlEle": "<div class='location-label'>魔界</div>"
           },
-		  "万魔殿": {
+          "万魔殿": {
             "aliases": [],
-            "pos": { "x": 1050, "y": 400 },
+            "pos": {
+              "x": 1050,
+              "y": 400
+            },
             "htmlEle": "<div class='location-label'>万魔殿</div>"
           },
-		  "堕落神殿": {
+          "堕落神殿": {
             "aliases": [],
-            "pos": { "x": 1000, "y": 350 },
+            "pos": {
+              "x": 1000,
+              "y": 350
+            },
             "htmlEle": "<div class='location-label'>堕落神殿</div>"
           }
         },
         "地底·地狱系": {
           "幻想风穴": {
-            "aliases": ["幻想風穴", "风穴"],
-            "pos": { "x": 200, "y": 550 },
+            "aliases": [
+              "幻想風穴",
+              "风穴",
+              "地狱的深道"
+            ],
+            "pos": {
+              "x": 200,
+              "y": 550
+            },
             "htmlEle": "<div class='location-label'>幻想风穴</div>"
           },
-          "间歇泉": {
-            "aliases": ["間歇泉", "温泉"],
-            "pos": { "x": 600, "y": 960 },
-            "htmlEle": "<div class='location-label'>间歇泉</div>"
-          },
-		  "阻绝人迹之桥": {
+          "阻绝人迹之桥": {
             "aliases": [],
-            "pos": { "x": 200, "y": 900 },
+            "pos": {
+              "x": 200,
+              "y": 900
+            },
             "htmlEle": "<div class='location-label'>阻绝人迹之桥</div>"
           },
           "旧都": {
-            "aliases": ["舊都", "旧地狱区"],
-            "pos": { "x": 200, "y": 1020 },
+            "aliases": [
+              "舊都",
+              "旧地狱"
+            ],
+            "pos": {
+              "x": 200,
+              "y": 1020
+            },
             "htmlEle": "<div class='location-label'>旧都</div>"
           },
           "地灵殿": {
-            "aliases": ["地靈殿", "地灵殿宅邸"],
-            "pos": { "x": 700, "y": 1150 },
+            "aliases": [
+              "地靈殿",
+              "地灵殿宅邸"
+            ],
+            "pos": {
+              "x": 700,
+              "y": 1150
+            },
             "htmlEle": "<div class='location-label'>地灵殿</div>"
           },
-		  "地灵殿中庭": {
+          "地灵殿中庭": {
             "aliases": [],
-            "pos": { "x": 700, "y": 1050 },
+            "pos": {
+              "x": 700,
+              "y": 1050
+            },
             "htmlEle": "<div class='location-label'>地灵殿中庭</div>"
           },
           "灼热地狱遗址": {
-            "aliases": ["灼熱地獄遺址", "灼热地狱遗迹"],
-            "pos": { "x": 800, "y": 1100 },
+            "aliases": [
+              "灼熱地獄遺址",
+              "灼热地狱遗迹"
+            ],
+            "pos": {
+              "x": 800,
+              "y": 1100
+            },
             "htmlEle": "<div class='location-label'>灼热地狱遗址</div>"
           },
           "旧血池地狱": {
-            "aliases": ["血池地狱"],
-            "pos": { "x": 800, "y": 1050 },
+            "aliases": [
+              "血池地狱"
+            ],
+            "pos": {
+              "x": 800,
+              "y": 1000
+            },
             "htmlEle": "<div class='location-label'>旧血池地狱</div>"
           },
           "地狱": {
-            "aliases": ["地獄"],
-            "pos": { "x": 850, "y": 1150 },
+            "aliases": [
+              "地獄"
+            ],
+            "pos": {
+              "x": 850,
+              "y": 1150
+            },
             "htmlEle": "<div class='location-label'>地狱</div>"
           },
-		  "静寂神殿": {
-            "aliases": ["寂静神殿"],
-            "pos": { "x": 800, "y": 1200 },
+          "静寂神殿": {
+            "aliases": [
+              "寂静神殿"
+            ],
+            "pos": {
+              "x": 800,
+              "y": 1200
+            },
             "htmlEle": "<div class='location-label'>静寂神殿</div>"
           },
           "畜生界": {
-            "aliases": ["畜生界"],
-            "pos": { "x": 900, "y": 1200 },
+            "aliases": [
+              "畜生界"
+            ],
+            "pos": {
+              "x": 900,
+              "y": 1200
+            },
             "htmlEle": "<div class='location-label'>畜生界</div>"
           },
           "灵长园": {
-            "pos": { "x": 1000, "y": 1200 },
+            "pos": {
+              "x": 1000,
+              "y": 1200
+            },
             "htmlEle": "<div class='location-label'>灵长园</div>"
+          },
+          "旧都温泉街": {
+            "pos": {
+              "x": 200,
+              "y": 1090
+            },
+            "aliases": [],
+            "htmlEle": "<div class='location-label'>旧都温泉街</div>"
+          },
+          "旧都酒馆街": {
+            "pos": {
+              "x": 120,
+              "y": 1020
+            },
+            "aliases": [],
+            "htmlEle": "<div class='location-label'>旧都酒馆街</div>"
+          },
+          "核聚变炉": {
+            "pos": {
+              "x": 800,
+              "y": 1050
+            },
+            "aliases": [],
+            "htmlEle": "<div class='location-label'>核聚变炉</div>"
+          },
+          "间歇泉地下中心": {
+            "aliases": [
+              "間歇泉",
+              "温泉"
+            ],
+            "pos": {
+              "x": 600,
+              "y": 1000
+            },
+            "htmlEle": "<div class='location-label'>间歇泉地下中心</div>"
           }
         },
         "彼岸·中阴界": {
-          "中有之道": { "pos": { "x": 1100, "y": 800 }, "htmlEle": "<div class='location-label'>中有之道</div>" },
+          "中有之道": {
+            "pos": {
+              "x": 1100,
+              "y": 850
+            },
+            "htmlEle": "<div class='location-label'>中有之道</div>",
+            "aliases": []
+          },
           "三途河": {
-            "aliases": ["三途川", "赛之河原"],
-            "pos": { "x": 1100, "y": 1000 },
+            "aliases": [
+              "三途川",
+              "赛之河原"
+            ],
+            "pos": {
+              "x": 1100,
+              "y": 1000
+            },
             "htmlEle": "<div class='location-label'>三途河</div>"
           },
           "彼岸": {
-            "aliases": ["是非曲直厅"],
-            "pos": { "x": 1200, "y": 1100 },
+            "aliases": [
+              "是非曲直厅"
+            ],
+            "pos": {
+              "x": 1200,
+              "y": 1100
+            },
             "htmlEle": "<div class='location-label'>彼岸</div>"
           }
         },
         "天界等上层": {
           "天界": {
-            "aliases": ["有顶天", "仙界"],
-            "pos": { "x": 1400, "y": 260 },
+            "aliases": [
+              "有顶天",
+              "仙界"
+            ],
+            "pos": {
+              "x": 1400,
+              "y": 260
+            },
             "htmlEle": "<div class='location-label'>天界</div>"
           },
           "艮之境": {
-            "aliases": ["隙间"],
-            "pos": { "x": 1130, "y": 200 },
+            "aliases": [
+              "隙间"
+            ],
+            "pos": {
+              "x": 1130,
+              "y": 200
+            },
             "htmlEle": "<div class='location-label'>艮之境</div>"
           },
           "后户之国": {
             "aliases": [],
-            "pos": { "x": 1280, "y": 200 },
+            "pos": {
+              "x": 1280,
+              "y": 200
+            },
             "htmlEle": "<div class='location-label'>后户之国</div>"
           },
           "梦世界": {
-            "aliases": ["夢境世界", "梦境世界"],
-            "pos": { "x": 1000, "y": 260 },
+            "aliases": [
+              "夢境世界",
+              "梦境世界"
+            ],
+            "pos": {
+              "x": 1000,
+              "y": 260
+            },
             "htmlEle": "<div class='location-label'>梦境世界</div>"
           }
         },
         "月面": {
-          "月都": { "pos": { "x": 350, "y": 150 }, "htmlEle": "<div class='location-label'>月都</div>" },
-          "浅间净秽山": { "pos": { "x": 500, "y": 200 }, "htmlEle": "<div class='location-label'>浅间净秽山</div>" },
+          "浅间净秽山": {
+            "pos": {
+              "x": 500,
+              "y": 200
+            },
+            "htmlEle": "<div class='location-label'>浅间净秽山</div>"
+          },
           "静海": {
-            "aliases": ["月面", "月球表面"],
-            "pos": { "x": 350, "y": 100 },
+            "aliases": [
+              "月面",
+              "月球表面"
+            ],
+            "pos": {
+              "x": 300,
+              "y": 100
+            },
             "htmlEle": "<div class='location-label'>静海</div>"
           },
           "鸟船遗迹": {
             "aliases": [],
-            "pos": { "x": 200, "y": 100 },
+            "pos": {
+              "x": 200,
+              "y": 100
+            },
             "htmlEle": "<div class='location-label'>鸟船遗迹</div>"
+          },
+          "月都科技区": {
+            "pos": {
+              "x": 299,
+              "y": 150
+            },
+            "htmlEle": "<div class='location-label'>月都科技区</div>",
+            "aliases": [
+              "月都"
+            ]
+          },
+          "月都宫殿区": {
+            "pos": {
+              "x": 200,
+              "y": 150
+            },
+            "aliases": [],
+            "htmlEle": "<div class='location-label'>月都宫殿区</div>"
           }
         },
         "外界": {
           "京都": {
-            "aliases": ["秘封俱乐部", "酉京都站"],
-            "pos": { "x": 1100, "y": 100 },
+            "aliases": [
+              "秘封俱乐部",
+              "酉京都站",
+              "京都市区"
+            ],
+            "pos": {
+              "x": 1100,
+              "y": 100
+            },
             "htmlEle": "<div class='location-label'>京都</div>"
           },
           "东京": {
-            "aliases": ["卯东京站"],
-            "pos": { "x": 1350, "y": 100 },
+            "aliases": [
+              "卯东京站"
+            ],
+            "pos": {
+              "x": 1350,
+              "y": 100
+            },
             "htmlEle": "<div class='location-label'>东京</div>"
           },
           "莲台野": {
             "aliases": [],
-            "pos": { "x": 1200, "y": 150 },
+            "pos": {
+              "x": 1200,
+              "y": 150
+            },
             "htmlEle": "<div class='location-label'>莲台野</div>"
           },
-          "七夕坂": { "pos": { "x": 1430, "y": 100 }, "htmlEle": "<div class='location-label'>七夕坂</div>" }
+          "七夕坂": {
+            "pos": {
+              "x": 1430,
+              "y": 100
+            },
+            "htmlEle": "<div class='location-label'>七夕坂</div>",
+            "aliases": [
+              "常陆太田"
+            ]
+          }
         }
       }
     },
     "edges": [
-      { "a": "博丽神社", "b": "兽道" },
-	  { "a": "博丽神社", "b": "博丽神社本殿" },
-      { "a": "博丽神社", "b": "幽明结界" },
-      { "a": "博丽神社", "b": "梦幻遗迹" },
-      { "a": "博丽神社", "b": "博丽神社后山" },
-	  { "a": "博丽神社后山", "b": "血之湖" },
-      { "a": "永远亭", "b": "迷途竹林" },
-	  { "a": "永远亭", "b": "藤原邸" },
-	  { "a": "永远亭", "b": "永远亭内庭" },
-	  { "a": "藤原邸", "b": "迷途竹林" },
-	  { "a": "人间之里", "b": "人间之里东" },
-	  { "a": "人间之里", "b": "人间之里西" },
-	  { "a": "人间之里", "b": "人间之里北" },
-	  { "a": "人间之里", "b": "柳之运河" },
-      { "a": "人间之里东", "b": "兽道" },
-	  { "a": "人间之里东", "b": "命莲寺山门" },
-	  { "a": "人间之里东", "b": "里巷" },
-      { "a": "人间之里", "b": "铃奈庵" },
-      { "a": "人间之里", "b": "香霖堂" },
-      { "a": "人间之里", "b": "索道" },
-      { "a": "人间之里北", "b": "柳之运河" },
-      { "a": "置行堀", "b": "柳之运河" },
-      { "a": "人间之里东", "b": "迷途竹林" },
-      { "a": "人间之里", "b": "稗田邸" },
-      { "a": "人间之里", "b": "鲵吞亭" },
-      { "a": "人间之里", "b": "寺子屋" },
-	  { "a": "命莲寺山门", "b": "圣辇船" },
-	  { "a": "命莲寺山门", "b": "命莲寺正殿" },
-	  { "a": "命莲寺山门", "b": "命莲寺别殿" },
-	  { "a": "命莲寺正殿", "b": "命莲寺别殿" },
-	  { "a": "命莲寺正殿", "b": "命莲寺后院" },
-      { "a": "命莲寺正殿", "b": "墓地" },
-      { "a": "命莲寺山门", "b": "迷途竹林" },
-	  { "a": "圣辇船", "b": "魔界" },
-      { "a": "墓地", "b": "中有之道" },
-      { "a": "墓地", "b": "梦殿大祀庙" },
-      { "a": "梦殿大祀庙", "b": "神灵庙" },
-      { "a": "魔法之森", "b": "雾之湖" },
-      { "a": "魔法之森", "b": "雾雨魔法店" },
-      { "a": "魔法之森", "b": "太阳花田" },
-      { "a": "魔法之森", "b": "玄武涧" },
-      { "a": "魔法之森", "b": "废弃洋馆" },
-      { "a": "魔法之森", "b": "爱丽丝邸" },
-	  { "a": "魔法之森", "b": "森林深处" },
-      { "a": "雾之湖", "b": "废弃洋馆" },
-	  { "a": "雾之湖", "b": "冰屋" },
-      { "a": "魔法之森", "b": "置行堀" },
-      { "a": "魔法之森", "b": "无缘冢" },
-      { "a": "雾雨魔法店", "b": "爱丽丝邸" },
-      { "a": "香霖堂", "b": "雾之湖" },
-      { "a": "香霖堂", "b": "太阳花田" },
-	  { "a": "香霖堂", "b": "魔法之森" },
-      { "a": "废弃洋馆", "b": "电线塔" },
-      { "a": "雾雨魔法店", "b": "电线塔" },
-	  { "a": "幽灵洋馆", "b": "电线塔" },
-      { "a": "无缘冢", "b": "中之有道" },
-      { "a": "无缘冢", "b": "彼岸" },
-      { "a": "置行堀", "b": "雾之湖" },
-      { "a": "雾之湖", "b": "红魔馆正门" },
-      { "a": "雾之湖", "b": "玄武涧" },
-	  { "a": "红魔馆正门", "b": "红魔馆花园" },
-	  { "a": "红魔馆花园", "b": "红魔馆大厅" },
-	  { "a": "红魔馆大厅", "b": "红魔馆主卧" },
-	  { "a": "红魔馆大厅", "b": "咲夜的房间" },
-	  { "a": "红魔馆大厅", "b": "大图书馆" },
-	  { "a": "红魔馆大厅", "b": "红魔馆地下室" },
-      { "a": "大图书馆", "b": "月都" },
-      { "a": "华扇邸", "b": "妖怪之山" },
-      { "a": "大蛤蟆之池", "b": "妖怪之山" },
-      { "a": "守矢神社", "b": "妖怪之山" },
-      { "a": "守矢神社", "b": "风神之湖" },
-      { "a": "守矢神社", "b": "索道" },
-      { "a": "天狗聚落", "b": "妖怪之山" },
-	  { "a": "山林", "b": "妖怪之山" },
-	  { "a": "山林", "b": "迷途之家" },
-      { "a": "九天瀑布", "b": "伪天棚" },
-      { "a": "九天瀑布", "b": "风神之湖" },
-      { "a": "九天瀑布", "b": "玄武涧" },
-      { "a": "九天瀑布", "b": "天狗聚落" },
-	  { "a": "伪天棚", "b": "虹龙洞" },
-	  { "a": "伪天棚", "b": "秘天崖" },
-      { "a": "天狗聚落", "b": "文文报社" },
-      { "a": "天狗聚落", "b": "花果子报社" },
-      { "a": "文文报社", "b": "花果子报社" },
-      { "a": "玄武涧", "b": "大蛤蟆之池" },
-      { "a": "玄武涧", "b": "河童市场" },
-      { "a": "妖怪之山", "b": "迷途之家" },
-      { "a": "玄武涧", "b": "幻想风穴" },
-      { "a": "河童市场", "b": "大蛤蟆之池" },
-      { "a": "秘天崖", "b": "妖怪之山" },
-      { "a": "圣域", "b": "山林" },
-      { "a": "浅间净秽山", "b": "圣域" },
-      { "a": "无名之丘", "b": "太阳花田" },
-      { "a": "辉针城", "b": "迷途竹林" },
-      { "a": "幽明结界", "b": "白玉楼庭园" },
-	  { "a": "白玉楼庭园", "b": "白玉楼" },
-      { "a": "白玉楼", "b": "彼岸" },
-      { "a": "梦幻馆", "b": "博丽神社后山" },
-	  { "a": "梦幻馆", "b": "血之湖" },
-	  { "a": "梦幻世界", "b": "梦幻馆" },
-      { "a": "魔界", "b": "血之湖" },
-	  { "a": "魔界", "b": "万魔殿" },
-	  { "a": "魔界", "b": "堕落神殿" },
-      { "a": "幻想风穴", "b": "阻绝人迹之桥" },
-	  { "a": "阻绝人迹之桥", "b": "旧都" },
-      { "a": "间歇泉", "b": "地灵殿中庭" },
-	  { "a": "间歇泉", "b": "河童市场" },
-      { "a": "旧都", "b": "地灵殿" },
-      { "a": "地狱", "b": "彼岸" },
-      { "a": "地灵殿", "b": "地狱" },
-	  { "a": "地灵殿", "b": "地灵殿中庭" },
-      { "a": "地灵殿中庭", "b": "灼热地狱遗址" },
-      { "a": "灼热地狱遗址", "b": "旧血池地狱" },
-      { "a": "地狱", "b": "畜生界" },
-	  { "a": "地狱", "b": "静寂神殿" },
-      { "a": "畜生界", "b": "灵长园" },
-      { "a": "中有之道", "b": "三途河" },
-      { "a": "三途河", "b": "彼岸" },
-      { "a": "彼岸", "b": "天界" },
-      { "a": "天界", "b": "梦世界" },
-	  { "a": "天界", "b": "妖怪之山" },
-      { "a": "天界", "b": "月都" },
-      { "a": "月都", "b": "梦世界" },
-      { "a": "浅间净秽山", "b": "月都" },
-      { "a": "月都", "b": "静海" },
-      { "a": "鸟船遗迹", "b": "静海" },
-      { "a": "京都", "b": "东京" },
-      { "a": "东京", "b": "七夕坂" },
-      { "a": "京都", "b": "静海" },
-      { "a": "京都", "b": "莲台野" },
-      { "a": "七夕坂", "b": "后户之国" },
-      { "a": "莲台野", "b": "白玉楼" }
+      {
+        "a": "博丽神社",
+        "b": "兽道"
+      },
+      {
+        "a": "博丽神社",
+        "b": "博丽神社本殿"
+      },
+      {
+        "a": "博丽神社",
+        "b": "幽明结界"
+      },
+      {
+        "a": "博丽神社",
+        "b": "梦幻遗迹"
+      },
+      {
+        "a": "博丽神社",
+        "b": "博丽神社后山"
+      },
+      {
+        "a": "博丽神社后山",
+        "b": "血之湖"
+      },
+      {
+        "a": "永远亭",
+        "b": "迷途竹林"
+      },
+      {
+        "a": "永远亭",
+        "b": "藤原邸"
+      },
+      {
+        "a": "永远亭",
+        "b": "永远亭内庭"
+      },
+      {
+        "a": "藤原邸",
+        "b": "迷途竹林"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "人间之里长屋街"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "人间之里商店街"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "人间之里农田"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "柳之运河"
+      },
+      {
+        "a": "人间之里长屋街",
+        "b": "兽道"
+      },
+      {
+        "a": "人间之里长屋街",
+        "b": "命莲寺山门"
+      },
+      {
+        "a": "人间之里长屋街",
+        "b": "人间之里里巷"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "铃奈庵"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "香霖堂"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "索道"
+      },
+      {
+        "a": "人间之里农田",
+        "b": "柳之运河"
+      },
+      {
+        "a": "置行堀",
+        "b": "柳之运河"
+      },
+	  {
+        "a": "人间之里盐家大院",
+        "b": "人间之里农田"
+      },
+	  {
+        "a": "人间之里盐家大院",
+        "b": "人间之里商店街"
+      },
+      {
+        "a": "人间之里长屋街",
+        "b": "迷途竹林"
+      },
+	  {
+        "a": "人间之里长屋街",
+        "b": "人间之里空屋"
+      },
+	  {
+        "a": "人间之里空屋",
+        "b": "人间之里里巷"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "稗田邸"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "鲵吞亭"
+      },
+      {
+        "a": "人间之里广场",
+        "b": "寺子屋"
+      },
+      {
+        "a": "命莲寺山门",
+        "b": "圣辇船"
+      },
+      {
+        "a": "命莲寺山门",
+        "b": "命莲寺正殿"
+      },
+      {
+        "a": "命莲寺山门",
+        "b": "命莲寺别殿"
+      },
+      {
+        "a": "命莲寺正殿",
+        "b": "命莲寺别殿"
+      },
+      {
+        "a": "命莲寺正殿",
+        "b": "命莲寺后院"
+      },
+	  {
+        "a": "无名之丘",
+        "b": "命莲寺后院"
+      },
+      {
+        "a": "命莲寺正殿",
+        "b": "墓地"
+      },
+      {
+        "a": "命莲寺山门",
+        "b": "迷途竹林"
+      },
+      {
+        "a": "圣辇船",
+        "b": "魔界"
+      },
+      {
+        "a": "墓地",
+        "b": "中有之道"
+      },
+      {
+        "a": "墓地",
+        "b": "梦殿大祀庙"
+      },
+      {
+        "a": "梦殿大祀庙",
+        "b": "神灵庙"
+      },
+      {
+        "a": "魔法之森",
+        "b": "雾之湖"
+      },
+      {
+        "a": "魔法之森",
+        "b": "雾雨魔法店"
+      },
+      {
+        "a": "魔法之森",
+        "b": "太阳花田"
+      },
+      {
+        "a": "魔法之森",
+        "b": "玄武涧"
+      },
+      {
+        "a": "魔法之森",
+        "b": "废弃洋馆"
+      },
+      {
+        "a": "魔法之森",
+        "b": "爱丽丝邸"
+      },
+      {
+        "a": "魔法之森",
+        "b": "森林深处"
+      },
+      {
+        "a": "雾之湖",
+        "b": "废弃洋馆"
+      },
+      {
+        "a": "雾之湖",
+        "b": "冰屋"
+      },
+      {
+        "a": "魔法之森",
+        "b": "置行堀"
+      },
+      {
+        "a": "魔法之森",
+        "b": "无缘冢"
+      },
+      {
+        "a": "雾雨魔法店",
+        "b": "爱丽丝邸"
+      },
+      {
+        "a": "香霖堂",
+        "b": "雾之湖"
+      },
+      {
+        "a": "香霖堂",
+        "b": "太阳花田"
+      },
+      {
+        "a": "香霖堂",
+        "b": "魔法之森"
+      },
+      {
+        "a": "废弃洋馆",
+        "b": "电线塔"
+      },
+      {
+        "a": "雾雨魔法店",
+        "b": "电线塔"
+      },
+      {
+        "a": "幽灵洋馆",
+        "b": "电线塔"
+      },
+      {
+        "a": "无缘冢",
+        "b": "中之有道"
+      },
+      {
+        "a": "无缘冢",
+        "b": "彼岸"
+      },
+      {
+        "a": "置行堀",
+        "b": "雾之湖"
+      },
+      {
+        "a": "雾之湖",
+        "b": "红魔馆正门"
+      },
+      {
+        "a": "雾之湖",
+        "b": "玄武涧"
+      },
+      {
+        "a": "红魔馆正门",
+        "b": "红魔馆花园"
+      },
+      {
+        "a": "红魔馆花园",
+        "b": "红魔馆大厅"
+      },
+      {
+        "a": "红魔馆大厅",
+        "b": "红魔馆主卧"
+      },
+      {
+        "a": "红魔馆大厅",
+        "b": "咲夜的房间"
+      },
+	  {
+        "a": "红魔馆大厅",
+        "b": "红魔馆厨房"
+      },
+	  {
+        "a": "红魔馆大厅",
+        "b": "红魔馆仆人房间"
+      },
+	  {
+        "a": "红魔馆大厅",
+        "b": "红魔馆阁楼"
+      },
+      {
+        "a": "红魔馆大厅",
+        "b": "大图书馆"
+      },
+      {
+        "a": "红魔馆大厅",
+        "b": "红魔馆地下室"
+      },
+      {
+        "a": "大图书馆",
+        "b": "月都科技区"
+      },
+      {
+        "a": "华扇邸",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "妖怪之山山麓",
+        "b": "妖怪之山山腰"
+      },
+	  {
+        "a": "妖怪之山山麓",
+        "b": "大蛤蟆之池"
+      },
+	  {
+        "a": "间歇泉",
+        "b": "大蛤蟆之池"
+      },
+      {
+        "a": "守矢神社",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "守矢神社",
+        "b": "风神之湖"
+      },
+      {
+        "a": "守矢神社",
+        "b": "索道"
+      },
+      {
+        "a": "天狗聚落",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "妖怪之山深处",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "妖怪之山深处",
+        "b": "迷途之家"
+      },
+      {
+        "a": "九天瀑布",
+        "b": "伪天棚"
+      },
+	  {
+        "a": "月虹市场",
+        "b": "伪天棚"
+      },
+      {
+        "a": "九天瀑布",
+        "b": "风神之湖"
+      },
+      {
+        "a": "九天瀑布",
+        "b": "玄武涧"
+      },
+      {
+        "a": "九天瀑布",
+        "b": "天狗聚落"
+      },
+      {
+        "a": "伪天棚",
+        "b": "虹龙洞"
+      },
+      {
+        "a": "伪天棚",
+        "b": "秘天崖"
+      },
+      {
+        "a": "天狗聚落",
+        "b": "文文报社"
+      },
+      {
+        "a": "天狗聚落",
+        "b": "花果子报社"
+      },
+      {
+        "a": "文文报社",
+        "b": "花果子报社"
+      },
+      {
+        "a": "玄武涧",
+        "b": "妖怪之山山麓"
+      },
+      {
+        "a": "玄武涧",
+        "b": "间歇泉"
+      },
+	  {
+        "a": "玄武涧",
+        "b": "置行堀"
+      },
+      {
+        "a": "妖怪之山山腰",
+        "b": "迷途之家"
+      },
+      {
+        "a": "玄武涧",
+        "b": "幻想风穴"
+      },
+      {
+        "a": "间歇泉",
+        "b": "妖怪之山山麓"
+      },
+      {
+        "a": "秘天崖",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "妖怪之山圣域",
+        "b": "妖怪之山深处"
+      },
+      {
+        "a": "浅间净秽山",
+        "b": "妖怪之山圣域"
+      },
+      {
+        "a": "无名之丘",
+        "b": "太阳花田"
+      },
+      {
+        "a": "辉针城",
+        "b": "迷途竹林"
+      },
+      {
+        "a": "幽明结界",
+        "b": "白玉楼庭园"
+      },
+      {
+        "a": "白玉楼庭园",
+        "b": "白玉楼"
+      },
+      {
+        "a": "白玉楼",
+        "b": "彼岸"
+      },
+      {
+        "a": "梦幻馆",
+        "b": "博丽神社后山"
+      },
+      {
+        "a": "梦幻馆",
+        "b": "血之湖"
+      },
+      {
+        "a": "梦幻世界",
+        "b": "梦幻馆"
+      },
+      {
+        "a": "魔界",
+        "b": "血之湖"
+      },
+      {
+        "a": "魔界",
+        "b": "万魔殿"
+      },
+      {
+        "a": "魔界",
+        "b": "堕落神殿"
+      },
+      {
+        "a": "幻想风穴",
+        "b": "阻绝人迹之桥"
+      },
+      {
+        "a": "阻绝人迹之桥",
+        "b": "旧都"
+      },
+      {
+        "a": "间歇泉地下中心",
+        "b": "地灵殿中庭"
+      },
+      {
+        "a": "间歇泉地下中心",
+        "b": "间歇泉"
+      },
+      {
+        "a": "旧都",
+        "b": "地灵殿"
+      },
+	  {
+        "a": "旧都",
+        "b": "旧都酒馆街"
+      },
+	  {
+        "a": "旧都",
+        "b": "旧都温泉街"
+      },
+      {
+        "a": "地狱",
+        "b": "彼岸"
+      },
+      {
+        "a": "地灵殿",
+        "b": "地狱"
+      },
+      {
+        "a": "地灵殿",
+        "b": "地灵殿中庭"
+      },
+      {
+        "a": "地灵殿中庭",
+        "b": "灼热地狱遗址"
+      },
+      {
+        "a": "灼热地狱遗址",
+        "b": "核聚变炉"
+      },
+	  {
+        "a": "核聚变炉",
+        "b": "旧血池地狱"
+      },
+      {
+        "a": "地狱",
+        "b": "畜生界"
+      },
+      {
+        "a": "地狱",
+        "b": "静寂神殿"
+      },
+      {
+        "a": "畜生界",
+        "b": "灵长园"
+      },
+      {
+        "a": "中有之道",
+        "b": "三途河"
+      },
+      {
+        "a": "三途河",
+        "b": "彼岸"
+      },
+      {
+        "a": "彼岸",
+        "b": "天界"
+      },
+      {
+        "a": "天界",
+        "b": "梦世界"
+      },
+      {
+        "a": "天界",
+        "b": "妖怪之山山腰"
+      },
+      {
+        "a": "天界",
+        "b": "月都科技区"
+      },
+      {
+        "a": "月都宫殿区",
+        "b": "梦世界"
+      },
+	  {
+        "a": "月都科技区",
+        "b": "月都宫殿区"
+      },
+      {
+        "a": "浅间净秽山",
+        "b": "月都宫殿区"
+      },
+      {
+        "a": "月都科技区",
+        "b": "静海"
+      },
+      {
+        "a": "鸟船遗迹",
+        "b": "静海"
+      },
+      {
+        "a": "京都",
+        "b": "东京"
+      },
+      {
+        "a": "东京",
+        "b": "七夕坂"
+      },
+      {
+        "a": "京都",
+        "b": "静海"
+      },
+      {
+        "a": "京都",
+        "b": "莲台野"
+      },
+      {
+        "a": "七夕坂",
+        "b": "后户之国"
+      },
+      {
+        "a": "莲台野",
+        "b": "白玉楼"
+      }
     ]
   },
   "fallbackPlace": "博丽神社"
