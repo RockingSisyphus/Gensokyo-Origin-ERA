@@ -15,7 +15,7 @@
     "@tailwindcss/postcss": "^4.1.18",
     "@types/jquery": "^3.5.33",
     "@types/jqueryui": "^1.12.24",
-    "@types/lodash": "^4.17.21",
+    "@types/lodash": "^4.17.23",
     "@types/toastr": "^2.1.43",
     "@types/webpack": "^5.28.5",
     "@typescript-eslint/parser": "^8.52.0",
