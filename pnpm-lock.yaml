@@ -13,7 +13,7 @@ importers:
         version: 13.9.0(vue@3.5.27(typescript@6.0.0-dev.20250807))
       '@vueuse/integrations':
         specifier: ^13.9.0
-        version: 13.9.0(axios@1.13.4)(vue@3.5.27(typescript@6.0.0-dev.20250807))
+        version: 13.9.0(axios@1.13.5)(vue@3.5.27(typescript@6.0.0-dev.20250807))
       '@vueuse/shared':
         specifier: ^13.9.0
         version: 13.9.0(vue@3.5.27(typescript@6.0.0-dev.20250807))
@@ -1137,8 +1137,8 @@ packages:
   asynckit@0.4.0:
     resolution: {integrity: sha512-Oei9OH4tRh0YqU3GxhX79dM/mwVgvbZJaSNaRk+bshkj0S5cfHcgYakreBjrHwatXKbz+IoIdYLxrKim2MjW0Q==}
 
-  atomically@2.1.0:
-    resolution: {integrity: sha512-+gDffFXRW6sl/HCwbta7zK4uNqbPjv4YJEAdz7Vu+FLQHe77eZ4bvbJGi4hE0QPeJlMYMA3piXEr1UL3dAwx7Q==}
+  atomically@2.1.1:
+    resolution: {integrity: sha512-P4w9o2dqARji6P7MHprklbfiArZAWvo07yW7qs3pdljb3BWr12FIB7W+p0zJiuiVsUpRO0iZn1kFFcpPegg0tQ==}
 
   autoprefixer@10.4.24:
     resolution: {integrity: sha512-uHZg7N9ULTVbutaIsDRoUkoS8/h3bdsmVJYZ5l3wv8Cp/6UIIoRDm90hZ+BwxUj/hGBEzLxdHNSKuFpn8WOyZw==}
@@ -1155,8 +1155,8 @@ packages:
     resolution: {integrity: sha512-fjgm5MvRHLhx+osE2xoekY70AhARk3a6hkN+3Io1jc00jtquGvxYlKlsFUhmUET0V5te6CcZI7lcv2Ym61mjHA==}
     deprecated: Critical security vulnerability fixed in v0.21.1. For more information, see https://github.com/axios/axios/pull/3410
 
-  axios@1.13.4:
-    resolution: {integrity: sha512-1wVkUaAO6WyaYtCkcYCOx12ZgpGf9Zif+qXa4n+oYzK558YryKqiL6UWwd5DqiH3VRW0GYhTZQ/vlgJrCoNQlg==}
+  axios@1.13.5:
+    resolution: {integrity: sha512-cz4ur7Vb0xS4/KUN0tPWe44eqxrIu31me+fbang3ijiNscE129POzipJJA6zniq2C/Z6sJCjMimjS8Lc/GAs8Q==}
 
   balanced-match@1.0.2:
     resolution: {integrity: sha512-3oSeUO0TMV67hN1AmbXsK4yaqU7tjiHlbxRDZOpH0KW9+CeX4bRAaX0Anxt0tx2MrpRpWwQaPwIlISEJhYU5Pw==}
@@ -3369,8 +3369,8 @@ packages:
     resolution: {integrity: sha512-TeTSQ6H5YHvpqVwBRcnLDCBnDOHWYu7IvGbHT6N8AOymcr9PJGjc1GTtiWZTYg0NCgYwvnYWEkVChQAr9bjfwA==}
     engines: {node: '>=16'}
 
-  type-fest@5.4.3:
-    resolution: {integrity: sha512-AXSAQJu79WGc79/3e9/CR77I/KQgeY1AhNvcShIH4PTcGYyC4xv6H4R4AUOwkPS5799KlVDAu8zExeCrkGquiA==}
+  type-fest@5.4.4:
+    resolution: {integrity: sha512-JnTrzGu+zPV3aXIUhnyWJj4z/wigMsdYajGLIYakqyOW1nPllzXEJee0QQbHj+CTIQtXGlAjuK0UY+2xTyjVAw==}
     engines: {node: '>=20'}
 
   typed-array-buffer@1.0.3:
@@ -4342,13 +4342,13 @@ snapshots:
       '@vueuse/shared': 13.9.0(vue@3.5.27(typescript@6.0.0-dev.20250807))
       vue: 3.5.27(typescript@6.0.0-dev.20250807)
 
-  '@vueuse/integrations@13.9.0(axios@1.13.4)(vue@3.5.27(typescript@6.0.0-dev.20250807))':
+  '@vueuse/integrations@13.9.0(axios@1.13.5)(vue@3.5.27(typescript@6.0.0-dev.20250807))':
     dependencies:
       '@vueuse/core': 13.9.0(vue@3.5.27(typescript@6.0.0-dev.20250807))
       '@vueuse/shared': 13.9.0(vue@3.5.27(typescript@6.0.0-dev.20250807))
       vue: 3.5.27(typescript@6.0.0-dev.20250807)
     optionalDependencies:
-      axios: 1.13.4
+      axios: 1.13.5
 
   '@vueuse/metadata@10.11.1': {}
 
@@ -4583,7 +4583,7 @@ snapshots:
 
   asynckit@0.4.0: {}
 
-  atomically@2.1.0:
+  atomically@2.1.1:
     dependencies:
       stubborn-fs: 2.0.0
       when-exit: 2.1.5
@@ -4607,7 +4607,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  axios@1.13.4:
+  axios@1.13.5:
     dependencies:
       follow-redirects: 1.15.11
       form-data: 4.0.5
@@ -4821,7 +4821,7 @@ snapshots:
     dependencies:
       ajv: 8.17.1
       ajv-formats: 3.0.1(ajv@8.17.1)
-      atomically: 2.1.0
+      atomically: 2.1.1
       debounce-fn: 6.0.0
       dot-prop: 10.1.0
       env-paths: 3.0.0
@@ -5063,7 +5063,7 @@ snapshots:
 
   dot-prop@10.1.0:
     dependencies:
-      type-fest: 5.4.3
+      type-fest: 5.4.4
 
   dunder-proto@1.0.1:
     dependencies:
@@ -6567,7 +6567,7 @@ snapshots:
 
   remote-content@4.0.1:
     dependencies:
-      axios: 1.13.4
+      axios: 1.13.5
       proxy-from-env: 1.1.0
     transitivePeerDependencies:
       - debug
@@ -6990,7 +6990,7 @@ snapshots:
 
   type-fest@4.41.0: {}
 
-  type-fest@5.4.3:
+  type-fest@5.4.4:
     dependencies:
       tagged-tag: 1.0.0
 
